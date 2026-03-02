@@ -1,11 +1,13 @@
-<p align="center"> 
-    <img src="documents/images/logo.png" alt="Game Logo" width="200"/>
-</p>
+<div align="center">
+<img src="documents/images/logo.png" alt="Game Logo" width="200"/>
+</div>
 
-<h2 align="center">Syntax Syndicate</h2>
-<p align="center">
-    Jona • Mathis • Julian • Lars
-</p>
+<br/>
+
+<div align="center">
+<h2>Syntax Syndicate</h2>
+<p>Jona • Mathis • Julian • Lars</p>
+</div>
 
 
 ## Table of Contents
