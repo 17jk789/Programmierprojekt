@@ -1,9 +1,89 @@
-# README
-This is a readme file. It typically includes some information about your project. 
-For more information about readmes, you can either [read a guide](https://github.com/18F/open-source-guide/blob/18f-pages/pages/making-readmes-readable.md) or have a look at the readmes of popular open-source projects such as [Swift by Apple](https://github.com/apple/swift) or [Tensorflow](https://github.com/tensorflow/tensorflow).
+<p align="center"> 
+    <img src="documents/images/logo.png" alt="Game Logo" width="200"/>
+</p>
 
-Readme files are typically formatted in Markdown. 
-However, there are platform-specific flavors, so for this project, you can make full use of the [Gitlab markdown syntax](https://docs.gitlab.com/ee/user/markdown.html), for example when talking about a :bug: (bug) or if your code is slow like a :snail:.
-You can also tag people using @username and reference issues using '#1', where 1 is the issue number. For more features, consult the linked Gitlab syntax guide. 
+<h2 align="center">Syntax Syndicate</h2>
+<p align="center">
+    Jona • Mathis • Julian • Lars
+</p>
 
-If you don't like reading documentation, [here's a cheatsheet](https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet).
+
+## Table of Contents
+
+- [About the Project](#about-the-project)
+- [Repository Structure](#repository-structure)
+- [Prerequisites](#prerequisites)
+- [Development Timeline](#development-timeline)
+
+
+## About the Project
+
+As part of the Programming Project course (CS108) for the semester FS26 at the University of Basel, we are developing a computer game implementation of the popular card game **Poker**.
+
+The project's focus lies in **networking** and distributed systems design.
+Key aspect of our implementation being the development and integration of a **custom protocol** specifically designed for **client-server communication**.
+This protocol handles game state synchronization, player actions, lobby and global chat, and real-time updates across the network.
+
+
+## Repository Structure
+
+```
+├── src/                     # Source code directory
+│   ├── main/                # Application code
+│   └── test/                # Unit tests
+├── documents/               # Project resources and documentation
+│   ├── images/              # Images for README and documentation
+│   ├── docs                 # Documentation
+│   ├── milestones/          # Milestone deliverables (6 milestones)
+│   └── (Other resources)    # Additional project materials
+└── outreach/                # Public-facing content and marketing materials
+```
+
+
+## Prerequisites
+- Java Development Kit (JDK) 25
+- Gradle (included via Gradle Wrapper)
+
+
+## Development Timeline
+
+This project spans six milestones throughout the FS26 semester, with each milestone representing a major phase in development:
+
+### **[MS-1](https://p9.dmi.unibas.ch/cs108/2026/#Milestone%201): Foundation & Design**
+- Game concept and rules presentation
+- Networking architecture overview
+- Project mockups and requirements analysis
+- Detailed project plan and team organization
+
+### **[MS-2](https://p9.dmi.unibas.ch/cs108/2026/#Milestone%202): Networking & Server Implementation**
+- Human-readable custom protocol definition and implementation
+- Server implementation with multi-client support
+- Client-server chat functionality
+- Protocol documentation and validation
+- JavaDoc code documentation and QA concepts
+
+### **[MS-3](https://p9.dmi.unibas.ch/cs108/2026/#Milestone%203): Knowledge Checkpoints**
+- Assessment of individual technical understanding through evaluation
+
+### **[MS-4](https://p9.dmi.unibas.ch/cs108/2026/#Milestone%204): Game Logic & Working Prototype**
+- Core game logic implementation
+- Playable game demo (terminal or GUI)
+- Command-line argument parsing
+- Multiple lobby support with internal chats
+- Whisper/private messaging functionality
+- Build automation and executable JAR
+
+### **[MS-5](https://p9.dmi.unibas.ch/cs108/2026/#Milestone%205): Polish & Complete User Interface**
+- Full GUI implementation with JavaFX
+- Complete game playability through UI
+- Persistent high score list
+- Comprehensive unit tests
+- Game rule enforcement
+
+### **[MS-6](https://p9.dmi.unibas.ch/cs108/2026/#Milestone%206): Final Delivery & Public Presentation**
+- *Bug-free* final demo
+- Complete GUI with all functionality
+- Outreach materials and project documentation
+- Game manual and usage instructions
+- Team logo and promotional materials
+- QA reports and lessons learned
