@@ -4,7 +4,7 @@ import java.util.UUID;
 
 public class SessionId {
     /**
-     * The session id is used to identify a unique client connection in the SessionRegistry
+     * The SessionId is used to identify a unique client connection in the SessionRegistry
      */
     private final UUID value;
 
