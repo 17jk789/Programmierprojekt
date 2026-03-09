@@ -63,7 +63,7 @@ main() {
         export_file "$line"
     done
 
-  echo "✓ Exported all $file_count files"
+  echo "✓ Exported all files"
 }
 
 # Start script at entry point
