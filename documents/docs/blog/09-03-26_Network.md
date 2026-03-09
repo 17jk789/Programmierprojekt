@@ -1,4 +1,8 @@
 # Table of Contents
+- [Table of Contents](#table-of-contents)
+- [Introduction](#introduction)
+  - [Formal concepts of networking](#formal-concepts-of-networking)
+  - [The Language of the Network](#the-language-of-the-network)
 
 
 # Basics
@@ -19,3 +23,38 @@ The **Client-Server** model evolved into the sophisticated "web-services" we kno
 One central powerful computer (the server) stores data and allows external devices (clients) to access it.
 
 For our course "Programmierprojekt" we are required to use the Client-Server model.
+
+## The Language of the Network
+To communicate over the network, we first need to establish a few rules.
+
+If we look at the real world, language also follows certain rules:
+
+* Grammar
+* Meaning of Words
+
+In computer science, these rules are known as a "protocol." Everyone must follow these rules, because if not, the program we want to communicate with wouldn’t understand us, or in the worst case, misunderstand us.
+
+For our network, we’ve decided to build upon the Post Office Protocol (POP) version 3. It follows the request-response model, is synchronous, and meets our requirements.
+
+An example of a request and response (for our game) might look like this:
+
+1. Request
+   ```text
+   GET_DELTA 42
+   ```
+
+2. Response
+   ```text
+   +OK
+   PLAYER_FOLDED playerId=3
+   POT 240
+   NEXT_TURN playerId=1
+   WHISPER from=player2 msg="hey"
+   CHAT_LOBBY player3="hello"
+   .
+   ```
+
+The client requests the occurred actions since the 42nd state.
+
+The server responds with all the actions other players have made and the messages the client has received.
+
