@@ -104,9 +104,6 @@ $RECYCLE.BIN/
 ## Jenv
 .java-version
 
-## VSCode
-.vscode
-
 ## diagrams.net / draw.io
 # Draw.io temporary files
 *.drawio.bkp
