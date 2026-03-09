@@ -5,12 +5,12 @@ DRAWIO_PATH=""
 check_drawio_installed() {
   if command -v drawio &>/dev/null; then
     DRAWIO_PATH=$(command -v drawio)
-    return 0  # drawio via PATH
+    return 0 # drawio via PATH
   elif [[ -x "/Applications/draw.io.app/Contents/MacOS/draw.io" ]]; then
     DRAWIO_PATH="/Applications/draw.io.app/Contents/MacOS/draw.io"
-    return 0  # For macOS check at default path
+    return 0 # For macOS check at default path
   else
-    return 1  # not found
+    return 1 # not found
   fi
 }
 
@@ -22,6 +22,7 @@ else
   echo "Draw.io installation found at: $DRAWIO_PATH"
 fi
 
+# Compare source (draw.io document) and exported file svg on mtime
 needs_export() {
   local drawio_file="$1"
   local svg_file="$2"
@@ -31,7 +32,6 @@ needs_export() {
     return 0
   fi
 
-  # Compare source (draw.io document) and exported file on mtime
   if [[ "$drawio_file" -nt "$svg_file" ]]; then
     return 0
   else
@@ -39,12 +39,13 @@ needs_export() {
   fi
 }
 
+# If (re-)export is necessary export with drawio cli
 export_file() {
   local drawio_file="$1"
   local svg_file="${drawio_file%.drawio}.svg"
 
   if needs_export "$drawio_file" "$svg_file"; then
-    echo "↻ Exportiere: $drawio_file"
+    echo "↻ Exporting: $drawio_file"
     echo "$svg_file"
     echo "$drawio_file"
     
@@ -54,6 +55,7 @@ export_file() {
   fi
 }
 
+# Iterate over all .drawio files
 main() {
   # Source - https://stackoverflow.com/a/9612232
   # Posted by Kevin, modified by community. See post 'Timeline' for change history
