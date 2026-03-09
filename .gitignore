@@ -106,3 +106,16 @@ $RECYCLE.BIN/
 
 ## VSCode
 .vscode
+
+## diagrams.net / draw.io
+# Draw.io temporary files
+*.drawio.bkp
+*.drawio.tmp
+
+# Auto-save files
+*.drawio.autosave
+
+# Exported images (optional – nur wenn du Exporte nicht versionieren willst)
+*.drawio.png
+*.drawio.svg
+*.drawio.pdf
