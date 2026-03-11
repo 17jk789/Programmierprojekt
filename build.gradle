@@ -27,6 +27,10 @@ javafx {
 }
 
 dependencies {
+    // Source: https://mvnrepository.com/artifact/org.apache.logging.log4j
+    implementation("org.apache.logging.log4j:log4j-api:2.25.3")
+    runtimeOnly("org.apache.logging.log4j:log4j-core:2.25.3")
+
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.10.0")
 }
