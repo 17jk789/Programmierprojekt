@@ -36,6 +36,9 @@ Once a client connects, it creates a `Session` adds it to the `SessionManager` a
 ### `Session`
 Every client that connects has its own `Session` instance running on its own thread. This component owns the lifecycle of that connection: it reads incoming data, passes it along for processing, and writes responses back.
 
+###  `SessionId`
+The `SessionId` is used to uniquely identify each session. Essentially its a wrapper arround the UUID type.
+
 ### `SessionManager`
 The `SessionManager` stores all currently active sessions. It allows for the retrieval of a specific session by its id.
 
