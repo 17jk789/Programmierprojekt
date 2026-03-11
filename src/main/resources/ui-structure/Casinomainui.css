@@ -7,7 +7,7 @@
 .anchor-pane-bg {
     -fx-background-color: #ffffff;
     /* Optional: Bild entfernen oder als Overlay nutzen */
-     -fx-background-image: url("images/background.png"); 
+     -fx-background-image: url("/images/background.png"); 
      -fx-background-size: cover; 
      -fx-background-position: center center; 
      -fx-background-repeat: no-repeat; 
@@ -136,9 +136,9 @@
 }
 
 .button-exit {
-    -fx-background-color: #8b0000;
-    -fx-border-color: #ff4444;
-    -fx-text-fill: white;
+    -fx-background-color: #333333;
+    -fx-border-color: #666666;
+    -fx-text-fill: #CCCCCC;
     -fx-background-radius: 12;
     -fx-border-radius: 12;
     -fx-font-family: "Courier New";

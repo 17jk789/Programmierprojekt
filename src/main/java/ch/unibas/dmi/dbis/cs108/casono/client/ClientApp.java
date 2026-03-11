@@ -1,5 +1,5 @@
 package ch.unibas.dmi.dbis.cs108.casono.client;
-
+import ch.unibas.dmi.dbis.cs108.casono.client.ui.Launcher;
 public class ClientApp {
     public static void start(String arg) {
         String[] parts = arg.split(":", 2);
@@ -10,5 +10,6 @@ public class ClientApp {
         int port = Integer.parseInt(parts[1]);
 
         System.out.println("You've selected the client. It will connect port " + port + " at host " + host);
+        Launcher.main(new String[]{});
     }
 }

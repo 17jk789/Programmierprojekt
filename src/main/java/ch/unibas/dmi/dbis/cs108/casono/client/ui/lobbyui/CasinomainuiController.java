@@ -1,4 +1,4 @@
-package ch.unibas.dmi.dbis.cs108.casono.client.ui.lobby;
+package ch.unibas.dmi.dbis.cs108.casono.client.ui.lobbyui;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -37,7 +37,7 @@ public class CasinomainuiController {
         titleLabel.setText("Casono");
         subtitleLabel.setText("Texas Hold'em Poker");
         // Logo laden
-        logoView.setImage(new javafx.scene.image.Image(getClass().getResource("/ch/unibas/dmi/dbis/cs108/casono/client/ui/resources/images/logo.png").toExternalForm()));
+        logoView.setImage(new javafx.scene.image.Image(getClass().getResource("/images/logo.png").toExternalForm()));
     }
 
     @FXML
