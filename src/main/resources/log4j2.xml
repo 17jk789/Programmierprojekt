@@ -3,12 +3,21 @@
 
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+            <PatternLayout disableAnsi="false" pattern=
+                "%style{%d{HH:mm:ss.SSS}}{bright,black} %highlight{%-8level}{
+                    FATAL=bright red,
+                    ERROR=red,
+                    WARN=yellow,
+                    INFO=blue,
+                    DEBUG=cyan,
+                    TRACE=white
+                } %style{%-20logger{20}}{magenta} %msg%n"
+            />
         </Console>
     </Appenders>
 
     <Loggers>
-        <Root level="info">
+        <Root level="debug">
             <AppenderRef ref="Console"/>
         </Root>
     </Loggers>
