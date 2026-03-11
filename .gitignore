@@ -116,3 +116,6 @@ $RECYCLE.BIN/
 *.drawio.png
 *.drawio.svg
 *.drawio.pdf
+
+## IntelliJ
+.idea
