@@ -1,0 +1,151 @@
+/* Pixel-Art Font (WICHTIG: Nutze eine Monospace-Schrift für Pixel-Look) */
+.root {
+    -fx-background-color: #000000;
+    -fx-font-family: "Monospaced", "Courier New";
+}
+
+.anchor-pane-bg {
+    -fx-background-color: #ffffff;
+    /* Optional: Bild entfernen oder als Overlay nutzen */
+     -fx-background-image: url("images/background.png"); 
+     -fx-background-size: cover; 
+     -fx-background-position: center center; 
+     -fx-background-repeat: no-repeat; 
+}
+
+/* DIE SCHWEBENDE INFO-BOX (PIXEL-STYLE) */
+.floating-chat-box {
+    -fx-background-color: #0d9e3b;
+    /* Pixel-Ränder: Keine Rundung (0px) oder nur sehr kleine Stufen */
+    -fx-background-radius: 58;
+    -fx-border-radius: 50;
+    -fx-border-color: #5c3d10 #3d260a #3d260a #5c3d10;
+    -fx-border-width: 12;
+    -fx-padding: 20;
+    /* Harter Schatten statt weicher Glow */
+    -fx-effect: dropshadow(one-pass-box, rgba(0,0,0,1), 0, 0, 15, 15);
+}
+
+.chat-header {
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-padding: 0 0 10 0;
+}
+
+.info-text {
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 16px;
+}
+
+/* DER OVALE PIXEL-TISCH */
+.casino-table {
+    -fx-background-color: #0d9e3b; /* Feste Farbe statt Gradient für Pixel-Look */
+    /* Oval durch festen Radius - Pixel-Art-Ovale sind stufig */
+    -fx-background-radius: 2000;
+    -fx-border-radius: 2000;
+
+    /* Dicker, eckiger Holzrand */
+    -fx-border-color: #5c3d10 #3d260a #3d260a #5c3d10;
+    -fx-border-width: 12;
+
+}
+
+
+.table-title {
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(one-pass-box, #000, 0, 0, 3, 3);
+}
+
+
+
+
+/* Hauptcontainer der Statusbox */
+.player-status-pane {
+    -fx-background-color: rgb(129, 13, 158);
+    -fx-background-radius: 15;
+    -fx-border-radius: 15;
+
+    /* -fx-border-color: #5c3d10 #3d260a #3d260a #5c3d10;
+    -fx-border-width: 2;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 10, 0, 0, 4);*/
+}
+
+.player-status-pane:hover {
+    -fx-translate-y: -3;
+}
+
+/* Die zwei inneren Boxen */
+.status-inner-box-top {
+    -fx-background-color: rgb(13, 93, 158);
+    -fx-background-radius: 19;
+    -fx-border-radius: 15;
+    -fx-padding: 5 10;
+    -fx-border-color: #5c3d10 #3d260a #3d260a #5c3d10;
+    -fx-border-width: 3;
+    -fx-effect: dropshadow(one-pass-box, rgba(0, 0, 0, 0.8), 0, 0, 3, 3);
+}
+
+.status-inner-box-midle {
+    -fx-background-color: rgba(13, 158, 59, 0);
+}
+
+.status-inner-box-bottom {
+    -fx-background-color: rgb(158, 13, 102);
+    -fx-background-radius: 19;
+    -fx-border-radius: 15;
+    -fx-padding: 5 10;
+    -fx-border-color: #5c3d10 #3d260a #3d260a #5c3d10;
+    -fx-border-width: 3;
+    -fx-effect: dropshadow(one-pass-box, rgba(0, 0, 0, 0.8), 0, 0, 3, 3);
+}
+
+.table-title {
+    /* Titel-Text anpassen */
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(one-pass-box, #000, 0, 0, 3, 3);
+    -fx-padding: 10 0 0 0; /* Abstand nach oben */
+}
+
+.green-box {
+    /* Grüne Box anpassen */
+    -fx-fill: #4CAF50;
+    -fx-stroke: #FFFFFF;
+    -fx-stroke-width: 3;
+    -fx-effect: dropshadow(one-pass-box, #000, 0, 0, 10, 10);
+    -fx-padding: 0 0 40 0;
+}
+
+.button-exit {
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-font-family: "Courier New";
+    -fx-font-weight: bold;
+    -fx-border-width: 2;
+    -fx-padding: 6 15;
+    -fx-cursor: hand;
+}
+
+.button-exit:hover {
+    -fx-translate-y: -3;
+    -fx-effect: dropshadow(one-pass-box, rgba(0, 0, 0, 0.8), 0, 0, 3, 3);
+}
+
+.button-exit {
+    -fx-background-color: #8b0000;
+    -fx-border-color: #ff4444;
+    -fx-text-fill: white;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-font-family: "Courier New";
+    -fx-font-weight: bold;
+    -fx-border-width: 2;
+    -fx-padding: 6 15;
+    -fx-cursor: hand;
+}
+
+

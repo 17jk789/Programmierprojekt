@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<AnchorPane xmlns="http://javafx.com"
+            xmlns:fx="http://javafx.com"
+            fx:controller="com.example.demo.CasinomainuiController"
+            styleClass="anchor-pane-bg"
+            stylesheets="@Casinomainui.css">
+
+    <GridPane prefWidth="1200" prefHeight="800" AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
+        <columnConstraints>
+            <!-- Tisch bekommt 75% vom Fenster -->
+            <ColumnConstraints percentWidth="70.0" hgrow="ALWAYS" />
+            <!-- Info-Box bekommt 25% vom Fenster inkl. 5 prozent buffer -->
+            <ColumnConstraints percentWidth="5.0" hgrow="ALWAYS" />
+            <ColumnConstraints percentWidth="25.0" hgrow="ALWAYS" />
+        </columnConstraints>
+
+        <rowConstraints>
+            <RowConstraints vgrow="ALWAYS" />
+        </rowConstraints>
+
+        <children>
+            <!-- LINKER BEREICH (Tisch) -->
+            <GridPane GridPane.columnIndex="0" style="-fx-background-color: transparent;" alignment="CENTER">
+                <rowConstraints>
+                    <RowConstraints percentHeight="25.0" vgrow="ALWAYS" />
+                    <RowConstraints percentHeight="75.0" vgrow="ALWAYS" />
+                </rowConstraints>
+                
+                <columnConstraints>
+                    <ColumnConstraints hgrow="ALWAYS" />
+                </columnConstraints>
+
+                <children>
+                    <HBox alignment="CENTER" spacing="20"
+                          maxWidth="Infinity"
+                          GridPane.rowIndex="0"
+                          GridPane.columnIndex="0"
+                          GridPane.halignment="CENTER">
+                        <ImageView fx:id="logoView"
+                            fitHeight="96"
+                            fitWidth="96"
+                            preserveRatio="true" />
+                        <VBox alignment="CENTER" spacing="5">
+                            <Label text="placeholder text wird in controller ueberschriebeen" 
+                                styleClass="table-title" 
+                                fx:id="titleLabel"
+                                alignment="CENTER" />
+                            <Label text="placeholder text wird in controller ueberschriebeen"
+                                styleClass="table-title"
+                                fx:id="subtitleLabel"
+                                alignment="CENTER" />
+                        </VBox>
+                    </HBox>
+                    <Button text="EXIT"
+                        styleClass="button-exit"
+                        fx:id="exitbutton"
+                        onAction="#handleexitbutton"
+                        GridPane.rowIndex="0"
+                        GridPane.columnIndex="0"
+                        GridPane.halignment="LEFT"
+                        GridPane.valignment="TOP">
+                        <GridPane.margin>
+                            <Insets top="20" left="20" />
+                        </GridPane.margin>
+                    </Button>
+
+                    <VBox fx:id="casinoTable"
+                          alignment="CENTER"
+                          styleClass="casino-table"
+                          spacing="20"
+                          maxWidth="Infinity"
+                          maxHeight="Infinity"
+                          GridPane.rowIndex="1"
+                          GridPane.columnIndex="0"
+                          GridPane.halignment="CENTER">
+                        <GridPane.margin>
+                            <Insets left="20" bottom="20" />
+                        </GridPane.margin>
+                    </VBox>
+                </children>
+            </GridPane>
+
+
+            <VBox GridPane.columnIndex="1"
+                  alignment="CENTER"
+                  minWidth="100"
+                  minHeight="100">
+                <!-- Bleibt leer -->
+            </VBox>
+
+            <!-- RECHTER BEREICH (Info-Box) -->
+            <VBox GridPane.columnIndex="2" alignment="CENTER">
+                <padding>
+                    <Insets top="30" right="30" bottom="30" left="10"/>
+                </padding>
+                <VBox VBox.vgrow="ALWAYS" styleClass="floating-chat-box" spacing="10" maxWidth="Infinity">
+                    <Label text="== INFO ==" styleClass="chat-header" alignment="CENTER" maxWidth="Infinity"/>
+                    <Region minHeight="4" style="-fx-background-color: #ffffff;" />
+                    <VBox spacing="15" VBox.vgrow="ALWAYS" styleClass="info-content">
+                        <Label text="> CREDITS: 1000" styleClass="info-text"/>
+                        <Label text="> JACKPOT: 9999" styleClass="info-text"/>
+                        <Label text="> SYSTEM: OK" styleClass="info-text"/>
+                    </VBox>
+                </VBox>
+            </VBox>
+        </children>
+    </GridPane>
+</AnchorPane>
