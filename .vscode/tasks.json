@@ -1,0 +1,17 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Export drawio to SVG",
+      "type": "shell",
+      "command": "./scripts/export-drawio.sh",
+      "problemMatcher": []
+    },
+    {
+      "label": "Export puml to SVG",
+      "type": "shell",
+      "command": "./scripts/export-plantuml.sh",
+      "problemMatcher": []
+    }
+  ]
+}

@@ -35,6 +35,8 @@ This protocol handles game state synchronization, player actions, lobby and glob
 │   └── test/                # Unit tests
 ├── documents/               # Project resources and documentation
 │   ├── images/              # Images for README and documentation
+│   ├── diary                # Diary files for each organizational meetup
+│   ├── blog                 # Blog files covering project-related topics
 │   ├── docs                 # Documentation
 │   ├── milestones/          # Milestone deliverables (6 milestones)
 │   └── (Other resources)    # Additional project materials
