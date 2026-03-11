@@ -27,6 +27,8 @@ We don't use HTTP, there's no JSON body, no headers. Just a raw socket, a text s
 
 ## Core Components & Their Roles
 
+![PlantUML diagramm of all components outlined in this document](/documents/images/docs/networking/server-architecure/networking_components.svg)
+
 Here's a quick rundown of the main building blocks:
 
 ### `NetworkManager`
