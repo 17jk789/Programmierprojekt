@@ -1,4 +1,4 @@
-package ch.unibas.dmi.dbis.cs108.casono.common.network;
+package ch.unibas.dmi.dbis.cs108.casono.server.network;
 
 import java.util.UUID;
 
