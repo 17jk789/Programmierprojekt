@@ -38,7 +38,7 @@ public class NetworkManager implements Runnable {
                 
                 System.out.println("Accepted connection from " + clientSocket.getRemoteSocketAddress());
 
-                Session session = new Session(clientSocket);
+                Session session = new Session(new TcpTransport(clientSocket));
                 session.start();
             }
 
