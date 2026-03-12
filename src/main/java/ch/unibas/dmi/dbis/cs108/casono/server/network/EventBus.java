@@ -9,6 +9,7 @@ import java.util.function.Consumer;
 public class EventBus {
     private final Map<Class<?>, List<Consumer<Object>>> handlers = new ConcurrentHashMap<>();
 
+    @SuppressWarnings("unchecked") // This cast is safe, because handlers only get passed the type they subscribed to
     public <T extends Event> void subscribe(Class<T> eventType, Consumer<T> handler) {
         handlers.computeIfAbsent(eventType, k -> new CopyOnWriteArrayList<>())
                 .add((Consumer<Object>) handler);
