@@ -4,6 +4,11 @@ package ch.unibas.dmi.dbis.cs108.casono.client.ui.lobbyui;
  * Controller for the Casono main UI lobby.
  * Handles UI initialization and user actions.
  */
+
+/**
+ * Controller for the Casono main UI lobby.
+ * Handles UI initialization and user actions.
+ */
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -30,11 +35,12 @@ import javafx.scene.layout.AnchorPane;
 public class CasinomainuiController {
 
     /**
-     * Standardkonstruktor.
+     * Default constructor for the controller.
      */
     public CasinomainuiController() {
-        // Standardkonstruktor
+        // Default constructor
     }
+
     /** Root pane of the UI. */
     @FXML
     private AnchorPane rootPane;
@@ -53,9 +59,13 @@ public class CasinomainuiController {
     /** Exit button for closing the application. */
     @FXML
     private Button exitbutton;
-    
-    
+    /** Casino table VBox for grid rendering. */
+    @FXML
+    private javafx.scene.layout.VBox casinoTable;
 
+    private LobbyButtonTranslationManager translationManager;
+    private LobbyButtonGridManager gridManager;
+    private int nextButtonId = 1;
 
     /**
      * Initializes the UI components and sets default values.
@@ -63,8 +73,12 @@ public class CasinomainuiController {
     public void initialize() {
         titleLabel.setText("Casono");
         subtitleLabel.setText("Texas Hold'em Poker");
-        // Logo laden
         logoView.setImage(new javafx.scene.image.Image(getClass().getResource("/images/logo.png").toExternalForm()));
+
+        translationManager = new LobbyButtonTranslationManager();
+        gridManager = new LobbyButtonGridManager(new javafx.scene.layout.GridPane(), translationManager);
+        casinoTable.getChildren().add(gridManager.getGridPane());
+        gridManager.renderLobbyButtons();
     }
 
     /**
@@ -75,5 +89,24 @@ public class CasinomainuiController {
         Platform.exit();
     }
 
-}
+    /**
+     * Handles creation of a new lobby button.
+     */
+    @FXML
+    public void handleCreateLobbyButton() {
+        if (translationManager.isFull()) {
+            System.out.println("Grid voll! Keine weiteren Lobbys moeglich.");
+            return;
+        }
+        int buttonId = nextButtonId++;
+        int lobbyId = gridManager.createLobby();
+        try {
+            translationManager.addLobbyButton(buttonId, lobbyId);
+            System.out.println("ButtonID: " + buttonId + ", LobbyID: " + lobbyId);
+            gridManager.renderLobbyButtons();
+        } catch (Exception e) {
+            System.out.println("Fehler beim Hinzufügen: " + e.getMessage());
+        }
+    }
 
+}
