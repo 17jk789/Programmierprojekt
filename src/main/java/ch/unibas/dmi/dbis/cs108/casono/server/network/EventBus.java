@@ -9,12 +9,12 @@ import java.util.function.Consumer;
 public class EventBus {
     private final Map<Class<?>, List<Consumer<Object>>> handlers = new ConcurrentHashMap<>();
 
-    public <T> void subscribe(Class<T> eventType, Consumer<T> handler) {
+    public <T extends Event> void subscribe(Class<T> eventType, Consumer<T> handler) {
         handlers.computeIfAbsent(eventType, k -> new CopyOnWriteArrayList<>())
                 .add((Consumer<Object>) handler);
     }
 
-    public <T> void publish(T event) {
+    public <T extends Event> void publish(T event) {
         List<Consumer<Object>> subscribers = handlers.get(event.getClass());
         if (subscribers != null) {
             subscribers.forEach(h -> h.accept(event));
