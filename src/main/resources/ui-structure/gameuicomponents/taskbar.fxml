@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<!-- verschiebbare Taskbar -->
+<HBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="ch.unibas.dmi.dbis.cs108.casono.client.ui.lobbyui.gameuicomponents.TaskbarController"
+      fx:id="taskbar"
+      styleClass="taskbar"
+      spacing="15"
+      alignment="CENTER"
+      onMousePressed="#onTaskbarPressed"
+      onMouseDragged="#onTaskbarDragged"
+      onMouseReleased="#onTaskbarReleased"
+      layoutX="50.0" layoutY="710.0">
+
+    <!-- Platzhalter-Buttons -->
+    <Button text="SETTING" styleClass="taskbar-button" />
+    <Button text="INFO" styleClass="taskbar-button" />
+    <!-- TODO: Buten für den Casono Browser -->
+    <!-- <Button text="Hilfe" onAction="#onBrowserButtonClick" styleClass="taskbar-button" />-->
+
+    <!-- Vertikale-Trennlinie: Erzeugt eine optische Abgrenzung zwischen zwei Butten-Bereichen -->
+    <Separator orientation="VERTICAL" prefHeight="20" opacity="0.3" />
+
+    <!-- Eingabefeld: Reagiert auf die Enter-Taste, um den Einsatz zu bestätigen -->
+    <TextField fx:id="taskbarInput"
+               promptText="Betrag setzen..."
+               onKeyPressed="#onInputSubmitted"
+               styleClass="input-field"
+               prefWidth="150" />
+
+    <!-- Bestätigungs-Button: Alternative zum Enter-Key, um den Einsatz abzusenden -->
+    <Button text="SUBMIT"
+            onAction="#onInputSubmittedAction"
+            styleClass="taskbar-button-primary"/>
+
+    <!-- Vertikale-Trennlinie: Erzeugt eine optische Abgrenzung zwischen zwei Butten-Bereichen -->
+    <Separator orientation="VERTICAL" prefHeight="20" opacity="0.3" />
+
+    <!-- Menü-Button: Bricht das aktuelle Spiel ab und kehrt zum Hauptmenü zurück -->
+    <Button text="EXIT"
+            onAction="#onExitButtonClick"
+            styleClass="taskbar-button-exit"/>
+
+    <!-- Innenabstand: Hält den Inhalt 10 Pixel von oben/unten und 20 Pixel von den Seiten fern -->
+    <padding>
+        <Insets top="10" right="20" bottom="10" left="20"/>
+    </padding>
+</HBox>
