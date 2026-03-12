@@ -7,8 +7,9 @@ import java.net.Socket;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import ch.unibas.dmi.dbis.cs108.casono.common.network.Session;
-
+/**
+ * Creates and manages the server socket. Accepts new incomming connections and creates sessions.
+ */
 public class NetworkManager implements Runnable {
     private Integer port;
     private Logger logger;
@@ -22,6 +23,8 @@ public class NetworkManager implements Runnable {
         this.running = true;
     }
 
+    /* Starts the internal thread to accept new connections.
+     */
     public void start() {
         logger.debug("Starting server at port " + port);
         thread.start();
@@ -32,9 +35,11 @@ public class NetworkManager implements Runnable {
         try (ServerSocket serverSocket = new ServerSocket(port)) {
             while (running) {
                 Socket clientSocket = serverSocket.accept();
-
+                
                 System.out.println("Accepted connection from " + clientSocket.getRemoteSocketAddress());
-                clientSocket.close();
+
+                Session session = new Session(clientSocket);
+                session.start();
             }
 
         } catch (IOException e) {
