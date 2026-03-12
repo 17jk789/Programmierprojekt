@@ -15,12 +15,15 @@ public class NetworkManager implements Runnable {
     private Logger logger;
     private Thread thread;
     private Boolean running;
+    private EventBus eventBus;
 
-    public NetworkManager(Integer port) {
+    public NetworkManager(Integer port, EventBus eventBus) {
         this.port = port;
         this.logger = LogManager.getLogger(NetworkManager.class);
         this.thread = new Thread(this, "networkManager");
         this.running = true;
+        this.eventBus = eventBus;
+        this.eventBus.subscribe(DisconnectEvent.class, event -> clientDisconnected(event));
     }
 
     /* Starts the internal thread to accept new connections.
@@ -28,6 +31,10 @@ public class NetworkManager implements Runnable {
     public void start() {
         logger.debug("Starting server at port " + port);
         thread.start();
+    }
+
+    public void clientDisconnected(DisconnectEvent event) {
+        logger.info("Session " + event.sessionId().value() + " disconnected adhasghd");
     }
 
     @Override
@@ -38,7 +45,7 @@ public class NetworkManager implements Runnable {
                 
                 System.out.println("Accepted connection from " + clientSocket.getRemoteSocketAddress());
 
-                Session session = new Session(new TcpTransport(clientSocket));
+                Session session = new Session(new TcpTransport(clientSocket), eventBus);
                 session.start();
             }
 

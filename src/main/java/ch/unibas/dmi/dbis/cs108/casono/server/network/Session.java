@@ -11,12 +11,14 @@ public class Session implements Runnable {
     private TransportLayer transport;
     private Logger logger;
     private Boolean running;
+    private EventBus eventBus;
     
-    public Session(TransportLayer transport) throws IOException {
+    public Session(TransportLayer transport, EventBus eventBus) throws IOException {
         this.id = new SessionId();
         this.thread = new Thread(this, "session-" + this.id.value());
         this.transport = transport;
         this.running = true;
+        this.eventBus = eventBus;
 
         this.logger = LogManager.getLogger(Session.class.toString() + id.value());
         this.logger.info("Created new session");
@@ -42,6 +44,7 @@ public class Session implements Runnable {
                 System.out.println("Recieved: " + transport.read());
             } catch (EOFException e) {
                 logger.info("Client disconnected");
+                eventBus.publish(new DisconnectEvent(id));
                 break;
             } catch (IOException e) {
                 e.printStackTrace();
