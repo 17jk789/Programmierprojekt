@@ -2,7 +2,17 @@ stages:
     - lint
     - build
 
+# Reusable definitions
+.gradle-cache: &gradle-cache
+  cache:
+    key: '$CI_PROJECT_ID-gradle'
+    paths:
+      - .gradle/
+      - ~/.gradle/caches/
+
+# Jobs
 checkstyle:
+    <<: *gradle-cache
     stage: lint
     image: gradle:9.3.1-jdk25
     script:
@@ -18,6 +28,7 @@ checkstyle:
         - when: manual
 
 compile-check:
+    <<: *gradle-cache
     stage: build
     image: gradle:9.3.1-jdk25
     script:
