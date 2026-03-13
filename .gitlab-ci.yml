@@ -6,5 +6,12 @@ checkstyle:
     image: gradle:9.3.1-jdk25
     script:
         - gradle checkstyleMain checkstyleTest
+    artifacts:
+        when: always
+        paths:
+        - build/reports/checkstyle/main.html
+        - build/reports/checkstyle/test.html
+        expose_as: 'Checkstyle Report'
+        expire_in: 1 week
     rules:
         - when: manual
