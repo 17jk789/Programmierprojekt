@@ -1,10 +1,13 @@
 package ch.unibas.dmi.dbis.cs108.casono.server;
 
-import ch.unibas.dmi.dbis.cs108.casono.server.network.DisconnectEvent;
-import ch.unibas.dmi.dbis.cs108.casono.server.network.EventBus;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.NetworkManager;
-import ch.unibas.dmi.dbis.cs108.casono.server.network.SessionManager;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.events.DisconnectEvent;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.events.EventBus;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.sessions.SessionManager;
 
+/**
+ * Application class for starting the server.
+ */
 public class ServerApp {
     public static void start(String arg) {
         int port = Integer.parseInt(arg);
