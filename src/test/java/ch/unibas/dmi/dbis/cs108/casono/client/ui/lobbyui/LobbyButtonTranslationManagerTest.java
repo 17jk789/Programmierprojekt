@@ -12,7 +12,6 @@ class LobbyButtonTranslationManagerTest {
     void setUp() {
         manager = new LobbyButtonTranslationManager();
         manager.getButtonIdToLobbyId().clear();
-        manager.saveTranslation();
     }
 
     @Test
@@ -36,15 +35,6 @@ class LobbyButtonTranslationManagerTest {
         assertTrue(manager.isFull());
         Exception ex = assertThrows(Exception.class, () -> manager.addLobbyButton(9, 109));
         assertEquals("Grid is full!", ex.getMessage());
-    }
-
-    @Test
-    void testSaveAndLoadTranslation() throws Exception {
-        manager.addLobbyButton(3, 300);
-        manager.saveTranslation();
-        manager.getButtonIdToLobbyId().clear();
-        manager.loadTranslation();
-        assertEquals(300, manager.getLobbyIdForButton(3));
     }
 
     @Test

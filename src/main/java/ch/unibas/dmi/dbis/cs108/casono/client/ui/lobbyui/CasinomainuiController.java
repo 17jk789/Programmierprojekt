@@ -1,82 +1,56 @@
 package ch.unibas.dmi.dbis.cs108.casono.client.ui.lobbyui;
 
-/**
- * Controller for the Casono main UI lobby.
- * Handles UI initialization and user actions.
- */
-
-/**
- * Controller for the Casono main UI lobby.
- * Handles UI initialization and user actions.
- */
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.control.Button;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.shape.Rectangle;
-import javafx.application.Platform;
-import javafx.fxml.FXML;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.VBox;
+import javafx.scene.shape.Rectangle;
 
 /**
  * Controller for the Casono main UI lobby.
  * Handles UI initialization and user actions.
- * <p>
- * Standardkonstruktor für den Controller.
  */
 public class CasinomainuiController {
 
-    /**
-     * Default constructor for the controller.
-     */
-    public CasinomainuiController() {
-        // Default constructor
-    }
-
-    /** Root pane of the UI. */
     @FXML
     private AnchorPane rootPane;
-    /** Title label for the main UI. */
     @FXML
     private Label titleLabel;
-    /** Subtitle label for the main UI. */
     @FXML
     private Label subtitleLabel;
-    /** Logo image view. */
     @FXML
-    private javafx.scene.image.ImageView logoView;
-    /** Green box shape element. */
+    private ImageView logoView;
     @FXML
-    private javafx.scene.shape.Rectangle greenBox;
-    /** Exit button for closing the application. */
+    private Rectangle greenBox;
     @FXML
     private Button exitbutton;
-    /** Casino table VBox for grid rendering. */
     @FXML
-    private javafx.scene.layout.VBox casinoTable;
+    private VBox casinoTable;
 
     private LobbyButtonTranslationManager translationManager;
     private LobbyButtonGridManager gridManager;
     private int nextButtonId = 1;
 
+    public CasinomainuiController() {
+        // Default constructor
+    }
+
     /**
      * Initializes the UI components and sets default values.
      */
+    @FXML
     public void initialize() {
         titleLabel.setText("Casono");
         subtitleLabel.setText("Texas Hold'em Poker");
-        logoView.setImage(new javafx.scene.image.Image(getClass().getResource("/images/logo.png").toExternalForm()));
+        logoView.setImage(new Image(getClass().getResource("/images/logo.png").toExternalForm()));
 
         translationManager = new LobbyButtonTranslationManager();
         gridManager = new LobbyButtonGridManager(new javafx.scene.layout.GridPane(), translationManager);
+        casinoTable.getChildren().clear();
         casinoTable.getChildren().add(gridManager.getGridPane());
         gridManager.renderLobbyButtons();
     }
@@ -108,5 +82,4 @@ public class CasinomainuiController {
             System.out.println("Fehler beim Hinzufügen: " + e.getMessage());
         }
     }
-
 }

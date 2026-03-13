@@ -15,7 +15,6 @@ class LobbyButtonGridManagerTest {
         gridPane = new GridPane();
         translationManager = new LobbyButtonTranslationManager();
         translationManager.getButtonIdToLobbyId().clear();
-        translationManager.saveTranslation();
         gridManager = new LobbyButtonGridManager(gridPane, translationManager);
     }
 
