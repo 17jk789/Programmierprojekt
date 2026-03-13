@@ -1,9 +1,13 @@
-package ch.unibas.dmi.dbis.cs108.casono.server.network;
+package ch.unibas.dmi.dbis.cs108.casono.server.network.sessions;
 
 import java.io.EOFException;
 import java.io.IOException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import ch.unibas.dmi.dbis.cs108.casono.server.network.events.DisconnectEvent;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.events.EventBus;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.transport.TransportLayer;
 
 public class Session implements Runnable {
     private SessionId id;

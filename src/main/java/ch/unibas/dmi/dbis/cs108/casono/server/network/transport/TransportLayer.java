@@ -1,4 +1,4 @@
-package ch.unibas.dmi.dbis.cs108.casono.server.network;
+package ch.unibas.dmi.dbis.cs108.casono.server.network.transport;
 
 import java.io.IOException;
 

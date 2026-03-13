@@ -1,4 +1,4 @@
-package ch.unibas.dmi.dbis.cs108.casono.server.network;
+package ch.unibas.dmi.dbis.cs108.casono.server.network.events;
 
 import java.util.List;
 import java.util.Map;
