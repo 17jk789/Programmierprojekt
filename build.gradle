@@ -3,6 +3,7 @@ plugins {
     id 'java'
     id 'org.openjfx.javafxplugin' version '0.1.0'
     id 'checkstyle'
+    id 'com.diffplug.spotless' version '7.0.2'
 }
 
 group = 'ch.unibas.dmi.dbis'
@@ -50,6 +51,14 @@ checkstyle {
     configProperties = [
         'suppressionFile': file('config/checkstyle/suppressions.xml').absolutePath
     ]
+}
+
+spotless {
+    java {
+        googleJavaFormat()
+        importOrder()
+        removeUnusedImports()
+    }
 }
 
 tasks.named('jar', Jar) {
