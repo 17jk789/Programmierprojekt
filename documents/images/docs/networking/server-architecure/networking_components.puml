@@ -1,0 +1,96 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam linetype ortho
+skinparam backgroundColor transparent
+
+' Network Layer
+class NetworkManager {
+  + start(port: int)
+}
+
+class Session {
+  - id: SessionId
+  + Session(id: SessionId)
+  + getId(): SessionId
+  + run()
+  + send(response: String)
+}
+
+class SessionId {
+  - value: UUID
+  + SessionId()
+  + SessionId(value: UUID)
+}
+
+class SessionManager {
+  - sessions: Map<UUID, Session>
+  + add(session: Session)
+  + getById(id: UUID): Session
+  + remove(id: UUID)
+}
+
+NetworkManager --> Session     : creates
+NetworkManager --> SessionManager : adds session to
+Session --> SessionId          : identified by
+Session --> RawRequest         : creates
+Session ..> Response           : sends
+SessionManager o-- Session     : manages
+
+' Protocol Layer
+class RawRequest {
+  - session: Session
+  - rawMessage: String
+}
+
+class Tokenizer {
+  + tokenize(input: String): List<String>
+}
+
+class ProtocolParser {
+  + parse(raw: RawRequest): PrimitiveRequest
+}
+
+class PrimitiveRequest {
+  - command: String
+  - arguments: Map<String, String>
+}
+
+RawRequest --> ProtocolParser  : passed to
+ProtocolParser --> Tokenizer   : uses
+ProtocolParser --> PrimitiveRequest : produces
+
+' Command Layer
+interface CommandParser <<per command>> {
+  + parse(primitive: PrimitiveRequest): Request
+}
+
+interface Request <<per command>> {
+  - session: Session
+}
+
+class CommandRouter {
+  + route(request: Request)
+}
+
+interface CommandHandler <<per command>> {
+  + handle(request: Request)
+}
+
+PrimitiveRequest --> CommandParser : passed to
+CommandParser --> Request      : produces
+CommandRouter --> CommandHandler : dispatches to
+CommandRouter ..> Request      : receives
+
+' Response Layer
+interface Response {
+  + encode(): String
+}
+
+interface SuccessResponse
+
+interface ErrorResponse
+
+Response <|-- SuccessResponse
+Response <|-- ErrorResponse
+@enduml
