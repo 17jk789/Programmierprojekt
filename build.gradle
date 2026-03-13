@@ -48,6 +48,16 @@ tasks.named('jar', Jar) {
     }
 }
 
+
+// Dieses JVM-Argument erlaubt JavaFX und anderen Libraries den Zugriff auf native Methoden.
+// Ohne diese Einstellung erscheinen Warnungen und zukünftige Java-Versionen könnten den Zugriff blockieren.
+// Siehe: https://openjdk.org/jeps/472
+tasks.withType(JavaExec) {
+    jvmArgs += '--enable-native-access=ALL-UNNAMED'
+}
+
+
+
 tasks.register('cruntest', JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
     mainClass = 'ch.unibas.dmi.dbis.cs108.casono.Main'
