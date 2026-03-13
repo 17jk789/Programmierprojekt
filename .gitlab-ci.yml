@@ -1,0 +1,38 @@
+stages:
+    - lint
+    - build
+
+# Reusable definitions
+.gradle-cache: &gradle-cache
+  cache:
+    key: '$CI_PROJECT_ID-gradle'
+    paths:
+      - .gradle/
+      - ~/.gradle/caches/
+
+# Jobs
+checkstyle:
+    <<: *gradle-cache
+    stage: lint
+    image: gradle:9.3.1-jdk25
+    script:
+        - gradle checkstyleMain checkstyleTest
+    artifacts:
+        when: always
+        paths:
+        - build/reports/checkstyle/main.html
+        - build/reports/checkstyle/test.html
+        expose_as: 'Checkstyle Report'
+        expire_in: 1 week
+    rules:
+        - when: manual
+
+compile-check:
+    <<: *gradle-cache
+    stage: build
+    image: gradle:9.3.1-jdk25
+    script:
+        - gradle compileTestJava
+    needs: []
+    rules:
+        - when: manual
