@@ -41,6 +41,12 @@ tasks.named('jar', Jar) {
     }
 }
 
+tasks.register('cruntest', JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'ch.unibas.dmi.dbis.cs108.casono.Main'
+    jvmArgs '--enable-native-access=ALL-UNNAMED'
+    args 'client', '0.0.0.0:1234'
+}
 
 tasks.register('fatJar', Jar) {
     group = 'build'
