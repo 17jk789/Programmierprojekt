@@ -33,5 +33,6 @@ compile-check:
     image: gradle:9.3.1-jdk25
     script:
         - gradle compileTestJava
+    needs: []
     rules:
         - when: manual
