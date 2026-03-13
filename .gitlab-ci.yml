@@ -1,5 +1,6 @@
 stages:
     - lint
+    - build
 
 checkstyle:
     stage: lint
@@ -13,5 +14,13 @@ checkstyle:
         - build/reports/checkstyle/test.html
         expose_as: 'Checkstyle Report'
         expire_in: 1 week
+    rules:
+        - when: manual
+
+compile-check:
+    stage: build
+    image: gradle:9.3.1-jdk25
+    script:
+        - gradle compileTestJava
     rules:
         - when: manual
