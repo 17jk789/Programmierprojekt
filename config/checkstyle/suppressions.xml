@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!DOCTYPE suppressions PUBLIC
+    "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
+    "https://checkstyle.org/dtds/suppressions_1_2.dtd">
+
+<suppressions>
+    <!-- Allow literal, for example assertEquals(42, life.answer()) -->
+    <suppress checks="MagicNumber" files=".*Test\.java"/>
+
+    <!-- Allow longer method names as the are usually descriptive of the test -->
+    <suppress checks="MethodLength" files=".*Test\.java"/>
+
+    <!-- Allow methods with more parameters -->
+    <suppress checks="ParameterNumber" files=".*Test\.java"/>
+
+    <!-- Allow for System.out.println in tests -->
+    <suppress id="SystemOutErr" files=".*Test\.java"/>
+
+    <!-- Allow wildcard imports (import x.*)  -->
+    <suppress checks="AvoidStarImport" files=".*Test\.java"/>
+
+    <!-- Allow for compacter line seperators -->
+    <suppress checks="EmptyLineSeparator" files=".*Test\.java"/>
+</suppressions>

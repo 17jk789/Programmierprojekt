@@ -46,6 +46,10 @@ test {
 
 checkstyle {
     toolVersion = '10.21.0'
+    configFile = file('config/checkstyle/checkstyle.xml')
+    configProperties = [
+        'suppressionFile': file('config/checkstyle/suppressions.xml').absolutePath
+    ]
 }
 
 tasks.named('jar', Jar) {

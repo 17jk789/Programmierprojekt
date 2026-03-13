@@ -12,6 +12,10 @@
     <!-- https://checkstyle.sourceforge.io/config.html#Properties_1 -->
     <property name="fileExtensions" value="java"/>
 
+    <module name="SuppressionFilter">
+        <property name="file" value="${suppressionFile}"/>
+    </module>
+
     <!-- Only allow spaces -->
     <!-- https://checkstyle.sourceforge.io/checks/whitespace/filetabcharacter.html -->
     <module name="FileTabCharacter"/>
@@ -141,9 +145,10 @@
         <!-- Disallow System.out.println -->
         <!-- https://checkstyle.sourceforge.io/checks/regexp/regexp.html -->
         <module name="Regexp">
+            <property name="id" value="SystemOutErr"/>
             <property name="format" value="System\.(out|err)\.print"/>
             <property name="illegalPattern" value="true"/>
-            <property name="message" value="No `System.out.print(err)` in production code — use a logger."/>
+            <property name="message" value="No `System.out.print(err)` allowed — use a logger."/>
         </module>
 
         <!-- Disallow whitespace before semicolon or bracket -->
@@ -159,7 +164,7 @@
         <module name="Regexp">
             <property name="format" value=" +$"/>
             <property name="illegalPattern" value="true"/>
-            <property name="message" value="Kein trailing Whitespace."/>
+            <property name="message" value="No trailing whitespace."/>
         </module>
     </module>
 </module>
