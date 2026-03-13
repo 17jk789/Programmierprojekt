@@ -1,0 +1,165 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC
+    "-//Checkstyle//DTD Checkstyle Configuration 1.3//EN"
+    "https://checkstyle.org/dtds/configuration_1_3.dtd">
+
+<module name="Checker">
+    <!-- Fail build if checkstyle finds violations -->
+    <!-- https://checkstyle.sourceforge.io/config.html#Properties_1 -->
+    <property name="severity" value="error"/>
+
+    <!-- Only check java files -->
+    <!-- https://checkstyle.sourceforge.io/config.html#Properties_1 -->
+    <property name="fileExtensions" value="java"/>
+
+    <!-- Only allow spaces -->
+    <!-- https://checkstyle.sourceforge.io/checks/whitespace/filetabcharacter.html -->
+    <module name="FileTabCharacter"/>
+
+    <!-- Maximale Zeilenlänge -->
+    <!-- https://checkstyle.sourceforge.io/checks/sizes/linelength.html -->
+    <module name="LineLength">
+        <property name="max" value="100"/>
+    </module>
+
+    <module name="TreeWalker">
+        <!-- Allows for emptylines BETWEEN methods and classes but DISALLOWS newlines after an opening bracket -->
+        <!-- https://checkstyle.sourceforge.io/checks/whitespace/emptylineseparator.html -->
+        <module name="EmptyLineSeparator">
+            <property name="allowNoEmptyLineBetweenFields" value="true"/>
+            <property name="tokens" value="
+                METHOD_DEF,
+                CTOR_DEF,
+                STATIC_INIT,
+                INSTANCE_INIT,
+                CLASS_DEF,
+                INTERFACE_DEF,
+                ENUM_DEF
+            "/>
+        </module>
+
+        <!-- Enforce indentation of four whitespaces -->
+        <!-- https://checkstyle.sourceforge.io/checks/misc/indentation.html -->
+        <module name="Indentation">
+            <property name="basicOffset" value="4"/>
+            <property name="caseIndent" value="4"/>
+            <property name="throwsIndent" value="4"/>
+            <property name="arrayInitIndent" value="4"/>
+            <property name="lineWrappingIndentation" value="8"/>
+        </module>
+
+        <!-- No wildcard imports (import x.*) -->
+        <!-- https://checkstyle.sourceforge.io/checks/imports/avoidstarimport.html -->
+        <module name="AvoidStarImport"/>
+
+        <!-- No unused imports -->
+        <!-- https://checkstyle.sourceforge.io/checks/imports/unusedimports.html -->
+        <module name="UnusedImports"/>
+
+        <!-- Classes, enums, records, ... as PascalCase -->
+        <!-- https://checkstyle.sourceforge.io/checks/naming/typename.html -->
+        <module name="TypeName"/>
+
+        <!-- Method names as camelCase -->
+        <!-- https://checkstyle.sourceforge.io/checks/naming/methodname.html -->
+        <module name="MethodName"/>
+
+        <!-- Parameter names as camelCase -->
+        <!-- https://checkstyle.sourceforge.io/checks/naming/parametername.html -->
+        <module name="ParameterName"/>
+
+        <!-- Lokal variables as camelCase -->
+        <!-- https://checkstyle.sourceforge.io/checks/naming/localvariablename.html -->
+        <module name="LocalVariableName"/>
+
+        <!-- Constants as UPPER_SNAKE_CASE -->
+        <!-- https://checkstyle.sourceforge.io/checks/naming/constantname.html -->
+        <module name="ConstantName"/>
+
+        <!-- Field names as camelCase -->
+        <!-- https://checkstyle.sourceforge.io/checks/naming/membername.html -->
+        <module name="MemberName">
+            <property name="format" value="^[a-z][a-zA-Z0-9]*$"/>
+        </module>
+
+        <!-- Restrict length of method name -->
+        <!-- https://checkstyle.sourceforge.io/checks/sizes/methodlength.html -->
+        <module name="MethodLength">
+            <property name="max" value="40"/>
+            <property name="countEmpty" value="false"/>
+        </module>
+
+        <!-- Restrict number of parameters -->
+        <!-- https://checkstyle.sourceforge.io/checks/sizes/parameternumber.html -->
+        <module name="ParameterNumber">
+            <property name="max" value="5"/>
+        </module>
+
+        <!-- Modifier-Reihenfolge: public static final ... -->
+        <!-- https://checkstyle.sourceforge.io/checks/modifier/modifierorder.html -->
+        <module name="ModifierOrder"/>
+
+        <!-- Require braces arround code block (no single instruction after if/else/while/...)-->
+        <!-- https://checkstyle.sourceforge.io/checks/blocks/needbraces.html -->
+        <module name="NeedBraces"/>
+
+        <!-- Require the left curly braces at the same line -->
+        <!-- https://checkstyle.sourceforge.io/checks/blocks/leftcurly.html -->
+        <module name="LeftCurly"/>
+
+        <!-- Require right curly braces at the same line as following instructions -->
+        <!-- https://checkstyle.sourceforge.io/checks/blocks/rightcurly.html -->
+        <module name="RightCurly"/>
+
+        <!-- Disallow empty code blocks -->
+        <!-- https://checkstyle.sourceforge.io/checks/blocks/emptyblock.html -->
+        <module name="EmptyBlock">
+            <property name="option" value="text"/>
+        </module>
+
+        <!-- Disallow empty code blocks after catch -->
+        <!-- https://checkstyle.sourceforge.io/checks/blocks/emptycatchblock.html -->
+        <module name="EmptyCatchBlock">
+            <property name="exceptionVariableName" value="expected|ignored"/>
+        </module>
+
+        <!-- Require string literals to be compared with .equals and not == -->
+        <!-- https://checkstyle.sourceforge.io/checks/coding/stringliteralequality.html -->
+        <module name="StringLiteralEquality"/>
+
+        <!-- Disallow standalone numbers in code -->
+        <!-- https://checkstyle.sourceforge.io/checks/coding/magicnumber.html -->
+        <module name="MagicNumber">
+            <property name="ignoreNumbers" value="-1, 0, 1, 2"/>
+            <property name="ignoreAnnotation" value="true"/>
+        </module>
+
+        <!-- Disallow nested code blocks dangling in code -->
+        <!-- https://checkstyle.sourceforge.io/checks/blocks/avoidnestedblocks.html -->
+        <module name="AvoidNestedBlocks"/>
+
+        <!-- Disallow System.out.println -->
+        <!-- https://checkstyle.sourceforge.io/checks/regexp/regexp.html -->
+        <module name="Regexp">
+            <property name="format" value="System\.(out|err)\.print"/>
+            <property name="illegalPattern" value="true"/>
+            <property name="message" value="No `System.out.print(err)` in production code — use a logger."/>
+        </module>
+
+        <!-- Disallow whitespace before semicolon or bracket -->
+        <!-- https://checkstyle.sourceforge.io/checks/whitespace/nowhitespacebefore.html -->
+        <module name="NoWhitespaceBefore"/>
+
+        <!-- Disallow whitespace after code -->
+        <!-- https://checkstyle.sourceforge.io/checks/whitespace/whitespaceafter.html -->
+        <module name="WhitespaceAfter"/>
+
+        <!-- No trailing whitespace at line ending -->
+        <!-- https://checkstyle.sourceforge.io/checks/regexp/regexp.html -->
+        <module name="Regexp">
+            <property name="format" value=" +$"/>
+            <property name="illegalPattern" value="true"/>
+            <property name="message" value="Kein trailing Whitespace."/>
+        </module>
+    </module>
+</module>
