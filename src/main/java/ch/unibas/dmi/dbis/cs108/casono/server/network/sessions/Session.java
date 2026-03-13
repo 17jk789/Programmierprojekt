@@ -9,6 +9,9 @@ import ch.unibas.dmi.dbis.cs108.casono.server.network.events.DisconnectEvent;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.events.EventBus;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.transport.TransportLayer;
 
+/**
+ * Represents a client session in the network server.
+ */
 public class Session implements Runnable {
     private SessionId id;
     private Thread thread;
@@ -17,6 +20,13 @@ public class Session implements Runnable {
     private Boolean running;
     private EventBus eventBus;
     
+    /**
+     * Creates a new Session with the given transport and event bus.
+     *
+     * @param transport the transport layer for communication
+     * @param eventBus  the event bus for publishing events
+     * @throws IOException if an I/O error occurs during initialization
+     */
     public Session(TransportLayer transport, EventBus eventBus) throws IOException {
         this.id = new SessionId();
         this.thread = new Thread(this, "session-" + this.id.value());
@@ -28,19 +38,35 @@ public class Session implements Runnable {
         this.logger.info("Created new session");
     }
 
+    /**
+     * Returns the ID of this session.
+     *
+     * @return the session ID
+     */
     public SessionId getId() {
         return this.id;
     }
 
+    /**
+     * Starts the session thread.
+     */
     public void start() {
         thread.start();
     }
 
+    /**
+     * Closes the session and its transport.
+     *
+     * @throws IOException if an I/O error occurs
+     */
     public void close() throws IOException {
         transport.close();
         this.running = false;
     }
 
+    /**
+     * Runs the session loop, reading from the transport.
+     */
     @Override
     public void run() {
         while (running) {

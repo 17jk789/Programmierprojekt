@@ -14,7 +14,7 @@ import ch.unibas.dmi.dbis.cs108.casono.server.network.sessions.SessionManager;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.transport.TcpTransport;
 
 /**
- * Creates and manages the server socket. Accepts new incomming connections and creates sessions.
+ * Creates and manages the server socket. Accepts new incoming connections and creates sessions.
  */
 public class NetworkManager implements Runnable {
     private Integer port;
@@ -24,6 +24,13 @@ public class NetworkManager implements Runnable {
     private SessionManager sessionManager;
     private EventBus eventBus;
 
+    /**
+     * Creates a new NetworkManager with the given port, session manager, and event bus.
+     *
+     * @param port           the port to listen on
+     * @param sessionManager the session manager to use
+     * @param eventBus       the event bus for events
+     */
     public NetworkManager(Integer port, SessionManager sessionManager, EventBus eventBus) {
         this.port = port;
         this.logger = LogManager.getLogger(NetworkManager.class);
@@ -34,17 +41,26 @@ public class NetworkManager implements Runnable {
         this.eventBus.subscribe(DisconnectEvent.class, event -> clientDisconnected(event));
     }
 
-    /* Starts the internal thread to accept new connections.
+    /**
+     * Starts the internal thread to accept new connections.
      */
     public void start() {
         logger.debug("Starting server at port " + port);
         thread.start();
     }
 
+    /**
+     * Handles client disconnection events.
+     *
+     * @param event the disconnect event
+     */
     public void clientDisconnected(DisconnectEvent event) {
         logger.info("Session " + event.sessionId().value() + " disconnected adhasghd");
     }
 
+    /**
+     * Runs the network manager loop, accepting connections.
+     */
     @Override
     public void run() {
         try (ServerSocket serverSocket = new ServerSocket(port)) {
