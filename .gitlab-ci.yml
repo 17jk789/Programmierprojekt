@@ -1,0 +1,10 @@
+stages:
+    - lint
+
+checkstyle:
+    stage: lint
+    image: gradle:8-jdk21
+    script:
+        - gradle checkstyleMain checkstyleTest
+    rules:
+        - when: manual
