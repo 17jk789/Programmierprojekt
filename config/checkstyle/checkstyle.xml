@@ -60,6 +60,10 @@
         <!-- https://checkstyle.sourceforge.io/checks/imports/unusedimports.html -->
         <module name="UnusedImports"/>
 
+        <!-- No unordered / ungrouped imports -->
+        <!-- https://checkstyle.sourceforge.io/checks/imports/importorder.html -->
+        <module name="ImportOrder"/>
+
         <!-- Classes, enums, records, ... as PascalCase -->
         <!-- https://checkstyle.sourceforge.io/checks/naming/typename.html -->
         <module name="TypeName"/>
