@@ -1,4 +1,4 @@
-package ch.unibas.dmi.dbis.cs108.casono.common.tokenizer;
+package ch.unibas.dmi.dbis.cs108.casono.server.tokenizer;
 
 import java.util.List;
 
