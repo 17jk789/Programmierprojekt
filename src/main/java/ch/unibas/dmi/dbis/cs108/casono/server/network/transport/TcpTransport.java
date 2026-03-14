@@ -47,7 +47,7 @@ public class TcpTransport implements TransportLayer {
         byte[] rawPayload = payload.getBytes(StandardCharsets.UTF_8);
         out.writeInt(rawPayload.length);
         out.write(rawPayload);
-        out.flush();    
+        out.flush();
     }
 
     /**
