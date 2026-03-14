@@ -1,24 +1,24 @@
 package ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui;
 
+import java.io.IOException;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-import java.io.IOException;
-
 /**
  * Hauptklasse für das Casino-Spiel-UI.
  *
- * Startet die JavaFX-Anwendung, lädt die grafische Oberfläche aus der FXML-Datei
- * und initialisiert die Haupt-Stage für das Spiel.
+ * <p>Startet die JavaFX-Anwendung, lädt die grafische Oberfläche aus der FXML-Datei und
+ * initialisiert die Haupt-Stage für das Spiel.
  *
- * Aufgaben:
- * - Lädt die FXML-Oberfläche "/ui-structure/Casinogameui.fxml".
- * - Lädt das Anwendungs-Icon aus "/images/logoinverted.png".
- * - Startet die Anwendung im Vollbildmodus.
+ * <p>Aufgaben: - Lädt die FXML-Oberfläche "/ui-structure/Casinogameui.fxml". - Lädt das
+ * Anwendungs-Icon aus "/images/logoinverted.png". - Startet die Anwendung im Vollbildmodus.
  */
 public class CasinoGameUI extends Application {
+
+    private static final int DEFAULT_WIDTH = 1200;
+    private static final int DEFAULT_HEIGHT = 800;
 
     /**
      * Startet die Haupt-Stage der Anwendung.
@@ -28,11 +28,13 @@ public class CasinoGameUI extends Application {
      */
     @Override
     public void start(Stage stage) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(CasinoGameUI.class.getResource("/ui-structure/casinogameui.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 1200, 800);
+        FXMLLoader fxmlLoader =
+                new FXMLLoader(CasinoGameUI.class.getResource("/ui-structure/casinogameui.fxml"));
+        Scene scene = new Scene(fxmlLoader.load(), DEFAULT_WIDTH, DEFAULT_HEIGHT);
         stage.setTitle("Casono (GAME)");
 
-        stage.getIcons().add(new javafx.scene.image.Image(getClass().getResource("/images/logoinverted.png").toExternalForm()));
+        String iconPath = getClass().getResource("/images/logoinverted.png").toExternalForm();
+        stage.getIcons().add(new javafx.scene.image.Image(iconPath));
         stage.setScene(scene);
         stage.setFullScreen(true);
         stage.show();
@@ -40,6 +42,7 @@ public class CasinoGameUI extends Application {
 
     /**
      * Startpunkt der Anwendung.
+     *
      * @param args Befehlszeilenargumente.
      */
     public static void main(String[] args) {

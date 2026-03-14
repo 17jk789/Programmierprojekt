@@ -2,24 +2,14 @@ package ch.unibas.dmi.dbis.cs108.casono;
 
 import ch.unibas.dmi.dbis.cs108.casono.client.ClientApp;
 import ch.unibas.dmi.dbis.cs108.casono.server.ServerApp;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-/**
- * Main entry point for Casono application.
- * Handles client and server startup.
- * <p>
- * Standardkonstruktor für die Anwendung.
- */
+/** Main entry point for Casono application. Handles client and server startup. */
 public final class Main {
-
-    /**
-     * Standardkonstruktor.
-     */
-    public Main() {
-        // Standardkonstruktor
-    }
-
     /**
      * Main entry point for Casono.
+     *
      * @param args Command line arguments
      */
     public static void main(String[] args) {
@@ -50,10 +40,12 @@ public final class Main {
     }
 
     private static void printUsage() {
-        System.err.println("""
-            Usage:
-              java -jar xyz.jar server <listenPort>
-              java -jar xyz.jar client <serverIp>:<serverPort>
-            """);
+        Logger logger = LogManager.getLogger(Main.class);
+        logger.fatal(
+                """
+                Usage:
+                  java -jar xyz.jar server <listenPort>
+                  java -jar xyz.jar client <serverIp>:<serverPort>
+                """);
     }
 }
