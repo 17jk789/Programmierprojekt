@@ -58,6 +58,8 @@ spotless {
         googleJavaFormat('1.25.2').aosp()
         importOrder()
         removeUnusedImports()
+        trimTrailingWhitespace()
+        endWithNewline()
     }
 }
 
