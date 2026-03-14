@@ -8,11 +8,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Entry point for the Casono client application. Handles client startup and
- * connection parameters.
+ * Entry point for the Casono client application. Handles client startup and connection parameters.
  *
- * <p>
- * Standardkonstruktor für die Anwendung.
+ * <p>Standardkonstruktor für die Anwendung.
  */
 public class ClientApp {
 

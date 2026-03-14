@@ -31,32 +31,22 @@ import javafx.stage.Stage;
 /**
  * Experimenteller integrierter Browser für Casono.
  *
- * Diese Klasse implementiert einen einfachen eingebetteten Webbrowser
- * auf Basis von {@link javafx.scene.web.WebView}. Der Browser dient
- * primär als Hilfswerkzeug innerhalb des Spiels, um externe Inhalte
- * wie Webseiten oder Videos anzuzeigen.
+ * <p>Diese Klasse implementiert einen einfachen eingebetteten Webbrowser auf Basis von {@link
+ * javafx.scene.web.WebView}. Der Browser dient primär als Hilfswerkzeug innerhalb des Spiels, um
+ * externe Inhalte wie Webseiten oder Videos anzuzeigen.
  *
- * Status
- * Der Browser befindet sich derzeit in einer experimentellen Phase.
- * Einige Sicherheitsmechanismen basieren auf experimentellen
- * KI-gestützten Empfehlungen und können sich in zukünftigen
- * Versionen noch ändern.
+ * <p>Status Der Browser befindet sich derzeit in einer experimentellen Phase. Einige
+ * Sicherheitsmechanismen basieren auf experimentellen KI-gestützten Empfehlungen und können sich in
+ * zukünftigen Versionen noch ändern.
  *
- * Zweck
- * Der Browser wird aktuell experimentell genutzt, um:
- * Pokerregeln direkt im Spiel zu erklären
- * Hilfeseiten oder Dokumentationen anzuzeigen
- * Videos (z.B. Tutorials oder Erklärungen) über Plattformen wie YouTube abzuspielen
+ * <p>Zweck Der Browser wird aktuell experimentell genutzt, um: Pokerregeln direkt im Spiel zu
+ * erklären Hilfeseiten oder Dokumentationen anzuzeigen Videos (z.B. Tutorials oder Erklärungen)
+ * über Plattformen wie YouTube abzuspielen
  *
- * Sicherheitsmechanismen
- * Da externe Webseiten geladen werden können, wurden einige
- * grundlegende Schutzmaßnahmen integriert:
- * - HTTPS-Zwang für Webseiten
- * - Whitelist für bekannte Domains
- * - Warnung bei unbekannten Webseiten
- * - JavaScript standardmäßig deaktiviert (man kann es jedoch für Google etc. einschalten)
- * - Popup-Blocker
- * - Automatische Cookie-Löschung beim Schließen
+ * <p>Sicherheitsmechanismen Da externe Webseiten geladen werden können, wurden einige grundlegende
+ * Schutzmaßnahmen integriert: - HTTPS-Zwang für Webseiten - Whitelist für bekannte Domains -
+ * Warnung bei unbekannten Webseiten - JavaScript standardmäßig deaktiviert (man kann es jedoch für
+ * Google etc. einschalten) - Popup-Blocker - Automatische Cookie-Löschung beim Schließen
  */
 public class CasinoBrowserController {
 
@@ -105,76 +95,84 @@ public class CasinoBrowserController {
 
     private static boolean javascriptEnabled = false;
 
-    /**
-     * Löscht alle gespeicherten Cookies der aktuellen Browser-Sitzung.
-     */
+    /** Löscht alle gespeicherten Cookies der aktuellen Browser-Sitzung. */
     private static void clearCookies() {
         try {
             COOKIE_MANAGER.getCookieStore().removeAll();
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
     }
 
     /**
      * Öffnet ein neues Browserfenster und lädt eine angegebene Webseite.
      *
-     * Falls die Webseite nicht zur Liste vertrauenswürdiger Domains gehört,
-     * wird der Benutzer gefragt, ob die Seite dennoch geladen werden soll.
+     * <p>Falls die Webseite nicht zur Liste vertrauenswürdiger Domains gehört, wird der Benutzer
+     * gefragt, ob die Seite dennoch geladen werden soll.
      *
      * @param url die Startadresse der Webseite, die geladen werden soll
      */
     public static void open(String url) {
-        Platform.runLater(() -> {
-            Stage stage = new Stage();
+        Platform.runLater(
+                () -> {
+                    Stage stage = new Stage();
 
-            WebView webView = new WebView();
-            WebEngine engine = webView.getEngine();
+                    WebView webView = new WebView();
+                    WebEngine engine = webView.getEngine();
 
-            engine.setJavaScriptEnabled(false);
+                    engine.setJavaScriptEnabled(false);
 
-            configurePopupBlocker(engine);
+                    configurePopupBlocker(engine);
 
-            webView.getStyleClass().add("web-view");
+                    webView.getStyleClass().add("web-view");
 
-            StackPane webContainer = createWebContainer(webView);
+                    StackPane webContainer = createWebContainer(webView);
 
-            Rectangle clip = new Rectangle();
-            clip.setArcWidth(CORNER_RADIUS);
-            clip.setArcHeight(CORNER_RADIUS);
-            webView.setClip(clip);
+                    Rectangle clip = new Rectangle();
+                    clip.setArcWidth(CORNER_RADIUS);
+                    clip.setArcHeight(CORNER_RADIUS);
+                    webView.setClip(clip);
 
-            webView.widthProperty().addListener((o, a, b) ->
-                    clip.setWidth(b.doubleValue()));
-            webView.heightProperty().addListener((o, a, b) ->
-                    clip.setHeight(b.doubleValue()));
+                    webView.widthProperty()
+                            .addListener((o, a, b) -> clip.setWidth(b.doubleValue()));
+                    webView.heightProperty()
+                            .addListener((o, a, b) -> clip.setHeight(b.doubleValue()));
 
-            ImageView browserLogo = loadLogos(stage);
+                    ImageView browserLogo = loadLogos(stage);
 
-            TextField urlField = createUrlField(url);
-            Label securityLabel = createSecurityLabel();
+                    TextField urlField = createUrlField(url);
+                    Label securityLabel = createSecurityLabel();
 
-            Button jsToggle = createJsToggle(engine);
-            Button backBtn = createBackButton(engine);
-            Button fwdBtn = createForwardButton(engine);
-            Button reloadBtn = createReloadButton(engine);
-            Button closeBtn = createCloseButton(stage, webView);
-            configureUrlEvents(engine, urlField, securityLabel);
+                    Button jsToggle = createJsToggle(engine);
+                    Button backBtn = createBackButton(engine);
+                    Button fwdBtn = createForwardButton(engine);
+                    Button reloadBtn = createReloadButton(engine);
+                    Button closeBtn = createCloseButton(stage, webView);
+                    configureUrlEvents(engine, urlField, securityLabel);
 
-            HBox taskbar = new HBox(HBOX_SPACIN, browserLogo, backBtn, fwdBtn,
-                    reloadBtn, urlField, jsToggle, securityLabel, closeBtn
-            );
+                    HBox taskbar =
+                            new HBox(
+                                    HBOX_SPACIN,
+                                    browserLogo,
+                                    backBtn,
+                                    fwdBtn,
+                                    reloadBtn,
+                                    urlField,
+                                    jsToggle,
+                                    securityLabel,
+                                    closeBtn);
 
-            taskbar.getStyleClass().add("taskbar-browser");
-            taskbar.setAlignment(Pos.CENTER_LEFT);
+                    taskbar.getStyleClass().add("taskbar-browser");
+                    taskbar.setAlignment(Pos.CENTER_LEFT);
 
-            Scene scene = createScene(taskbar, webContainer);
+                    Scene scene = createScene(taskbar, webContainer);
 
-            configureKeyEvents(scene, engine);
+                    configureKeyEvents(scene, engine);
 
-            stage.setScene(scene);
-            stage.setTitle("Casono Browser");
-            loadUrlSafely(engine, url, securityLabel);
-            stage.show();
-        });
+                    stage.setScene(scene);
+                    stage.setTitle("Casono Browser");
+                    loadUrlSafely(engine, url, securityLabel);
+                    stage.show();
+                });
     }
 
     /**
@@ -197,41 +195,43 @@ public class CasinoBrowserController {
      * @param engine WebEngine nutzen
      */
     public static void configurePopupBlocker(WebEngine engine) {
-        engine.setCreatePopupHandler(config -> {
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("Popup blockiert");
-            alert.setHeaderText(null);
-            alert.setContentText("Popup wurde aus Sicherheitsgründen blockiert.");
+        engine.setCreatePopupHandler(
+                config -> {
+                    Alert alert = new Alert(Alert.AlertType.WARNING);
+                    alert.setTitle("Popup blockiert");
+                    alert.setHeaderText(null);
+                    alert.setContentText("Popup wurde aus Sicherheitsgründen blockiert.");
 
-            try {
-                var stream = CasinoBrowserController.class.getResourceAsStream(LOGO_PATH);
-                Image logo = new Image(stream);
+                    try {
+                        var stream = CasinoBrowserController.class.getResourceAsStream(LOGO_PATH);
+                        Image logo = new Image(stream);
 
-                // Variable 'streamM' abgekürzt, um das 100-Zeichen-Limit (LineLength)
-                // einzuhalten
-                var streamM = CasinoBrowserController.class.getResourceAsStream(LOGO_PATH_MAIN);
-                Image logomain = new Image(streamM);
+                        // Variable 'streamM' abgekürzt, um das 100-Zeichen-Limit (LineLength)
+                        // einzuhalten
+                        var streamM =
+                                CasinoBrowserController.class.getResourceAsStream(LOGO_PATH_MAIN);
+                        Image logomain = new Image(streamM);
 
-                if (logo != null) {
-                    Stage alertStage = (Stage) alert.getDialogPane().getScene().getWindow();
-                    if (alertStage != null) {
-                        alertStage.getIcons().add(logo);
+                        if (logo != null) {
+                            Stage alertStage = (Stage) alert.getDialogPane().getScene().getWindow();
+                            if (alertStage != null) {
+                                alertStage.getIcons().add(logo);
+                            }
+                        }
+
+                        if (logomain != null) {
+                            ImageView logoView = new ImageView(logomain);
+                            logoView.setFitHeight(LOGO_HEIGHT);
+                            logoView.setPreserveRatio(true);
+                            alert.setGraphic(logoView);
+                        }
+                    } catch (Exception e) {
+                        LOGGER.error("Logo konnte nicht geladen werden");
                     }
-                }
 
-                if (logomain != null) {
-                    ImageView logoView = new ImageView(logomain);
-                    logoView.setFitHeight(LOGO_HEIGHT);
-                    logoView.setPreserveRatio(true);
-                    alert.setGraphic(logoView);
-                }
-            } catch (Exception e) {
-                LOGGER.error("Logo konnte nicht geladen werden");
-            }
-
-            alert.showAndWait();
-            return null;
-        });
+                    alert.showAndWait();
+                    return null;
+                });
     }
 
     /**
@@ -300,25 +300,26 @@ public class CasinoBrowserController {
      * @param engine WebEngine nutzen
      * @return Button Umschalten
      */
-    public static Button createJsToggle(WebEngine engine){
+    public static Button createJsToggle(WebEngine engine) {
         Button jsToggle = new Button("JS EINSCHALTEN");
         jsToggle.getStyleClass().add("red-button");
 
-        jsToggle.setOnAction(e -> {
-            javascriptEnabled = !javascriptEnabled;
-            engine.setJavaScriptEnabled(javascriptEnabled);
+        jsToggle.setOnAction(
+                e -> {
+                    javascriptEnabled = !javascriptEnabled;
+                    engine.setJavaScriptEnabled(javascriptEnabled);
 
-            if (javascriptEnabled) {
-                jsToggle.setText("JS AUSSCHALTEN");
-                jsToggle.getStyleClass().removeAll("red-button");
-                jsToggle.getStyleClass().add("yellow-button");
+                    if (javascriptEnabled) {
+                        jsToggle.setText("JS AUSSCHALTEN");
+                        jsToggle.getStyleClass().removeAll("red-button");
+                        jsToggle.getStyleClass().add("yellow-button");
 
-            } else {
-                jsToggle.setText("JS EINSCHALTEN");
-                jsToggle.getStyleClass().removeAll("yellow-button");
-                jsToggle.getStyleClass().add("red-button");
-            }
-        });
+                    } else {
+                        jsToggle.setText("JS EINSCHALTEN");
+                        jsToggle.getStyleClass().removeAll("yellow-button");
+                        jsToggle.getStyleClass().add("red-button");
+                    }
+                });
 
         return jsToggle;
     }
@@ -332,11 +333,12 @@ public class CasinoBrowserController {
     public static Button createBackButton(WebEngine engine) {
         Button backBtn = new Button("<");
         backBtn.getStyleClass().add("gray-button");
-        backBtn.setOnAction(e -> {
-            if (engine.getHistory().getCurrentIndex() > 0) {
-                engine.getHistory().go(-1);
-            }
-        });
+        backBtn.setOnAction(
+                e -> {
+                    if (engine.getHistory().getCurrentIndex() > 0) {
+                        engine.getHistory().go(-1);
+                    }
+                });
 
         return backBtn;
     }
@@ -350,12 +352,13 @@ public class CasinoBrowserController {
     public static Button createForwardButton(WebEngine engine) {
         Button fwdBtn = new Button(">");
         fwdBtn.getStyleClass().add("gray-button");
-        fwdBtn.setOnAction(e -> {
-            if (engine.getHistory().getCurrentIndex() <
-                    engine.getHistory().getEntries().size() - 1) {
-                engine.getHistory().go(1);
-            }
-        });
+        fwdBtn.setOnAction(
+                e -> {
+                    if (engine.getHistory().getCurrentIndex()
+                            < engine.getHistory().getEntries().size() - 1) {
+                        engine.getHistory().go(1);
+                    }
+                });
 
         return fwdBtn;
     }
@@ -383,12 +386,12 @@ public class CasinoBrowserController {
     public static Button createCloseButton(Stage stage, WebView webView) {
         Button closeBtn = new Button("X");
         closeBtn.getStyleClass().add("red-button");
-        closeBtn.setOnAction(e -> {
-            webView.getEngine().load("about:blank");
-            clearCookies();
-            stage.close();
-
-        });
+        closeBtn.setOnAction(
+                e -> {
+                    webView.getEngine().load("about:blank");
+                    clearCookies();
+                    stage.close();
+                });
 
         return closeBtn;
     }
@@ -400,13 +403,10 @@ public class CasinoBrowserController {
      * @param urlField URL Textfeld
      * @param securityLabel Sicherheits Label
      */
-    public static void configureUrlEvents(WebEngine engine,
-                                          TextField urlField,
-                                          Label securityLabel) {
-        urlField.setOnAction(e ->
-                loadUrlSafely(engine, urlField.getText(), securityLabel));
-        engine.locationProperty().addListener((obs, o, n) ->
-                urlField.setText(n));
+    public static void configureUrlEvents(
+            WebEngine engine, TextField urlField, Label securityLabel) {
+        urlField.setOnAction(e -> loadUrlSafely(engine, urlField.getText(), securityLabel));
+        engine.locationProperty().addListener((obs, o, n) -> urlField.setText(n));
     }
 
     /**
@@ -423,8 +423,7 @@ public class CasinoBrowserController {
 
         Scene scene = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT);
 
-        var css = CasinoBrowserController.class
-                .getResource("/ui-structure/casinogameui.css");
+        var css = CasinoBrowserController.class.getResource("/ui-structure/casinogameui.css");
 
         if (css != null) {
             scene.getStylesheets().add(css.toExternalForm());
@@ -440,25 +439,23 @@ public class CasinoBrowserController {
      * @param engine WebEngine nutzen
      */
     public static void configureKeyEvents(Scene scene, WebEngine engine) {
-        scene.setOnKeyPressed(event -> {
-            if (event.getCode() == KeyCode.F5) {
-                engine.reload();
-            }
-        });
+        scene.setOnKeyPressed(
+                event -> {
+                    if (event.getCode() == KeyCode.F5) {
+                        engine.reload();
+                    }
+                });
     }
 
     /**
-     * Lädt eine URL in den Browser, nachdem grundlegende Sicherheitsprüfungen
-     * durchgeführt wurden.
+     * Lädt eine URL in den Browser, nachdem grundlegende Sicherheitsprüfungen durchgeführt wurden.
      *
-     * Vor dem Laden einer Seite werden folgende Prüfungen durchgeführt:
-     * - Überprüfung des Protokolls (nur HTTPS erlaubt)
-     * - Überprüfung der Domain gegen eine Whitelist
-     * - Schutz vor Domain-Spoofing (Domain-Vortäuschung)
+     * <p>Vor dem Laden einer Seite werden folgende Prüfungen durchgeführt: - Überprüfung des
+     * Protokolls (nur HTTPS erlaubt) - Überprüfung der Domain gegen eine Whitelist - Schutz vor
+     * Domain-Spoofing (Domain-Vortäuschung)
      *
-     * Falls eine Domain nicht als vertrauenswürdig eingestuft wird,
-     * muss der Benutzer bestätigen, dass die Seite dennoch geöffnet
-     * werden darf.
+     * <p>Falls eine Domain nicht als vertrauenswürdig eingestuft wird, muss der Benutzer
+     * bestätigen, dass die Seite dennoch geöffnet werden darf.
      *
      * @param engine der WebEngine-Renderer des Browsers
      * @param url die zu ladende Webadresse
@@ -485,8 +482,9 @@ public class CasinoBrowserController {
             }
 
             // Sicherer Domain Check
-            boolean trusted = TRUSTED_DOMAINS.stream().anyMatch(domain ->
-                    host.equals(domain) || host.endsWith("." + domain));
+            boolean trusted =
+                    TRUSTED_DOMAINS.stream()
+                            .anyMatch(domain -> host.equals(domain) || host.endsWith("." + domain));
 
             if (!trusted) {
                 if (!showUnknownWebsiteAlert(host)) {
@@ -515,9 +513,9 @@ public class CasinoBrowserController {
         alert.setTitle("Unbekannte Website");
         alert.setHeaderText("Diese Website ist nicht bekannt");
         alert.setContentText(
-                host + "\n\nDiese Seite ist nicht vom " +
-                        "Casono Browser verifiziert.\nMöchten Sie sie trotzdem öffnen?"
-        );
+                host
+                        + "\n\nDiese Seite ist nicht vom "
+                        + "Casono Browser verifiziert.\nMöchten Sie sie trotzdem öffnen?");
 
         var stream = CasinoBrowserController.class.getResourceAsStream(LOGO_PATH);
         Image logo = new Image(stream);
