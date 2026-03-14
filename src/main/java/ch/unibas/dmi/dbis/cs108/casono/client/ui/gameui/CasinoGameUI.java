@@ -9,13 +9,11 @@ import javafx.stage.Stage;
 /**
  * Hauptklasse für das Casino-Spiel-UI.
  *
- * Startet die JavaFX-Anwendung, lädt die grafische Oberfläche aus der FXML-Datei
- * und initialisiert die Haupt-Stage für das Spiel.
+ * <p>Startet die JavaFX-Anwendung, lädt die grafische Oberfläche aus der FXML-Datei und
+ * initialisiert die Haupt-Stage für das Spiel.
  *
- * Aufgaben:
- * - Lädt die FXML-Oberfläche "/ui-structure/Casinogameui.fxml".
- * - Lädt das Anwendungs-Icon aus "/images/logoinverted.png".
- * - Startet die Anwendung im Vollbildmodus.
+ * <p>Aufgaben: - Lädt die FXML-Oberfläche "/ui-structure/Casinogameui.fxml". - Lädt das
+ * Anwendungs-Icon aus "/images/logoinverted.png". - Startet die Anwendung im Vollbildmodus.
  */
 public class CasinoGameUI extends Application {
 
@@ -44,6 +42,7 @@ public class CasinoGameUI extends Application {
 
     /**
      * Startpunkt der Anwendung.
+     *
      * @param args Befehlszeilenargumente.
      */
     public static void main(String[] args) {
