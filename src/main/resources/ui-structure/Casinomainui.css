@@ -120,6 +120,7 @@
     -fx-padding: 0 0 40 0;
 }
 
+/* EXIT BUTTON */
 .button-exit {
     -fx-background-radius: 12;
     -fx-border-radius: 12;
@@ -128,17 +129,17 @@
     -fx-border-width: 2;
     -fx-padding: 6 15;
     -fx-cursor: hand;
+    -fx-background-color: #333333;
+    -fx-border-color: #666666;
+    -fx-text-fill: #CCCCCC;
 }
-
 .button-exit:hover {
     -fx-translate-y: -3;
     -fx-effect: dropshadow(one-pass-box, rgba(0, 0, 0, 0.8), 0, 0, 3, 3);
 }
 
-.button-exit {
-    -fx-background-color: #333333;
-    -fx-border-color: #666666;
-    -fx-text-fill: #CCCCCC;
+/* LOBBY ERSTELLEN BUTTON */
+.button-create-lobby {
     -fx-background-radius: 12;
     -fx-border-radius: 12;
     -fx-font-family: "Courier New";
@@ -146,6 +147,14 @@
     -fx-border-width: 2;
     -fx-padding: 6 15;
     -fx-cursor: hand;
+    -fx-background-color: #1a7f2e;
+    -fx-border-color: #2ecc71;
+    -fx-text-fill: #ffffff;
+}
+.button-create-lobby:hover {
+    -fx-translate-y: -3;
+    -fx-effect: dropshadow(one-pass-box, rgba(0, 0, 0, 0.8), 0, 0, 3, 3);
+    -fx-background-color: #27ae60;
 }
 
 

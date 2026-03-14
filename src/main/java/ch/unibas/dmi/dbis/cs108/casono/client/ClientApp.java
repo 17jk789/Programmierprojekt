@@ -1,6 +1,29 @@
 package ch.unibas.dmi.dbis.cs108.casono.client;
+
+/**
+ * Entry point for the Casono client application.
+ * Handles client startup and connection parameters.
+ */
 import ch.unibas.dmi.dbis.cs108.casono.client.ui.Launcher;
+/**
+ * Entry point for the Casono client application.
+ * Handles client startup and connection parameters.
+ * <p>
+ * Standardkonstruktor für die Anwendung.
+ */
 public class ClientApp {
+
+    /**
+     * Standardkonstruktor.
+     */
+    public ClientApp() {
+        // Standardkonstruktor
+    }
+    /**
+     * Starts the client application with the given address.
+     * @param arg Address in the format "ip:port".
+     * @throws IllegalArgumentException if the address format is invalid.
+     */
     public static void start(String arg) {
         String[] parts = arg.split(":", 2);
         if (parts.length != 2) {

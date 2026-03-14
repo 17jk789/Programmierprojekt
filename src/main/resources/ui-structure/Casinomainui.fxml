@@ -68,6 +68,18 @@
                             <Insets top="20" left="20" />
                         </GridPane.margin>
                     </Button>
+                    <Button text="Lobby erstellen"
+                        styleClass="button-create-lobby"
+                        fx:id="createLobbyButton"
+                        onAction="#handleCreateLobbyButton"
+                        GridPane.rowIndex="0"
+                        GridPane.columnIndex="0"
+                        GridPane.halignment="LEFT"
+                        GridPane.valignment="TOP">
+                        <GridPane.margin>
+                            <Insets top="60" left="20" />
+                        </GridPane.margin>
+                    </Button>
 
                     <VBox fx:id="casinoTable"
                           alignment="CENTER"

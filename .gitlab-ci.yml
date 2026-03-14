@@ -1,0 +1,110 @@
+stages:
+    - lint
+    - report
+    - build
+    - test
+
+# Reusable definitions
+.gradle-cache: &gradle-cache
+  cache:
+    key: '$CI_PROJECT_ID-gradle'
+    paths:
+      - .gradle/
+      - ~/.gradle/caches/
+
+.on-commit: &on-commit
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: never
+    - if: '$CI_COMMIT_BRANCH'
+      allow_failure: true
+
+.on-mr: &on-mr
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      allow_failure: true   # deactivate after all issues (shown by checkstyle) have been resolved
+
+# Jobs
+checkstyle:
+    <<: [*gradle-cache, *on-commit]
+    stage: lint
+    image: gradle:9.3.1-jdk25
+    script:
+        - gradle checkstyleMain checkstyleTest
+    allow_failure: true
+    artifacts:
+        when: always
+        paths:
+            - build/reports/checkstyle/main.html
+            - build/reports/checkstyle/main.xml
+            - build/reports/checkstyle/test.html
+            - build/reports/checkstyle/test.xml
+        expose_as: 'Checkstyle Report'
+        expire_in: 1 week
+
+checkstyle-mr:
+    <<: [*gradle-cache, *on-mr]
+    stage: lint
+    image: gradle:9.3.1-jdk25
+    script:
+        - gradle checkstyleMain checkstyleTest
+    allow_failure: true
+    artifacts:
+        when: always
+        paths:
+            - build/reports/checkstyle/main.html
+            - build/reports/checkstyle/main.xml
+            - build/reports/checkstyle/test.html
+            - build/reports/checkstyle/test.xml
+        expose_as: 'Checkstyle Report'
+        expire_in: 1 week
+
+checkstyle-report:
+    stage: report
+    image: python:3.14
+    needs:
+        - job: checkstyle-mr
+          artifacts: true
+          optional: true
+    rules:
+        - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    script:
+        - python3 scripts/convert-checkstyle-gl-report.py
+    artifacts:
+        when: always
+        reports:
+            codequality: gl-code-quality-report.json
+        expire_in: 1 week
+
+compile-check:
+    <<: *gradle-cache
+    stage: build
+    image: gradle:9.3.1-jdk25
+    script:
+        - gradle compileTestJava
+    needs: []
+    rules:
+        - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+          allow_failure: false
+        - if: '$CI_COMMIT_BRANCH'
+          allow_failure: false
+
+test:
+    <<: *gradle-cache
+    stage: test
+    image: gradle:9.3.1-jdk25
+    script:
+        - gradle test
+    artifacts:
+        when: always
+        reports:
+            junit: build/test-results/test/*.xml
+        paths:
+            - build/reports/tests/test/
+        expose_as: 'Test Report'
+        expire_in: 1 week
+    rules:
+        - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+          allow_failure: false
+        - if: '$CI_COMMIT_BRANCH'
+          allow_failure: true

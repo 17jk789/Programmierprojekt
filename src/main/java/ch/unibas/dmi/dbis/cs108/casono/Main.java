@@ -3,8 +3,25 @@ package ch.unibas.dmi.dbis.cs108.casono;
 import ch.unibas.dmi.dbis.cs108.casono.client.ClientApp;
 import ch.unibas.dmi.dbis.cs108.casono.server.ServerApp;
 
+/**
+ * Main entry point for Casono application.
+ * Handles client and server startup.
+ * <p>
+ * Standardkonstruktor für die Anwendung.
+ */
 public final class Main {
 
+    /**
+     * Standardkonstruktor.
+     */
+    public Main() {
+        // Standardkonstruktor
+    }
+
+    /**
+     * Main entry point for Casono.
+     * @param args Command line arguments
+     */
     public static void main(String[] args) {
         if (!isValid(args)) {
             printUsage();
