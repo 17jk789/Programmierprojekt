@@ -25,6 +25,7 @@ public class ClientServiceTest {
     public void tearDown() {
         serverThread.interrupt();
     }
+
     @Test
     public void testClientService() throws ExecutionException, InterruptedException {
         ClientService client = new ClientService("localhost", 5000);

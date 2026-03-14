@@ -3,11 +3,13 @@ package ch.unibas.dmi.dbis.cs108.casono.client.network;
 import java.io.BufferedReader;
 import java.util.concurrent.Callable;
 
+import ch.unibas.dmi.dbis.cs108.casono.client.network.ClientService;
+
 import java.util.ArrayList;
 
 import java.io.*;
 
-public class sendRequest implements Callable<ArrayList<String>> {
+public class sendRequest implements Runnable {
 
     final private String request;
     final private BufferedReader input;
@@ -20,30 +22,26 @@ public class sendRequest implements Callable<ArrayList<String>> {
     }
 
     @Override
-    public ArrayList<String> call() throws Exception {
+    public void run() {
         try {
-            output.write(request+"\n");
+            output.write(request + "\r\n");
             output.flush();
-            System.out.println("Writing following request: " + request);
+            //System.out.println("Writing following request: " + request);
         } catch (Exception e) {
             System.out.println(e);
         }
 
-        ArrayList<String> response = new ArrayList<>();
-
         try {
-            String line;
-            while ((line = input.readLine()) != null) {
-                if (line.toLowerCase().startsWith("ok")) {
+            while (true) {
+                String line;
+                line = input.readLine();
+                if (line.toLowerCase().startsWith("+ok")) {
                     break;
                 }
-                response.add(line);
+                ClientService.response.add(line);
             }
-
-            System.out.println("Response from server: " + response.get(0));
+        } catch (Exception e) {
+            System.out.println(e);
         }
-        catch (Exception e) {System.out.println(e);}
-
-        return response;
     }
 }
