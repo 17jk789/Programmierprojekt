@@ -4,13 +4,19 @@ package ch.unibas.dmi.dbis.cs108.casono.client;
  * Entry point for the Casono client application. Handles client startup and connection parameters.
  */
 import ch.unibas.dmi.dbis.cs108.casono.client.ui.Launcher;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
- * Entry point for the Casono client application. Handles client startup and connection parameters.
+ * Entry point for the Casono client application. Handles client startup and
+ * connection parameters.
  *
- * <p>Standardkonstruktor für die Anwendung.
+ * <p>
+ * Standardkonstruktor für die Anwendung.
  */
 public class ClientApp {
+
+    private static final Logger LOGGER = LogManager.getLogger(ClientApp.class);
 
     /** Standardkonstruktor. */
     public ClientApp() {
@@ -31,8 +37,7 @@ public class ClientApp {
         String host = parts[0];
         int port = Integer.parseInt(parts[1]);
 
-        System.out.println(
-                "You've selected the client. It will connect port " + port + " at host " + host);
+        LOGGER.info("You've selected the client. It will connect port {} at host {}", port, host);
         Launcher.main(new String[] {});
     }
 }
