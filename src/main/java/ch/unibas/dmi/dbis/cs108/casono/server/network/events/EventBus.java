@@ -7,9 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
-/**
- * A simple event bus for publishing and subscribing to events.
- */
+/** A simple event bus for publishing and subscribing to events. */
 public class EventBus {
     private final Map<Class<?>, List<Consumer<Object>>> handlers = new ConcurrentHashMap<>();
 
@@ -17,9 +15,11 @@ public class EventBus {
      * Subscribes a handler to a specific event type.
      *
      * @param eventType the class of the event to subscribe to
-     * @param handler   the consumer to handle the event
+     * @param handler the consumer to handle the event
      */
-    @SuppressWarnings("unchecked") // This cast is safe, because handlers only get passed the type they subscribed to
+    @SuppressWarnings(
+            "unchecked") // This cast is safe, because handlers only get passed the type they
+    // subscribed to
     public <T extends Event> void subscribe(Class<T> eventType, Consumer<T> handler) {
         handlers.computeIfAbsent(eventType, k -> new CopyOnWriteArrayList<>())
                 .add((Consumer<Object>) (Consumer<?>) handler);

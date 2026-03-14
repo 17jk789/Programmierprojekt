@@ -6,9 +6,7 @@ import java.io.IOException;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 
-/**
- * Implements TCP-based transport layer for network communication.
- */
+/** Implements TCP-based transport layer for network communication. */
 public class TcpTransport implements TransportLayer {
     private Socket socket;
     private DataInputStream in;
@@ -49,7 +47,7 @@ public class TcpTransport implements TransportLayer {
         byte[] rawPayload = payload.getBytes(StandardCharsets.UTF_8);
         out.writeInt(rawPayload.length);
         out.write(rawPayload);
-        out.flush();    
+        out.flush();
     }
 
     /**

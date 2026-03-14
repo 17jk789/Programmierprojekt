@@ -1,17 +1,14 @@
 package ch.unibas.dmi.dbis.cs108.casono.server.network.sessions;
 
+import ch.unibas.dmi.dbis.cs108.casono.server.network.events.DisconnectEvent;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.events.EventBus;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.transport.TransportLayer;
 import java.io.EOFException;
 import java.io.IOException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import ch.unibas.dmi.dbis.cs108.casono.server.network.events.DisconnectEvent;
-import ch.unibas.dmi.dbis.cs108.casono.server.network.events.EventBus;
-import ch.unibas.dmi.dbis.cs108.casono.server.network.transport.TransportLayer;
-
-/**
- * Represents a client session in the network server.
- */
+/** Represents a client session in the network server. */
 public class Session implements Runnable {
     private SessionId id;
     private Thread thread;
@@ -19,12 +16,12 @@ public class Session implements Runnable {
     private Logger logger;
     private Boolean running;
     private EventBus eventBus;
-    
+
     /**
      * Creates a new Session with the given transport and event bus.
      *
      * @param transport the transport layer for communication
-     * @param eventBus  the event bus for publishing events
+     * @param eventBus the event bus for publishing events
      * @throws IOException if an I/O error occurs during initialization
      */
     public Session(TransportLayer transport, EventBus eventBus) throws IOException {
@@ -47,9 +44,7 @@ public class Session implements Runnable {
         return this.id;
     }
 
-    /**
-     * Starts the session thread.
-     */
+    /** Starts the session thread. */
     public void start() {
         thread.start();
     }
@@ -64,14 +59,12 @@ public class Session implements Runnable {
         this.running = false;
     }
 
-    /**
-     * Runs the session loop, reading from the transport.
-     */
+    /** Runs the session loop, reading from the transport. */
     @Override
     public void run() {
         while (running) {
             try {
-                System.out.println("Recieved: " + transport.read());
+                logger.debug("Recieved: {}", transport.read());
             } catch (EOFException e) {
                 logger.info("Client disconnected");
                 eventBus.publish(new DisconnectEvent(id));
