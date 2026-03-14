@@ -19,7 +19,6 @@ public class SessionManager {
      */
     public void addSession(Session session) {
         sessions.put(session.getId(), session);
-        System.out.println("Added session " + session.getId().value() + " to session manager");
     }
 
     /**
@@ -29,7 +28,6 @@ public class SessionManager {
      * @return the removed session, or null if not found
      */
     public Session removeSession(SessionId id) {
-        System.out.println("Removed session " + id.value() + " from session manager");
         return sessions.remove(id);
     }
 

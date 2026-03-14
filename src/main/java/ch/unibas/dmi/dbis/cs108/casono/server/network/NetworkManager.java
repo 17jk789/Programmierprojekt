@@ -39,7 +39,7 @@ public class NetworkManager implements Runnable {
 
     /** Starts the internal thread to accept new connections. */
     public void start() {
-        logger.debug("Starting server at port " + port);
+        logger.debug("Starting at port {}", port);
         thread.start();
     }
 
@@ -49,7 +49,7 @@ public class NetworkManager implements Runnable {
      * @param event the disconnect event
      */
     public void clientDisconnected(DisconnectEvent event) {
-        logger.info("Session " + event.sessionId().value() + " disconnected adhasghd");
+        logger.info("Session {} disconnected", event.sessionId().value());
     }
 
     /** Runs the network manager loop, accepting connections. */
@@ -59,8 +59,7 @@ public class NetworkManager implements Runnable {
             while (running) {
                 Socket clientSocket = serverSocket.accept();
 
-                System.out.println(
-                        "Accepted connection from " + clientSocket.getRemoteSocketAddress());
+                logger.debug("Accepted connection from {}", clientSocket.getRemoteSocketAddress());
 
                 Session session = new Session(new TcpTransport(clientSocket), eventBus);
                 sessionManager.addSession(session);

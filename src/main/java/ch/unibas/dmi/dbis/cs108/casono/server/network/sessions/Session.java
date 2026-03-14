@@ -64,7 +64,7 @@ public class Session implements Runnable {
     public void run() {
         while (running) {
             try {
-                System.out.println("Recieved: " + transport.read());
+                logger.debug("Recieved: {}", transport.read());
             } catch (EOFException e) {
                 logger.info("Client disconnected");
                 eventBus.publish(new DisconnectEvent(id));
