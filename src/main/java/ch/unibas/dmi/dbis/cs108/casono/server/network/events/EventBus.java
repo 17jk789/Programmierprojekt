@@ -15,7 +15,7 @@ public class EventBus {
      * Subscribes a handler to a specific event type.
      *
      * @param eventType the class of the event to subscribe to
-     * @param handler   the consumer to handle the event
+     * @param handler the consumer to handle the event
      */
     @SuppressWarnings("unchecked") // This cast is safe, because handlers only get passed the type they subscribed to
     public <T extends Event> void subscribe(Class<T> eventType, Consumer<T> handler) {

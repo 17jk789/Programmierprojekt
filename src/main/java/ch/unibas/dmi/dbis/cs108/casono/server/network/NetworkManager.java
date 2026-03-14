@@ -23,9 +23,9 @@ public class NetworkManager implements Runnable {
     /**
      * Creates a new NetworkManager with the given port, session manager, and event bus.
      *
-     * @param port           the port to listen on
+     * @param port the port to listen on
      * @param sessionManager the session manager to use
-     * @param eventBus       the event bus for events
+     * @param eventBus the event bus for events
      */
     public NetworkManager(Integer port, SessionManager sessionManager, EventBus eventBus) {
         this.port = port;
