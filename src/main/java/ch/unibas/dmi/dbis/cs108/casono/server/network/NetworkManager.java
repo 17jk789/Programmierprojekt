@@ -1,17 +1,15 @@
 package ch.unibas.dmi.dbis.cs108.casono.server.network;
 
-import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.Socket;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import ch.unibas.dmi.dbis.cs108.casono.server.network.events.DisconnectEvent;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.events.EventBus;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.sessions.Session;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.sessions.SessionManager;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.transport.TcpTransport;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Creates and manages the server socket. Accepts new incoming connections and creates sessions.

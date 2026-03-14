@@ -1,13 +1,12 @@
 package ch.unibas.dmi.dbis.cs108.casono.server.network.sessions;
 
+import ch.unibas.dmi.dbis.cs108.casono.server.network.events.DisconnectEvent;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.events.EventBus;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.transport.TransportLayer;
 import java.io.EOFException;
 import java.io.IOException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import ch.unibas.dmi.dbis.cs108.casono.server.network.events.DisconnectEvent;
-import ch.unibas.dmi.dbis.cs108.casono.server.network.events.EventBus;
-import ch.unibas.dmi.dbis.cs108.casono.server.network.transport.TransportLayer;
 
 /**
  * Represents a client session in the network server.
