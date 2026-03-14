@@ -1,4 +1,4 @@
-package ch.unibas.dmi.dbis.cs108.casono.client.ui.lobbyui;
+package ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui;
 
 // import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -23,12 +23,11 @@ import javafx.scene.layout.VBox;
  * - die Schnittstelle zur GameEngine und zum Netzwerkprotokoll.
  *
  * Hinweise:
- * - Die Methode `onTableClick()` dient aktuell als Test-Logik und wird später
- *   durch echte Spielinteraktionen ersetzt.
- * - Die Browserfunktion (`onBrowserButtonClick()`) ist geplant, um ein
- *   integriertes Hilfetool für Regeln oder Support bereitzustellen.
+ * - Die Methode `onTableClick()` dient aktuell nur als Test-Logik.
+ *   Sie ist ggf. nicht mehr funktionsfähig und wird zukünftig
+ *   durch die finale Spielinteraktion ersetzt.
  */
-public class Casinogamecontroller {
+public class CasinoGameController {
 
     @FXML private Label welcomeText;
     @FXML private VBox casinoTable;
@@ -38,11 +37,4 @@ public class Casinogamecontroller {
     public void onTableClick() {
         welcomeText.setText("Einsatz akzeptiert!");
     }
-
-    // TODO: Implementierung des Casono-Browsers.
-    // Dient als integriertes Hilfe-Tool bei technischen Problemen oder Regelfragen
-    // und wird vervollständigt, sobald die Support-Inhalte bereitstehen.
-    // @FXML
-    // private void onBrowserButtonClick() {
-    // }
 }
