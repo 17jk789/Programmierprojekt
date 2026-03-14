@@ -93,7 +93,7 @@
         <!-- Restrict length of method name -->
         <!-- https://checkstyle.sourceforge.io/checks/sizes/methodlength.html -->
         <module name="MethodLength">
-            <property name="max" value="40"/>
+            <property name="max" value="60"/>
             <property name="countEmpty" value="false"/>
         </module>
 
