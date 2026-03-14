@@ -26,6 +26,7 @@
     -fx-font-size: 22px;
     -fx-font-weight: bold;
     -fx-padding: 0 0 10 0;
+    -fx-effect: dropshadow(one-pass-box, #000000, 0, 0, 3, 3);
 }
 
 .info-text {
@@ -61,12 +62,13 @@
     -fx-text-fill: #ffffff;
     -fx-font-size: 28px;
     -fx-font-weight: bold;
-    -fx-effect: dropshadow(one-pass-box, #000, 0, 0, 3, 3);
+    -fx-effect: dropshadow(one-pass-box, #000000, 0, 0, 3, 3);
 }
 
 .chat-separator {
     -fx-background-color: #ffffff;
     -fx-min-height: 4px;
+    -fx-effect: dropshadow(one-pass-box, #000000, 0, 0, 3, 3);
 }
 
 .taskbar {
@@ -85,7 +87,7 @@
     -fx-border-color: #ffffff;
 }
 
-.input-field {
+.black-input-field {
     -fx-background-color: #1a1a1a;
     -fx-text-fill: #ffffff;
     -fx-font-family: "Courier New";
@@ -97,18 +99,59 @@
     -fx-padding: 5 12;
 }
 
-.input-field:hover {
+.black-input-field:hover {
     -fx-translate-y: -3;
     -fx-effect: dropshadow(one-pass-box, rgba(0, 0, 0, 0.8), 0, 0, 3, 3);
 }
 
 
-.input-field:focused {
+.black-input-field:focused {
     -fx-border-color: #ffffff;
     -fx-background-color: #000000;
 }
 
-.taskbar-button, .taskbar-button-primary, .taskbar-button-exit {
+.gray-input-field {
+    -fx-background-color: #333333;
+    -fx-text-fill: #ffffff;
+    -fx-font-family: "Courier New";
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-color: #666666;
+    -fx-color-color: #cccccc;
+    -fx-border-width: 2;
+    -fx-padding: 5 12;
+}
+
+.gray-input-field:hover {
+    -fx-translate-y: -3;
+    -fx-effect: dropshadow(one-pass-box, rgba(0, 0, 0, 0.8), 0, 0, 3, 3);
+}
+
+.gray-input-field:focused {
+    -fx-border-color: #ffffff;
+    -fx-background-color: #333333;
+}
+
+.yellow-button {
+    -fx-background-color: #b8860b;
+    -fx-border-color: #ffd700;
+    -fx-text-fill: #ffffff;
+}
+
+.red-button {
+    -fx-background-color: #8b0000;
+    -fx-border-color: #ff4444;
+    -fx-text-fill: #ffffff;
+}
+
+.gray-button {
+    -fx-background-color: #333333;
+    -fx-border-color: #666666;
+    -fx-text-fill: #cccccc;
+}
+
+.gray-button, .yellow-button, .red-button {
     -fx-background-radius: 12;
     -fx-border-radius: 12;
     -fx-font-family: "Courier New";
@@ -118,27 +161,9 @@
     -fx-cursor: hand;
 }
 
-.taskbar-button:hover, .taskbar-button-primary:hover, .taskbar-button-exit:hover {
+.gray-button:hover, .yellow-button:hover, .red-button:hover {
     -fx-translate-y: -3;
     -fx-effect: dropshadow(one-pass-box, rgba(0, 0, 0, 0.8), 0, 0, 3, 3);
-}
-
-.taskbar-button-primary {
-    -fx-background-color: #b8860b;
-    -fx-border-color: #ffd700;
-    -fx-text-fill: white;
-}
-
-.taskbar-button-exit {
-    -fx-background-color: #8b0000;
-    -fx-border-color: #ff4444;
-    -fx-text-fill: white;
-}
-
-.taskbar-button {
-    -fx-background-color: #333333;
-    -fx-border-color: #666666;
-    -fx-text-fill: #cccccc;
 }
 
 .player-status-pane {
@@ -185,7 +210,7 @@
 }
 
 .status-value-text {
-    -fx-text-fill: white;
+    -fx-text-fill: #ffffff;
     -fx-font-family: "Monospaced"; /* Schriftart */
     -fx-font-size: 15px;
     -fx-font-weight: bold;
@@ -206,18 +231,98 @@
     -fx-border-radius: 50;
 }
 
-/* Style-Definition für den Casono-Browser. Aktuell auskommentiert, bis die Browser-Komponente bereit ist. */
-/*.taskbar-browser {*/
-/*    -fx-background-color: rgb(13, 158, 59);*/
-/*    -fx-background-radius: 23;*/
-/*    -fx-border-radius: 20;*/
-/*    -fx-border-color: #5c3d10 #3d260a #3d260a #5c3d10;*/
-/*    -fx-border-width: 3;*/
-/*    -fx-padding: 10 25;*/
-/*    -fx-cursor: default;*/
-/*    -fx-effect: dropshadow(one-pass-box, rgba(0,0,0,0.8), 0, 0, 5, 5);*/
-/*}*/
+.browser-root {
+    -fx-background-image: url("/images/background.png");
+    -fx-background-size: cover;
+    -fx-background-position: center;
+    -fx-background-color: #0b2d15;
+}
+
+.browser-web-view {
+    -fx-background-color: rgb(13, 158, 59);
+    -fx-background-radius: 23;
+    -fx-border-radius: 20;
+    -fx-border-color: #5c3d10 #3d260a #3d260a #5c3d10;
+    -fx-border-width: 3;
+    -fx-padding: 0;
+    -fx-cursor: default;
+    -fx-effect: dropshadow(one-pass-box, rgba(0,0,0,0.8), 0, 0, 5, 5);
+}
+
+.web-view {
+    -fx-background-color: transparent;
+}
+
+.taskbar-browser {
+    -fx-background-color: rgb(13, 158, 59);
+    -fx-background-radius: 23;
+    -fx-border-radius: 20;
+    -fx-border-color: #5c3d10 #3d260a #3d260a #5c3d10;
+    -fx-border-width: 3;
+    -fx-padding: 10 25;
+    -fx-cursor: default;
+    -fx-effect: dropshadow(one-pass-box, rgba(0,0,0,0.8), 0, 0, 5, 5);
+}
 
 /*.taskbar-browser:hover {*/
-/*    -fx-border-color: #5c3d10 #3d260a #3d260a #5c3d10;*/
+/*    -fx-border-color: #ffffff;*/
 /*}*/
+
+.security-label {
+    -fx-text-fill: #000000;
+    -fx-font-weight: bold;
+    -fx-font-size: 16px;
+}
+
+.chat-scroll-pane {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+    -fx-border-color: transparent;
+}
+
+.chat-VBox {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+}
+.scroll-pane {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.scroll-pane .scroll-bar:vertical {
+    -fx-background-color: transparent;
+}
+
+.scroll-pane .scroll-bar .track {
+    -fx-background-color: #5c3d10;
+    -fx-background-insets: 0;
+    -fx-background-radius: 5;
+}
+
+.scroll-pane .scroll-bar .thumb {
+    -fx-background-color: #3d260a;
+    -fx-background-insets: 0;
+    -fx-background-radius: 5;
+    -fx-pref-width: 6;
+    -fx-pref-height: 6;
+    -fx-padding: 0;
+}
+
+.scroll-pane .scroll-bar:horizontal {
+    -fx-background-color: transparent;
+}
+
+.scroll-pane .scroll-bar:horizontal .track {
+    -fx-background-color: #5c3d10;
+    -fx-background-radius: 5;
+}
+
+.scroll-pane .scroll-bar:horizontal .thumb {
+    -fx-background-color: #3d260a;
+    -fx-background-radius: 5;
+    -fx-pref-height: 6;
+}
+
+.scroll-pane .scroll-bar:horizontal .thumb:hover {
+    -fx-pref-height: 10;
+}
