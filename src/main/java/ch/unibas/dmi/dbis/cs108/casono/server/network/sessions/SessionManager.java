@@ -3,15 +3,11 @@ package ch.unibas.dmi.dbis.cs108.casono.server.network.sessions;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Manages active sessions in the server.
- */
+/** Manages active sessions in the server. */
 public class SessionManager {
     private Map<SessionId, Session> sessions;
 
-    /**
-     * Constructs a new SessionManager.
-     */
+    /** Constructs a new SessionManager. */
     public SessionManager() {
         this.sessions = new ConcurrentHashMap<>();
     }

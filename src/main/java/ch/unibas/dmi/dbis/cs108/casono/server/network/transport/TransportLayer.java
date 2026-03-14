@@ -2,9 +2,7 @@ package ch.unibas.dmi.dbis.cs108.casono.server.network.transport;
 
 import java.io.IOException;
 
-/**
- * Interface for transport layer implementations.
- */
+/** Interface for transport layer implementations. */
 public interface TransportLayer {
     /**
      * Reads data from the transport layer.
