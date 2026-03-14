@@ -3,15 +3,11 @@ package ch.unibas.dmi.dbis.cs108.casono.server.network.sessions;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Manages active sessions in the server.
- */
+/** Manages active sessions in the server. */
 public class SessionManager {
     private Map<SessionId, Session> sessions;
 
-    /**
-     * Constructs a new SessionManager.
-     */
+    /** Constructs a new SessionManager. */
     public SessionManager() {
         this.sessions = new ConcurrentHashMap<>();
     }
@@ -23,7 +19,6 @@ public class SessionManager {
      */
     public void addSession(Session session) {
         sessions.put(session.getId(), session);
-        System.out.println("Added session " + session.getId().value() + " to session manager");
     }
 
     /**
@@ -33,7 +28,6 @@ public class SessionManager {
      * @return the removed session, or null if not found
      */
     public Session removeSession(SessionId id) {
-        System.out.println("Removed session " + id.value() + " from session manager");
         return sessions.remove(id);
     }
 
