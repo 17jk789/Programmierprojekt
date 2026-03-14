@@ -78,7 +78,7 @@
             </VBox>
 
             <!-- TODO: Platzhalter: Chat-Box in Spalte 2: -->
-            <fx:include source="gameuicomponents/chatbox.fxml" GridPane.columnIndex="2"/>
+            <fx:include source="components/chatbox.fxml" GridPane.columnIndex="2"/>
 
         </children>
     </GridPane>

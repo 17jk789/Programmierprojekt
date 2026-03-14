@@ -1,4 +1,4 @@
-package ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui.gameuicomponents;
+package ch.unibas.dmi.dbis.cs108.casono.client.ui.chatui;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
