@@ -1,4 +1,4 @@
-package ch.unibas.dmi.dbis.cs108.casono.client.ui.lobbyui;
+package ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -18,10 +18,17 @@ import java.io.IOException;
  * - Lädt das Anwendungs-Icon aus "/images/logoinverted.png".
  * - Startet die Anwendung im Vollbildmodus.
  */
-public class Casinogameui extends Application {
+public class CasinoGameUI extends Application {
+
+    /**
+     * Startet die Haupt-Stage der Anwendung.
+     *
+     * @param stage Die vom System bereitgestellte Haupt-Stage.
+     * @throws IOException Wenn die FXML-Datei oder Ressourcen nicht geladen werden können.
+     */
     @Override
     public void start(Stage stage) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(Casinogameui.class.getResource("/ui-structure/Casinogameui.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(CasinoGameUI.class.getResource("/ui-structure/casinogameui.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 1200, 800);
         stage.setTitle("Casono (GAME)");
 
@@ -31,6 +38,10 @@ public class Casinogameui extends Application {
         stage.show();
     }
 
+    /**
+     * Startpunkt der Anwendung.
+     * @param args Befehlszeilenargumente.
+     */
     public static void main(String[] args) {
         launch();
     }
