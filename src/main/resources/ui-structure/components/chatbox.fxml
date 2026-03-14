@@ -20,7 +20,8 @@
 <VBox xmlns="http://javafx.com/javafx/21"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="ch.unibas.dmi.dbis.cs108.casono.client.ui.chatui.ChatController"
-      alignment="CENTER">
+      alignment="CENTER"
+      stylesheets="@chatui.css">
 
     <!-- Innenabstand: Schafft oben, rechts und unten 30 Pixel Platz, links nur 10 Pixel (asymmetrisch) -->
     <padding>
