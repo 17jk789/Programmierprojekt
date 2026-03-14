@@ -14,7 +14,7 @@
     - Globaler Chat (Gesamter Server)
 
     Features, die später implementiert werden sollen:
-    - Nachrichten-Formatierung (Name, Zeitstempel, Textfarbe nach Typ).
+    - Schicke Chat-Bubbles mit Namen und Uhrzeit.
 -->
 
 <VBox xmlns="http://javafx.com/javafx/21"
