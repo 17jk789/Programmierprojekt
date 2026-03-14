@@ -1,13 +1,13 @@
 package ch.unibas.dmi.dbis.cs108.casono.client.ui.chatui;
 
-import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.VBox;
-import javafx.scene.control.Label;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import javafx.fxml.FXML;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.VBox;
 
 /**
  * Controller-Klasse für das Chat-System innerhalb der Spieloberfläche.
@@ -38,6 +38,8 @@ public class ChatController {
 
     @FXML
     private ScrollPane chatScrollPane;
+
+    private static final int CHAT_PADDING = 20;
 
     /**
      * Initialisiert den ChatController nach dem Laden der FXML.
@@ -73,7 +75,7 @@ public class ChatController {
         Label label = new Label("[" + time + "] " + player + ": " + message);
         label.getStyleClass().add("info-text");
         label.setWrapText(true); // Zeilenumbruch aktivieren
-        label.maxWidthProperty().bind(chatVBox.widthProperty().subtract(20));
+        label.maxWidthProperty().bind(chatVBox.widthProperty().subtract(CHAT_PADDING));
         chatVBox.getChildren().add(label);
     }
 
