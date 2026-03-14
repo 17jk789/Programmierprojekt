@@ -7,7 +7,7 @@
 <!-- verschiebbare Taskbar -->
 <HBox xmlns="http://javafx.com/javafx/21"
       xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="ch.unibas.dmi.dbis.cs108.casono.client.ui.lobbyui.gameuicomponents.TaskbarController"
+      fx:controller="ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui.gameuicomponents.TaskbarController"
       fx:id="taskbar"
       styleClass="taskbar"
       spacing="15"
@@ -18,10 +18,10 @@
       layoutX="50.0" layoutY="710.0">
 
     <!-- Platzhalter-Buttons -->
-    <Button text="SETTING" styleClass="taskbar-button" />
-    <Button text="INFO" styleClass="taskbar-button" />
-    <!-- TODO: Buten für den Casono Browser -->
-    <!-- <Button text="Hilfe" onAction="#onBrowserButtonClick" styleClass="taskbar-button" />-->
+    <Button text="EINSTELLUNGEN" styleClass="gray-button" />
+    <Button text="INFO" styleClass="gray-button" />
+    <!-- Buten für den Casono Browser -->
+    <Button text="HILFE" onAction="#onBrowserButtonClick" styleClass="gray-button" />
 
     <!-- Vertikale-Trennlinie: Erzeugt eine optische Abgrenzung zwischen zwei Butten-Bereichen -->
     <Separator orientation="VERTICAL" prefHeight="20" opacity="0.3" />
@@ -30,21 +30,21 @@
     <TextField fx:id="taskbarInput"
                promptText="Betrag setzen..."
                onKeyPressed="#onInputSubmitted"
-               styleClass="input-field"
+               styleClass="gray-input-field"
                prefWidth="150" />
 
     <!-- Bestätigungs-Button: Alternative zum Enter-Key, um den Einsatz abzusenden -->
-    <Button text="SUBMIT"
+    <Button text="SETZTEN"
             onAction="#onInputSubmittedAction"
-            styleClass="taskbar-button-primary"/>
+            styleClass="yellow-button"/>
 
     <!-- Vertikale-Trennlinie: Erzeugt eine optische Abgrenzung zwischen zwei Butten-Bereichen -->
     <Separator orientation="VERTICAL" prefHeight="20" opacity="0.3" />
 
     <!-- Menü-Button: Bricht das aktuelle Spiel ab und kehrt zum Hauptmenü zurück -->
-    <Button text="EXIT"
+    <Button text="VERLASSEN"
             onAction="#onExitButtonClick"
-            styleClass="taskbar-button-exit"/>
+            styleClass="red-button"/>
 
     <!-- Innenabstand: Hält den Inhalt 10 Pixel von oben/unten und 20 Pixel von den Seiten fern -->
     <padding>
