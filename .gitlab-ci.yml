@@ -2,6 +2,7 @@ stages:
     - lint
     - report
     - build
+    - test
 
 # Reusable definitions
 .gradle-cache: &gradle-cache
@@ -87,3 +88,23 @@ compile-check:
           allow_failure: false
         - if: '$CI_COMMIT_BRANCH'
           allow_failure: false
+
+test:
+    <<: *gradle-cache
+    stage: test
+    image: gradle:9.3.1-jdk25
+    script:
+        - gradle test
+    artifacts:
+        when: always
+        reports:
+            junit: build/test-results/test/*.xml
+        paths:
+            - build/reports/tests/test/
+        expose_as: 'Test Report'
+        expire_in: 1 week
+    rules:
+        - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+          allow_failure: false
+        - if: '$CI_COMMIT_BRANCH'
+          allow_failure: true
