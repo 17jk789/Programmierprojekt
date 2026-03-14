@@ -18,11 +18,18 @@ import javafx.scene.layout.HBox;
  */
 public class TaskbarController {
 
+    private static final org.apache.logging.log4j.Logger LOGGER =
+            org.apache.logging.log4j.LogManager.getLogger(CasinoBrowserController.class);
+
     @FXML private HBox taskbar;
     @FXML private TextField taskbarInput;
 
     private double xOffset = 0;
     private double yOffset = 0;
+    private static final double TASKBAR_SCALE = 0.9;
+    private static final int MIN_CREDITS = 5;
+    private static final int MAX_CREDITS = 100000;
+    private static final int CREDIT_STEP = 5;
 
     /**
      * Wird aufgerufen, wenn die Taskleiste mit der Maus gedrückt wird.
@@ -40,7 +47,8 @@ public class TaskbarController {
      * Wird aufgerufen, während die Taskleiste mit der Maus gezogen wird.
      * Aktualisiert die Position und skaliert die Taskleiste leicht zur visuellen Rückmeldung.
      *
-     * TODO: Es muss noch gefixt werden, dass die Taskleiste nicht aus dem Fenster verschwinden kann.
+     * TODO: Es muss noch gefixt werden, dass die Taskleiste nicht aus dem
+     * Fenster verschwinden kann.
      *
      * @param event Das Mausereignis
      */
@@ -49,8 +57,8 @@ public class TaskbarController {
         taskbar.setLayoutX(event.getSceneX() - xOffset);
         taskbar.setLayoutY(event.getSceneY() - yOffset);
 
-        taskbar.setScaleX(0.9);
-        taskbar.setScaleY(0.9);
+        taskbar.setScaleX(TASKBAR_SCALE);
+        taskbar.setScaleY(TASKBAR_SCALE);
     }
 
     /**
@@ -108,15 +116,15 @@ public class TaskbarController {
         try {
             int credits = Integer.parseInt(input.trim());
 
-            if (credits >= 5 && credits <= 100000 && credits % 5 == 0) {
+            if (credits >= MIN_CREDITS && credits <= MAX_CREDITS && credits % CREDIT_STEP == 0) {
                 // TODO: Credits müssen an die GameEngine gesendet werden
-                System.out.println("Einsatz gesetzt: " + credits + " Casono Credits");
+                LOGGER.info("Einsatz gesetzt: {} Casono Credits", credits);
                 taskbarInput.clear();
             } else {
-                System.out.println("Fehler: Nur 5er-Schritte (5, 10, ... 100.000) erlaubt!");
+                LOGGER.info("Fehler: Nur 5er-Schritte (5, 10, ... 100.000) erlaubt!");
             }
         } catch (NumberFormatException e) {
-            System.out.println("Fehler: Bitte nur eine Zahl eingeben!");
+            LOGGER.info("Fehler: Bitte nur eine Zahl eingeben!");
         }
     }
 
