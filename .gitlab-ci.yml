@@ -1,5 +1,6 @@
 stages:
     - lint
+    - report
     - build
 
 # Reusable definitions
@@ -17,15 +18,33 @@ checkstyle:
     image: gradle:9.3.1-jdk25
     script:
         - gradle checkstyleMain checkstyleTest
+    allow_failure: true
     artifacts:
         when: always
         paths:
-        - build/reports/checkstyle/main.html
-        - build/reports/checkstyle/test.html
+            - build/reports/checkstyle/main.html
+            - build/reports/checkstyle/main.xml
+            - build/reports/checkstyle/test.html
+            - build/reports/checkstyle/test.xml
         expose_as: 'Checkstyle Report'
         expire_in: 1 week
     rules:
         - when: manual
+
+checkstyle-report:
+    stage: report
+    image: python:3.14
+    needs:
+        - job: checkstyle
+          artifacts: true
+          optional: true
+    script:
+        - python3 scripts/convert-checkstyle-gl-report.py
+    artifacts:
+        when: always
+        reports:
+            codequality: gl-code-quality-report.json
+        expire_in: 1 week
 
 compile-check:
     <<: *gradle-cache
