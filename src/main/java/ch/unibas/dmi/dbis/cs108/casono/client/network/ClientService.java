@@ -71,6 +71,8 @@ public class ClientService {
         return processMessage("GET_MESSAGE");
     }
 
+    public List<String> sendMessage(Message message) { return processMessage(message.toRequest()); }
+
     private List<String> processMessage(String message) {
         List<String> response = new ArrayList<>();
         sendRequest(() -> {
@@ -113,61 +115,6 @@ public class ClientService {
         re = new RuntimeException(reason);
         return re;
     }
-
-    /**
-     * Sends a Chat Message to the Server and awaits a response, which will be passed along
-     * @param message : Protocol Message of type "Message" to be sent to the server
-     * @return ArrayList<String> : The Response of the Server to be interpreted later
-     */
-
-    public ArrayList<String> sendMessage(Message message) {
-        String time = message.hourTime + ":" + message.minuteTime;
-        String request = "";
-        if (message.target == null && message.game_id == 0) {
-            request = String.format("SEND_MESSAGE TYPE=GLOBAL GAME=null USER=%s TARGET=null TIME=%s TEXT=%s", message.name, time, message.getMessage());
-        }
-        else if (message.target == null) {
-            request = String.format("SEND_MESSAGE TYPE=LOBBY GAME=%d USER=%s TARGET=null TIME=%s TEXT=%s", message.game_id, message.name,  time, message.getMessage());
-        } else {
-            request = String.format("SEND_MESSAGE TYPE=WHISPER GAME=%d USER=%s TARGET=%s TIME=%s TEXT=%s", message.game_id, message.name, message.target, time, message.getMessage());
-        }
-        System.out.println("Writing following request: " + request);
-        sendRequest task = new sendRequest(request, input, output);
-        executor.submit(task);
-        return this.response;
-    }
-
-    public ArrayList<String> getState(int game_id) {
-        String request = String.format("GET_STATE GAME=%d", game_id);
-        sendRequest task = new sendRequest(request, input, output);
-        executor.submit(task);
-        return this.response;
-
-    }
-
-    public ArrayList<String> joinGame(int game_id, String name) {
-        String request = String.format("JOIN GAME=%d NAME=%s", game_id, name);
-        sendRequest task = new sendRequest(request, input, output);
-        executor.submit(task);
-        return response;
-    }
-
-    /**
-     *
-     * @param type : Keyword, as one-word description of the action the player did.
-     * @param game_id : ID of the Lobby that the client is currently in
-     * @param value : Dependent on the action of the User (money)
-     * @param name : Username of the player of that Client
-     * @return The Response of the Server -> Action successfull only if response is valid
-     */
-
-    public ArrayList<String>sendAction(String type, int game_id, String action, int value, String name) {
-        String request = String.format("SEND_ACTION TYPE=%s GAME=%s ACTION=%s VALUE=%d NAME=%s", type, game_id, action, value, name);
-        sendRequest task = new sendRequest(request, input, output);
-        executor.submit(task);
-        return response;
-    }
-
     /**
      * Closes the Socket and shuts down the Threadpool associated with that Socket-Connection.
      */

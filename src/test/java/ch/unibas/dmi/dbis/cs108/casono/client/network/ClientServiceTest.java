@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -29,8 +30,7 @@ public class ClientServiceTest {
     @Test
     public void testClientService() throws ExecutionException, InterruptedException {
         ClientService client = new ClientService("localhost", 5000);
-        Future<ArrayList<String>> future = client.sendMessage(new Message("bla", "name"));
-        future.get();
+        List<String> response = client.sendMessage(new Message(Message.MessageType.GLOBAL, 0, "Mathis", null, "blahh"));
         client.closeSocket();
     }
 }
