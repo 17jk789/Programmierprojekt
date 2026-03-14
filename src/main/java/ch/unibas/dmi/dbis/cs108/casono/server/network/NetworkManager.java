@@ -58,8 +58,9 @@ public class NetworkManager implements Runnable {
         try (ServerSocket serverSocket = new ServerSocket(port)) {
             while (running) {
                 Socket clientSocket = serverSocket.accept();
-                
-                System.out.println("Accepted connection from " + clientSocket.getRemoteSocketAddress());
+
+                System.out.println(
+                        "Accepted connection from " + clientSocket.getRemoteSocketAddress());
 
                 Session session = new Session(new TcpTransport(clientSocket), eventBus);
                 sessionManager.addSession(session);

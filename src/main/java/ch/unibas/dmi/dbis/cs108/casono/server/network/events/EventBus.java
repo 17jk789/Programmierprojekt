@@ -17,7 +17,9 @@ public class EventBus {
      * @param eventType the class of the event to subscribe to
      * @param handler the consumer to handle the event
      */
-    @SuppressWarnings("unchecked") // This cast is safe, because handlers only get passed the type they subscribed to
+    @SuppressWarnings(
+            "unchecked") // This cast is safe, because handlers only get passed the type they
+    // subscribed to
     public <T extends Event> void subscribe(Class<T> eventType, Consumer<T> handler) {
         handlers.computeIfAbsent(eventType, k -> new CopyOnWriteArrayList<>())
                 .add((Consumer<Object>) (Consumer<?>) handler);
