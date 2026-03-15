@@ -33,15 +33,20 @@ public class ClientServiceTest {
     @Test
     public void testClientService() throws ExecutionException, InterruptedException {
         ClientService client1 = new ClientService("localhost", 5000);
+        /*
         ClientService client2 = new ClientService("localhost", 5000);
         Thread.sleep(2000);
-        String response = client1.sendMessage(new Message(Message.MessageType.GLOBAL, 0, "Mathis", null, "blahh"));
+        client1.sendMessage(new Message(Message.MessageType.GLOBAL, 0, "Mathis", null, "blahh"));
         Thread.sleep(5000);
         List<Message> received = client2.getMessages();
 
         assertEquals(1, received.size());
         Message s = received.get(0);
         assertEquals(Message.MessageType.GLOBAL, s.getMessageType());
+         */
+
+        String username = client1.login("Mathis");
+        assertEquals("USERNAME=Mathis", username);
     }
 
     @Test

@@ -59,7 +59,28 @@ public class ClientService {
     }
 
     /**
-     * Sends a Request to get all the messages, the other clients sent, and that the client is not currently aware of.
+     * Sends a ping to the server
+     * Returns nothing, the method processMessage() already handles the cases "+OK" or "-ERROR"
+     */
+
+    public void ping() {
+        processMessage("PING");
+    }
+
+    /**
+     * Sends a login request to the server to create a new user on the server
+     * @param username
+     * @return - a new username, if the same username is already used by someone else
+     */
+
+    public String login(String username) {
+        String msg = "LOGIN USERNAME=" + username;
+        return processMessage(msg);
+    }
+
+    /**
+     * Send a Request to get the number of Messages currently in the Queue for the client.
+     * Then proceeds, if needed, to get the messages by sending
      */
 
     public List<Message> getMessages() {
@@ -77,10 +98,25 @@ public class ClientService {
         return messages;
     }
 
-    public String sendMessage(Message message) {
+    /**
+     * Sends a Request to the Server containing all relevant information of the message the client wrote.
+     * @param message
+     * @return
+     */
+
+    public void sendMessage(Message message) {
         String request = "SEND_MESSAGE " + message.toArgsString();
-        return processMessage(request);
+        processMessage(request);
     }
+
+    /**
+     * Sends the Requests to the server and waits for the response
+     * If the response is "+OK" it proceeds normal
+     * If the response "-ERROR" it throws a runtime exception
+     * @param message
+     * @return - The response as a string, if it has to be returned
+     * (+OK will not be returned)
+     */
 
     private String processMessage(String message) {
         AtomicReference<String> response = new AtomicReference<>();
@@ -93,7 +129,7 @@ public class ClientService {
                     System.out.println("Raw message '" + responseLine + "'");
                     if ("+OK".equals(responseLine)) {
                         return;
-                    } else if ("-FAIL".equals(responseLine)) {
+                    } else if (("-ERROR").equals(responseLine)) {
                         throw new RuntimeException(responseLine);
                     }
                     response.set(responseLine);
@@ -104,6 +140,11 @@ public class ClientService {
         });
         return response.get();
     }
+
+    /**
+     *
+     * @param request
+     */
 
     private void sendRequest(Runnable request) {
         Future<?> future = executor.submit(request);
@@ -116,6 +157,12 @@ public class ClientService {
         }
     }
 
+    /**
+     * Returns a Runtime Exceptions thrown by the sendRequest method
+     * @param e - an Exception
+     * @return - a Runtime Exception
+     */
+
     private static RuntimeException getRuntimeException(Exception e) {
         Throwable reason = e.getCause();
         RuntimeException re;
@@ -127,6 +174,7 @@ public class ClientService {
         re = new RuntimeException(reason);
         return re;
     }
+
     /**
      * Closes the Socket and shuts down the Threadpool associated with that Socket-Connection.
      */
@@ -141,6 +189,12 @@ public class ClientService {
         }
 
     }
+
+    /**
+     * Method to write with the tcp transport to the server
+     * @param s - Message to be sent
+     * @throws IOException
+     */
 
     private void writeToTransport(String s) throws IOException {
         int id = this.idGenerator.incrementAndGet();

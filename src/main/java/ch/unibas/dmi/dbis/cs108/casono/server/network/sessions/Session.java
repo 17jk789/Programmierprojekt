@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import ch.unibas.dmi.dbis.cs108.casono.server.network.handlers.ChatHandler;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.handlers.UserHandler;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.transport.RawPacket;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -18,6 +19,7 @@ import ch.unibas.dmi.dbis.cs108.casono.server.network.transport.TransportLayer;
  */
 public class Session implements Runnable {
     private final ChatHandler chatHandler;
+    private final UserHandler userHandler;
     private SessionId id;
     private Thread thread;
     private TransportLayer transport;
@@ -44,6 +46,7 @@ public class Session implements Runnable {
         this.logger.info("Created new session");
         this.idGenerator = new AtomicInteger();
         this.chatHandler = new ChatHandler(eventBus);
+        this.userHandler = new UserHandler();
     }
 
     /**
@@ -84,11 +87,11 @@ public class Session implements Runnable {
                 String commandWord = commandAndArgs[0];
                 System.out.println("Session "+id.value()+" Received: " + commandAndArgs[0]);
             switch (commandWord) {
-                    case "SEND_MESSAGE":
-                        this.chatHandler.sendMessage(commandAndArgs[1]);
-                        writeToTransport("+OK");
-                        writeToTransport("+OK");
-                        break;
+                case "SEND_MESSAGE":
+                    this.chatHandler.sendMessage(commandAndArgs[1]);
+                    writeToTransport("+OK");
+                    writeToTransport("+OK");
+                    break;
                     case "GET_MESSAGE_COUNT":
                         int count = chatHandler.getMessageCount();
                         writeToTransport(""+count);
@@ -97,7 +100,7 @@ public class Session implements Runnable {
                     case "GET_NEXT_MESSAGE":
                          if (chatHandler.getMessageCount() == 0) {
                              logger.warn("FAIL No more messages!");
-                             writeToTransport("-FAIL");
+                             writeToTransport("-ERROR");
                          } else {
                              String msgString = chatHandler.getNextMessage().toArgsString();
                              logger.debug("Session "+id.value()+" Write next message "+msgString);
@@ -105,9 +108,19 @@ public class Session implements Runnable {
                              writeToTransport("+OK");
                          }
                          break;
+                    case "LOGIN":
+                        String usr = userHandler.addUsername(commandAndArgs[1]);
+                        writeToTransport(usr);
+                        writeToTransport("+OK");
+
+                    case "LOGOUT":
+                        userHandler.removeUsername(commandAndArgs[1]);
+                        writeToTransport("+OK");
+                    case "PING":
+                        
                     default:
                         this.logger.warn("Unknown command: " + commandWord);
-                        writeToTransport("-FAIL");
+                        writeToTransport("-ERROR");
                 }
             } catch (EOFException e) {
                 logger.info("Client disconnected");
