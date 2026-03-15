@@ -5,6 +5,10 @@ import java.time.Instant;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * Periodically periodicly run job to remove disconnected users who have exceeded the reconnect
+ * threshold.
+ */
 public class UserCleanupJob implements Runnable {
     private static final Logger logger = LogManager.getLogger(UserCleanupJob.class);
 
