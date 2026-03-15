@@ -1,8 +1,13 @@
 package ch.unibas.dmi.dbis.cs108.casono.server.domain.user;
 
+import ch.unibas.dmi.dbis.cs108.casono.server.domain.message.Message;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.sessions.SessionId;
 import java.time.Instant;
+import java.util.ArrayDeque;
+import java.util.List;
 import java.util.Optional;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /** Represents an authenticated user on the server. */
 public class User {
@@ -10,6 +15,7 @@ public class User {
     private final String name;
     private SessionId sessionId;
     private Instant disconnectedAt;
+    private final Queue<Message> messages;
 
     /**
      * Creates a new User with the given ID, name and session.
@@ -23,6 +29,7 @@ public class User {
         this.name = name;
         this.sessionId = sessionId;
         this.disconnectedAt = null;
+        this.messages = new ConcurrentLinkedQueue<>();
     }
 
     /**
@@ -75,5 +82,15 @@ public class User {
     public void markDisconnected() {
         this.sessionId = null;
         this.disconnectedAt = Instant.now();
+    }
+
+    public synchronized void enqueueMessage(Message message) {
+        messages.add(message);
+    }
+
+    public synchronized List<Message> dequeueAllMessages(Message message) {
+        List<Message> allMessages = new ArrayDeque<>(messages).stream().toList();
+        messages.clear();
+        return allMessages;
     }
 }
