@@ -10,12 +10,12 @@ import org.apache.logging.log4j.Logger;
  * threshold.
  */
 public class UserCleanupJob implements Runnable {
-    private static final Logger logger = LogManager.getLogger(UserCleanupJob.class);
-
+    private final Logger logger;
     private final UserRegistry registry;
     private final Duration reconnectThreshold;
 
     public UserCleanupJob(UserRegistry registry, Duration reconnectThreshold) {
+        this.logger = LogManager.getLogger(UserCleanupJob.class);
         this.registry = registry;
         this.reconnectThreshold = reconnectThreshold;
     }
@@ -33,7 +33,8 @@ public class UserCleanupJob implements Runnable {
             Instant disconnectedAt = user.getDisconnectedAt().get();
             if (disconnectedAt.isBefore(threshold)) {
                 if (registry.removeIfStillDisconnected(user.getId())) {
-                    logger.info("Removed expired user {} ({})", user.getName(), user.getId().value());
+                    logger.info(
+                            "Removed expired user {} ({})", user.getName(), user.getId().value());
                 }
             }
         }
