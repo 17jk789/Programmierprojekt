@@ -1,24 +1,30 @@
 package ch.unibas.dmi.dbis.cs108.casono.server.network.sessions;
 
-import ch.unibas.dmi.dbis.cs108.casono.server.network.events.DisconnectEvent;
-import ch.unibas.dmi.dbis.cs108.casono.server.network.events.EventBus;
-import ch.unibas.dmi.dbis.cs108.casono.server.network.parser.PrimitiveRequest;
-import ch.unibas.dmi.dbis.cs108.casono.server.network.parser.ProtocolParser;
-import ch.unibas.dmi.dbis.cs108.casono.server.network.transport.RawPacket;
-import ch.unibas.dmi.dbis.cs108.casono.server.network.transport.TransportLayer;
 import java.io.EOFException;
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import ch.unibas.dmi.dbis.cs108.casono.server.network.handlers.ChatHandler;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.transport.RawPacket;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/** Represents a client session in the network server. */
+import ch.unibas.dmi.dbis.cs108.casono.server.network.events.DisconnectEvent;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.events.EventBus;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.transport.TransportLayer;
+
+/**
+ * Represents a client session in the network server.
+ */
 public class Session implements Runnable {
+    private final ChatHandler chatHandler;
     private SessionId id;
     private Thread thread;
     private TransportLayer transport;
     private Logger logger;
     private Boolean running;
     private EventBus eventBus;
+    private AtomicInteger idGenerator;
 
     /**
      * Creates a new Session with the given transport and event bus.
@@ -36,6 +42,8 @@ public class Session implements Runnable {
 
         this.logger = LogManager.getLogger(Session.class.toString() + id.value());
         this.logger.info("Created new session");
+        this.idGenerator = new AtomicInteger();
+        this.chatHandler = new ChatHandler(eventBus);
     }
 
     /**
@@ -47,7 +55,9 @@ public class Session implements Runnable {
         return this.id;
     }
 
-    /** Starts the session thread. */
+    /**
+     * Starts the session thread.
+     */
     public void start() {
         thread.start();
     }
@@ -62,16 +72,43 @@ public class Session implements Runnable {
         this.running = false;
     }
 
-    /** Runs the session loop, reading from the transport. */
+    /**
+     * Runs the session loop, reading from the transport.
+     */
     @Override
     public void run() {
         while (running) {
             try {
-                RawPacket rawPacket = transport.read();
-                logger.debug("Recieved: {}", rawPacket);
-
-                PrimitiveRequest primitiveRequest = ProtocolParser.parse(rawPacket);
-                logger.debug("Parsed request to {}", primitiveRequest);
+                String clientCommand = transport.read().payload();
+                String[] commandAndArgs = clientCommand.split("\\s+", 2);
+                String commandWord = commandAndArgs[0];
+                System.out.println("Session "+id.value()+" Received: " + commandAndArgs[0]);
+            switch (commandWord) {
+                    case "SEND_MESSAGE":
+                        this.chatHandler.sendMessage(commandAndArgs[1]);
+                        writeToTransport("+OK");
+                        writeToTransport("+OK");
+                        break;
+                    case "GET_MESSAGE_COUNT":
+                        int count = chatHandler.getMessageCount();
+                        writeToTransport(""+count);
+                        writeToTransport("+OK");
+                        break;
+                    case "GET_NEXT_MESSAGE":
+                         if (chatHandler.getMessageCount() == 0) {
+                             logger.warn("FAIL No more messages!");
+                             writeToTransport("-FAIL");
+                         } else {
+                             String msgString = chatHandler.getNextMessage().toArgsString();
+                             logger.debug("Session "+id.value()+" Write next message "+msgString);
+                             writeToTransport(msgString);
+                             writeToTransport("+OK");
+                         }
+                         break;
+                    default:
+                        this.logger.warn("Unknown command: " + commandWord);
+                        writeToTransport("-FAIL");
+                }
             } catch (EOFException e) {
                 logger.info("Client disconnected");
                 eventBus.publish(new DisconnectEvent(id));
@@ -81,5 +118,10 @@ public class Session implements Runnable {
                 break;
             }
         }
+    }
+
+    private void writeToTransport(String s) throws IOException {
+        int id = this.idGenerator.incrementAndGet();
+        this.transport.write(new RawPacket(id, s));
     }
 }

@@ -1,6 +1,7 @@
 package ch.unibas.dmi.dbis.cs108.casono.client.chat;
 
-import java.time.LocalTime;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -11,7 +12,7 @@ import java.util.regex.Pattern;
 
 public class Message {
     private final MessageType type;
-    private String message;
+    private final String message;
     public String user;
     public String timestamp;
     public int game_id = 0;
@@ -19,8 +20,6 @@ public class Message {
     public enum MessageType {
         GLOBAL, LOBBY, WHISPER
     };
-
-    public static final String SEPERATOR = " ";
 
     /**
      * Constructor for creating Messages with all information given
@@ -55,8 +54,9 @@ public class Message {
         this.user = user;
         this.target = target;
         this.message = message;
-        LocalTime now = LocalTime.now();
-        this.timestamp = now.toString();
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+        this.timestamp = now.format(formatter);
     }
 
 
@@ -64,33 +64,33 @@ public class Message {
         return message;
     }
 
-    public String getMessageType() {
-        return type.toString();
+    public MessageType getMessageType() {
+        return type;
     }
 
-    /**
+    /*
      * Method to test the system
      * @return - String representation of the Message instance, as for example "player1: Hello World"
-     */
+
     public String toString() {
         return String.format("%s: %s", this.user, this.message);
     }
-
+    */
     /**
      * Method to create the request representation of the message object, to be sent to the server
      * @return - request as specified in the network protocol, as String
      */
-    public String toRequest() {
-        String request = String.format("SEND_MESSAGE TYPE=%s GAME=%d USER=%s TARGET=%s TIME=%s TEXT=%s",
+    public String toArgsString() {
+        return String.format("TYPE=%s GAME=%d USER=%s TARGET=%s TIME=%s TEXT=%s",
                 this.type.toString(), this.game_id, this.user, this.target, this.timestamp, this.message);
-        return request;
     }
 
 
     /**
      * Pattern, to analyze the response String with the given parameters
      */
-    public static Pattern msgRex = Pattern.compile("TYPE=(?<type>\\w+) GAME=(?<game>\\w+) USER=(?<user>\\w+) TARGET=(?<target>\\w+) TIME=(?<time>[0-9:]+) TEXT=(?<text>.*)$");
+    public static Pattern msgRex = Pattern.compile(
+            "TYPE=(?<type>\\w+) GAME=(?<game>\\w+) USER=(?<user>\\w+) TARGET=(?<target>\\w+) TIME=(?<time>[0-9:.]+) TEXT=(?<text>.*)$");
 
     /**
      * Method to create a Message Object, from the information given by the String
@@ -98,10 +98,9 @@ public class Message {
      * @return - New Message Object
      */
     public static Message toMessage(String response) {
-        var parts = response.split(SEPERATOR);
         Matcher m = msgRex.matcher(response);
         if (! m.matches()) {
-            throw new RuntimeException("Can not parse message: " + response);
+            throw new RuntimeException("Can not parse message: '" + response+"'");
         }
         String typeString=m.group("type");
 

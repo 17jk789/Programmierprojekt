@@ -25,6 +25,10 @@ public class ServerApp {
         Logger logger = LogManager.getLogger(ServerApp.class);
         logger.info("Starting server at port {}", port);
 
+        startServerCore(port);
+    }
+
+    public static void startServerCore(int port) {
         EventBus eventBus = new EventBus();
         SessionManager sessionManager = new SessionManager();
         eventBus.subscribe(

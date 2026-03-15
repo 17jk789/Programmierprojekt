@@ -1,9 +1,5 @@
 package ch.unibas.dmi.dbis.cs108.casono.client.network;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,9 +9,13 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import java.io.IOException;
-import java.net.UnknownHostException;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 import ch.unibas.dmi.dbis.cs108.casono.client.chat.Message;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.transport.RawPacket;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.transport.TcpTransport;
+
 
 /**
  * Responsible for the transferring of the data from the Client to the Server and the other way around
@@ -23,16 +23,16 @@ import ch.unibas.dmi.dbis.cs108.casono.client.chat.Message;
 
 public class ClientService {
 
-    private Socket socket;
-    private BufferedReader input;
-    private BufferedWriter output;
+    private final TcpTransport clienttcptransport;
+    private final Socket socket;
 
-    private String ip;
-    private int port;
+    private final String ip;
+    private final int port;
 
-    private ExecutorService executor;
+    private final ExecutorService executor;
 
     public static ArrayList<String> response;
+    private final AtomicInteger idGenerator;
 
     /**
      * Creates a new ClientSession with a Socket, a Reader and Writer of the Input- and the Outputstream and a pool of threads to send requests and receive responses.
@@ -44,20 +44,15 @@ public class ClientService {
 
         this.ip = ip;
         this.port = port;
+        this.idGenerator = new AtomicInteger(0);
 
         try {
             socket = new Socket(this.ip, this.port);
             System.out.println("Connected");
-            input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            output = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-        }
-        catch (UnknownHostException u) {
-            System.out.println(u);
-            return;
+            clienttcptransport = new TcpTransport(socket);
         }
         catch (IOException i) {
-            System.out.println(i);
-            return;
+            throw new RuntimeException(i);
         }
 
         executor = Executors.newSingleThreadExecutor();
@@ -67,30 +62,47 @@ public class ClientService {
      * Sends a Request to get all the messages, the other clients sent, and that the client is not currently aware of.
      */
 
-    public List<String> getMessage() {
-        return processMessage("GET_MESSAGE");
+    public List<Message> getMessages() {
+        String countStr = processMessage("GET_MESSAGE_COUNT");
+        int count = Integer.parseInt(countStr);
+        System.out.println("Got " + count + " messages");
+        List<Message> messages = new ArrayList<>();
+        for (int i = 0; i < count; i++) {
+            String  message = processMessage("GET_NEXT_MESSAGE");
+            if (message != null) {
+                Message message1 = Message.toMessage(message);
+                messages.add(message1);
+            }
+        }
+        return messages;
     }
 
-    public List<String> sendMessage(Message message) { return processMessage(message.toRequest()); }
+    public String sendMessage(Message message) {
+        String request = "SEND_MESSAGE " + message.toArgsString();
+        return processMessage(request);
+    }
 
-    private List<String> processMessage(String message) {
-        List<String> response = new ArrayList<>();
+    private String processMessage(String message) {
+        AtomicReference<String> response = new AtomicReference<>();
         sendRequest(() -> {
             try {
-                output.write(message+"\n");
-                output.flush();
-                String line;
-                while ((line = input.readLine()) != null) {
-                    if (line.toLowerCase().startsWith(".")) {
-                        break;
+                writeToTransport(message);
+                String responseLine=null;
+                do {
+                    responseLine = clienttcptransport.read().payload();
+                    System.out.println("Raw message '" + responseLine + "'");
+                    if ("+OK".equals(responseLine)) {
+                        return;
+                    } else if ("-FAIL".equals(responseLine)) {
+                        throw new RuntimeException(responseLine);
                     }
-                    response.add(line);
-                }
+                    response.set(responseLine);
+                } while(true);
             } catch (Exception e) {
                 throw getRuntimeException(e);
             }
         });
-        return response;
+        return response.get();
     }
 
     private void sendRequest(Runnable request) {
@@ -122,12 +134,17 @@ public class ClientService {
     public void closeSocket() {
         try {
             executor.shutdown();
-            input.close();
-            output.close();
+            clienttcptransport.close();
             socket.close();
         } catch (IOException j) {
             System.out.println(j);
         }
 
     }
+
+    private void writeToTransport(String s) throws IOException {
+        int id = this.idGenerator.incrementAndGet();
+        this.clienttcptransport.write(new RawPacket(id, s));
+    }
+
 }
