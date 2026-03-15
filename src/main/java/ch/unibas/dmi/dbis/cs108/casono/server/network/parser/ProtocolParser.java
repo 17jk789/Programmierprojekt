@@ -27,7 +27,7 @@ public class ProtocolParser {
         String command = readCommand(iterator);
         List<Parameter> parameters = readParameters(iterator);
 
-        return new PrimitiveRequest(command, parameters);
+        return new PrimitiveRequest(packet.requestId(), command, parameters);
     }
 
     /**

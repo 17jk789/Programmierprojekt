@@ -3,4 +3,4 @@ package ch.unibas.dmi.dbis.cs108.casono.server.network.parser;
 import java.util.List;
 
 /** Created by the ProtocolParser to allow easy access to the request contents */
-public record PrimitiveRequest(String command, List<Parameter> parameters) {}
+public record PrimitiveRequest(int requestId, String command, List<Parameter> parameters) {}
