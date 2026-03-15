@@ -8,8 +8,9 @@ public class CommandParserDispatcher {
     private final Map<String, CommandParser> parsers = new HashMap<>();
 
     /**
-     * Register a new CommandParser 
-     * @param command 
+     * Register a new CommandParser
+     *
+     * @param command
      * @param parser the parser class
      */
     public void register(String command, CommandParser parser) {
@@ -18,6 +19,7 @@ public class CommandParserDispatcher {
 
     /**
      * Parses the PrimitiveRequest into a Request using the appropriate CommandParser
+     *
      * @param primitiveRequest the PrimitiveRequest to parse
      * @return the parsed Request object
      */
