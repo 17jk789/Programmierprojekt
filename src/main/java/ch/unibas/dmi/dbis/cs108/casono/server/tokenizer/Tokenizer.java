@@ -4,9 +4,9 @@ import java.util.List;
 
 /**
  * A static utility class for tokenizing input strings into a sequence of tokens.
- * 
- * <p> Strings can be enclosed in single quotes and may contain escaped single quotes 
- * using a backslash.
+ *
+ * <p>Strings can be enclosed in single quotes and may contain escaped single quotes using a
+ * backslash.
  */
 public class Tokenizer {
     /**
@@ -14,10 +14,10 @@ public class Tokenizer {
      *
      * @param input the string to tokenize
      * @return a list of tokens representing the input
-     * @throws TokenizerException if the input contains unexpected characters,
-     *                             unterminated strings, or other syntax errors
+     * @throws TokenizerException if the input contains unexpected characters, unterminated strings,
+     *     or other syntax errors
      */
-    public static List<Token> tokenize(String input) {
+    public static List<RawToken> tokenize(String input) {
         State state = new State(input);
 
         while (!state.isEof()) {
@@ -40,11 +40,11 @@ public class Tokenizer {
 
             } else {
                 throw new TokenizerException(
-                    "Unexpected character '" + c + "'", state.line, state.column);
+                        "Unexpected character '" + c + "'", state.line, state.column);
             }
         }
 
-        state.tokens.add(new Token(TokenType.EOF, null, state.line, state.column));
+        state.tokens.add(new RawToken(RawTokenType.EOF, null, state.line, state.column));
         return state.tokens;
     }
 
@@ -56,7 +56,7 @@ public class Tokenizer {
      * @param state the current parsing state
      */
     private static void readNewline(State state) {
-        state.tokens.add(new Token(TokenType.NEWLINE, "", state.line, state.column));
+        state.tokens.add(new RawToken(RawTokenType.NEWLINE, "", state.line, state.column));
         state.advance();
         state.line++;
         state.column = 1;
@@ -68,13 +68,13 @@ public class Tokenizer {
      * @param state the current parsing state
      */
     private static void readSeparator(State state) {
-        state.tokens.add(new Token(TokenType.SEPARATOR, "=", state.line, state.column));
+        state.tokens.add(new RawToken(RawTokenType.SEPARATOR, "=", state.line, state.column));
         state.advance();
     }
 
     /**
-     * Reads a word (sequence of alphanumeric characters and underscores) and creates
-     * an appropriate token (COMMAND, KEY, or VALUE) based on the parsing context.
+     * Reads a word (sequence of alphanumeric characters and underscores) and creates an appropriate
+     * token (COMMAND, KEY, or VALUE) based on the parsing context.
      *
      * <p>The token type is determined by the {@link #resolveWordType(State)} method.
      *
@@ -84,24 +84,20 @@ public class Tokenizer {
         int startColumn = state.column;
         StringBuilder sb = new StringBuilder();
 
-        while (
-            !state.isEof() && 
-            (Character.isLetterOrDigit(state.current()) || state.current() == '_')
-        ) {
+        while (!state.isEof()
+                && (Character.isLetterOrDigit(state.current()) || state.current() == '_')) {
             sb.append(state.current());
             state.advance();
         }
 
-        String word = sb.toString();
-        TokenType type = resolveWordType(state);
-        state.tokens.add(new Token(type, word, state.line, startColumn));
+        state.tokens.add(new RawToken(RawTokenType.WORD, sb.toString(), state.line, startColumn));
     }
 
     /**
      * Reads a string literal enclosed in single quotes and creates a VALUE token.
      *
-     * <p>Supports escaped single quotes using backslash notation (\'). Newlines within
-     * strings are properly tracked for line counting.
+     * <p>Supports escaped single quotes using backslash notation (\'). Newlines within strings are
+     * properly tracked for line counting.
      *
      * @param state the current parsing state
      * @throws TokenizerException if the string literal is not terminated before end of input
@@ -114,7 +110,7 @@ public class Tokenizer {
         while (true) {
             if (state.isEof()) {
                 throw new TokenizerException(
-                    "Unterminated string literal", state.line, startColumn);
+                        "Unterminated string literal", state.line, startColumn);
             }
 
             char c = state.current();
@@ -138,38 +134,6 @@ public class Tokenizer {
             }
         }
 
-        state.tokens.add(new Token(TokenType.VALUE, sb.toString(), state.line, startColumn));
-    }
-
-    /**
-     * Determines the token type for a word based on the parsing context.
-     *
-     * <p>The type is resolved according to these rules:
-     * <ul>
-     *   <li>If no tokens have been added yet, it's a COMMAND</li>
-     *   <li>If the previous token is a SEPARATOR, it's a VALUE</li>
-     *   <li>If the previous token is a NEWLINE, it's a COMMAND</li>
-     *   <li>Otherwise, it's a KEY</li>
-     * </ul>
-     *
-     * @param state the current parsing state
-     * @return the determined token type
-     */
-    private static TokenType resolveWordType(State state) {
-        if (state.tokens.isEmpty()) {
-            return TokenType.COMMAND;
-        }
-
-        Token last = state.tokens.get(state.tokens.size() - 1);
-
-        if (last.type() == TokenType.SEPARATOR) {
-            return TokenType.VALUE;
-        }
-
-        if (last.type() == TokenType.NEWLINE) {
-            return TokenType.COMMAND;
-        }
-
-        return TokenType.KEY;
+        state.tokens.add(new RawToken(RawTokenType.STRING, sb.toString(), state.line, startColumn));
     }
 }
