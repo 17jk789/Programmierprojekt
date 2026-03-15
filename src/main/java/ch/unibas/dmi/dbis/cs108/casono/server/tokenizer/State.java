@@ -24,7 +24,9 @@ class State {
     }
 
     char peek() {
-        if (pos + 1 >= input.length()) return '\0';
+        if (pos + 1 >= input.length()) {
+            return '\0';
+        }
         return input.charAt(pos + 1);
     }
 
