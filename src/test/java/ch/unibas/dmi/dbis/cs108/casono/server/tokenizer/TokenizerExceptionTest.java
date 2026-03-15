@@ -1,8 +1,7 @@
 package ch.unibas.dmi.dbis.cs108.casono.server.tokenizer;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class TokenizerExceptionTest {
     @Test
