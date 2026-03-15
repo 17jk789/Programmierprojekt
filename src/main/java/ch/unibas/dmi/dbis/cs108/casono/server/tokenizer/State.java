@@ -9,7 +9,7 @@ class State {
     int pos;
     int line;
     int column;
-    final List<Token> tokens;
+    final List<RawToken> tokens;
 
     State(String input) {
         this.input = input;
