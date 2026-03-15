@@ -6,6 +6,5 @@ public enum TokenType {
     KEY,
     VALUE,
     SEPARATOR,
-    NEWLINE,
     EOF
 }
