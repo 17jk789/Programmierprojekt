@@ -27,24 +27,30 @@ public class TcpTransport implements TransportLayer {
     /**
      * Reads a string from the socket.
      *
-     * @return the read string
+     * @return the read RawPacket
      * @throws IOException if an I/O error occurs
      */
-    public String read() throws IOException {
+    public RawPacket read() throws IOException {
         int length = in.readInt();
-        byte[] payload = new byte[length];
-        in.readFully(payload);
-        return new String(payload, StandardCharsets.UTF_8);
+        int requestId = in.readInt();
+        byte[] rawPayload = new byte[length];
+        in.readFully(rawPayload);
+
+        String payload = new String(rawPayload, StandardCharsets.UTF_8);
+        return new RawPacket(requestId, payload);
     }
 
     /**
      * Writes a string to the socket.
      *
-     * @param payload the string to write
+     * @param data the RawPacket's data to write
      * @throws IOException if an I/O error occurs
      */
-    public void write(String payload) throws IOException {
-        byte[] rawPayload = payload.getBytes(StandardCharsets.UTF_8);
+    public void write(RawPacket data) throws IOException {
+        int requestId = data.requestId();
+        byte[] rawPayload = data.payload().getBytes(StandardCharsets.UTF_8);
+
+        out.writeInt(requestId);
         out.writeInt(rawPayload.length);
         out.write(rawPayload);
         out.flush();
