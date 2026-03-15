@@ -39,4 +39,14 @@ public class UserRegistry {
         }
         return Optional.empty();
     }
+
+    // TODO: Add to EventRegistry with DisconnectEvent
+    public synchronized void onDisconnect(SessionId sessionId) {
+        Optional<User> user = findBySessionId(sessionId);
+
+        if (user.isPresent()) {
+            user.get().markDisconnected();
+        }
+    }
+
 }
