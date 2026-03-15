@@ -2,6 +2,9 @@ package ch.unibas.dmi.dbis.cs108.casono.server.network.sessions;
 
 import ch.unibas.dmi.dbis.cs108.casono.server.network.events.DisconnectEvent;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.events.EventBus;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.parser.PrimitiveRequest;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.parser.ProtocolParser;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.transport.RawPacket;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.transport.TransportLayer;
 import java.io.EOFException;
 import java.io.IOException;
@@ -64,7 +67,11 @@ public class Session implements Runnable {
     public void run() {
         while (running) {
             try {
-                logger.debug("Recieved: {}", transport.read());
+                RawPacket rawPacket = transport.read();
+                logger.debug("Recieved: {}", rawPacket);
+
+                PrimitiveRequest primitiveRequest = ProtocolParser.parse(rawPacket);
+                logger.debug("Parsed request to {}", primitiveRequest);
             } catch (EOFException e) {
                 logger.info("Client disconnected");
                 eventBus.publish(new DisconnectEvent(id));
