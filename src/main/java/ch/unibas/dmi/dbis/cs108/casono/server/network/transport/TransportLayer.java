@@ -7,10 +7,10 @@ public interface TransportLayer {
     /**
      * Reads data from the transport layer.
      *
-     * @return the read data as a string
+     * @return the read data as a RawPacket
      * @throws IOException if an I/O error occurs
      */
-    String read() throws IOException;
+    RawPacket read() throws IOException;
 
     /**
      * Writes data to the transport layer.
@@ -18,7 +18,7 @@ public interface TransportLayer {
      * @param data the data to write
      * @throws IOException if an I/O error occurs
      */
-    void write(String data) throws IOException;
+    void write(RawPacket data) throws IOException;
 
     /**
      * Closes the transport layer.
