@@ -20,7 +20,7 @@
     <!-- https://checkstyle.sourceforge.io/checks/whitespace/filetabcharacter.html -->
     <module name="FileTabCharacter"/>
 
-    <!-- Maximale Zeilenlänge -->
+    <!-- Maximale Zeilenlänge (AOSP enforces 100 lines, the Google Java Style Guide 80)-->
     <!-- https://checkstyle.sourceforge.io/checks/sizes/linelength.html -->
     <module name="LineLength">
         <property name="max" value="100"/>
@@ -42,16 +42,6 @@
             "/>
         </module>
 
-        <!-- Enforce indentation of four whitespaces -->
-        <!-- https://checkstyle.sourceforge.io/checks/misc/indentation.html -->
-        <module name="Indentation">
-            <property name="basicOffset" value="4"/>
-            <property name="caseIndent" value="4"/>
-            <property name="throwsIndent" value="4"/>
-            <property name="arrayInitIndent" value="4"/>
-            <property name="lineWrappingIndentation" value="8"/>
-        </module>
-
         <!-- No wildcard imports (import x.*) -->
         <!-- https://checkstyle.sourceforge.io/checks/imports/avoidstarimport.html -->
         <module name="AvoidStarImport"/>
@@ -62,7 +52,13 @@
 
         <!-- No unordered / ungrouped imports -->
         <!-- https://checkstyle.sourceforge.io/checks/imports/importorder.html -->
-        <module name="ImportOrder"/>
+        <module name="ImportOrder">
+            <property name="option" value="top"/>
+            <property name="groups" value="/^import static\..+/,*"/>
+            <property name="separated" value="true"/>
+            <property name="separatedStaticGroups" value="true"/>
+            <property name="sortStaticImportsAlphabetically" value="true"/>
+        </module>
 
         <!-- Classes, enums, records, ... as PascalCase -->
         <!-- https://checkstyle.sourceforge.io/checks/naming/typename.html -->
