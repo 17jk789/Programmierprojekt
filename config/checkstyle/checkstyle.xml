@@ -62,7 +62,13 @@
 
         <!-- No unordered / ungrouped imports -->
         <!-- https://checkstyle.sourceforge.io/checks/imports/importorder.html -->
-        <module name="ImportOrder"/>
+        <module name="ImportOrder">
+            <property name="option" value="top"/>
+            <property name="groups" value="/^import static\..+/,*"/>
+            <property name="separated" value="true"/>
+            <property name="separatedStaticGroups" value="true"/>
+            <property name="sortStaticImportsAlphabetically" value="true"/>
+        </module>
 
         <!-- Classes, enums, records, ... as PascalCase -->
         <!-- https://checkstyle.sourceforge.io/checks/naming/typename.html -->
