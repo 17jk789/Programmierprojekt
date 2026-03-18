@@ -1,9 +1,9 @@
-
 package ch.unibas.dmi.dbis.cs108.casono.client.ui.lobbyui;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Map;
 import org.junit.jupiter.api.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 class LobbyButtonTranslationManagerTest {
     LobbyButtonTranslationManager manager;
