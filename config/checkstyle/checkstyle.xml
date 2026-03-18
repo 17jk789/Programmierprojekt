@@ -20,7 +20,7 @@
     <!-- https://checkstyle.sourceforge.io/checks/whitespace/filetabcharacter.html -->
     <module name="FileTabCharacter"/>
 
-    <!-- Maximale Zeilenlänge -->
+    <!-- Maximale Zeilenlänge (AOSP enforces 100 lines, the Google Java Style Guide 80)-->
     <!-- https://checkstyle.sourceforge.io/checks/sizes/linelength.html -->
     <module name="LineLength">
         <property name="max" value="100"/>
