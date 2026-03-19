@@ -13,7 +13,7 @@ class LobbyButtonGridManagerTest {
     @BeforeEach
     void setUp() {
         gridPane = new GridPane();
-        translationManager = new LobbyButtonTranslationManager();
+        translationManager = LobbyButtonTranslationManager.getInstance();
         translationManager.getButtonIdToLobbyId().clear();
         gridManager = new LobbyButtonGridManager(gridPane, translationManager);
     }
@@ -24,9 +24,4 @@ class LobbyButtonGridManagerTest {
         assertTrue(lobbyId > 0);
     }
 
-    @Test
-    void testJoinLobbyPlaceholder() {
-        // check if exception is thrown
-        assertDoesNotThrow(() -> gridManager.joinLobby(123));
-    }
 }

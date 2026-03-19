@@ -6,11 +6,12 @@ import java.util.Map;
 import org.junit.jupiter.api.*;
 
 class LobbyButtonTranslationManagerTest {
+
     LobbyButtonTranslationManager manager;
 
     @BeforeEach
     void setUp() {
-        manager = new LobbyButtonTranslationManager();
+        manager = LobbyButtonTranslationManager.getInstance();
         manager.getButtonIdToLobbyId().clear();
     }
 
