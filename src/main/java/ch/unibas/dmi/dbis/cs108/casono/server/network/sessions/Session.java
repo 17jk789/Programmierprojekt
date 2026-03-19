@@ -47,6 +47,15 @@ public class Session implements Runnable {
         return this.id;
     }
 
+    /**
+     * Returns the TransportLayer of this session
+     * 
+     * @return the transport layer of the session
+     */
+    public TransportLayer getTransport() {
+        return transport;
+    }
+
     /** Starts the session thread. */
     public void start() {
         thread.start();
