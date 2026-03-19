@@ -21,7 +21,7 @@
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="ch.unibas.dmi.dbis.cs108.casono.client.ui.chatui.ChatController"
       alignment="CENTER"
-      stylesheets="@chatui.css">
+      stylesheets="@Chatui.css">
 
     <!-- Innenabstand: Schafft oben, rechts und unten 30 Pixel Platz, links nur 10 Pixel (asymmetrisch) -->
     <padding>

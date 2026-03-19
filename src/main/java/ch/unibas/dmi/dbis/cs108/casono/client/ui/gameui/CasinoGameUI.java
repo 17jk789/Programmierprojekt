@@ -29,7 +29,7 @@ public class CasinoGameUI extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader =
-                new FXMLLoader(CasinoGameUI.class.getResource("/ui-structure/casinogameui.fxml"));
+                new FXMLLoader(CasinoGameUI.class.getResource("/ui-structure/Casinogameui.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), DEFAULT_WIDTH, DEFAULT_HEIGHT);
         stage.setTitle("Casono (GAME)");
 

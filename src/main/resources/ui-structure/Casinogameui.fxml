@@ -5,12 +5,12 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.image.*?>
 
-<!-- Hauptcontainer: Verknüpft die UI mit dem CasinoGameController und lädt casinogameui.css -->
+<!-- Hauptcontainer: Verknüpft die UI mit dem CasinoGameController und lädt Casinogameui.css -->
 <AnchorPane xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui.CasinoGameController"
             styleClass="background"
-            stylesheets="@casinogameui.css">
+            stylesheets="@Casinogameui.css">
 
     <GridPane prefWidth="1200" prefHeight="800" AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
         <columnConstraints>
@@ -78,14 +78,14 @@
             </VBox>
 
             <!-- TODO: Platzhalter: Chat-Box in Spalte 2: -->
-            <fx:include source="components/chatbox.fxml" GridPane.columnIndex="2"/>
+            <fx:include source="components/Chatbox.fxml" GridPane.columnIndex="2"/>
 
         </children>
     </GridPane>
 
     <!-- verschiebbare Taskbar -->
     <AnchorPane>
-        <fx:include fx:id="taskbarInclude" source="gameuicomponents/taskbar.fxml"/>
+        <fx:include fx:id="taskbarInclude" source="gameuicomponents/Taskbar.fxml"/>
     </AnchorPane>
 
     <!-- Gegner-Status 1: Eines von drei Panels, das Icon, Name und Kontostand des Mitspielers anzeigt -->
@@ -99,7 +99,7 @@
         </columnConstraints>
 
         <children>
-            <fx:include source="gameuicomponents/playerstatus.fxml" GridPane.columnIndex="1"/>
+            <fx:include source="gameuicomponents/Playerstatus.fxml" GridPane.columnIndex="1"/>
         </children>
     </GridPane>
 
@@ -114,7 +114,7 @@
         </columnConstraints>
 
         <children>
-            <fx:include source="gameuicomponents/playerstatus.fxml" GridPane.columnIndex="1"/>
+            <fx:include source="gameuicomponents/Playerstatus.fxml" GridPane.columnIndex="1"/>
         </children>
     </GridPane>
 
@@ -129,7 +129,7 @@
         </columnConstraints>
 
         <children>
-            <fx:include source="gameuicomponents/playerstatus.fxml" GridPane.columnIndex="1"/>
+            <fx:include source="gameuicomponents/Playerstatus.fxml" GridPane.columnIndex="1"/>
         </children>
     </GridPane>
 </AnchorPane>

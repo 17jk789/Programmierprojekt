@@ -423,7 +423,7 @@ public class CasinoBrowserController {
 
         Scene scene = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT);
 
-        var css = CasinoBrowserController.class.getResource("/ui-structure/casinogameui.css");
+        var css = CasinoBrowserController.class.getResource("/ui-structure/Casinogameui.css");
 
         if (css != null) {
             scene.getStylesheets().add(css.toExternalForm());
