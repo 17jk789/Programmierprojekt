@@ -9,9 +9,6 @@
 ### Affected Components
 <!-- e.g. Response hierarchy, CommandRouter, UserRegistry, ... -->
 
-### Dependencies
-<!-- Are there other issues or branches that must be completed first? -->
-
 ### Definition of Done
 - [ ] 
 - [ ] 
@@ -19,6 +16,9 @@
 
 ### Notes
 <!-- Optional: implementation hints, links to prior design discussions, etc. -->
+
+### Checklist
+- [ ] Linked to other issues or branches that must be completed first?
 
 /label ~task
 

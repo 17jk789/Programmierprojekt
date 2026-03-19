@@ -31,9 +31,6 @@ AFTER:  LOGIN USERNAME=<username> PASSWORD=<password>
 - [ ] `GameEngine` or `GameState`
 - [ ] Client-side (create your own issue and create link)
 
-### Migration Strategy
-<!-- If breaking change: how will migration be handled? -->
-
 ### Motivation
 <!-- Why is this protocol change necessary? -->
 
