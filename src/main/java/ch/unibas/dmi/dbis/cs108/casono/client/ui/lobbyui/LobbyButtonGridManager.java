@@ -68,8 +68,18 @@ public class LobbyButtonGridManager {
             int buttonId = entry.getKey();
             Button btn = new Button();
             btn.setId("lobbyBtn-" + buttonId);
-            btn.setGraphic(
-                    new ImageView(new Image(getClass().getResourceAsStream(BUTTON_IMAGE_PATH))));
+            ImageView imageView = new ImageView(new Image(getClass().getResourceAsStream(BUTTON_IMAGE_PATH)));
+            imageView.setPreserveRatio(true);
+            // Dynamische Breite: Bindung an die Zellengröße
+            imageView.fitWidthProperty().bind(gridPane.widthProperty().divide(COLS).subtract(20));
+            imageView.setSmooth(true);
+            btn.setGraphic(imageView);
+            btn.setMaxWidth(Double.MAX_VALUE);
+            btn.setMaxHeight(Double.MAX_VALUE);
+            btn.setMinWidth(10);
+            btn.setMinHeight(10);
+            GridPane.setHgrow(btn, javafx.scene.layout.Priority.ALWAYS);
+            GridPane.setVgrow(btn, javafx.scene.layout.Priority.ALWAYS);
             btn.setOnAction(
                     e -> {
                         Integer lobbyId = translationManager.getLobbyIdForButton(buttonId);
