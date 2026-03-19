@@ -35,5 +35,3 @@ AFTER:  LOGIN USERNAME=<username> PASSWORD=<password>
 <!-- Why is this protocol change necessary? -->
 
 /label ~protocol
-
-/label ~server
