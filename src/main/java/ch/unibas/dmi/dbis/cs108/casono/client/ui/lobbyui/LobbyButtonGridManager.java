@@ -13,7 +13,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Manages the grid for lobby buttons and rendering. Uses LobbyButtonTranslationManager for mapping
+ * Manages the grid for lobby buttons and rendering. Uses
+ * LobbyButtonTranslationManager for mapping
  * ButtonID to LobbyID.
  */
 public class LobbyButtonGridManager {
@@ -40,17 +41,19 @@ public class LobbyButtonGridManager {
     /**
      * Constructor for the GridManager.
      *
-     * @param gridPane the GridPane for rendering
+     * @param gridPane           the GridPane for rendering
      * @param translationManager the manager for mapping ButtonID to LobbyID
      */
     public LobbyButtonGridManager(
             GridPane gridPane, LobbyButtonTranslationManager translationManager) {
         this.gridPane = gridPane;
-        this.translationManager = translationManager;
+        // Singleton immer verwenden
+        this.translationManager = LobbyButtonTranslationManager.getInstance();
     }
 
     /**
-     * Renders all lobby buttons in the grid. Creates a button for each mapping with image and event
+     * Renders all lobby buttons in the grid. Creates a button for each mapping with
+     * image and event
      * handler.
      */
     public void renderLobbyButtons() {
@@ -99,8 +102,19 @@ public class LobbyButtonGridManager {
      * @param lobbyId The lobbyId to join
      */
     public void joinLobby(int lobbyId) {
-        // TODO: Replace with actual join logic
+        // Game-UI starten und Lobby-UI schließen
         LOGGER.info("Joining lobby: {}", lobbyId);
+        javafx.application.Platform.runLater(() -> {
+            // Lobby-Stage schließen
+            javafx.stage.Stage currentStage = (javafx.stage.Stage) gridPane.getScene().getWindow();
+            currentStage.close();
+            // Game-UI starten
+            try {
+                new ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui.CasinoGameUI().start(new javafx.stage.Stage());
+            } catch (Exception e) {
+                LOGGER.error("Fehler beim Starten der Game-UI: {}", e.getMessage());
+            }
+        });
     }
 
     /**

@@ -12,17 +12,27 @@ import javafx.scene.shape.Rectangle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/** Controller for the Casono main UI lobby. Handles UI initialization and user actions. */
+/**
+ * Controller for the Casono main UI lobby. Handles UI initialization and user
+ * actions.
+ */
 public class CasinomainuiController {
     private static final Logger LOGGER = LogManager.getLogger(CasinomainuiController.class);
 
-    @FXML private AnchorPane rootPane;
-    @FXML private Label titleLabel;
-    @FXML private Label subtitleLabel;
-    @FXML private ImageView logoView;
-    @FXML private Rectangle greenBox;
-    @FXML private Button exitbutton;
-    @FXML private VBox casinoTable;
+    @FXML
+    private AnchorPane rootPane;
+    @FXML
+    private Label titleLabel;
+    @FXML
+    private Label subtitleLabel;
+    @FXML
+    private ImageView logoView;
+    @FXML
+    private Rectangle greenBox;
+    @FXML
+    private Button exitbutton;
+    @FXML
+    private VBox casinoTable;
 
     private LobbyButtonTranslationManager translationManager;
     private LobbyButtonGridManager gridManager;
@@ -39,9 +49,8 @@ public class CasinomainuiController {
         subtitleLabel.setText("Texas Hold'em Poker");
         logoView.setImage(new Image(getClass().getResource("/images/logo.png").toExternalForm()));
 
-        translationManager = new LobbyButtonTranslationManager();
-        gridManager =
-                new LobbyButtonGridManager(new javafx.scene.layout.GridPane(), translationManager);
+        translationManager = LobbyButtonTranslationManager.getInstance();
+        gridManager = new LobbyButtonGridManager(new javafx.scene.layout.GridPane(), translationManager);
         casinoTable.getChildren().clear();
         casinoTable.getChildren().add(gridManager.getGridPane());
         gridManager.renderLobbyButtons();
