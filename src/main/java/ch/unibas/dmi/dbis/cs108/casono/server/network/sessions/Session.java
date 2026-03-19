@@ -1,13 +1,17 @@
 package ch.unibas.dmi.dbis.cs108.casono.server.network.sessions;
 
 import ch.unibas.dmi.dbis.cs108.casono.server.network.events.EventBus;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.response.PrimitiveResponse;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.transport.TransportLayer;
 import java.io.IOException;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 /** Represents a client session in the network server. */
 public class Session {
-    private SessionId id;
-    private TransportLayer transport;
+    private final SessionId id;
+    private final TransportLayer transport;
+    private final BlockingQueue<PrimitiveResponse> responseQueue;
 
     /**
      * Creates a new Session with the given transport and event bus.
@@ -19,6 +23,7 @@ public class Session {
     public Session(TransportLayer transport, EventBus eventBus) {
         this.id = new SessionId();
         this.transport = transport;
+        this.responseQueue = new ArrayBlockingQueue<>(32);
     }
 
     /**
@@ -37,5 +42,14 @@ public class Session {
      */
     public TransportLayer getTransport() {
         return transport;
+    }
+
+    /**
+     * Returns the BlockingQueue of this session
+     *
+     * @return the queue containing outgoing responses
+     */
+    public BlockingQueue<PrimitiveResponse> getResponseQueue() {
+        return responseQueue;
     }
 }
