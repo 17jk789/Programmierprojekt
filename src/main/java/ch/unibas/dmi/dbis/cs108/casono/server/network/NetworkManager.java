@@ -2,7 +2,6 @@ package ch.unibas.dmi.dbis.cs108.casono.server.network;
 
 import ch.unibas.dmi.dbis.cs108.casono.server.network.events.DisconnectEvent;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.events.EventBus;
-import ch.unibas.dmi.dbis.cs108.casono.server.network.sessions.Session;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.sessions.SessionManager;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.transport.TcpTransport;
 import java.io.IOException;
@@ -61,9 +60,7 @@ public class NetworkManager implements Runnable {
 
                 logger.debug("Accepted connection from {}", clientSocket.getRemoteSocketAddress());
 
-                Session session = new Session(new TcpTransport(clientSocket), eventBus);
-                sessionManager.addSession(session);
-                session.start();
+                sessionManager.create(new TcpTransport(clientSocket));
             }
 
         } catch (IOException e) {
