@@ -17,6 +17,8 @@ import org.apache.logging.log4j.Logger;
  * ButtonID to LobbyID.
  */
 public class LobbyButtonGridManager {
+    private static final double BUTTON_WIDTH_MARGIN = 20.0;
+    private static final double BUTTON_MIN_SIZE = 10.0;
     private static final Logger LOGGER = LogManager.getLogger(LobbyButtonGridManager.class);
 
     /** GridPane for the button grid. */
@@ -70,13 +72,15 @@ public class LobbyButtonGridManager {
                     new ImageView(new Image(getClass().getResourceAsStream(BUTTON_IMAGE_PATH)));
             imageView.setPreserveRatio(true);
             // Dynamische Breite: Bindung an die Zellengröße
-            imageView.fitWidthProperty().bind(gridPane.widthProperty().divide(COLS).subtract(20));
+            imageView
+                    .fitWidthProperty()
+                    .bind(gridPane.widthProperty().divide(COLS).subtract(BUTTON_WIDTH_MARGIN));
             imageView.setSmooth(true);
             btn.setGraphic(imageView);
             btn.setMaxWidth(Double.MAX_VALUE);
             btn.setMaxHeight(Double.MAX_VALUE);
-            btn.setMinWidth(10);
-            btn.setMinHeight(10);
+            btn.setMinWidth(BUTTON_MIN_SIZE);
+            btn.setMinHeight(BUTTON_MIN_SIZE);
             GridPane.setHgrow(btn, javafx.scene.layout.Priority.ALWAYS);
             GridPane.setVgrow(btn, javafx.scene.layout.Priority.ALWAYS);
             btn.setOnAction(
