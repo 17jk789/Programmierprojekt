@@ -1,14 +1,13 @@
 package ch.unibas.dmi.dbis.cs108.casono.server.network.sessions;
 
+import ch.unibas.dmi.dbis.cs108.casono.server.network.events.DisconnectEvent;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.events.EventBus;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.transport.TransportLayer;
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import ch.unibas.dmi.dbis.cs108.casono.server.network.events.DisconnectEvent;
-import ch.unibas.dmi.dbis.cs108.casono.server.network.events.EventBus;
-import ch.unibas.dmi.dbis.cs108.casono.server.network.transport.TransportLayer;
 
 /** Manages active sessions in the server. */
 public class SessionManager {
@@ -25,9 +24,9 @@ public class SessionManager {
 
     /**
      * Create new Session from provided transport.
-     * 
-     * <p> Will create both worker threads and start them.
-     * 
+     *
+     * <p>Will create both worker threads and start them.
+     *
      * @param transport to create session from
      * @return newly created session
      */
@@ -50,15 +49,17 @@ public class SessionManager {
 
     /**
      * Disconnect specified client
-     * 
-     * <p> WARNING: Client will be uninformed about disconnect. Use with caution.
-     * 
+     *
+     * <p>WARNING: Client will be uninformed about disconnect. Use with caution.
+     *
      * @param id of the client to disconnect
      */
     public void disconnect(SessionId id) {
         SessionHandle handle = sessions.get(id);
         if (handle == null) {
-            logger.warn("Requested to disconnect client with id {}. Failed as client is not found", id.value());
+            logger.warn(
+                    "Requested to disconnect client with id {}. Failed as client is not found",
+                    id.value());
             return;
         }
         logger.debug("Disconnecting session {}", id.value());

@@ -13,6 +13,8 @@ public class Session {
     private final TransportLayer transport;
     private final BlockingQueue<PrimitiveResponse> responseQueue;
 
+    private final int RESPOND_QUEUE_SIZE = 32;
+
     /**
      * Creates a new Session with the given transport and event bus.
      *
@@ -23,7 +25,7 @@ public class Session {
     public Session(TransportLayer transport, EventBus eventBus) {
         this.id = new SessionId();
         this.transport = transport;
-        this.responseQueue = new ArrayBlockingQueue<>(32);
+        this.responseQueue = new ArrayBlockingQueue<>(RESPOND_QUEUE_SIZE);
     }
 
     /**
