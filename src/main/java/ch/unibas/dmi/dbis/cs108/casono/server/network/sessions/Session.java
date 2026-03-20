@@ -12,8 +12,7 @@ public class Session {
     private final SessionId id;
     private final TransportLayer transport;
     private final BlockingQueue<PrimitiveResponse> responseQueue;
-
-    private final int RESPOND_QUEUE_SIZE = 32;
+    private static final int RESPOND_QUEUE_SIZE = 32;
 
     /**
      * Creates a new Session with the given transport and event bus.
