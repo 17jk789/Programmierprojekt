@@ -31,8 +31,9 @@ public class SessionReader implements Runnable {
     @Override
     public void run() {
         while (!Thread.currentThread().isInterrupted()) {
+            RawPacket rawPacket = null;
             try {
-                RawPacket rawPacket = transport.read();
+                rawPacket = transport.read();
                 logger.debug("Recieved: {}", rawPacket);
 
                 PrimitiveRequest primitiveRequest = ProtocolParser.parse(rawPacket);
@@ -42,7 +43,7 @@ public class SessionReader implements Runnable {
                 eventBus.publish(new DisconnectEvent(session.getId()));
                 break;
             } catch (TokenizerException | ProtocolParserException e) {
-                logger.error("Error occured while parsing request", e);
+                logger.error("Error occured while parsing request. RawPacket: {}", rawPacket, e);
 
                 // TODO: Send error response to client
             } catch (IOException e) {

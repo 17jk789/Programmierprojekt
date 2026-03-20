@@ -23,12 +23,13 @@ public class SessionWriter implements Runnable {
 
     public void run() {
         while (!Thread.currentThread().isInterrupted()) {
+            RawPacket packet = null;
             try {
                 PrimitiveResponse response = queue.take();
-                RawPacket packet = new RawPacket(response.requestId(), response.payload());
+                packet = new RawPacket(response.requestId(), response.payload());
                 transport.write(packet);
             } catch (IOException e) {
-                logger.error("Unexpected exception while writing to transport", e);
+                logger.error("Unexpected exception while writing to transport. RawPacket: {}", packet, e);
             } catch (InterruptedException e) {
                 logger.warn("Thread got interrupted", e);
                 break;
