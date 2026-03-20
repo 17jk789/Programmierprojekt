@@ -23,5 +23,4 @@ class LobbyButtonGridManagerTest {
         int lobbyId = gridManager.createLobby();
         assertTrue(lobbyId > 0);
     }
-
 }

@@ -13,8 +13,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Manages the grid for lobby buttons and rendering. Uses
- * LobbyButtonTranslationManager for mapping
+ * Manages the grid for lobby buttons and rendering. Uses LobbyButtonTranslationManager for mapping
  * ButtonID to LobbyID.
  */
 public class LobbyButtonGridManager {
@@ -41,7 +40,7 @@ public class LobbyButtonGridManager {
     /**
      * Constructor for the GridManager.
      *
-     * @param gridPane           the GridPane for rendering
+     * @param gridPane the GridPane for rendering
      * @param translationManager the manager for mapping ButtonID to LobbyID
      */
     public LobbyButtonGridManager(
@@ -52,8 +51,7 @@ public class LobbyButtonGridManager {
     }
 
     /**
-     * Renders all lobby buttons in the grid. Creates a button for each mapping with
-     * image and event
+     * Renders all lobby buttons in the grid. Creates a button for each mapping with image and event
      * handler.
      */
     public void renderLobbyButtons() {
@@ -68,7 +66,8 @@ public class LobbyButtonGridManager {
             int buttonId = entry.getKey();
             Button btn = new Button();
             btn.setId("lobbyBtn-" + buttonId);
-            ImageView imageView = new ImageView(new Image(getClass().getResourceAsStream(BUTTON_IMAGE_PATH)));
+            ImageView imageView =
+                    new ImageView(new Image(getClass().getResourceAsStream(BUTTON_IMAGE_PATH)));
             imageView.setPreserveRatio(true);
             // Dynamische Breite: Bindung an die Zellengröße
             imageView.fitWidthProperty().bind(gridPane.widthProperty().divide(COLS).subtract(20));
@@ -114,17 +113,20 @@ public class LobbyButtonGridManager {
     public void joinLobby(int lobbyId) {
         // Game-UI starten und Lobby-UI schließen
         LOGGER.info("Joining lobby: {}", lobbyId);
-        javafx.application.Platform.runLater(() -> {
-            // Lobby-Stage schließen
-            javafx.stage.Stage currentStage = (javafx.stage.Stage) gridPane.getScene().getWindow();
-            currentStage.close();
-            // Game-UI starten
-            try {
-                new ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui.CasinoGameUI().start(new javafx.stage.Stage());
-            } catch (Exception e) {
-                LOGGER.error("Fehler beim Starten der Game-UI: {}", e.getMessage());
-            }
-        });
+        javafx.application.Platform.runLater(
+                () -> {
+                    // Lobby-Stage schließen
+                    javafx.stage.Stage currentStage =
+                            (javafx.stage.Stage) gridPane.getScene().getWindow();
+                    currentStage.close();
+                    // Game-UI starten
+                    try {
+                        new ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui.CasinoGameUI()
+                                .start(new javafx.stage.Stage());
+                    } catch (Exception e) {
+                        LOGGER.error("Fehler beim Starten der Game-UI: {}", e.getMessage());
+                    }
+                });
     }
 
     /**
