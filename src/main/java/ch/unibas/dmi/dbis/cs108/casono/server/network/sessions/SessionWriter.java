@@ -28,9 +28,9 @@ public class SessionWriter implements Runnable {
                 RawPacket packet = new RawPacket(response.requestId(), response.payload());
                 transport.write(packet);
             } catch (IOException e) {
-                logger.trace("Unexpected exception while writing to transport", e);
+                logger.error("Unexpected exception while writing to transport", e);
             } catch (InterruptedException e) {
-                logger.trace("Thread got interrupted", e);
+                logger.warn("Thread got interrupted", e);
                 break;
             }
         }

@@ -68,7 +68,7 @@ public class SessionManager {
         try {
             handle.session().getTransport().close();
         } catch (IOException e) {
-            logger.trace("Unexpected exception while closing transport", e);
+            logger.error("Unexpected exception while closing transport", e);
         }
     }
 

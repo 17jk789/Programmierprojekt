@@ -42,11 +42,11 @@ public class SessionReader implements Runnable {
                 eventBus.publish(new DisconnectEvent(session.getId()));
                 break;
             } catch (TokenizerException | ProtocolParserException e) {
-                logger.trace("Error occured while parsing request", e);
+                logger.error("Error occured while parsing request", e);
 
                 // TODO: Send error response to client
             } catch (IOException e) {
-                logger.trace("Unexpected exception while reading from transport", e);
+                logger.error("Unexpected exception while reading from transport", e);
             }
         }
     }
