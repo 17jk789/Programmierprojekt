@@ -5,7 +5,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /** Manages active sessions in the server. */
 public class SessionManager {
-    private Map<SessionId, Session> sessions;
+    private Map<SessionId, SessionHandle> sessions;
 
     /** Constructs a new SessionManager. */
     public SessionManager() {
@@ -17,8 +17,8 @@ public class SessionManager {
      *
      * @param session the session to add
      */
-    public void addSession(Session session) {
-        sessions.put(session.getId(), session);
+    public void addSession(SessionHandle handle) {
+        sessions.put(handle.session().getId(), handle);
     }
 
     /**
@@ -28,7 +28,13 @@ public class SessionManager {
      * @return the removed session, or null if not found
      */
     public Session removeSession(SessionId id) {
-        return sessions.remove(id);
+        SessionHandle handle = sessions.remove(id);
+
+        if (handle == null) {
+            return null;
+        }
+
+        return handle.session();
     }
 
     /**
@@ -38,7 +44,13 @@ public class SessionManager {
      * @return the removed session, or null if not found
      */
     public Session removeSession(Session session) {
-        return sessions.remove(session.getId());
+        SessionHandle handle = sessions.remove(session.getId());
+
+        if (handle == null) {
+            return null;
+        }
+
+        return handle.session();
     }
 
     /**
@@ -48,6 +60,12 @@ public class SessionManager {
      * @return the session with the specified ID, or null if not found
      */
     public Session getSessionById(SessionId id) {
-        return sessions.get(id);
+        SessionHandle handle = sessions.get(id);
+
+        if (handle == null) {
+            return null;
+        }
+
+        return handle.session();
     }
 }
