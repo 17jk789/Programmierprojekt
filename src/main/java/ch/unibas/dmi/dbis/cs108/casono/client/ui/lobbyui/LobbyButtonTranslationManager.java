@@ -13,6 +13,11 @@ public class LobbyButtonTranslationManager {
     private static LobbyButtonTranslationManager instance;
 
     // Singleton-Zugriff
+    /**
+     * Liefert die Singleton-Instanz des Managers.
+     *
+     * @return die einzige Instanz von {@code LobbyButtonTranslationManager}
+     */
     public static LobbyButtonTranslationManager getInstance() {
         if (instance == null) {
             instance = new LobbyButtonTranslationManager();

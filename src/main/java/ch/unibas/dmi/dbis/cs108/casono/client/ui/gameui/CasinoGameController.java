@@ -21,6 +21,11 @@ public class CasinoGameController {
     // TODO: Test-Logik: wird durch echte Spielinteraktionen ersetzt,
     // sobald die GameEngine fertig ist
     @FXML
+    /**
+     * Temporäre Test-Methode, die bei Klick auf den Tisch eine Platzhalteraktion ausführt.
+     *
+     * <p>Wird in der finalen Implementierung durch die Spiel-Logik ersetzt.
+     */
     public void onTableClick() {
         welcomeText.setText("Einsatz akzeptiert!");
     }

@@ -28,6 +28,7 @@ public class CasinomainuiController {
     private LobbyButtonGridManager gridManager;
     private int nextButtonId = 1;
 
+    /** Default constructor for dependency injection by FXMLLoader. */
     public CasinomainuiController() {
         // Default constructor
     }
