@@ -26,10 +26,9 @@ public class ServerApp {
         logger.info("Starting server at port {}", port);
 
         EventBus eventBus = new EventBus();
-        SessionManager sessionManager = new SessionManager();
-        eventBus.subscribe(
-                DisconnectEvent.class, event -> sessionManager.removeSession(event.sessionId()));
-        NetworkManager networkManager = new NetworkManager(port, sessionManager, eventBus);
+        SessionManager sessionManager = new SessionManager(eventBus);
+        eventBus.subscribe(DisconnectEvent.class, event -> sessionManager.onDisconnect(event));
+        NetworkManager networkManager = new NetworkManager(port, sessionManager);
 
         UserRegistry userRegistry = new UserRegistry();
         eventBus.subscribe(
