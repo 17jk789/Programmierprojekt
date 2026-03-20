@@ -1,9 +1,9 @@
-
 package ch.unibas.dmi.dbis.cs108.casono.client.ui.lobbyui;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 import javafx.scene.layout.GridPane;
 import org.junit.jupiter.api.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 class LobbyButtonGridManagerTest {
     LobbyButtonGridManager gridManager;

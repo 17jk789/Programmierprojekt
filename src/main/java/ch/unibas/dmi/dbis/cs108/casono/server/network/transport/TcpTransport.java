@@ -8,8 +8,8 @@ import java.nio.charset.StandardCharsets;
 
 /** Implements TCP-based transport layer for network communication. */
 public class TcpTransport implements TransportLayer {
-    private final Socket socket;
-    private final DataInputStream in;
+    private Socket socket;
+    private DataInputStream in;
     private DataOutputStream out;
 
     /**
@@ -49,8 +49,9 @@ public class TcpTransport implements TransportLayer {
     public void write(RawPacket data) throws IOException {
         int requestId = data.requestId();
         byte[] rawPayload = data.payload().getBytes(StandardCharsets.UTF_8);
-        out.writeInt(rawPayload.length);
+
         out.writeInt(requestId);
+        out.writeInt(rawPayload.length);
         out.write(rawPayload);
         out.flush();
     }
