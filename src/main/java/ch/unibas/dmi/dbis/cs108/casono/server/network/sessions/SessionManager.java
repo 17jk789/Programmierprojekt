@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import ch.unibas.dmi.dbis.cs108.casono.server.network.events.DisconnectEvent;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.events.EventBus;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.transport.TransportLayer;
 
@@ -68,6 +70,17 @@ public class SessionManager {
         } catch (IOException e) {
             logger.trace("Unexpected exception while closing transport", e);
         }
+    }
+
+    /**
+     * Handler for the DisconnectEvent
+     *
+     * @param id of the session that disconnected
+     */
+    public void onDisconnect(DisconnectEvent event) {
+        logger.debug("Recieved DisconnectEvent event for session {}", event.sessionId().value());
+
+        disconnect(event.sessionId());
     }
 
     /**
