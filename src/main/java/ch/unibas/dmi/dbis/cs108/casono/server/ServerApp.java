@@ -29,7 +29,7 @@ public class ServerApp {
         SessionManager sessionManager = new SessionManager(eventBus);
         eventBus.subscribe(
                 DisconnectEvent.class, event -> sessionManager.onDisconnect(event));
-        NetworkManager networkManager = new NetworkManager(port, sessionManager, eventBus);
+        NetworkManager networkManager = new NetworkManager(port, sessionManager);
 
         UserRegistry userRegistry = new UserRegistry();
         eventBus.subscribe(
