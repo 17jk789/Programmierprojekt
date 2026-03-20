@@ -32,18 +32,19 @@ public class SessionManager {
      */
     public Session create(TransportLayer transport) {
         Session session = new Session(transport, eventBus);
-
         SessionReader reader = new SessionReader(session, eventBus);
-        Thread readerThread = new Thread(reader, "session-" + session.getId().value() + "-reader");
-        readerThread.start();
-
         SessionWriter writer = new SessionWriter(session);
-        Thread writerThread = new Thread(writer, "session-" + session.getId().value() + "-writer");
-        writerThread.start();
 
-        SessionHandle handle = new SessionHandle(session, readerThread, writerThread);
-        sessions.put(session.getId(), handle);
-        logger.debug("Created new session {}", session.getId().value());
+        Thread readerThread = Thread.ofVirtual()
+            .name("session-" + session.getId().value() + "-reader")
+            .unstarted(reader);
+        Thread writerThread = Thread.ofVirtual()
+            .name("session-" + session.getId().value() + "-writer")
+            .unstarted(writer);
+
+        sessions.put(session.getId(), new SessionHandle(session, readerThread, writerThread));
+        readerThread.start();
+        writerThread.start();
         return session;
     }
 
