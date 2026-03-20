@@ -55,7 +55,7 @@ public class SessionManager {
      * @param id of the client to disconnect
      */
     public void disconnect(SessionId id) {
-        SessionHandle handle = sessions.get(id);
+        SessionHandle handle = sessions.remove(id);
         if (handle == null) {
             logger.warn(
                     "Requested to disconnect client with id {}. Failed as client is not found",
