@@ -55,7 +55,7 @@ checkstyle {
 
 spotless {
     java {
-        googleJavaFormat('1.25.2').aosp()
+        googleJavaFormat('1.35.0').aosp()
         importOrder()
         removeUnusedImports()
         trimTrailingWhitespace()
