@@ -49,8 +49,9 @@ public class ResponseEncoder {
     }
 
     private static String maskIfNeeded(String value) {
-        if (value.contains(" ")) {
-            return "'" + value + "'";
+        if (value.contains(" ") || value.contains("'")) {
+            String escaped = value.replace("'", "\\'");
+            return "'" + escaped + "'";
         }
         return value;
     }
