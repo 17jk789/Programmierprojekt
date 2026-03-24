@@ -3,21 +3,12 @@ package ch.unibas.dmi.dbis.cs108.casono.server.network.response;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.sessions.SessionId;
 
 public abstract class SuccessResponse extends Response {
-    public SuccessResponse(SessionId sessionId, int requestId) {
-        this.sessionId = sessionId;
-        this.requestId = requestId;
+    protected SuccessResponse(SessionId sessionId, int requestId, ResponseBody body) {
+        super(sessionId, requestId, body);
     }
 
-    public final String encode() {
-        String payload = payload();
-        if (payload.isBlank()) {
-            return "+OK";
-        } else {
-            return "+OK " + payload;
-        }
-    }
-
-    protected String payload() {
-        return "";
+    @Override
+    public final String prefix() {
+        return "+OK";
     }
 }
