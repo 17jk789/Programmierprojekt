@@ -1,6 +1,5 @@
 package ch.unibas.dmi.dbis.cs108.casono.server.network.parser;
 
-import ch.unibas.dmi.dbis.cs108.casono.server.network.transport.RawPacket;
 import ch.unibas.dmi.dbis.cs108.casono.server.tokenizer.RawToken;
 import ch.unibas.dmi.dbis.cs108.casono.server.tokenizer.Token;
 import ch.unibas.dmi.dbis.cs108.casono.server.tokenizer.TokenClassifier;
@@ -19,15 +18,15 @@ public class ProtocolParser {
      * @param packet the RawPacket containing the recieved data
      * @return created PrimitiveRequest
      */
-    public static PrimitiveRequest parse(RawPacket packet) {
-        List<RawToken> rawTokens = Tokenizer.tokenize(packet.payload());
+    public static RawRequest parse(String payload) {
+        List<RawToken> rawTokens = Tokenizer.tokenize(payload);
         List<Token> tokens = TokenClassifier.classify(rawTokens);
 
         Iterator<Token> iterator = tokens.iterator();
         String command = readCommand(iterator);
         List<Parameter> parameters = readParameters(iterator);
 
-        return new PrimitiveRequest(packet.requestId(), command, parameters);
+        return new RawRequest(command, parameters);
     }
 
     /**
