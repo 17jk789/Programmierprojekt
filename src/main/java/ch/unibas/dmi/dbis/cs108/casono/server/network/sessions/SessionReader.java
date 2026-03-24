@@ -2,9 +2,11 @@ package ch.unibas.dmi.dbis.cs108.casono.server.network.sessions;
 
 import ch.unibas.dmi.dbis.cs108.casono.server.network.events.DisconnectEvent;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.events.EventBus;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.parser.PrimitiveRequest;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.parser.ProtocolParser;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.parser.ProtocolParserException;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.parser.RawRequest;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.parser.RequestContext;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.transport.RawPacket;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.transport.TransportLayer;
 import ch.unibas.dmi.dbis.cs108.casono.server.tokenizer.TokenizerException;
@@ -38,6 +40,12 @@ public class SessionReader implements Runnable {
 
                 RawRequest rawRequest = ProtocolParser.parse(rawPacket.payload());
                 logger.debug("Parsed request to {}", rawRequest);
+
+                RequestContext requestContext =
+                        new RequestContext(session.getId(), rawPacket.requestId());
+                PrimitiveRequest primitiveRequest =
+                        new PrimitiveRequest(
+                                requestContext, rawRequest.command(), rawRequest.parameters());
             } catch (EOFException e) {
                 logger.info("Client disconnected");
                 eventBus.publish(new DisconnectEvent(session.getId()));
