@@ -2,7 +2,7 @@ package ch.unibas.dmi.dbis.cs108.casono.server.network.response;
 
 import ch.unibas.dmi.dbis.cs108.casono.server.network.sessions.SessionId;
 
-public abstract class Response implements Encodable {
+public abstract class Response {
     protected SessionId sessionId;
     protected int requestId;
 
