@@ -34,7 +34,7 @@ public class SessionManager {
      * @return newly created session
      */
     public Session create(TransportLayer transport) {
-        Session session = new Session(transport, eventBus);
+        Session session = new Session(transport, eventBus, dispatcher);
         SessionReader reader = new SessionReader(session, eventBus);
         SessionWriter writer = new SessionWriter(session);
 
