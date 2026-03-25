@@ -2,6 +2,7 @@ package ch.unibas.dmi.dbis.cs108.casono.server.network.sessions;
 
 import ch.unibas.dmi.dbis.cs108.casono.server.network.events.DisconnectEvent;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.events.EventBus;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.parser.CommandParserDispatcher;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.transport.TransportLayer;
 import java.io.IOException;
 import java.util.Map;
@@ -14,12 +15,14 @@ public class SessionManager {
     private Map<SessionId, SessionHandle> sessions;
     private final EventBus eventBus;
     private final Logger logger;
+    private final CommandParserDispatcher dispatcher;
 
     /** Constructs a new SessionManager. */
-    public SessionManager(EventBus eventBus) {
+    public SessionManager(EventBus eventBus, CommandParserDispatcher dispatcher) {
         this.sessions = new ConcurrentHashMap<>();
         this.eventBus = eventBus;
         this.logger = LogManager.getLogger(SessionManager.class);
+        this.dispatcher = dispatcher;
     }
 
     /**
