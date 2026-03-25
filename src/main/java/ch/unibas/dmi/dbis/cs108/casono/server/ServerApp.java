@@ -5,6 +5,7 @@ import ch.unibas.dmi.dbis.cs108.casono.server.domain.user.UserRegistry;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.NetworkManager;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.events.DisconnectEvent;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.events.EventBus;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.parser.CommandParserDispatcher;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.sessions.SessionManager;
 import java.time.Duration;
 import java.util.concurrent.Executors;
@@ -26,7 +27,8 @@ public class ServerApp {
         logger.info("Starting server at port {}", port);
 
         EventBus eventBus = new EventBus();
-        SessionManager sessionManager = new SessionManager(eventBus);
+        CommandParserDispatcher dispatcher = new CommandParserDispatcher();
+        SessionManager sessionManager = new SessionManager(eventBus, dispatcher);
         eventBus.subscribe(DisconnectEvent.class, event -> sessionManager.onDisconnect(event));
         NetworkManager networkManager = new NetworkManager(port, sessionManager);
 
