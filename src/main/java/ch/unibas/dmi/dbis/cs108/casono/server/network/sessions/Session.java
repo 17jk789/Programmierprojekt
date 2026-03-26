@@ -1,5 +1,6 @@
 package ch.unibas.dmi.dbis.cs108.casono.server.network.sessions;
 
+import ch.unibas.dmi.dbis.cs108.casono.server.network.command.CommandRouter;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.events.EventBus;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.parser.CommandParserDispatcher;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.response.PrimitiveResponse;
@@ -14,6 +15,7 @@ public class Session {
     private final TransportLayer transport;
     private final BlockingQueue<PrimitiveResponse> responseQueue;
     private final CommandParserDispatcher dispatcher;
+    private final CommandRouter router;
     private static final int RESPOND_QUEUE_SIZE = 32;
 
     /**
@@ -24,10 +26,11 @@ public class Session {
      * @throws IOException if an I/O error occurs during initialization
      */
     public Session(
-            TransportLayer transport, EventBus eventBus, CommandParserDispatcher dispatcher) {
+            TransportLayer transport, EventBus eventBus, CommandParserDispatcher dispatcher, CommandRouter router) {
         this.id = new SessionId();
         this.transport = transport;
         this.dispatcher = dispatcher;
+        this.router = router;
         this.responseQueue = new ArrayBlockingQueue<>(RESPOND_QUEUE_SIZE);
     }
 
@@ -65,5 +68,9 @@ public class Session {
      */
     public CommandParserDispatcher getDispatcher() {
         return dispatcher;
+    }
+
+    public CommandRouter getRouter() {
+        return router;
     }
 }
