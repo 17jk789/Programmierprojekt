@@ -8,7 +8,7 @@ import ch.unibas.dmi.dbis.cs108.casono.server.network.parser.Request;
 public class CommandRouter {
     private final Map<Class<? extends Request>, CommandHandler<?>> handlers = new HashMap<>();
 
-    public void register(Class<? extends Request> request, CommandHandler<?> handler) {
+    public <T extends Request> void register(Class<T> request, CommandHandler<T> handler) {
         handlers.put(request, handler);
     }
 
