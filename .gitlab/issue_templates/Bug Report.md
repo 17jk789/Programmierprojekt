@@ -2,9 +2,9 @@
 <!-- The reccommended type is: Issue -->
 
 ### Environment
-- **Branch & Commit:**
-- **Operating system:**
-- **How was execution started (Gradle task / IDE debug / IDE run):**
+- **Branch & Commit:** 
+- **Operating system:** 
+- **How was execution started (Gradle task / IDE debug / IDE run):** 
 - **Java version:** `25`
 - **Gradle version**: `9.3.1`
 
