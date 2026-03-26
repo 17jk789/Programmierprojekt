@@ -1,5 +1,6 @@
 package ch.unibas.dmi.dbis.cs108.casono.server.network.sessions;
 
+import ch.unibas.dmi.dbis.cs108.casono.server.network.command.CommandRouter;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.events.DisconnectEvent;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.events.EventBus;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.parser.CommandParserDispatcher;
@@ -22,6 +23,7 @@ public class SessionReader implements Runnable {
     private final TransportLayer transport;
     private final EventBus eventBus;
     private final CommandParserDispatcher dispatcher;
+    private final CommandRouter router;
     private final Logger logger;
 
     public SessionReader(Session session, EventBus eventBus) {
@@ -29,6 +31,7 @@ public class SessionReader implements Runnable {
         this.transport = session.getTransport();
         this.eventBus = eventBus;
         this.dispatcher = session.getDispatcher();
+        this.router = session.getRouter();
         this.logger =
                 LogManager.getLogger(
                         SessionReader.class.toString() + "-" + session.getId().value());
@@ -50,8 +53,11 @@ public class SessionReader implements Runnable {
                 PrimitiveRequest primitiveRequest =
                         new PrimitiveRequest(
                                 requestContext, rawRequest.command(), rawRequest.parameters());
+                logger.debug("Converted to {}", primitiveRequest);
 
                 Request request = dispatcher.parse(primitiveRequest);
+
+                router.execute(request);
             } catch (EOFException e) {
                 logger.info("Client disconnected");
                 eventBus.publish(new DisconnectEvent(session.getId()));
