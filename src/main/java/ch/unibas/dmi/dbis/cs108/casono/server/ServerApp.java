@@ -3,6 +3,8 @@ package ch.unibas.dmi.dbis.cs108.casono.server;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.user.UserCleanupJob;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.user.UserRegistry;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.NetworkManager;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.command.CommandRouter;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.command.TestCommandHandler;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.events.DisconnectEvent;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.events.EventBus;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.parser.CommandParserDispatcher;
@@ -28,7 +30,9 @@ public class ServerApp {
 
         EventBus eventBus = new EventBus();
         CommandParserDispatcher dispatcher = new CommandParserDispatcher();
-        SessionManager sessionManager = new SessionManager(eventBus, dispatcher);
+        CommandRouter router = new CommandRouter();
+
+        SessionManager sessionManager = new SessionManager(eventBus, dispatcher, router);
         eventBus.subscribe(DisconnectEvent.class, event -> sessionManager.onDisconnect(event));
         NetworkManager networkManager = new NetworkManager(port, sessionManager);
 
