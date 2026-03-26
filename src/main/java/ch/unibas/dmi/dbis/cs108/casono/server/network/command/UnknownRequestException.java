@@ -4,8 +4,8 @@ public class UnknownRequestException extends RuntimeException {
     private final String requestName;
 
     public UnknownRequestException(String message, String requestName) {
-        this.requestName = requestName;
         super(message);
+        this.requestName = requestName;
     }
 
     public String getRequestName() {
