@@ -20,7 +20,8 @@ public class SessionManager {
     private final CommandRouter router;
 
     /** Constructs a new SessionManager. */
-    public SessionManager(EventBus eventBus, CommandParserDispatcher dispatcher, CommandRouter router) {
+    public SessionManager(
+            EventBus eventBus, CommandParserDispatcher dispatcher, CommandRouter router) {
         this.sessions = new ConcurrentHashMap<>();
         this.eventBus = eventBus;
         this.logger = LogManager.getLogger(SessionManager.class);

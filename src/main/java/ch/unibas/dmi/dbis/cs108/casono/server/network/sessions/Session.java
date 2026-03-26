@@ -26,7 +26,10 @@ public class Session {
      * @throws IOException if an I/O error occurs during initialization
      */
     public Session(
-            TransportLayer transport, EventBus eventBus, CommandParserDispatcher dispatcher, CommandRouter router) {
+            TransportLayer transport,
+            EventBus eventBus,
+            CommandParserDispatcher dispatcher,
+            CommandRouter router) {
         this.id = new SessionId();
         this.transport = transport;
         this.dispatcher = dispatcher;

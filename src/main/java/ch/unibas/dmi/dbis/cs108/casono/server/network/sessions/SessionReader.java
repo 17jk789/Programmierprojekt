@@ -56,7 +56,7 @@ public class SessionReader implements Runnable {
                 logger.debug("Converted to {}", primitiveRequest);
 
                 Request request = dispatcher.parse(primitiveRequest);
-                
+
                 router.execute(request);
             } catch (EOFException e) {
                 logger.info("Client disconnected");
