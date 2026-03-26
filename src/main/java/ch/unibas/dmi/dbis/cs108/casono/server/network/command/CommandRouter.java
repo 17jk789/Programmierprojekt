@@ -6,14 +6,16 @@ import java.util.Map;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.parser.Request;
 
 public class CommandRouter {
-    private final Map<Class<? extends Request>, CommandHandler> handlers = new HashMap<>();
+    private final Map<Class<? extends Request>, CommandHandler<?>> handlers = new HashMap<>();
 
-    public void register(Class<? extends Request> request, CommandHandler handler) {
+    public void register(Class<? extends Request> request, CommandHandler<?> handler) {
         handlers.put(request, handler);
     }
 
+    // Safe, because during registration, it's ensured that the provided CommandHandler only receives requests it can handle.
+    @SuppressWarnings("unchecked")
     public void execute(Request request) {
-        CommandHandler handler = handlers.get(request.getClass());
+        CommandHandler<Request> handler = (CommandHandler<Request>) handlers.get(request.getClass());
 
         if (handler == null) {
             String requestName = request.getClass().toString();
