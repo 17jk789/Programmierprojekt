@@ -42,12 +42,14 @@ public class SessionManager {
         SessionReader reader = new SessionReader(session, eventBus);
         SessionWriter writer = new SessionWriter(session);
 
-        Thread readerThread = Thread.ofVirtual()
-            .name("session-" + session.getId().value() + "-reader")
-            .unstarted(reader);
-        Thread writerThread = Thread.ofVirtual()
-            .name("session-" + session.getId().value() + "-writer")
-            .unstarted(writer);
+        Thread readerThread =
+                Thread.ofVirtual()
+                        .name("session-" + session.getId().value() + "-reader")
+                        .unstarted(reader);
+        Thread writerThread =
+                Thread.ofVirtual()
+                        .name("session-" + session.getId().value() + "-writer")
+                        .unstarted(writer);
 
         sessions.put(session.getId(), new SessionHandle(session, readerThread, writerThread));
         readerThread.start();
