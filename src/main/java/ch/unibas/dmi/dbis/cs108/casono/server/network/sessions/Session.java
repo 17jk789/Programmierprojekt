@@ -6,12 +6,14 @@ import ch.unibas.dmi.dbis.cs108.casono.server.network.parser.CommandParserDispat
 import ch.unibas.dmi.dbis.cs108.casono.server.network.response.PrimitiveResponse;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.transport.TransportLayer;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
 /** Represents a client session in the network server. */
 public class Session {
     private final SessionId id;
+    private Instant lastActivity;
     private final TransportLayer transport;
     private final BlockingQueue<PrimitiveResponse> responseQueue;
     private final CommandParserDispatcher dispatcher;
@@ -31,6 +33,7 @@ public class Session {
             CommandParserDispatcher dispatcher,
             CommandRouter router) {
         this.id = new SessionId();
+        this.lastActivity = Instant.now();
         this.transport = transport;
         this.dispatcher = dispatcher;
         this.router = router;
@@ -44,6 +47,20 @@ public class Session {
      */
     public SessionId getId() {
         return this.id;
+    }
+
+    /**
+     * Gets the timestamp of the last inbound activity for this session.
+     *
+     * @return an {@link Instant} representing the time of the last inbound activity
+     */
+    public Instant getLastInboundActivity() {
+        return lastActivity;
+    }
+
+    /** Updates the timestamp of the last inbound activity for this session. */
+    public void updateLastInboundActivity() {
+        this.lastActivity = Instant.now();
     }
 
     /**

@@ -6,8 +6,10 @@ import ch.unibas.dmi.dbis.cs108.casono.server.network.events.EventBus;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.parser.CommandParserDispatcher;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.transport.TransportLayer;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -108,5 +110,9 @@ public class SessionManager {
         }
 
         return handle.session();
+    }
+
+    public Collection<Session> getAllSessions() {
+        return sessions.values().stream().map(SessionHandle::session).collect(Collectors.toList());
     }
 }

@@ -43,6 +43,7 @@ public class SessionReader implements Runnable {
             RawPacket rawPacket = null;
             try {
                 rawPacket = transport.read();
+                session.updateLastInboundActivity();
                 logger.debug("Recieved: {}", rawPacket);
 
                 RawRequest rawRequest = ProtocolParser.parse(rawPacket.payload());
