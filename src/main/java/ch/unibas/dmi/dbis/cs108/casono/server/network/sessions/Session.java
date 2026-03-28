@@ -49,10 +49,16 @@ public class Session {
         return this.id;
     }
 
+    /**
+     * Gets the timestamp of the last inbound activity for this session.
+     *
+     * @return an {@link Instant} representing the time of the last inbound activity
+     */
     public Instant getLastInboundActivity() {
         return lastActivity;
     }
 
+    /** Updates the timestamp of the last inbound activity for this session. */
     public void updateLastInboundActivity() {
         this.lastActivity = Instant.now();
     }
