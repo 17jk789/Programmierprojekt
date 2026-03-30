@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="800" height="450">
+  <rect width="800" height="450" rx="20" fill="#07101a" />
+  <ellipse cx="400" cy="240" rx="300" ry="120" fill="#0b5a2b" />
+  <g fill="#d4b26a" font-family="Cinzel, serif" font-size="32" text-anchor="middle">
+    <text x="400" y="60">Casono Table Preview</text>
+  </g>
+</svg>
