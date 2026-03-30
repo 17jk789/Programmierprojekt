@@ -1,12 +1,12 @@
 package ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.parser;
 
 import ch.unibas.dmi.dbis.cs108.casono.server.network.command.parsing.RequestParameter;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.parser.tokenizer.RawToken;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.parser.tokenizer.Token;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.parser.tokenizer.TokenClassifier;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.parser.tokenizer.TokenType;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.parser.tokenizer.Tokenizer;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.request.RawRequest;
-import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.tokenizer.RawToken;
-import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.tokenizer.Token;
-import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.tokenizer.TokenClassifier;
-import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.tokenizer.TokenType;
-import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.tokenizer.Tokenizer;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
