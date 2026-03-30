@@ -22,7 +22,7 @@ stages:
 .on-mr: &on-mr
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-      allow_failure: true   # deactivate after all issues (shown by checkstyle) have been resolved
+      allow_failure: false
 
 # Jobs
 checkstyle:
@@ -48,7 +48,7 @@ checkstyle-mr:
     image: gradle:9.3.1-jdk25
     script:
         - gradle checkstyleMain checkstyleTest
-    allow_failure: true
+    allow_failure: false
     artifacts:
         when: always
         paths:
@@ -66,6 +66,7 @@ checkstyle-report:
         - job: checkstyle-mr
           artifacts: true
           optional: true
+    when: always
     rules:
         - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
     script:
