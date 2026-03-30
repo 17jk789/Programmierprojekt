@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import ch.unibas.dmi.dbis.cs108.casono.server.network.parser.Parameter;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.parser.RequestParameter;
 
 /**
  * Provides typed access to a request's parameters by indexing them by key.
@@ -20,10 +20,10 @@ public class RequestParameterAccessor {
      *
      * @param parameters to use
      */
-    public RequestParameterAccessor(List<Parameter> parameters) {
+    public RequestParameterAccessor(List<RequestParameter> parameters) {
         this.index =
                 parameters.stream()
-                        .collect(Collectors.toUnmodifiableMap(Parameter::key, Parameter::value));
+                        .collect(Collectors.toUnmodifiableMap(RequestParameter::key, RequestParameter::value));
     }
 
     /**

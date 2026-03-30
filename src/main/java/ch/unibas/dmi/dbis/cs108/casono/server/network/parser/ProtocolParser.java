@@ -25,7 +25,7 @@ public class ProtocolParser {
 
         Iterator<Token> iterator = tokens.iterator();
         String command = readCommand(iterator);
-        List<Parameter> parameters = readParameters(iterator);
+        List<RequestParameter> parameters = readParameters(iterator);
 
         return new RawRequest(command, parameters);
     }
@@ -51,8 +51,8 @@ public class ProtocolParser {
      * @param iterator
      * @return list containing all parsed parameters
      */
-    private static List<Parameter> readParameters(Iterator<Token> iterator) {
-        List<Parameter> parameters = new ArrayList<>();
+    private static List<RequestParameter> readParameters(Iterator<Token> iterator) {
+        List<RequestParameter> parameters = new ArrayList<>();
 
         try {
             while (iterator.hasNext()) {
@@ -66,7 +66,7 @@ public class ProtocolParser {
                 readSeperator(iterator.next());
                 String value = readValue(iterator.next());
 
-                parameters.add(new Parameter(key, value));
+                parameters.add(new RequestParameter(key, value));
             }
         } catch (NoSuchElementException e) {
             throw new ProtocolParserException("Ran out of tokens while reading parameter");
