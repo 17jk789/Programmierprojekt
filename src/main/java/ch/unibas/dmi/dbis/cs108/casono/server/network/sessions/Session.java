@@ -1,6 +1,6 @@
 package ch.unibas.dmi.dbis.cs108.casono.server.network.sessions;
 
-import ch.unibas.dmi.dbis.cs108.casono.server.network.command.CommandRouter;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.command.execution.CommandRouter;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.events.EventBus;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.parser.CommandParserDispatcher;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.response.PrimitiveResponse;

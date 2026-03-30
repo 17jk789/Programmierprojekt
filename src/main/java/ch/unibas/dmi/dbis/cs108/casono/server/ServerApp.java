@@ -3,7 +3,7 @@ package ch.unibas.dmi.dbis.cs108.casono.server;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.user.UserCleanupJob;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.user.UserRegistry;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.NetworkManager;
-import ch.unibas.dmi.dbis.cs108.casono.server.network.command.CommandRouter;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.command.execution.CommandRouter;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.events.DisconnectEvent;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.events.EventBus;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.parser.CommandParserDispatcher;
