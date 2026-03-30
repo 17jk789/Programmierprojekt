@@ -1,5 +1,6 @@
 package ch.unibas.dmi.dbis.cs108.casono.server.network.response;
 
+import ch.unibas.dmi.dbis.cs108.casono.server.network.response.builder.ResponseBody;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.sessions.SessionId;
 
 /** Response representing an error outcome for a client's request. */

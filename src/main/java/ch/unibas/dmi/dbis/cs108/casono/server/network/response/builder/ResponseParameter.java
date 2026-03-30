@@ -1,4 +1,4 @@
-package ch.unibas.dmi.dbis.cs108.casono.server.network.response;
+package ch.unibas.dmi.dbis.cs108.casono.server.network.response.builder;
 
 /**
  * A parameter node stored in a {@link ResponseBody}.
