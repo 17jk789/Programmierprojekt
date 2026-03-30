@@ -6,11 +6,13 @@ stages:
 
 # Reusable definitions
 .gradle-cache: &gradle-cache
+  variables:
+    GRADLE_USER_HOME: '$CI_PROJECT_DIR/.gradle-home'
   cache:
     key: '$CI_PROJECT_ID-gradle'
     paths:
       - .gradle/
-      - ~/.gradle/caches/
+      - .gradle-home/
 
 .on-commit: &on-commit
   rules:
@@ -30,7 +32,7 @@ checkstyle:
     stage: lint
     image: gradle:9.3.1-jdk25
     script:
-        - gradle checkstyleMain checkstyleTest
+        - gradle checkstyleMain checkstyleTest --configuration-cache --configuration-cache-problems=warn
     allow_failure: true
     artifacts:
         when: always
@@ -47,7 +49,7 @@ checkstyle-mr:
     stage: lint
     image: gradle:9.3.1-jdk25
     script:
-        - gradle checkstyleMain checkstyleTest
+        - gradle checkstyleMain checkstyleTest --configuration-cache --configuration-cache-problems=warn
     allow_failure: false
     artifacts:
         when: always
@@ -82,7 +84,7 @@ compile-check:
     stage: build
     image: gradle:9.3.1-jdk25
     script:
-        - gradle compileTestJava
+        - gradle compileTestJava --configuration-cache --configuration-cache-problems=warn
     needs: []
     rules:
         - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
@@ -95,7 +97,7 @@ test:
     stage: test
     image: gradle:9.3.1-jdk25
     script:
-        - gradle test
+        - gradle test --configuration-cache --configuration-cache-problems=warn
     artifacts:
         when: always
         reports:
