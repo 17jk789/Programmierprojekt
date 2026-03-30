@@ -56,7 +56,7 @@ public class RequestParameterAccessor {
         try {
             return parser.parse(value);
         } catch (Exception e) {
-            throw new ParameterParseException("Error while parsing with specified parser", e);
+            throw new ParameterParseException("Error while parsing '" + key + "' with specified parser", key, e);
         }
     }
 
@@ -94,7 +94,7 @@ public class RequestParameterAccessor {
         try {
             return parser.parse(value);
         } catch (Exception e) {
-            throw new ParameterParseException("Error while parsing with specified parser", e);
+            throw new ParameterParseException("Error while parsing '" + key + "' with specified parser", key, e);
         }
     }
 
