@@ -2,6 +2,7 @@ package ch.unibas.dmi.dbis.cs108.casono.server.network.sessions;
 
 import ch.unibas.dmi.dbis.cs108.casono.server.network.command.execution.CommandRouter;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.command.parsing.CommandParserDispatcher;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.command.parsing.UnknownCommandException;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.events.DisconnectEvent;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.events.EventBus;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.parser.ProtocolParser;
@@ -11,6 +12,9 @@ import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.request.Primitive
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.request.RawRequest;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.request.Request;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.request.RequestContext;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.ErrorResponse;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.PrimitiveResponse;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.dispatcher.ResponseEncoder;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.transport.RawPacket;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.transport.TransportLayer;
 import java.io.EOFException;
@@ -41,35 +45,77 @@ public class SessionReader implements Runnable {
     public void run() {
         while (!Thread.currentThread().isInterrupted()) {
             RawPacket rawPacket = null;
+            RawRequest rawRequest = null;
             try {
+                // Step 1: Read from transport
                 rawPacket = transport.read();
                 session.updateLastInboundActivity();
                 logger.debug("Recieved: {}", rawPacket);
 
-                RawRequest rawRequest = ProtocolParser.parse(rawPacket.payload());
+                // Step 2: Syntax validation and conversion into transport object
+                rawRequest = ProtocolParser.parse(rawPacket.payload());
                 logger.debug("Parsed request to {}", rawRequest);
 
-                RequestContext requestContext =
-                        new RequestContext(session.getId(), rawPacket.requestId());
                 PrimitiveRequest primitiveRequest =
                         new PrimitiveRequest(
-                                requestContext, rawRequest.command(), rawRequest.parameters());
+                                new RequestContext(session.getId(), rawPacket.requestId()),
+                                rawRequest.command(),
+                                rawRequest.parameters());
                 logger.debug("Converted to {}", primitiveRequest);
 
+                // Step 3: Parse into Request and execute Request
                 Request request = dispatcher.parse(primitiveRequest);
-
                 router.execute(request);
             } catch (EOFException e) {
                 logger.info("Client disconnected");
                 eventBus.publish(new DisconnectEvent(session.getId()));
                 break;
+
             } catch (TokenizerException | ProtocolParserException e) {
                 logger.error("Error occured while parsing request. RawPacket: {}", rawPacket, e);
 
-                // TODO: Send error response to client
+                sendErrorResponse(
+                        new ErrorResponse(
+                                session.getId(),
+                                rawPacket.requestId(),
+                                "PARSING_ERROR",
+                                "Error occured during parsing. Likely due to malformed payload."));
+
+            } catch (UnknownCommandException e) {
+                logger.error("Recieved unknown command '{}' from client", rawRequest.command(), e);
+                sendErrorResponse(
+                        new ErrorResponse(
+                                session.getId(),
+                                rawPacket.requestId(),
+                                "UNKNOWN_COMMAND",
+                                "This command is unknown to the server."));
+
             } catch (IOException e) {
-                logger.error("Unexpected exception while reading from transport", e);
+                logger.error("Unexpected IO exception while reading from transport", e);
+
+            } catch (RuntimeException e) {
+                logger.error("Unexpected RuntimeException occured", e);
+                sendErrorResponse(
+                        new ErrorResponse(
+                                session.getId(),
+                                rawPacket.requestId(),
+                                "INTERNAL_ERROR",
+                                "Unexpected internal server error occured."));
             }
+        }
+    }
+
+    /**
+     * Helperfunction to send ErrorResponse to client
+     *
+     * @param response to send to the client
+     */
+    private void sendErrorResponse(ErrorResponse response) {
+        PrimitiveResponse primitiveResponse = ResponseEncoder.encode(response);
+        try {
+            session.getResponseQueue().put(primitiveResponse);
+        } catch (InterruptedException e) {
+            logger.error("Got interrupted while sending ErrorResponse to client.");
         }
     }
 }
