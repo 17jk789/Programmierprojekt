@@ -1,4 +1,4 @@
-package ch.unibas.dmi.dbis.cs108.casono.server.network.parser;
+package ch.unibas.dmi.dbis.cs108.casono.server.network.request;
 
 /** Exception thrown when a required parameter key is not found. */
 public class MissingParameterException extends RuntimeException {

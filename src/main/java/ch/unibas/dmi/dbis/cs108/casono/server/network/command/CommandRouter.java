@@ -1,8 +1,9 @@
 package ch.unibas.dmi.dbis.cs108.casono.server.network.command;
 
-import ch.unibas.dmi.dbis.cs108.casono.server.network.parser.Request;
 import java.util.HashMap;
 import java.util.Map;
+
+import ch.unibas.dmi.dbis.cs108.casono.server.network.request.Request;
 
 public class CommandRouter {
     private final Map<Class<? extends Request>, CommandHandler<?>> handlers = new HashMap<>();

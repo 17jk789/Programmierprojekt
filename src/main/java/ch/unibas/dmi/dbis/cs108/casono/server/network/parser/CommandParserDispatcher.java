@@ -3,6 +3,9 @@ package ch.unibas.dmi.dbis.cs108.casono.server.network.parser;
 import java.util.HashMap;
 import java.util.Map;
 
+import ch.unibas.dmi.dbis.cs108.casono.server.network.request.PrimitiveRequest;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.request.Request;
+
 /** Dispatcher all CommandParser are registered in */
 public class CommandParserDispatcher {
     private final Map<String, CommandParser> parsers = new HashMap<>();

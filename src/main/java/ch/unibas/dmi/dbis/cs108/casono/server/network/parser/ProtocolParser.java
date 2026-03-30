@@ -1,5 +1,6 @@
 package ch.unibas.dmi.dbis.cs108.casono.server.network.parser;
 
+import ch.unibas.dmi.dbis.cs108.casono.server.network.request.RawRequest;
 import ch.unibas.dmi.dbis.cs108.casono.server.tokenizer.RawToken;
 import ch.unibas.dmi.dbis.cs108.casono.server.tokenizer.Token;
 import ch.unibas.dmi.dbis.cs108.casono.server.tokenizer.TokenClassifier;

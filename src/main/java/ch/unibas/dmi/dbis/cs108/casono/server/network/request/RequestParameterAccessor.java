@@ -1,8 +1,10 @@
-package ch.unibas.dmi.dbis.cs108.casono.server.network.parser;
+package ch.unibas.dmi.dbis.cs108.casono.server.network.request;
 
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import ch.unibas.dmi.dbis.cs108.casono.server.network.parser.Parameter;
 
 /**
  * Provides typed access to a request's parameters by indexing them by key.
