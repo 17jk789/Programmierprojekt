@@ -1,5 +1,7 @@
-package ch.unibas.dmi.dbis.cs108.casono.server.network.response;
+package ch.unibas.dmi.dbis.cs108.casono.server.network.response.dispatcher;
 
+import ch.unibas.dmi.dbis.cs108.casono.server.network.response.PrimitiveResponse;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.response.Response;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.response.builder.ResponseBlock;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.response.builder.ResponseNode;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.response.builder.ResponseParameter;
