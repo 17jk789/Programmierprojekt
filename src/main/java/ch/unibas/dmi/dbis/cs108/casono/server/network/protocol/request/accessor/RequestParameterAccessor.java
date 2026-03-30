@@ -1,10 +1,9 @@
 package ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.request.accessor;
 
+import ch.unibas.dmi.dbis.cs108.casono.server.network.command.parsing.RequestParameter;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import ch.unibas.dmi.dbis.cs108.casono.server.network.command.parsing.RequestParameter;
 
 /**
  * Provides typed access to a request's parameters by indexing them by key.
@@ -23,7 +22,9 @@ public class RequestParameterAccessor {
     public RequestParameterAccessor(List<RequestParameter> parameters) {
         this.index =
                 parameters.stream()
-                        .collect(Collectors.toUnmodifiableMap(RequestParameter::key, RequestParameter::value));
+                        .collect(
+                                Collectors.toUnmodifiableMap(
+                                        RequestParameter::key, RequestParameter::value));
     }
 
     /**

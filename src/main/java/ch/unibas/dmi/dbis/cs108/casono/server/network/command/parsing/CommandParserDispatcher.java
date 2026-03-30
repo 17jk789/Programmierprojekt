@@ -1,10 +1,9 @@
 package ch.unibas.dmi.dbis.cs108.casono.server.network.command.parsing;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.request.PrimitiveRequest;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.request.Request;
+import java.util.HashMap;
+import java.util.Map;
 
 /** Dispatcher all CommandParser are registered in */
 public class CommandParserDispatcher {

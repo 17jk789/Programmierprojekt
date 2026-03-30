@@ -7,7 +7,6 @@ import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.tokenizer.Token;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.tokenizer.TokenClassifier;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.tokenizer.TokenType;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.tokenizer.Tokenizer;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;

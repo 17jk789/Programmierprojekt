@@ -13,7 +13,6 @@ import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.request.RequestCo
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.tokenizer.TokenizerException;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.transport.RawPacket;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.transport.TransportLayer;
-
 import java.io.EOFException;
 import java.io.IOException;
 import org.apache.logging.log4j.LogManager;
