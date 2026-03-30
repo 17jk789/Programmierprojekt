@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
+import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.tokenizer.TokenizerException;
+
 class TokenizerExceptionTest {
     @Test
     void testConstructorAndGetters() {

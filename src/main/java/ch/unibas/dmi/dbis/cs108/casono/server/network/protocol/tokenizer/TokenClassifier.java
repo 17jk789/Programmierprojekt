@@ -1,4 +1,4 @@
-package ch.unibas.dmi.dbis.cs108.casono.server.tokenizer;
+package ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.tokenizer;
 
 import java.util.ArrayList;
 import java.util.List;

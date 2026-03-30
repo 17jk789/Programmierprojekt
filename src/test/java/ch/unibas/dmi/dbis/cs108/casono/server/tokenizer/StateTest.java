@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
+import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.tokenizer.State;
+
 class StateTest {
     @Test
     void testConstructor() {
