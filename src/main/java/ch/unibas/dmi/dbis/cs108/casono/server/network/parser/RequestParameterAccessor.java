@@ -19,11 +19,9 @@ public class RequestParameterAccessor {
      * @param parameters to use
      */
     public RequestParameterAccessor(List<Parameter> parameters) {
-        this.index = parameters.stream()
-            .collect(Collectors.toUnmodifiableMap(
-                Parameter::key,
-                Parameter::value
-            ));
+        this.index =
+                parameters.stream()
+                        .collect(Collectors.toUnmodifiableMap(Parameter::key, Parameter::value));
     }
 
     /**
@@ -36,7 +34,8 @@ public class RequestParameterAccessor {
     public String require(String key) throws MissingParameterException {
         String value = index.get(key);
         if (value == null) {
-            throw new MissingParameterException("Required parameter with key '" + key + "' is missing.", key);
+            throw new MissingParameterException(
+                    "Required parameter with key '" + key + "' is missing.", key);
         }
         return value;
     }
@@ -51,7 +50,8 @@ public class RequestParameterAccessor {
      * @throws MissingParameterException if no parameter with the given key exists
      * @throws ParameterParseException if parsing the raw value fails
      */
-    public <T> T require(String key, ThrowingParser<T> parser) throws MissingParameterException, ParameterParseException {
+    public <T> T require(String key, ThrowingParser<T> parser)
+            throws MissingParameterException, ParameterParseException {
         String value = require(key);
         try {
             return parser.parse(value);
@@ -85,7 +85,8 @@ public class RequestParameterAccessor {
      * @return parsed parameter value or {@code defaultValue} if absent
      * @throws ParameterParseException if parsing the raw value fails
      */
-    public <T> T optional(String key, T defaultValue, ThrowingParser<T> parser) throws ParameterParseException {
+    public <T> T optional(String key, T defaultValue, ThrowingParser<T> parser)
+            throws ParameterParseException {
         String value = index.get(key);
         if (value == null) {
             return defaultValue;
