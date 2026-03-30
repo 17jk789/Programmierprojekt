@@ -1,4 +1,4 @@
-package ch.unibas.dmi.dbis.cs108.casono.server.network.request;
+package ch.unibas.dmi.dbis.cs108.casono.server.network.request.accessor;
 
 /**
  * Functional parser interface used to convert a raw string parameter into a target type.

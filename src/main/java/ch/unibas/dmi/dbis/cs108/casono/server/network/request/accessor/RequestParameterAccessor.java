@@ -1,4 +1,4 @@
-package ch.unibas.dmi.dbis.cs108.casono.server.network.request;
+package ch.unibas.dmi.dbis.cs108.casono.server.network.request.accessor;
 
 import java.util.List;
 import java.util.Map;
