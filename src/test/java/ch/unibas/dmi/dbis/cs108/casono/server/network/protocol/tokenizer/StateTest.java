@@ -1,12 +1,10 @@
-package ch.unibas.dmi.dbis.cs108.casono.server.tokenizer;
+package ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.tokenizer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
-
-import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.tokenizer.State;
 
 class StateTest {
     @Test
