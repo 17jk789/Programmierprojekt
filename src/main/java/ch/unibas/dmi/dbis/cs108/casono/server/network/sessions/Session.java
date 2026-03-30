@@ -1,8 +1,8 @@
 package ch.unibas.dmi.dbis.cs108.casono.server.network.sessions;
 
 import ch.unibas.dmi.dbis.cs108.casono.server.network.command.execution.CommandRouter;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.command.parsing.CommandParserDispatcher;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.events.EventBus;
-import ch.unibas.dmi.dbis.cs108.casono.server.network.parser.CommandParserDispatcher;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.response.PrimitiveResponse;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.transport.TransportLayer;
 import java.io.IOException;

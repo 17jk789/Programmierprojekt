@@ -1,4 +1,4 @@
-package ch.unibas.dmi.dbis.cs108.casono.server.network.parser;
+package ch.unibas.dmi.dbis.cs108.casono.server.network.command.parsing;
 
 import java.util.HashMap;
 import java.util.Map;
