@@ -1,18 +1,18 @@
 package ch.unibas.dmi.dbis.cs108.casono.server.network.sessions;
 
-import ch.unibas.dmi.dbis.cs108.casono.server.network.command.CommandRouter;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.command.execution.CommandRouter;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.command.parsing.CommandParserDispatcher;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.events.DisconnectEvent;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.events.EventBus;
-import ch.unibas.dmi.dbis.cs108.casono.server.network.parser.CommandParserDispatcher;
-import ch.unibas.dmi.dbis.cs108.casono.server.network.parser.PrimitiveRequest;
-import ch.unibas.dmi.dbis.cs108.casono.server.network.parser.ProtocolParser;
-import ch.unibas.dmi.dbis.cs108.casono.server.network.parser.ProtocolParserException;
-import ch.unibas.dmi.dbis.cs108.casono.server.network.parser.RawRequest;
-import ch.unibas.dmi.dbis.cs108.casono.server.network.parser.Request;
-import ch.unibas.dmi.dbis.cs108.casono.server.network.parser.RequestContext;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.parser.ProtocolParser;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.parser.ProtocolParserException;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.parser.tokenizer.TokenizerException;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.request.PrimitiveRequest;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.request.RawRequest;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.request.Request;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.request.RequestContext;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.transport.RawPacket;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.transport.TransportLayer;
-import ch.unibas.dmi.dbis.cs108.casono.server.tokenizer.TokenizerException;
 import java.io.EOFException;
 import java.io.IOException;
 import org.apache.logging.log4j.LogManager;

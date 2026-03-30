@@ -1,6 +1,6 @@
 package ch.unibas.dmi.dbis.cs108.casono.server.network.sessions;
 
-import ch.unibas.dmi.dbis.cs108.casono.server.network.response.PrimitiveResponse;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.PrimitiveResponse;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.transport.RawPacket;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.transport.TransportLayer;
 import java.io.IOException;
