@@ -30,7 +30,7 @@ checkstyle:
     stage: lint
     image: gradle:9.3.1-jdk25
     script:
-        - gradle checkstyleMain checkstyleTest
+        - gradle checkstyleMain checkstyleTest --configuration-cache --configuration-cache-problems=warn
     allow_failure: true
     artifacts:
         when: always
@@ -47,7 +47,7 @@ checkstyle-mr:
     stage: lint
     image: gradle:9.3.1-jdk25
     script:
-        - gradle checkstyleMain checkstyleTest
+        - gradle checkstyleMain checkstyleTest --configuration-cache --configuration-cache-problems=warn
     allow_failure: false
     artifacts:
         when: always
@@ -82,7 +82,7 @@ compile-check:
     stage: build
     image: gradle:9.3.1-jdk25
     script:
-        - gradle compileTestJava
+        - gradle compileTestJava --configuration-cache --configuration-cache-problems=warn
     needs: []
     rules:
         - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
@@ -95,7 +95,7 @@ test:
     stage: test
     image: gradle:9.3.1-jdk25
     script:
-        - gradle test
+        - gradle test --configuration-cache --configuration-cache-problems=warn
     artifacts:
         when: always
         reports:
