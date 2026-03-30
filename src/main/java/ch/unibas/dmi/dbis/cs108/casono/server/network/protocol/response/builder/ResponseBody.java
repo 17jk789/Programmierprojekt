@@ -1,8 +1,8 @@
-package ch.unibas.dmi.dbis.cs108.casono.server.network.response.builder;
+package ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.builder;
 
 import java.util.List;
 
-import ch.unibas.dmi.dbis.cs108.casono.server.network.response.Response;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.Response;
 
 /**
  * Immutable container for the structured content of a {@link Response}.

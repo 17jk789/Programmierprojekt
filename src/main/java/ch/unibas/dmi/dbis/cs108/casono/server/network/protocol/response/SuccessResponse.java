@@ -1,6 +1,6 @@
-package ch.unibas.dmi.dbis.cs108.casono.server.network.response;
+package ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response;
 
-import ch.unibas.dmi.dbis.cs108.casono.server.network.response.builder.ResponseBody;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.builder.ResponseBody;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.sessions.SessionId;
 
 /**

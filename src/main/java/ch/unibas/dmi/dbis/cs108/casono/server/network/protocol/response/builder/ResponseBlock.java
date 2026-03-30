@@ -1,4 +1,4 @@
-package ch.unibas.dmi.dbis.cs108.casono.server.network.response.builder;
+package ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.builder;
 
 import java.util.List;
 
