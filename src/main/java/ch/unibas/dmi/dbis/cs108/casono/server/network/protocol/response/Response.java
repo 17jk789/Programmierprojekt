@@ -1,5 +1,6 @@
 package ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response;
 
+import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.request.RequestContext;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.builder.ResponseBody;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.sessions.SessionId;
 
@@ -16,9 +17,9 @@ public abstract class Response {
      * @param requestId the request identifier this response corresponds to
      * @param body the structured response body
      */
-    protected Response(SessionId sessionId, int requestId, ResponseBody body) {
-        this.sessionId = sessionId;
-        this.requestId = requestId;
+    protected Response(RequestContext context, ResponseBody body) {
+        this.sessionId = context.sessionId();
+        this.requestId = context.requestId();
         this.body = body;
     }
 
