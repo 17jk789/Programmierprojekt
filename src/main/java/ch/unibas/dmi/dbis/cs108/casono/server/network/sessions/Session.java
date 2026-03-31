@@ -5,7 +5,6 @@ import ch.unibas.dmi.dbis.cs108.casono.server.network.command.parsing.CommandPar
 import ch.unibas.dmi.dbis.cs108.casono.server.network.events.EventBus;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.PrimitiveResponse;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.transport.TransportLayer;
-import java.io.IOException;
 import java.time.Instant;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -25,7 +24,6 @@ public class Session {
      *
      * @param transport the transport layer for communication
      * @param eventBus the event bus for publishing events
-     * @throws IOException if an I/O error occurs during initialization
      */
     public Session(
             TransportLayer transport,

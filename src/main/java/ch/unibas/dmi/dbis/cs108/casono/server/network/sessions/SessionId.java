@@ -14,7 +14,7 @@ public class SessionId {
     /**
      * Creates a new SessionId with the specified UUID.
      *
-     * @param UUID to use for this SessionId
+     * @param value UUID to use for this SessionId
      */
     public SessionId(UUID value) {
         this.value = value;

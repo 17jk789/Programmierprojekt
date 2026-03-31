@@ -17,7 +17,7 @@ public class ProtocolParser {
     /**
      * Parses the payload of the provided RawPacket
      *
-     * @param packet the RawPacket containing the recieved data
+     * @param payload the payload to parse and check for syntax
      * @return created PrimitiveRequest
      */
     public static RawRequest parse(String payload) {
