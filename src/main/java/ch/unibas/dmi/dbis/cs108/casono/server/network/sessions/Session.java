@@ -25,7 +25,6 @@ public class Session {
      *
      * @param transport the transport layer for communication
      * @param eventBus the event bus for publishing events
-     * @throws IOException if an I/O error occurs during initialization
      */
     public Session(
             TransportLayer transport,

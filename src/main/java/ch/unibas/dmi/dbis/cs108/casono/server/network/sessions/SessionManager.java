@@ -88,7 +88,7 @@ public class SessionManager {
     /**
      * Handler for the DisconnectEvent
      *
-     * @param id of the session that disconnected
+     * @param event the DisconnectEvent to handle
      */
     public void onDisconnect(DisconnectEvent event) {
         logger.debug("Recieved DisconnectEvent event for session {}", event.sessionId().value());
