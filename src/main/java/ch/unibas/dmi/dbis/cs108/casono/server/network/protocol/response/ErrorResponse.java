@@ -1,23 +1,20 @@
 package ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response;
 
+import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.request.RequestContext;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.builder.ResponseBody;
-import ch.unibas.dmi.dbis.cs108.casono.server.network.sessions.SessionId;
 
 /** Response representing an error outcome for a client's request. */
 public class ErrorResponse extends Response {
     /**
      * Construct an error response with a code and message.
      *
-     * @param sessionId the target session id
-     * @param requestId the originating request id
+     * @param context the RequestContext of the request
      * @param errorCode a short error code identifying the failure
      * @param errorMessage a human readable error message
      */
-    public ErrorResponse(
-            SessionId sessionId, int requestId, String errorCode, String errorMessage) {
+    public ErrorResponse(RequestContext context, String errorCode, String errorMessage) {
         super(
-                sessionId,
-                requestId,
+                context,
                 ResponseBody.builder().param("CODE", errorCode).param("MSG", errorMessage).build());
     }
 
