@@ -11,8 +11,8 @@
 <!-- Detailed description of the desired behavior -->
 
 ### Checklist
-- [ ] I reproduced the problem using the steps above
-- [ ] I searched documentation docs for relevant information
+- [ ] I have described the function in detail
+- [ ] I searched docs for alternative implementations matching my needs
 - [ ] I added relevant labels
 
 /label ~enhancement
