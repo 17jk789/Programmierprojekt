@@ -12,8 +12,7 @@ public abstract class Response {
     /**
      * Create a new {@code Response}.
      *
-     * @param sessionId the id of the session this response targets
-     * @param requestId the request identifier this response corresponds to
+     * @param context the RequestContext of the request
      * @param body the structured response body
      */
     protected Response(RequestContext context, ResponseBody body) {

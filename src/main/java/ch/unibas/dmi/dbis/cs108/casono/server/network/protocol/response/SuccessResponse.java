@@ -13,8 +13,7 @@ public abstract class SuccessResponse extends Response {
     /**
      * Create a successful response with the provided body.
      *
-     * @param sessionId the session id this response targets
-     * @param requestId the originating request id
+     * @param context the RequestContext of the request
      * @param body the response body
      */
     protected SuccessResponse(RequestContext context, ResponseBody body) {

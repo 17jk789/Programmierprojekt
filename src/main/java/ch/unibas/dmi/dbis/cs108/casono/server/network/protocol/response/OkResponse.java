@@ -12,8 +12,7 @@ public class OkResponse extends SuccessResponse {
     /**
      * Create a minimal successful response (no body content).
      *
-     * @param sessionId the target session id
-     * @param requestId the originating request id
+     * @param context the RequestContext of the request
      */
     public OkResponse(RequestContext context) {
         super(context, ResponseBody.builder().build());

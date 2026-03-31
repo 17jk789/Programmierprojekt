@@ -8,8 +8,7 @@ public class ErrorResponse extends Response {
     /**
      * Construct an error response with a code and message.
      *
-     * @param sessionId the target session id
-     * @param requestId the originating request id
+     * @param context the RequestContext of the request
      * @param errorCode a short error code identifying the failure
      * @param errorMessage a human readable error message
      */
