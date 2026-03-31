@@ -29,7 +29,7 @@ public abstract class Response {
     public abstract String prefix();
 
     /**
-     * Returns the session id that should receive this response.
+     * Returns the session id of the session that should receive this response.
      *
      * @return the target {@link SessionId}
      */
