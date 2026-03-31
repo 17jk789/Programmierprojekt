@@ -6,8 +6,7 @@ import ch.unibas.dmi.dbis.cs108.casono.server.network.sessions.SessionId;
 
 /** Abstract base class for all server responses sent to clients. */
 public abstract class Response {
-    private final SessionId sessionId;
-    private final int requestId;
+    private final RequestContext context;
     private final ResponseBody body;
 
     /**
@@ -18,8 +17,7 @@ public abstract class Response {
      * @param body the structured response body
      */
     protected Response(RequestContext context, ResponseBody body) {
-        this.sessionId = context.sessionId();
-        this.requestId = context.requestId();
+        this.context = context;
         this.body = body;
     }
 
@@ -36,7 +34,7 @@ public abstract class Response {
      * @return the target {@link SessionId}
      */
     public SessionId getSessionId() {
-        return sessionId;
+        return context.sessionId();
     }
 
     /**
@@ -45,7 +43,7 @@ public abstract class Response {
      * @return the numeric request id
      */
     public int getRequestId() {
-        return requestId;
+        return context.requestId();
     }
 
     /**
