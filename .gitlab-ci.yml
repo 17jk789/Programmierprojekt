@@ -92,6 +92,14 @@ compile-check:
         - if: '$CI_COMMIT_BRANCH'
           allow_failure: false
 
+javadoc-check:
+    <<: [*gradle-cache, *on-mr]
+    stage: build
+    image: gradle:9.3.1-jdk25
+    script:
+        - gradle javaDoc --configuration-cache --configuration-cache-problems=warn
+    needs: []
+
 test:
     <<: *gradle-cache
     stage: test
