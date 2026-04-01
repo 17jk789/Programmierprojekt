@@ -6,8 +6,7 @@ import javafx.application.Application;
 /**
  * Launcher for the Casono main UI.
  *
- * <p>
- * Default constructor for the application.
+ * <p>Default constructor for the application.
  */
 public class Launcher {
 

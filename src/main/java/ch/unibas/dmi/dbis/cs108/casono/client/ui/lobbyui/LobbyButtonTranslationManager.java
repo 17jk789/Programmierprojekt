@@ -4,8 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Manages the mapping between Button IDs and Lobby IDs in memory only. No file
- * operations,
+ * Manages the mapping between Button IDs and Lobby IDs in memory only. No file operations,
  * runtime-only data structure.
  */
 public class LobbyButtonTranslationManager {
@@ -50,7 +49,7 @@ public class LobbyButtonTranslationManager {
      * Adds a mapping ButtonID → LobbyID.
      *
      * @param buttonId the ID of the button
-     * @param lobbyId  the ID of the lobby
+     * @param lobbyId the ID of the lobby
      * @throws Exception when the grid is full
      */
     public void addLobbyButton(int buttonId, int lobbyId) throws Exception {
