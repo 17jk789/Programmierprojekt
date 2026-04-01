@@ -7,17 +7,17 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 /**
- * Hauptklasse für das Casino-Spiel-UI.
+ * Main class for the Casono Game UI.
  *
- * <p>Startet die JavaFX-Anwendung, lädt die grafische Oberfläche aus der FXML-Datei und
- * initialisiert die Haupt-Stage für das Spiel.
+ * <p>Starts the JavaFX application, loads the graphical user interface from the FXML file, and
+ * initializes the main stage for the game.
  *
- * <p>Aufgaben: - Lädt die FXML-Oberfläche "/ui-structure/Casinogameui.fxml". - Lädt das
- * Anwendungs-Icon aus "/images/logoinverted.png". - Startet die Anwendung im Vollbildmodus.
+ * <p>Tasks: - Loads the FXML interface "/ui-structure/Casinogameui.fxml". - Loads the
+ * application icon from "/images/logoinverted.png". - Starts the application in full-screen mode.
  */
 public class CasinoGameUI extends Application {
 
-    /** Standardkonstruktor. */
+    /** default constructor */
     public CasinoGameUI() {
         // default no-arg constructor
     }
@@ -26,10 +26,10 @@ public class CasinoGameUI extends Application {
     private static final int DEFAULT_HEIGHT = 800;
 
     /**
-     * Startet die Haupt-Stage der Anwendung.
+     * Starts the main stage of the application.
      *
-     * @param stage Die vom System bereitgestellte Haupt-Stage.
-     * @throws IOException Wenn die FXML-Datei oder Ressourcen nicht geladen werden können.
+     * @param stage The main stage provided by the system.
+     * @throws IOException If the FXML file or resources cannot be loaded.
      */
     @Override
     public void start(Stage stage) throws IOException {
@@ -46,9 +46,9 @@ public class CasinoGameUI extends Application {
     }
 
     /**
-     * Startpunkt der Anwendung.
+     * Starting point of the application.
      *
-     * @param args Befehlszeilenargumente.
+     * @param args Command line arguments.
      */
     public static void main(String[] args) {
         launch();
