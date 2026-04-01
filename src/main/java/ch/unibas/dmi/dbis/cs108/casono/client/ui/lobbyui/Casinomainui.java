@@ -10,13 +10,13 @@ import javafx.stage.Stage;
 /**
  * JavaFX Application class for the Casono main UI.
  *
- * <p>Standardkonstruktor für die Anwendung.
+ * <p>Default constructor for the application.
  */
 public class Casinomainui extends Application {
 
-    /** Standardkonstruktor. */
+    /** Default constructor. */
     public Casinomainui() {
-        // Standardkonstruktor
+        // Default constructor
     }
 
     private static final int SCENE_WIDTH = 1200;

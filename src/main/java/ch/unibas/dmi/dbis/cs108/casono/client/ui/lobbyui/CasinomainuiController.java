@@ -58,7 +58,7 @@ public class CasinomainuiController {
     @FXML
     public void handleCreateLobbyButton() {
         if (translationManager.isFull()) {
-            LOGGER.warn("Grid voll! Keine weiteren Lobbys moeglich.");
+            LOGGER.warn("Grid is full! No more lobbies available.");
             return;
         }
         int buttonId = nextButtonId++;
@@ -68,7 +68,7 @@ public class CasinomainuiController {
             LOGGER.info("ButtonID: {}, LobbyID: {}", buttonId, lobbyId);
             gridManager.renderLobbyButtons();
         } catch (Exception e) {
-            LOGGER.error("Fehler beim Hinzufügen: {}", e.getMessage());
+            LOGGER.error("Error while adding lobby button: {}", e.getMessage());
         }
     }
 }
