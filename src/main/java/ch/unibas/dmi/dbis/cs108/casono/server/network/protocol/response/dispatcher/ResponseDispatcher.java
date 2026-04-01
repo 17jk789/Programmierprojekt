@@ -30,9 +30,14 @@ public class ResponseDispatcher {
      * @throws InterruptedException if the thread is interrupted while waiting to enqueue the
      *     primitive response
      */
-    public void dispatch(Response response) throws InterruptedException {
+    public void dispatch(Response response) {
         PrimitiveResponse primitiveResponse = ResponseEncoder.encode(response);
         Session session = sessionManager.getSessionById(response.getSessionId());
-        session.getResponseQueue().put(primitiveResponse);
+        try {
+            session.getResponseQueue().put(primitiveResponse);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new ResponseDispatchException("Interrupted while dispatching response", e);
+        }
     }
 }
