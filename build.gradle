@@ -55,7 +55,7 @@ checkstyle {
 
 spotless {
     java {
-        googleJavaFormat('1.25.2').aosp()
+        googleJavaFormat('1.35.0').aosp()
         importOrder()
         removeUnusedImports()
         trimTrailingWhitespace()
@@ -108,3 +108,17 @@ tasks.register('fatJar', Jar) {
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     })
 }
+
+    tasks.register('javadocJar', Jar) {
+        group = 'build'
+        description = 'Assembles a Javadoc JAR.'
+        dependsOn tasks.named('javadoc')
+        archiveClassifier = 'javadoc'
+        from(tasks.javadoc.destinationDir)
+    }
+
+    tasks.register('build-cs108') {
+        group = 'build'
+        description = 'Produces executable JAR and Javadoc JAR for CS108.'
+        dependsOn tasks.named('fatJar'), tasks.named('javadocJar')
+    }

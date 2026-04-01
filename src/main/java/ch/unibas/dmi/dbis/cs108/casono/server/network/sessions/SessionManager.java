@@ -1,44 +1,99 @@
 package ch.unibas.dmi.dbis.cs108.casono.server.network.sessions;
 
+import ch.unibas.dmi.dbis.cs108.casono.server.network.command.execution.CommandRouter;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.command.parsing.CommandParserDispatcher;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.events.DisconnectEvent;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.events.EventBus;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.transport.TransportLayer;
+import java.io.IOException;
+import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /** Manages active sessions in the server. */
 public class SessionManager {
-    private Map<SessionId, Session> sessions;
+    private Map<SessionId, SessionHandle> sessions;
+    private final EventBus eventBus;
+    private final Logger logger;
+    private final CommandParserDispatcher dispatcher;
+    private final CommandRouter router;
 
     /** Constructs a new SessionManager. */
-    public SessionManager() {
+    public SessionManager(
+            EventBus eventBus, CommandParserDispatcher dispatcher, CommandRouter router) {
         this.sessions = new ConcurrentHashMap<>();
+        this.eventBus = eventBus;
+        this.logger = LogManager.getLogger(SessionManager.class);
+        this.dispatcher = dispatcher;
+        this.router = router;
     }
 
     /**
-     * Adds a session to the manager.
+     * Create new Session from provided transport.
      *
-     * @param session the session to add
+     * <p>Will create both worker threads and start them.
+     *
+     * @param transport to create session from
+     * @return newly created session
      */
-    public void addSession(Session session) {
-        sessions.put(session.getId(), session);
+    public Session create(TransportLayer transport) {
+        Session session = new Session(transport, eventBus, dispatcher, router);
+        SessionReader reader = new SessionReader(session, eventBus);
+        SessionWriter writer = new SessionWriter(session);
+
+        Thread readerThread =
+                Thread.ofVirtual()
+                        .name("session-" + session.getId().value() + "-reader")
+                        .unstarted(reader);
+        Thread writerThread =
+                Thread.ofVirtual()
+                        .name("session-" + session.getId().value() + "-writer")
+                        .unstarted(writer);
+
+        sessions.put(session.getId(), new SessionHandle(session, readerThread, writerThread));
+        readerThread.start();
+        writerThread.start();
+        return session;
     }
 
     /**
-     * Removes a session by its ID.
+     * Disconnect specified client
      *
-     * @param id the ID of the session to remove
-     * @return the removed session, or null if not found
+     * <p>WARNING: Client will be uninformed about disconnect. Use with caution.
+     *
+     * @param id of the client to disconnect
      */
-    public Session removeSession(SessionId id) {
-        return sessions.remove(id);
+    public void disconnect(SessionId id) {
+        SessionHandle handle = sessions.remove(id);
+        if (handle == null) {
+            logger.warn(
+                    "Requested to disconnect client with id {}. Failed as client is not found",
+                    id.value());
+            return;
+        }
+        logger.debug("Disconnecting session {}", id.value());
+
+        handle.reader().interrupt();
+        handle.writer().interrupt();
+        try {
+            handle.session().getTransport().close();
+        } catch (IOException e) {
+            logger.error("Unexpected exception while closing transport", e);
+        }
     }
 
     /**
-     * Removes the specified session.
+     * Handler for the DisconnectEvent
      *
-     * @param session the session to remove
-     * @return the removed session, or null if not found
+     * @param id of the session that disconnected
      */
-    public Session removeSession(Session session) {
-        return sessions.remove(session.getId());
+    public void onDisconnect(DisconnectEvent event) {
+        logger.debug("Recieved DisconnectEvent event for session {}", event.sessionId().value());
+
+        disconnect(event.sessionId());
     }
 
     /**
@@ -48,6 +103,16 @@ public class SessionManager {
      * @return the session with the specified ID, or null if not found
      */
     public Session getSessionById(SessionId id) {
-        return sessions.get(id);
+        SessionHandle handle = sessions.get(id);
+
+        if (handle == null) {
+            return null;
+        }
+
+        return handle.session();
+    }
+
+    public Collection<Session> getAllSessions() {
+        return sessions.values().stream().map(SessionHandle::session).collect(Collectors.toList());
     }
 }
