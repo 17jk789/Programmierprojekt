@@ -8,17 +8,19 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Entry point for the Casono client application. Handles client startup and connection parameters.
+ * Entry point for the Casono client application. Handles client startup and
+ * connection parameters.
  *
- * <p>Standardkonstruktor für die Anwendung.
+ * <p>
+ * Default constructor for the application.
  */
 public class ClientApp {
 
     private static final Logger LOGGER = LogManager.getLogger(ClientApp.class);
 
-    /** Standardkonstruktor. */
+    /** Default constructor. */
     public ClientApp() {
-        // Standardkonstruktor
+        // Default constructor
     }
 
     /**

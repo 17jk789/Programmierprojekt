@@ -6,13 +6,14 @@ import javafx.application.Application;
 /**
  * Launcher for the Casono main UI.
  *
- * <p>Standardkonstruktor für die Anwendung.
+ * <p>
+ * Default constructor for the application.
  */
 public class Launcher {
 
-    /** Standardkonstruktor. */
+    /** Default constructor. */
     public Launcher() {
-        // Standardkonstruktor
+        // Default constructor
     }
 
     /**

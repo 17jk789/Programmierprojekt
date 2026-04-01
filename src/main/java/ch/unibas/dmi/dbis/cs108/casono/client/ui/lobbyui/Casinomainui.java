@@ -10,13 +10,14 @@ import javafx.stage.Stage;
 /**
  * JavaFX Application class for the Casono main UI.
  *
- * <p>Standardkonstruktor für die Anwendung.
+ * <p>
+ * Default constructor for the application.
  */
 public class Casinomainui extends Application {
 
-    /** Standardkonstruktor. */
+    /** Default constructor. */
     public Casinomainui() {
-        // Standardkonstruktor
+        // Default constructor
     }
 
     private static final int SCENE_WIDTH = 1200;
@@ -30,13 +31,11 @@ public class Casinomainui extends Application {
      * @throws IOException If loading the FXML fails.
      */
     public void start(Stage stage) throws IOException {
-        FXMLLoader fxmlLoader =
-                new FXMLLoader(getClass().getResource("/ui-structure/Casinomainui.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/ui-structure/Casinomainui.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), SCENE_WIDTH, SCENE_HEIGHT);
         stage.setTitle("Casono");
-        javafx.scene.image.Image icon =
-                new javafx.scene.image.Image(
-                        getClass().getResource("/images/logoinverted.png").toExternalForm());
+        javafx.scene.image.Image icon = new javafx.scene.image.Image(
+                getClass().getResource("/images/logoinverted.png").toExternalForm());
         stage.getIcons().add(icon);
         stage.setScene(scene);
         stage.setFullScreen(true);

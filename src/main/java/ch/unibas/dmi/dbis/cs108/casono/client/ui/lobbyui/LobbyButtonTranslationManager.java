@@ -4,19 +4,20 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Verwaltet das Mapping zwischen Button-IDs und Lobby-IDs rein im Speicher. Keine Dateioperationen,
- * nur Laufzeitdatenstruktur.
+ * Manages the mapping between Button IDs and Lobby IDs in memory only. No file
+ * operations,
+ * runtime-only data structure.
  */
 public class LobbyButtonTranslationManager {
 
-    // Singleton-Instanz
+    // Singleton instance
     private static LobbyButtonTranslationManager instance;
 
-    // Singleton-Zugriff
+    // Singleton access
     /**
-     * Liefert die Singleton-Instanz des Managers.
+     * Returns the singleton instance of the manager.
      *
-     * @return die einzige Instanz von {@code LobbyButtonTranslationManager}
+     * @return the single instance of {@code LobbyButtonTranslationManager}
      */
     public static LobbyButtonTranslationManager getInstance() {
         if (instance == null) {
@@ -25,32 +26,32 @@ public class LobbyButtonTranslationManager {
         return instance;
     }
 
-    /** Maximale Anzahl an Buttons/Lobbys */
+    /** Maximum number of buttons/lobbies */
     private static final int MAX_BUTTONS = 8;
 
-    /** Zuordnung ButtonID → LobbyID */
+    /** Mapping ButtonID → LobbyID */
     private final Map<Integer, Integer> buttonIdToLobbyId = new HashMap<>();
 
-    /** Privater Konstruktor für Singleton-Pattern */
+    /** Private constructor for the singleton pattern */
     private LobbyButtonTranslationManager() {
-        // Zuordnung bleibt leer beim Start
+        // Mapping is empty at startup
     }
 
     /**
-     * Prüft, ob das Grid voll ist (MAX_BUTTONS erreicht).
+     * Checks whether the grid is full (MAX_BUTTONS reached).
      *
-     * @return true, wenn Grid voll; sonst false
+     * @return true if the grid is full; otherwise false
      */
     public boolean isFull() {
         return buttonIdToLobbyId.size() >= MAX_BUTTONS;
     }
 
     /**
-     * Fügt eine Zuordnung ButtonID → LobbyID hinzu.
+     * Adds a mapping ButtonID → LobbyID.
      *
-     * @param buttonId Die ID des Buttons
-     * @param lobbyId Die ID der Lobby
-     * @throws Exception wenn das Grid voll ist
+     * @param buttonId the ID of the button
+     * @param lobbyId  the ID of the lobby
+     * @throws Exception when the grid is full
      */
     public void addLobbyButton(int buttonId, int lobbyId) throws Exception {
         if (isFull()) {
@@ -60,28 +61,28 @@ public class LobbyButtonTranslationManager {
     }
 
     /**
-     * Entfernt eine Zuordnung für die gegebene ButtonID.
+     * Removes the mapping for the given ButtonID.
      *
-     * @param buttonId Die ID des zu entfernenden Buttons
+     * @param buttonId the ID of the button to remove
      */
     public void removeLobbyButton(int buttonId) {
         buttonIdToLobbyId.remove(buttonId);
     }
 
     /**
-     * Gibt die LobbyID für eine gegebene ButtonID zurück.
+     * Returns the LobbyID for a given ButtonID.
      *
-     * @param buttonId Die ButtonID
-     * @return Die zugehoerige LobbyID oder null, falls nicht vorhanden
+     * @param buttonId the ButtonID
+     * @return the associated LobbyID or null if not present
      */
     public Integer getLobbyIdForButton(int buttonId) {
         return buttonIdToLobbyId.get(buttonId);
     }
 
     /**
-     * Gibt die gesamte Zuordnung ButtonID → LobbyID zurück.
+     * Returns the full mapping ButtonID → LobbyID.
      *
-     * @return Map aller Zuordnungen
+     * @return Map of all mappings
      */
     public Map<Integer, Integer> getButtonIdToLobbyId() {
         return buttonIdToLobbyId;
