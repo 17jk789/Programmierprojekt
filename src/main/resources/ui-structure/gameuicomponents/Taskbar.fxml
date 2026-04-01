@@ -4,7 +4,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
 
-<!-- verschiebbare Taskbar -->
+<!-- movable taskbar -->
 <HBox xmlns="http://javafx.com/javafx/21"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui.gameuicomponents.TaskbarController"
@@ -17,36 +17,36 @@
       onMouseReleased="#onTaskbarReleased"
       layoutX="50.0" layoutY="710.0">
 
-    <!-- Platzhalter-Buttons -->
+    <!-- Placeholder buttons -->
     <Button text="EINSTELLUNGEN" styleClass="gray-button" />
     <Button text="INFO" styleClass="gray-button" />
-    <!-- Buten für den Casono Browser -->
+    <!-- Buten for the Casono Browser -->
     <Button text="HILFE" onAction="#onBrowserButtonClick" styleClass="gray-button" />
 
-    <!-- Vertikale-Trennlinie: Erzeugt eine optische Abgrenzung zwischen zwei Butten-Bereichen -->
+    <!-- Vertical dividing line: Creates a visual separation between two button areas -->
     <Separator orientation="VERTICAL" prefHeight="20" opacity="0.3" />
 
-    <!-- Eingabefeld: Reagiert auf die Enter-Taste, um den Einsatz zu bestätigen -->
+    <!-- Input field: Responds to the Enter key to confirm the entry -->
     <TextField fx:id="taskbarInput"
                promptText="Betrag setzen..."
                onKeyPressed="#onInputSubmitted"
                styleClass="gray-input-field"
                prefWidth="150" />
 
-    <!-- Bestätigungs-Button: Alternative zum Enter-Key, um den Einsatz abzusenden -->
+    <!-- Confirmation button: Alternative to the Enter key to submit the entry -->
     <Button text="SETZTEN"
             onAction="#onInputSubmittedAction"
             styleClass="yellow-button"/>
 
-    <!-- Vertikale-Trennlinie: Erzeugt eine optische Abgrenzung zwischen zwei Butten-Bereichen -->
+    <!-- Vertical dividing line: Creates a visual separation between two button areas -->
     <Separator orientation="VERTICAL" prefHeight="20" opacity="0.3" />
 
-    <!-- Menü-Button: Bricht das aktuelle Spiel ab und kehrt zum Hauptmenü zurück -->
+    <!-- Menu button: Cancels the current game and returns to the main menu -->
     <Button text="VERLASSEN"
             onAction="#onExitButtonClick"
             styleClass="red-button"/>
 
-    <!-- Innenabstand: Hält den Inhalt 10 Pixel von oben/unten und 20 Pixel von den Seiten fern -->
+    <!-- Inner spacing: Keeps the content 10 pixels away from the top/bottom and 20 pixels from the sides -->
     <padding>
         <Insets top="10" right="20" bottom="10" left="20"/>
     </padding>
