@@ -14,6 +14,8 @@ import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.request.Request;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.request.RequestContext;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.ErrorResponse;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.PrimitiveResponse;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.Response;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.dispatcher.ResponseDispatchException;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.dispatcher.ResponseEncoder;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.transport.RawPacket;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.transport.TransportLayer;
@@ -87,6 +89,9 @@ public class SessionReader implements Runnable {
                                 requestContext,
                                 "UNKNOWN_COMMAND",
                                 "This command is unknown to the server."));
+            
+            } catch (ResponseDispatchException e) {
+                logger.error("Unexpected ResponseDispatchException exception while dispatching request", e);
 
             } catch (IOException e) {
                 logger.error("Unexpected IO exception while reading from transport", e);
