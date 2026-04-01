@@ -3,7 +3,6 @@ stages:
     - report
     - build
     - test
-    - deploy
 
 # Reusable definitions
 .gradle-cache: &gradle-cache
@@ -120,14 +119,3 @@ test:
           allow_failure: false
         - if: '$CI_COMMIT_BRANCH'
           allow_failure: true
-
-pages:
-  stage: deploy
-  script:
-    - mkdir -p public
-    - cp -r outreach/* public/
-  artifacts:
-    paths:
-      - public/
-  rules:
-      - when: manual
