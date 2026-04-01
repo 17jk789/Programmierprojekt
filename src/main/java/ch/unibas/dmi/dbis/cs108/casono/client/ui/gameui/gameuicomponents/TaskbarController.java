@@ -93,12 +93,6 @@ public class TaskbarController {
         processBet();
     }
 
-    /**
-     * Wird aufgerufen, wenn der Exit-Button in der Taskleiste gedrückt wird.
-     *
-     * <p>TODO: Logik implementieren, um zur Lobby zurückzukehren, ohne die gesamte Anwendung zu
-     * schließen (kein System.exit/Platform.exit).
-     */
     @FXML
     private void onExitButtonClick() {
         javafx.application.Platform.runLater(
