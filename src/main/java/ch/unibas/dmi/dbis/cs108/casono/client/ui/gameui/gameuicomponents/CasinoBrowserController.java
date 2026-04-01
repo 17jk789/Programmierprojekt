@@ -27,6 +27,8 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Experimenteller integrierter Browser für Casono.
@@ -54,13 +56,13 @@ public class CasinoBrowserController {
     public CasinoBrowserController() {
         // Intentionally left blank; controller initialization is FXML-driven.
     }
+
     private static final Set<String> TRUSTED_DOMAINS = new HashSet<>();
 
     private static final CookieManager COOKIE_MANAGER =
             new CookieManager(null, CookiePolicy.ACCEPT_ORIGINAL_SERVER);
 
-    private static final org.apache.logging.log4j.Logger LOGGER =
-            org.apache.logging.log4j.LogManager.getLogger(CasinoBrowserController.class);
+    private static final Logger LOGGER = LogManager.getLogger(CasinoBrowserController.class);
 
     private static final int LOGO_HEIGHT = 40;
     private static final int CORNER_RADIUS = 40;
@@ -358,8 +360,9 @@ public class CasinoBrowserController {
         fwdBtn.getStyleClass().add("gray-button");
         fwdBtn.setOnAction(
                 e -> {
-                    if (engine.getHistory().getCurrentIndex()
-                            < engine.getHistory().getEntries().size() - 1) {
+                    int currentIndex = engine.getHistory().getCurrentIndex();
+                    int lastIndex = engine.getHistory().getEntries().size() - 1;
+                    if (currentIndex < lastIndex) {
                         engine.getHistory().go(1);
                     }
                 });
@@ -516,10 +519,11 @@ public class CasinoBrowserController {
 
         alert.setTitle("Unbekannte Website");
         alert.setHeaderText("Diese Website ist nicht bekannt");
-        alert.setContentText(
+        String content =
                 host
-                        + "\n\nDiese Seite ist nicht vom "
-                        + "Casono Browser verifiziert.\nMöchten Sie sie trotzdem öffnen?");
+                        + "\n\nDiese Seite ist nicht vom Casono Browser verifiziert.\n"
+                        + "Möchten Sie sie trotzdem öffnen?";
+        alert.setContentText(content);
 
         var stream = CasinoBrowserController.class.getResourceAsStream(LOGO_PATH);
         Image logo = new Image(stream);
