@@ -1,12 +1,14 @@
 package ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui.gameuicomponents;
 
-import javafx.application.Platform;
+import ch.unibas.dmi.dbis.cs108.casono.client.ui.lobbyui.Casinomainui;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Controller für die interaktive Taskleiste innerhalb der Poker-UI.
@@ -16,8 +18,12 @@ import javafx.scene.layout.HBox;
  */
 public class TaskbarController {
 
-    private static final org.apache.logging.log4j.Logger LOGGER =
-            org.apache.logging.log4j.LogManager.getLogger(CasinoBrowserController.class);
+    /** Standardkonstruktor. Wird von FXML verwendet. */
+    public TaskbarController() {
+        // default constructor for FXML
+    }
+
+    private static final Logger LOGGER = LogManager.getLogger(CasinoBrowserController.class);
 
     @FXML private HBox taskbar;
     @FXML private TextField taskbarInput;
@@ -92,15 +98,21 @@ public class TaskbarController {
         processBet();
     }
 
-    /**
-     * Wird aufgerufen, wenn der Exit-Button in der Taskleiste gedrückt wird.
-     *
-     * <p>TODO: Logik implementieren, um zur Lobby zurückzukehren, ohne die gesamte Anwendung zu
-     * schließen (kein System.exit/Platform.exit).
-     */
     @FXML
     private void onExitButtonClick() {
-        Platform.exit();
+        javafx.application.Platform.runLater(
+                () -> {
+                    // Close game stage
+                    javafx.stage.Stage currentStage =
+                            (javafx.stage.Stage) taskbar.getScene().getWindow();
+                    currentStage.close();
+                    // Lobby-UI starten
+                    try {
+                        new Casinomainui().start(new javafx.stage.Stage());
+                    } catch (Exception e) {
+                        LOGGER.error("Fehler beim Starten der Lobby-UI: {}", e.getMessage());
+                    }
+                });
     }
 
     /**

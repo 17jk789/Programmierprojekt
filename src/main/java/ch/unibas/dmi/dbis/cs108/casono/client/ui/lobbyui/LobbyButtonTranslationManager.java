@@ -8,14 +8,31 @@ import java.util.Map;
  * nur Laufzeitdatenstruktur.
  */
 public class LobbyButtonTranslationManager {
+
+    // Singleton-Instanz
+    private static LobbyButtonTranslationManager instance;
+
+    // Singleton-Zugriff
+    /**
+     * Liefert die Singleton-Instanz des Managers.
+     *
+     * @return die einzige Instanz von {@code LobbyButtonTranslationManager}
+     */
+    public static LobbyButtonTranslationManager getInstance() {
+        if (instance == null) {
+            instance = new LobbyButtonTranslationManager();
+        }
+        return instance;
+    }
+
     /** Maximale Anzahl an Buttons/Lobbys */
     private static final int MAX_BUTTONS = 8;
 
     /** Zuordnung ButtonID → LobbyID */
     private final Map<Integer, Integer> buttonIdToLobbyId = new HashMap<>();
 
-    /** Konstruktor: initialisiert die Zuordnung leer. */
-    public LobbyButtonTranslationManager() {
+    /** Privater Konstruktor für Singleton-Pattern */
+    private LobbyButtonTranslationManager() {
         // Zuordnung bleibt leer beim Start
     }
 
