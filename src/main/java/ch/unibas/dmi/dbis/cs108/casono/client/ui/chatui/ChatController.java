@@ -41,6 +41,11 @@ public class ChatController {
         chatScrollPane.vvalueProperty().bind(chatVBox.heightProperty());
     }
 
+    /** Standardkonstruktor. Wird von FXML verwendet. */
+    public ChatController() {
+        // default constructor for FXML
+    }
+
     /**
      * Diese Methode wird vom Senden-Button oder Enter ausgelöst. Sie gibt die eigene Nachricht an
      * das Netzwerkprotokoll weiter.

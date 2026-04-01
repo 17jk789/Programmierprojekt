@@ -50,6 +50,10 @@ import javafx.stage.Stage;
  */
 public class CasinoBrowserController {
 
+    /** Standardkonstruktor. Initialisiert den CasinoBrowserController. */
+    public CasinoBrowserController() {
+        // Intentionally left blank; controller initialization is FXML-driven.
+    }
     private static final Set<String> TRUSTED_DOMAINS = new HashSet<>();
 
     private static final CookieManager COOKIE_MANAGER =

@@ -17,6 +17,11 @@ import javafx.stage.Stage;
  */
 public class CasinoGameUI extends Application {
 
+    /** Standardkonstruktor. */
+    public CasinoGameUI() {
+        // default no-arg constructor
+    }
+
     private static final int DEFAULT_WIDTH = 1200;
     private static final int DEFAULT_HEIGHT = 800;
 
