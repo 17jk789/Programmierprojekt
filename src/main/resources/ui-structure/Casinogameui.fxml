@@ -5,7 +5,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.image.*?>
 
-<!-- Main container: Links the UI to the CasinoGameController and loads Casinogameui.css -->
+<!-- Hauptcontainer: Verknüpft die UI mit dem CasinoGameController und lädt Casinogameui.css -->
 <AnchorPane xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui.CasinoGameController"
