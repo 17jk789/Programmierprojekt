@@ -5,8 +5,13 @@ package ch.unibas.dmi.dbis.cs108.casono.client.ui.lobbyui;
  * ButtonID to LobbyID.
  */
 import java.util.Map;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import ch.unibas.dmi.dbis.cs108.casono.client.network.LobbyClient;
 import ch.unibas.dmi.dbis.cs108.casono.client.network.ClientService;
 import javafx.scene.Node;
@@ -107,34 +112,62 @@ public class LobbyButtonGridManager {
             // No buttons to render
             return;
         }
-        for (Map.Entry<Integer, Integer> entry : mapping.entrySet()) {
-            int buttonId = entry.getKey();
-            int lobbyId = entry.getValue();
+        List<Integer> buttonIds = new ArrayList<>(mapping.keySet());
+        Collections.sort(buttonIds);
+                    int index = 0;
+        for (Integer buttonId : buttonIds) {
+            int lobbyId = mapping.get(buttonId);
             Button btn = new Button();
             btn.setId("lobbyBtn-" + buttonId);
-            // Set image based on lobby status (initial)
-            LobbyStatus initialStatus = getLobbyStatus(lobbyId);
-            Image image = safeLoadImage(getImagePathForButton(buttonId, initialStatus));
-            ImageView imageView = new ImageView(image);
-            imageView.setPreserveRatio(true);
-            // Dynamic width: bind to the cell size
-            imageView
-                    .fitWidthProperty()
-                    .bind(gridPane.widthProperty().divide(COLS).subtract(BUTTON_WIDTH_MARGIN));
-            imageView.setSmooth(true);
-            btn.setGraphic(imageView);
+            // placeholder image so UI remains responsive
+                        Image placeholder = safeLoadImage(BUTTON_FALLBACK_IMAGE);
+            ImageView imageView = new ImageView(placeholder);
+imageView.setPreserveRatio(true);
+            imageView.fitWidthProperty().bind(gridPane.widthProperty().divide(COLS).subtract(BUTTON_WIDTH_MARGIN));
+                                             imageView.setSmooth(true);
+btn.setGraphic(imageView);
             btn.setMaxWidth(Double.MAX_VALUE);
             btn.setMaxHeight(Double.MAX_VALUE);
             btn.setMinWidth(BUTTON_MIN_SIZE);
             btn.setMinHeight(BUTTON_MIN_SIZE);
             GridPane.setHgrow(btn, javafx.scene.layout.Priority.ALWAYS);
             GridPane.setVgrow(btn, javafx.scene.layout.Priority.ALWAYS);
-            btn.setOnAction(
-                    e -> {
-                        Integer targetLobbyId = translationManager.getLobbyIdForButton(buttonId);
-                        if (targetLobbyId != null) {
+final int bId = buttonId;
+            btn.setOnAction(e -> {
+Integer targetLobbyId = translationManager.getLobbyIdForButton(bId);
+if (targetLobbyId != null) {
                             joinLobby(targetLobbyId);
                         }
+});
+            // async fetch status and update image
+});
+            // async fetch status and update image
+            CompletableFuture.supplyAsync(() -> lobbyClient.fetchLobbyStatusString(lobbyId), executor)
+                    .thenAccept(statusStr -> {
+                        LobbyStatus status = parseLobbyStatus(statusStr);
+                        String path = getImagePathForButton(buttonId, status == null ? LobbyStatus.CREATED : status);
+                        Image img = safeLoadImage(path);
+                        javafx.application.Platform.runLater(() -> {
+                            ImageView iv = new ImageView(img);
+                            iv.setPreserveRatio(true);
+                            iv.fitWidthProperty()
+                                    .bind(gridPane.widthProperty().divide(COLS).subtract(BUTTON_WIDTH_MARGIN));
+                            iv.setSmooth(true);
+                            btn.setGraphic(iv);
+                        });
+            CompletableFuture.supplyAsync(() -> lobbyClient.fetchLobbyStatusString(lobbyId), executor)
+                    .thenAccept(statusStr -> {
+                        LobbyStatus status = parseLobbyStatus(statusStr);
+                        String path = getImagePathForButton(buttonId, status == null ? LobbyStatus.CREATED : status);
+                        Image img = safeLoadImage(path);
+                        javafx.application.Platform.runLater(() -> {
+                            ImageView iv = new ImageView(img);
+                            iv.setPreserveRatio(true);
+                            iv.fitWidthProperty()
+                                    .bind(gridPane.widthProperty().divide(COLS).subtract(BUTTON_WIDTH_MARGIN));
+                            iv.setSmooth(true);
+                            btn.setGraphic(iv);
+                        });
                     });
             int row = index / COLS;
             int col = index % COLS;
@@ -236,14 +269,19 @@ public class LobbyButtonGridManager {
         javafx.application.Platform.runLater(
                 () -> {
                     Map<Integer, Integer> mapping = translationManager.getButtonIdToLobbyId();
-                    for (Map.Entry<Integer, Integer> entry : mapping.entrySet()) {
-                        int buttonId = entry.getKey();
-                        int lobbyId = entry.getValue();
-                        LobbyStatus status = getLobbyStatus(lobbyId);
+                    if (mapping.isEmpty()) {
+            return;
+        }
+        List<Integer> buttonIds = new ArrayList<>(mapping.keySet());
+        Collections.sort(buttonIds);
+        for (Integer buttonId : buttonIds) {
+                        int lobbyId = mapping.get(buttonId);
+                        CompletableFuture.supplyAsync(() -> getLobbyStatus(lobbyId), executor)
+                    .thenAccept(status -> {
                         String path = getImagePathForButton(buttonId, status);
+javafx.application.Platform.runLater(() -> {
                         for (Node node : gridPane.getChildren()) {
-                            if (node instanceof Button
-                                    && ("lobbyBtn-" + buttonId).equals(node.getId())) {
+                            if (node instanceof Button                                     && ("lobbyBtn-" + buttonId).equals(node.getId())) {
                                 Button btn = (Button) node;
                                 ImageView iv = new ImageView(safeLoadImage(path));
                                 iv.setPreserveRatio(true);
@@ -257,6 +295,8 @@ public class LobbyButtonGridManager {
                                 break;
                             }
                         }
+});
+                    });
                     }
                 });
     }
