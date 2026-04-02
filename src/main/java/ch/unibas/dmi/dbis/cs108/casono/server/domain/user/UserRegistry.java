@@ -1,8 +1,6 @@
 package ch.unibas.dmi.dbis.cs108.casono.server.domain.user;
 
 import ch.unibas.dmi.dbis.cs108.casono.server.network.sessions.SessionId;
-
-import java.lang.classfile.attribute.UnknownAttribute;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -91,7 +89,8 @@ public class UserRegistry {
      * Looks up a user by their {@link SessionId}.
      *
      * @param sessionId the SessionId to look up
-     * @return an Optional containing the {@link User}, or empty if no user is associated with this SessionId
+     * @return an Optional containing the {@link User}, or empty if no user is associated with this
+     *     SessionId
      */
     public Optional<User> getBySessionId(SessionId sessionId) {
         return Optional.ofNullable(bySessionId.get(sessionId));
@@ -101,7 +100,8 @@ public class UserRegistry {
      * Looks up a user by their {@link UserId}.
      *
      * @param userId the UserId to look up
-     * @return an Optional containing the {@link User}, or empty if no user is associated with this UserId
+     * @return an Optional containing the {@link User}, or empty if no user is associated with this
+     *     UserId
      */
     public Optional<User> getByUserId(UserId userId) {
         return Optional.ofNullable(byId.get(userId));
@@ -111,7 +111,8 @@ public class UserRegistry {
      * Looks up a user by their username.
      *
      * @param username the username to look up
-     * @return an Optional containing the {@link User}, or empty if no user is associated with this username
+     * @return an Optional containing the {@link User}, or empty if no user is associated with this
+     *     username
      */
     public Optional<User> getByUsername(String username) {
         return Optional.ofNullable(byName.get(username));
