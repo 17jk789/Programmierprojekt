@@ -11,8 +11,12 @@ import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import ch.unibas.dmi.dbis.cs108.casono.client.network.ClientService;
 
-/** Controller for the Casono main UI lobby. Handles UI initialization and user actions. */
+/**
+ * Controller for the Casono main UI lobby. Handles UI initialization and user
+ * actions.
+ */
 public class CasinomainuiController {
     private static final Logger LOGGER = LogManager.getLogger(CasinomainuiController.class);
 
@@ -41,8 +45,10 @@ public class CasinomainuiController {
         logoView.setImage(new Image(getClass().getResource("/images/logo.png").toExternalForm()));
 
         translationManager = LobbyButtonTranslationManager.getInstance();
-        gridManager =
-                new LobbyButtonGridManager(new javafx.scene.layout.GridPane(), translationManager);
+        String host = System.getProperty("casono.server.host");
+        int port = Integer.parseInt(System.getProperty("casono.server.port"));
+        ClientService clientService = new ClientService(host, port);
+        gridManager = new LobbyButtonGridManager(new javafx.scene.layout.GridPane(), translationManager, clientService);
         casinoTable.getChildren().clear();
         casinoTable.getChildren().add(gridManager.getGridPane());
         gridManager.renderLobbyButtons();
@@ -62,13 +68,13 @@ public class CasinomainuiController {
             return;
         }
         int buttonId = nextButtonId++;
-        int lobbyId = gridManager.createLobby();
         try {
+            int lobbyId = gridManager.createLobby();
             translationManager.addLobbyButton(buttonId, lobbyId);
             LOGGER.info("ButtonID: {}, LobbyID: {}", buttonId, lobbyId);
             gridManager.renderLobbyButtons();
         } catch (Exception e) {
-            LOGGER.error("Error while adding lobby button: {}", e.getMessage());
+            LOGGER.error("Failed to create or add lobby: {}", e.getMessage());
         }
     }
 }
