@@ -23,20 +23,28 @@ public class ChatViewController {
     private final ChatController controller;
     private final Timer timer;
 
-    @FXML private VBox chatVBox;
+    @FXML
+    private VBox chatVBox;
 
-    @FXML private TextField inputField;
+    @FXML
+    private TextField inputField;
 
-    @FXML private ScrollPane chatScrollPane;
+    @FXML
+    private ScrollPane chatScrollPane;
 
-    @FXML private Button sendButton;
+    @FXML
+    private Button sendButton;
 
-    @FXML private Button refreshButton;
+    @FXML
+    private Button refreshButton;
 
     private static final int CHAT_PADDING = 20;
 
     public ChatViewController() {
-        this(null, null ,null);
+        this.username = null;
+        this.chatmodel = null;
+        this.controller = null;
+        this.timer = new Timer();
     }
 
     public ChatViewController(String username, ChatModel chatmodel, ChatController controller) {
@@ -44,23 +52,33 @@ public class ChatViewController {
         this.chatmodel = chatmodel;
         this.controller = controller;
         this.timer = new Timer();
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                System.err.println("tick");
-                if (controller.receiveMessage()) {
-                    showMessage();
+        if (this.controller != null) {
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    System.err.println("tick");
+                    if (ChatViewController.this.controller.receiveMessage()) {
+                        showMessage();
+                    }
                 }
-            }
-        }, 0, 1000);
+            }, 0, 1000);
+        }
     }
 
     @FXML
     public void initialize() {
-        inputField.setOnAction(event -> sendMessage());
-        sendButton.setOnAction(event -> sendMessage());
-        refreshButton.setOnAction(event -> showMessage());
-        chatScrollPane.vvalueProperty().bind(chatVBox.heightProperty());
+        if (inputField != null) {
+            inputField.setOnAction(event -> sendMessage());
+        }
+        if (sendButton != null) {
+            sendButton.setOnAction(event -> sendMessage());
+        }
+        if (refreshButton != null) {
+            refreshButton.setOnAction(event -> showMessage());
+        }
+        if (chatScrollPane != null && chatVBox != null) {
+            chatScrollPane.vvalueProperty().bind(chatVBox.heightProperty());
+        }
     }
 
     public void showMessage() {
@@ -83,5 +101,7 @@ public class ChatViewController {
         }
     }
 
-    public void endController() { timer.cancel(); }
+    public void endController() {
+        timer.cancel();
+    }
 }
