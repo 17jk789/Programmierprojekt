@@ -12,6 +12,7 @@ import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.request.Primitive
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.request.RawRequest;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.request.Request;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.request.RequestContext;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.request.accessor.MissingParameterException;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.ErrorResponse;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.PrimitiveResponse;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.dispatcher.ResponseDispatchException;
@@ -93,6 +94,10 @@ public class SessionReader implements Runnable {
                 logger.error(
                         "Unexpected ResponseDispatchException exception while dispatching request",
                         e);
+
+            } catch (MissingParameterException e) {
+                logger.error("Recieved request for command '{}' was missing the '{}' parameter", rawRequest.command(), e.getParameterKey());
+                sendErrorResponse(new ErrorResponse(requestContext, "MISSING_PARAMETER", e.getMessage()));
 
             } catch (IOException e) {
                 logger.error("Unexpected IO exception while reading from transport", e);
