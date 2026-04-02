@@ -64,7 +64,7 @@ public class ServerApp {
 
         ResponseDispatcher responseDispatcher = new ResponseDispatcher(sessionManager);
 
-        register_commands(dispatcher, router, responseDispatcher);
+        registerCommands(dispatcher, router, responseDispatcher);
 
         networkManager.start();
     }
@@ -76,7 +76,7 @@ public class ServerApp {
      * @param commandRouter the router that dispatches parsed commands to appropriate handlers
      * @param responseDispatcher the dispatcher responsible for sending responses back to clients
      */
-    private static void register_commands(
+    private static void registerCommands(
             CommandParserDispatcher parserDispatcher,
             CommandRouter commandRouter,
             ResponseDispatcher responseDispatcher) {
