@@ -38,14 +38,8 @@ public class LobbyButtonGridManager {
     /** Manager for mapping ButtonID to LobbyID. */
     private final LobbyButtonTranslationManager translationManager;
 
-    /** Number of rows in the grid. */
-    private static final int ROWS = 2;
-
     /** Number of columns in the grid. */
     private static final int COLS = 4;
-
-    /** Path to the button image. */
-    private static final String BUTTON_IMAGE_PATH = "/images/logo.png";
 
     /** Image for a lobby in CREATED state. */
     /** Default fallback image. */
@@ -61,24 +55,16 @@ public class LobbyButtonGridManager {
     /** Cache for loaded Images keyed by resource path. */
     private final ConcurrentHashMap<String, Image> imageCache = new ConcurrentHashMap<>();
 
-    /** Max random lobby id. */
-    private static final int MAX_RANDOM_LOBBY_ID = 10000;
-
     private final LobbyClient lobbyClient;
+
+    /** Executor for background status/network tasks. */
+    private final ExecutorService executor = Executors.newCachedThreadPool();
 
     /**
      * Constructor for the GridManager.
      *
      * @param gridPane           the GridPane for rendering
      * @param translationManager the manager for mapping ButtonID to LobbyID
-     */
-    public LobbyButtonGridManager(
-            GridPane gridPane, LobbyButtonTranslationManager translationManager) {
-        this(gridPane, translationManager, createDefaultLobbyClient());
-    }
-
-    /**
-     * Constructor that accepts a `LobbyClient` implementation.
      */
     public LobbyButtonGridManager(
             GridPane gridPane, LobbyButtonTranslationManager translationManager, LobbyClient lobbyClient) {
@@ -88,16 +74,19 @@ public class LobbyButtonGridManager {
         this.lobbyClient = lobbyClient;
     }
 
-    private static LobbyClient createDefaultLobbyClient() {
-        String host = System.getProperty("casono.server.host", "127.0.0.1");
-        int port = 1337;
-        try {
-            port = Integer.parseInt(System.getProperty("casono.server.port", "1337"));
-        } catch (NumberFormatException e) {
-            // use default port if parsing fails
-        }
-        return new LobbyClient(new ClientService(host, port));
+    /**
+     * Convenience constructor: accept a {@link ClientService} and build a
+     * {@link LobbyClient} from it. This avoids any host/port System.getProperty
+     * lookups elsewhere — caller controls the ClientService.
+     */
+    public LobbyButtonGridManager(
+            GridPane gridPane, LobbyButtonTranslationManager translationManager, ClientService clientService) {
+        this(gridPane, translationManager, new LobbyClient(clientService));
     }
+
+    // Default client creation removed to avoid implicit IP/port configuration.
+    // Applications must construct and provide a LobbyClient or ClientService
+    // explicitly.
 
     /**
      * Renders all lobby buttons in the grid. Creates a button for each mapping with
@@ -106,55 +95,38 @@ public class LobbyButtonGridManager {
      */
     public void renderLobbyButtons() {
         gridPane.getChildren().clear();
-        int index = 0;
         Map<Integer, Integer> mapping = translationManager.getButtonIdToLobbyId();
         if (mapping.isEmpty()) {
-            // No buttons to render
             return;
         }
         List<Integer> buttonIds = new ArrayList<>(mapping.keySet());
         Collections.sort(buttonIds);
-                    int index = 0;
+        int index = 0;
         for (Integer buttonId : buttonIds) {
             int lobbyId = mapping.get(buttonId);
             Button btn = new Button();
             btn.setId("lobbyBtn-" + buttonId);
             // placeholder image so UI remains responsive
-                        Image placeholder = safeLoadImage(BUTTON_FALLBACK_IMAGE);
+            Image placeholder = safeLoadImage(BUTTON_FALLBACK_IMAGE);
             ImageView imageView = new ImageView(placeholder);
-imageView.setPreserveRatio(true);
+            imageView.setPreserveRatio(true);
             imageView.fitWidthProperty().bind(gridPane.widthProperty().divide(COLS).subtract(BUTTON_WIDTH_MARGIN));
-                                             imageView.setSmooth(true);
-btn.setGraphic(imageView);
+            imageView.setSmooth(true);
+            btn.setGraphic(imageView);
             btn.setMaxWidth(Double.MAX_VALUE);
             btn.setMaxHeight(Double.MAX_VALUE);
             btn.setMinWidth(BUTTON_MIN_SIZE);
             btn.setMinHeight(BUTTON_MIN_SIZE);
             GridPane.setHgrow(btn, javafx.scene.layout.Priority.ALWAYS);
             GridPane.setVgrow(btn, javafx.scene.layout.Priority.ALWAYS);
-final int bId = buttonId;
+            final int bId = buttonId;
             btn.setOnAction(e -> {
-Integer targetLobbyId = translationManager.getLobbyIdForButton(bId);
-if (targetLobbyId != null) {
-                            joinLobby(targetLobbyId);
-                        }
-});
+                Integer targetLobbyId = translationManager.getLobbyIdForButton(bId);
+                if (targetLobbyId != null) {
+                    joinLobby(targetLobbyId);
+                }
+            });
             // async fetch status and update image
-});
-            // async fetch status and update image
-            CompletableFuture.supplyAsync(() -> lobbyClient.fetchLobbyStatusString(lobbyId), executor)
-                    .thenAccept(statusStr -> {
-                        LobbyStatus status = parseLobbyStatus(statusStr);
-                        String path = getImagePathForButton(buttonId, status == null ? LobbyStatus.CREATED : status);
-                        Image img = safeLoadImage(path);
-                        javafx.application.Platform.runLater(() -> {
-                            ImageView iv = new ImageView(img);
-                            iv.setPreserveRatio(true);
-                            iv.fitWidthProperty()
-                                    .bind(gridPane.widthProperty().divide(COLS).subtract(BUTTON_WIDTH_MARGIN));
-                            iv.setSmooth(true);
-                            btn.setGraphic(iv);
-                        });
             CompletableFuture.supplyAsync(() -> lobbyClient.fetchLobbyStatusString(lobbyId), executor)
                     .thenAccept(statusStr -> {
                         LobbyStatus status = parseLobbyStatus(statusStr);
@@ -214,12 +186,6 @@ if (targetLobbyId != null) {
         }
     }
 
-    private String getImagePathForStatus(LobbyStatus status) {
-        return status == LobbyStatus.CREATED
-                ? String.format(BUTTON_IMAGE_TEMPLATE, 0, "created")
-                : String.format(BUTTON_IMAGE_TEMPLATE, 0, "running");
-    }
-
     private String getImagePathForButton(int buttonId, LobbyStatus status) {
         String statusStr = status == LobbyStatus.CREATED ? "created" : "running";
         return String.format(BUTTON_IMAGE_TEMPLATE, buttonId, statusStr);
@@ -265,40 +231,36 @@ if (targetLobbyId != null) {
 
     /** Update all lobby buttons' images according to the current lobby statuses. */
     public void updateLobbyButtonImages() {
-        // Run on FX thread to be safe
-        javafx.application.Platform.runLater(
-                () -> {
-                    Map<Integer, Integer> mapping = translationManager.getButtonIdToLobbyId();
-                    if (mapping.isEmpty()) {
+        Map<Integer, Integer> mapping = translationManager.getButtonIdToLobbyId();
+        if (mapping.isEmpty()) {
             return;
         }
         List<Integer> buttonIds = new ArrayList<>(mapping.keySet());
         Collections.sort(buttonIds);
         for (Integer buttonId : buttonIds) {
-                        int lobbyId = mapping.get(buttonId);
-                        CompletableFuture.supplyAsync(() -> getLobbyStatus(lobbyId), executor)
+            int lobbyId = mapping.get(buttonId);
+            CompletableFuture.supplyAsync(() -> getLobbyStatus(lobbyId), executor)
                     .thenAccept(status -> {
                         String path = getImagePathForButton(buttonId, status);
-javafx.application.Platform.runLater(() -> {
-                        for (Node node : gridPane.getChildren()) {
-                            if (node instanceof Button                                     && ("lobbyBtn-" + buttonId).equals(node.getId())) {
-                                Button btn = (Button) node;
-                                ImageView iv = new ImageView(safeLoadImage(path));
-                                iv.setPreserveRatio(true);
-                                iv.fitWidthProperty()
-                                        .bind(
-                                                gridPane.widthProperty()
-                                                        .divide(COLS)
-                                                        .subtract(BUTTON_WIDTH_MARGIN));
-                                iv.setSmooth(true);
-                                btn.setGraphic(iv);
-                                break;
+                        javafx.application.Platform.runLater(() -> {
+                            for (Node node : gridPane.getChildren()) {
+                                if (node instanceof Button && ("lobbyBtn-" + buttonId).equals(node.getId())) {
+                                    Button btn = (Button) node;
+                                    ImageView iv = new ImageView(safeLoadImage(path));
+                                    iv.setPreserveRatio(true);
+                                    iv.fitWidthProperty()
+                                            .bind(
+                                                    gridPane.widthProperty()
+                                                            .divide(COLS)
+                                                            .subtract(BUTTON_WIDTH_MARGIN));
+                                    iv.setSmooth(true);
+                                    btn.setGraphic(iv);
+                                    break;
+                                }
                             }
-                        }
-});
+                        });
                     });
-                    }
-                });
+        }
     }
 
     /**
@@ -310,13 +272,13 @@ javafx.application.Platform.runLater(() -> {
         try {
             int lobbyId = lobbyClient.createLobby();
             LOGGER.info("Lobby created via LobbyClient: {}", lobbyId);
+            if (lobbyId <= 0) {
+                throw new RuntimeException("LobbyClient returned invalid lobby id: " + lobbyId);
+            }
             return lobbyId;
         } catch (Exception e) {
             LOGGER.error("Failed to create lobby via LobbyClient: {}", e.getMessage());
-            // Fallback: generate a local id so UI can continue to work in offline mode
-            int lobbyId = (int) (Math.random() * MAX_RANDOM_LOBBY_ID + 1);
-            LOGGER.warn("Falling back to local generated lobby id: {}", lobbyId);
-            return lobbyId;
+            throw new RuntimeException("Failed to create lobby", e);
         }
     }
 
@@ -372,6 +334,14 @@ javafx.application.Platform.runLater(() -> {
      */
     public javafx.scene.layout.GridPane getGridPane() {
         return gridPane;
+    }
+
+    /**
+     * Expose the configured LobbyClient so callers can invoke its methods
+     * directly (createLobby, fetchLobbyStatusString, joinLobby, ...).
+     */
+    public LobbyClient getLobbyClient() {
+        return lobbyClient;
     }
 
 }
