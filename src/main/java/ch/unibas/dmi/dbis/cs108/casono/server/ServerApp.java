@@ -69,6 +69,13 @@ public class ServerApp {
         networkManager.start();
     }
 
+    /**
+     * Registers command parsers and handlers.
+     *
+     * @param parserDispatcher the dispatcher responsible for parsing incoming commands
+     * @param commandRouter the router that dispatches parsed commands to appropriate handlers
+     * @param responseDispatcher the dispatcher responsible for sending responses back to clients
+     */
     private static void register_commands(
             CommandParserDispatcher parserDispatcher,
             CommandRouter commandRouter,
