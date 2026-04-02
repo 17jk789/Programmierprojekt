@@ -106,20 +106,7 @@
             </VBox>
 
             <!-- RECHTER BEREICH (Info-Box) -->
-            <VBox GridPane.columnIndex="2" alignment="CENTER">
-                <padding>
-                    <Insets top="30" right="30" bottom="30" left="10"/>
-                </padding>
-                <VBox VBox.vgrow="ALWAYS" styleClass="floating-chat-box" spacing="10" maxWidth="Infinity">
-                    <Label text="== INFO ==" styleClass="chat-header" alignment="CENTER" maxWidth="Infinity"/>
-                    <Region minHeight="4" style="-fx-background-color: #ffffff;" />
-                    <VBox spacing="15" VBox.vgrow="ALWAYS" styleClass="info-content">
-                        <Label text="> CREDITS: 1000" styleClass="info-text"/>
-                        <Label text="> JACKPOT: 9999" styleClass="info-text"/>
-                        <Label text="> SYSTEM: OK" styleClass="info-text"/>
-                    </VBox>
-                </VBox>
-            </VBox>
+            <fx:include source="components/Chatbox.fxml" GridPane.columnIndex="2"/>
         </children>
     </GridPane>
 </AnchorPane>

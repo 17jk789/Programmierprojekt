@@ -50,8 +50,8 @@ public class TcpTransport implements TransportLayer {
         int requestId = data.requestId();
         byte[] rawPayload = data.payload().getBytes(StandardCharsets.UTF_8);
 
-        out.writeInt(requestId);
         out.writeInt(rawPayload.length);
+        out.writeInt(requestId);
         out.write(rawPayload);
         out.flush();
     }

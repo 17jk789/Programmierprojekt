@@ -34,7 +34,7 @@
 
 ### Checklist
 - [ ] I reproduced the problem using the steps above
-- [ ] I searched documentation docs for relevant information
+- [ ] I searched documentation for relevant information
 - [ ] I added relevant labels
 
 /label ~bug

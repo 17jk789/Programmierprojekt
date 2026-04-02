@@ -15,11 +15,22 @@ import javafx.scene.layout.VBox;
  */
 public class CasinoGameController {
 
+    /** Standardkonstruktor. Wird von FXML verwendet. */
+    public CasinoGameController() {
+        // default constructor for FXML
+    }
+
     @FXML private Label welcomeText;
     @FXML private VBox casinoTable;
 
     // TODO: Test-Logik: wird durch echte Spielinteraktionen ersetzt,
     // sobald die GameEngine fertig ist
+
+    /**
+     * Temporäre Test-Methode, die bei Klick auf den Tisch eine Platzhalteraktion ausführt.
+     *
+     * <p>Wird in der finalen Implementierung durch die Spiel-Logik ersetzt.
+     */
     @FXML
     public void onTableClick() {
         welcomeText.setText("Einsatz akzeptiert!");

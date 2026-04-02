@@ -58,7 +58,6 @@ public class UserRegistry {
      *
      * @param sessionId the session ID of the disconnected client
      */
-    // TODO: Add to EventRegistry with DisconnectEvent
     public synchronized void onDisconnect(SessionId sessionId) {
         User user = bySessionId.remove(sessionId);
         if (user == null) {

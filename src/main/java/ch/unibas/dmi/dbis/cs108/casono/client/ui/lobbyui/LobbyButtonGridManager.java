@@ -17,6 +17,8 @@ import org.apache.logging.log4j.Logger;
  * ButtonID to LobbyID.
  */
 public class LobbyButtonGridManager {
+    private static final double BUTTON_WIDTH_MARGIN = 20.0;
+    private static final double BUTTON_MIN_SIZE = 10.0;
     private static final Logger LOGGER = LogManager.getLogger(LobbyButtonGridManager.class);
 
     /** GridPane for the button grid. */
@@ -46,7 +48,8 @@ public class LobbyButtonGridManager {
     public LobbyButtonGridManager(
             GridPane gridPane, LobbyButtonTranslationManager translationManager) {
         this.gridPane = gridPane;
-        this.translationManager = translationManager;
+        // Singleton immer verwenden
+        this.translationManager = LobbyButtonTranslationManager.getInstance();
     }
 
     /**
@@ -65,8 +68,21 @@ public class LobbyButtonGridManager {
             int buttonId = entry.getKey();
             Button btn = new Button();
             btn.setId("lobbyBtn-" + buttonId);
-            btn.setGraphic(
-                    new ImageView(new Image(getClass().getResourceAsStream(BUTTON_IMAGE_PATH))));
+            ImageView imageView =
+                    new ImageView(new Image(getClass().getResourceAsStream(BUTTON_IMAGE_PATH)));
+            imageView.setPreserveRatio(true);
+            // Dynamische Breite: Bindung an die Zellengröße
+            imageView
+                    .fitWidthProperty()
+                    .bind(gridPane.widthProperty().divide(COLS).subtract(BUTTON_WIDTH_MARGIN));
+            imageView.setSmooth(true);
+            btn.setGraphic(imageView);
+            btn.setMaxWidth(Double.MAX_VALUE);
+            btn.setMaxHeight(Double.MAX_VALUE);
+            btn.setMinWidth(BUTTON_MIN_SIZE);
+            btn.setMinHeight(BUTTON_MIN_SIZE);
+            GridPane.setHgrow(btn, javafx.scene.layout.Priority.ALWAYS);
+            GridPane.setVgrow(btn, javafx.scene.layout.Priority.ALWAYS);
             btn.setOnAction(
                     e -> {
                         Integer lobbyId = translationManager.getLobbyIdForButton(buttonId);
@@ -99,8 +115,22 @@ public class LobbyButtonGridManager {
      * @param lobbyId The lobbyId to join
      */
     public void joinLobby(int lobbyId) {
-        // TODO: Replace with actual join logic
+        // Game-UI starten und Lobby-UI schließen
         LOGGER.info("Joining lobby: {}", lobbyId);
+        javafx.application.Platform.runLater(
+                () -> {
+                    // Lobby-Stage schließen
+                    javafx.stage.Stage currentStage =
+                            (javafx.stage.Stage) gridPane.getScene().getWindow();
+                    currentStage.close();
+                    // Game-UI starten
+                    try {
+                        new ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui.CasinoGameUI()
+                                .start(new javafx.stage.Stage());
+                    } catch (Exception e) {
+                        LOGGER.error("Fehler beim Starten der Game-UI: {}", e.getMessage());
+                    }
+                });
     }
 
     /**
