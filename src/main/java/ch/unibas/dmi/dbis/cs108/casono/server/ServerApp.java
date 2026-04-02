@@ -1,5 +1,8 @@
 package ch.unibas.dmi.dbis.cs108.casono.server;
 
+import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.ping.PingHandler;
+import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.ping.PingParser;
+import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.ping.PingRequest;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.user.UserCleanupJob;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.user.UserRegistry;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.NetworkManager;
@@ -7,6 +10,7 @@ import ch.unibas.dmi.dbis.cs108.casono.server.network.command.execution.CommandR
 import ch.unibas.dmi.dbis.cs108.casono.server.network.command.parsing.CommandParserDispatcher;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.events.DisconnectEvent;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.events.EventBus;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.dispatcher.ResponseDispatcher;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.sessions.SessionDisconnectJob;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.sessions.SessionManager;
 import java.time.Duration;
@@ -58,6 +62,18 @@ public class ServerApp {
                 SESSION_DISCONNECT_JOB_PERIOD,
                 TimeUnit.SECONDS);
 
+        ResponseDispatcher responseDispatcher = new ResponseDispatcher(sessionManager);
+
+        register_commands(dispatcher, router, responseDispatcher);
+
         networkManager.start();
+    }
+
+    private static void register_commands(
+            CommandParserDispatcher parserDispatcher,
+            CommandRouter commandRouter,
+            ResponseDispatcher responseDispatcher) {
+        parserDispatcher.register("PING", new PingParser());
+        commandRouter.register(PingRequest.class, new PingHandler(responseDispatcher));
     }
 }
