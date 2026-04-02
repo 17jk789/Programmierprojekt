@@ -96,8 +96,12 @@ public class SessionReader implements Runnable {
                         e);
 
             } catch (MissingParameterException e) {
-                logger.error("Recieved request for command '{}' was missing the '{}' parameter", rawRequest.command(), e.getParameterKey());
-                sendErrorResponse(new ErrorResponse(requestContext, "MISSING_PARAMETER", e.getMessage()));
+                logger.error(
+                        "Recieved request for command '{}' was missing the '{}' parameter",
+                        rawRequest.command(),
+                        e.getParameterKey());
+                sendErrorResponse(
+                        new ErrorResponse(requestContext, "MISSING_PARAMETER", e.getMessage()));
 
             } catch (IOException e) {
                 logger.error("Unexpected IO exception while reading from transport", e);
