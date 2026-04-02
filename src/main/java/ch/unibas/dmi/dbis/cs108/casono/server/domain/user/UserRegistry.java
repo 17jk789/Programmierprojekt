@@ -93,15 +93,15 @@ public class UserRegistry {
      * @param sessionId the session ID to look up
      * @return an Optional containing the user, or empty if no user is associated with this session
      */
-    public Optional<User> findBySessionId(SessionId sessionId) {
+    public Optional<User> getBySessionId(SessionId sessionId) {
         return Optional.ofNullable(bySessionId.get(sessionId));
     }
 
-    public Optional<User> findByUserId(UserId userId) {
+    public Optional<User> getByUserId(UserId userId) {
         return Optional.ofNullable(byId.get(userId));
     }
 
-    public Optional<User> findByUsername(String username) {
+    public Optional<User> getByUsername(String username) {
         return Optional.ofNullable(byName.get(username));
     }
 
