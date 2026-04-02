@@ -1,6 +1,8 @@
 package ch.unibas.dmi.dbis.cs108.casono.server.domain.user;
 
 import ch.unibas.dmi.dbis.cs108.casono.server.network.sessions.SessionId;
+
+import java.lang.classfile.attribute.UnknownAttribute;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -93,6 +95,14 @@ public class UserRegistry {
      */
     public Optional<User> findBySessionId(SessionId sessionId) {
         return Optional.ofNullable(bySessionId.get(sessionId));
+    }
+
+    public Optional<User> findByUserId(UserId userId) {
+        return Optional.ofNullable(byId.get(userId));
+    }
+
+    public Optional<User> findByUsername(String username) {
+        return Optional.ofNullable(byName.get(username));
     }
 
     /**
