@@ -8,7 +8,6 @@ import org.apache.logging.log4j.Logger;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -56,54 +55,6 @@ public class ClientService {
 
     }
 
-    /**
-     * Sends a ping to the server Returns nothing, the method processMessage() already handles the
-     * cases "+OK" or "-ERROR"
-     */
-    public void ping() {
-        processMessage("PING");
-    }
-
-    /**
-     * Sends a login request to the server to create a new user on the server
-     *
-     * @param username
-     * @return - a new username, if the same username is already used by someone else
-     */
-    public String login(String username) {
-        String msg = "LOGIN USERNAME=" + username;
-        return processMessage(msg);
-    }
-
-    /**
-     * Send a Request to get the number of Messages currently in the Queue for the client. Then
-     * proceeds, if needed, to get the messages by sending
-     */
-    public List<Message> getMessages() {
-        String countStr = processMessage("GET_MESSAGE_COUNT");
-        int count = Integer.parseInt(countStr);
-        logger.info("Got " + count + " messages");
-        List<Message> messages = new ArrayList<>();
-        for (int i = 0; i < count; i++) {
-            String message = processMessage("GET_NEXT_MESSAGE");
-            if (message != null) {
-                Message message1 = Message.toMessage(message);
-                messages.add(message1);
-            }
-        }
-        return messages;
-    }
-
-    /**
-     * Sends a Request to the Server containing all relevant information of the message the client
-     * wrote.
-     *
-     * @param message
-     */
-    public void sendMessage(Message message) {
-        String request = "SEND_MESSAGE " + message.toArgsString();
-        processMessage(request);
-    }
 
     /**
      * Sends the Requests to the server and waits for the response If the response is "+OK" it
@@ -112,7 +63,7 @@ public class ClientService {
      * @param message
      * @return - The response as a string, if it has to be returned (+OK will not be returned)
      */
-    private String processMessage(String message) {
+    protected String processCommand(String message) {
         AtomicReference<String> response = new AtomicReference<>();
         sendRequest(
                 () -> {
