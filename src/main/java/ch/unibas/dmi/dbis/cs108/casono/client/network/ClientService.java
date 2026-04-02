@@ -16,8 +16,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * Responsible for the transferring of the data from the Client to the Server and the other way
- * around
+ * The ClientService class is responsible for managing the connection to the
+ * server,
+ * sending commands, and receiving responses. It uses a TcpTransport to
+ * communicate
+ * with the server and an ExecutorService to handle asynchronous requests.
  */
 public class ClientService {
 
@@ -29,13 +32,13 @@ public class ClientService {
     public static ArrayList<String> response;
     private final AtomicInteger idGenerator;
     private final Logger logger;
-
-    /**
-     * Creates a new ClientSession with a Socket, a Reader and Writer of the Input- and the
-     * Outputstream and a pool of threads to send requests and receive responses.
+    /*
+     * Constructs a ClientService with the given server IP and port. It establishes
+     * a socket connection to the server and initializes the TcpTransport and
+     * ExecutorService for communication.
      *
-     * @param ip : ip-adress of the server
-     * @param port : port of the server
+     * @param ip   The IP address of the server to connect to.
+     * @param port The port number of the server to connect to.
      */
     public ClientService(String ip, int port) {
 
@@ -54,7 +57,6 @@ public class ClientService {
         executor = Executors.newSingleThreadExecutor();
 
     }
-
 
     /**
      * Sends the Requests to the server and waits for the response If the response is "+OK" it
@@ -88,7 +90,13 @@ public class ClientService {
     }
 
     /**
-     * @param request
+     * Helper method to send a request to the server using the ExecutorService. It
+     * submits the request as a Runnable task and waits for its completion. If
+     * the task is interrupted or encounters an execution exception, it throws a
+     * RuntimeException with the appropriate cause.
+     *
+     * @param request The Runnable task representing the request to be sent to the
+     *                server.
      */
     private void sendRequest(Runnable request) {
         Future<?> future = executor.submit(request);
@@ -102,10 +110,14 @@ public class ClientService {
     }
 
     /**
-     * Returns a Runtime Exceptions thrown by the sendRequest method
+     * Helper method to extract the cause of an exception and return it as a
+     * RuntimeException. If the cause is null, it returns the original exception as
+     * a RuntimeException. If the cause is already a RuntimeException, it returns
+     * it directly. Otherwise, it wraps the cause in a new RuntimeException and
+     * returns it.
      *
-     * @param e - an Exception
-     * @return - a Runtime Exception
+     * @param e The exception from which to extract the cause.
+     * @return A RuntimeException representing the cause of the original exception.
      */
     private static RuntimeException getRuntimeException(Exception e) {
         Throwable reason = e.getCause();
@@ -119,7 +131,12 @@ public class ClientService {
         return re;
     }
 
-    /** Closes the Socket and shuts down the Threadpool associated with that Socket-Connection. */
+    /**
+     * Closes the socket connection to the server and shuts down the
+     * ExecutorService.
+     * It also closes the TcpTransport used for communication. If any IOException
+     * occurs during this process, it prints the exception to the console.
+     */
     public void closeSocket() {
         try {
             executor.shutdown();
