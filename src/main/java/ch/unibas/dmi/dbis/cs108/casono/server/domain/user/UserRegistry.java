@@ -88,19 +88,31 @@ public class UserRegistry {
     }
 
     /**
-     * Looks up a user by their session ID.
+     * Looks up a user by their {@link SessionId}.
      *
-     * @param sessionId the session ID to look up
-     * @return an Optional containing the user, or empty if no user is associated with this session
+     * @param sessionId the SessionId to look up
+     * @return an Optional containing the {@link User}, or empty if no user is associated with this SessionId
      */
     public Optional<User> getBySessionId(SessionId sessionId) {
         return Optional.ofNullable(bySessionId.get(sessionId));
     }
 
+    /**
+     * Looks up a user by their {@link UserId}.
+     *
+     * @param userId the UserId to look up
+     * @return an Optional containing the {@link User}, or empty if no user is associated with this UserId
+     */
     public Optional<User> getByUserId(UserId userId) {
         return Optional.ofNullable(byId.get(userId));
     }
 
+    /**
+     * Looks up a user by their username.
+     *
+     * @param username the username to look up
+     * @return an Optional containing the {@link User}, or empty if no user is associated with this username
+     */
     public Optional<User> getByUsername(String username) {
         return Optional.ofNullable(byName.get(username));
     }
