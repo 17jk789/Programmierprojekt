@@ -1,5 +1,6 @@
 package ch.unibas.dmi.dbis.cs108.casono.client.chat;
 
+import ch.unibas.dmi.dbis.cs108.casono.client.network.ChatClient;
 import ch.unibas.dmi.dbis.cs108.casono.client.network.ClientService;
 import java.util.List;
 
@@ -11,6 +12,7 @@ public class ChatController {
 
     private final String username;
     private final ClientService clientService;
+    private final ChatClient chatClient;
 
     private ChatModel chatModel;
 
@@ -19,6 +21,7 @@ public class ChatController {
     public ChatController(String username, ClientService clientService) {
         this.username = username;
         this.clientService = clientService;
+        this.chatClient = new ChatClient(this.clientService);
     }
 
     public void createChat(int game_id) {
@@ -42,7 +45,7 @@ public class ChatController {
      * method to get all messages from the server
      */
     public Boolean receiveMessage() {
-        List<Message> newMessages = clientService.getMessages();
+        List<Message> newMessages = chatClient.getMessages();
         if (!newMessages.isEmpty()) {
             for (Message msg : newMessages) {
                 chatModel.addMessage(msg);
@@ -56,7 +59,7 @@ public class ChatController {
      * @param message
      */
     public void onSendToNetwork(Message message) {
-        clientService.sendMessage(message);
+        chatClient.sendMessage(message);
     }
 
 }
