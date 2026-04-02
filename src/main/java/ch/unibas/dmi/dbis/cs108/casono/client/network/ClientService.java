@@ -17,8 +17,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import ch.unibas.dmi.dbis.cs108.casono.client.chat.Message;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 
 /**
@@ -30,14 +28,10 @@ public class ClientService {
     private final TcpTransport clienttcptransport;
     private final Socket socket;
 
-    private final String ip;
-    private final int port;
-
     private final ExecutorService executor;
 
     public static ArrayList<String> response;
     private final AtomicInteger idGenerator;
-    private final Logger logger;
 
     /**
      * Creates a new ClientSession with a Socket, a Reader and Writer of the Input- and the Outputstream and a pool of threads to send requests and receive responses.
@@ -47,14 +41,10 @@ public class ClientService {
 
     public ClientService(String ip, int port) {
 
-        this.ip = ip;
-        this.port = port;
         this.idGenerator = new AtomicInteger(0);
-        this.logger = LogManager.getLogger(NetworkManager.class);
 
         try {
-            socket = new Socket(this.ip, this.port);
-            logger.info("Connected at port " + this.port);
+            socket = new Socket(ip, port);
             clienttcptransport = new TcpTransport(socket);
         }
         catch (IOException i) {
