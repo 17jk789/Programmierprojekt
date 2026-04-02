@@ -9,7 +9,7 @@ public class CheckUsernameRequest extends Request {
 
     /**
      * Constructs a new CheckUsernameRequest with the given context and username to check
-     * 
+     *
      * @param context the {@link RequestContext} containing information for responding to the
      *     request
      * @param username the username to check for availability

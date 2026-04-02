@@ -14,7 +14,8 @@ public class CheckUsernameParser implements CommandParser<CheckUsernameRequest> 
      */
     @Override
     public CheckUsernameRequest parse(PrimitiveRequest primitiveRequest) {
-        RequestParameterAccessor accessor = new RequestParameterAccessor(primitiveRequest.parameters());
+        RequestParameterAccessor accessor =
+                new RequestParameterAccessor(primitiveRequest.parameters());
         return new CheckUsernameRequest(primitiveRequest.context(), accessor.require("USERNAME"));
     }
 }
