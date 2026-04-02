@@ -1,6 +1,8 @@
 package ch.unibas.dmi.dbis.cs108.casono.server;
 
+import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.check_nick.CheckUsernameHandler;
 import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.check_nick.CheckUsernameParser;
+import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.check_nick.CheckUsernameRequest;
 import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.ping.PingHandler;
 import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.ping.PingParser;
 import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.ping.PingRequest;
@@ -86,5 +88,8 @@ public class ServerApp {
         commandRouter.register(PingRequest.class, new PingHandler(responseDispatcher));
 
         parserDispatcher.register("CHECK_USERNAME", new CheckUsernameParser());
+        commandRouter.register(
+                CheckUsernameRequest.class,
+                new CheckUsernameHandler(responseDispatcher, userRegistry));
     }
 }
