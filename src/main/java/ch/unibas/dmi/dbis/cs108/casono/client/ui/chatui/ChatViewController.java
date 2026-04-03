@@ -3,18 +3,23 @@ package ch.unibas.dmi.dbis.cs108.casono.client.ui.chatui;
 import ch.unibas.dmi.dbis.cs108.casono.client.chat.ChatController;
 import ch.unibas.dmi.dbis.cs108.casono.client.chat.ChatModel;
 import ch.unibas.dmi.dbis.cs108.casono.client.chat.ChatType;
+
+import java.net.URL;
+import java.util.ResourceBundle;
 import java.util.Timer;
 import java.util.TimerTask;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.VBox;
 
 /** Responsible for the presentation of the ChatModel to the Client */
-public class ChatViewController {
+public class ChatViewController implements Initializable {
 
-    private final GlobalChatView globalChatView;
+    private final ChatModel globalChatModel;
+    private GlobalChatView globalChatView;
 
     private LobbyChatView lobbyChatView;
 
@@ -25,10 +30,6 @@ public class ChatViewController {
     private final Timer timer;
 
     private Boolean lobbyActivated;
-
-    @FXML private VBox whisperChatVBox;
-
-    @FXML private VBox whisperChat;
 
     @FXML private ToggleButton changeGlobalChatButton;
 
@@ -50,9 +51,8 @@ public class ChatViewController {
             String username, ChatModel globalChatModel, ChatController controller) {
         this.username = username;
         this.controller = controller;
-        this.globalChatView =
-                new GlobalChatView(username, new ChatModel(ChatType.GLOBAL, username), controller);
         this.timer = new Timer();
+        this.globalChatModel = globalChatModel;
         timer.schedule(
                 new TimerTask() {
                     @Override
@@ -69,10 +69,14 @@ public class ChatViewController {
                 REFRESH_TIME);
     }
 
-    @FXML
-    public void initialize() {}
+    
+    @Override
+    public void initialize(URL location, ResourceBundle resourceBundle) {
+        this.globalChatView =
+                new GlobalChatView(username, globalChatModel, controller);
 
-    @FXML
+    }
+
     public void setLobbyChat(int lobbyId) {
         this.lobbyChatView =
                 new LobbyChatView(

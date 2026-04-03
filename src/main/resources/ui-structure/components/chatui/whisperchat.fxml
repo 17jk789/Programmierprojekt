@@ -8,7 +8,9 @@
 
 <!-- VBox for the whisper chat, should only be visible when activated via changeWhisperChatButton-->
 
-<VBox fx:id="whisperChatVBox"
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:id="whisperChatVBox"
       VBox.vgrow="ALWAYS"
       styleClass="chat-box"
       spacing="10"

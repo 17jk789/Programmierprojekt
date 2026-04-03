@@ -51,7 +51,7 @@ public class LobbyChatView {
         if (!message.isEmpty()) {
             lobbyChatInputField.clear();
             Message msg = new Message(ChatType.LOBBY, lobbyId, username, null, message);
-            controller.sendMessageToNetwork(msg);
+            controller.onSendToNetwork(msg);
         }
     }
 

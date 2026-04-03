@@ -14,10 +14,10 @@
     - Globaler Chat (Gesamter Server)
 
     Features, die später implementiert werden sollen:
-    - Schicke Chat-Bubbles mit Namen und Uhrzeit.
+    - Schicke Chat-Bubbles mit Namen und Uhrzeit./home/mathis/dev/Gruppe-13/src/main/resources/ui-structure/gameuicomponents/chatui
 -->
 
-<VBox xmlns="http://javafx.com/javafx/21"
+<StackPane xmlns="http://javafx.com/javafx/21"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="ch.unibas.dmi.dbis.cs108.casono.client.ui.chatui.ChatViewController"
       alignment="CENTER"
@@ -28,24 +28,22 @@
         <Insets top="30" right="30" bottom="30" left="10"/>
     </padding>
 
-    <children>
 
-        <fx:include source="globalchat.fxml"/>
+    <fx:include source="globalchat.fxml"/>
 
-        <fx:include source="lobbychat.fxml"/>
+    <fx:include source="lobbychat.fxml"/>
 
-        <fx:include source="whisperchat.fxml"/>
+    <fx:include source="whisperchat.fxml"/>
 
-        <ButtonBar fx:id="buttonBar">
-            <padding>
-                <Insets>...</Insets>
-            </padding>
-            <buttons>
-                <ToggleButton fx:id="changeGlobalChatButton" text="Global Chat" onAction="#" styleClass="yellow-button"/>
-                <ToggleButton fx:id="changeLobbyChatButton" text="Lobby Chat" onAction="#" styleClass="yellow-button"/>
-                <ToggleButton fx:id="changeWhisperChatButton" text="Whisper Chat" onAction="#" styleClass="yellow-button"/>
-            </buttons>
-        </ButtonBar>
+    <ButtonBar fx:id="buttonBar">
+        <padding>
+            <Insets>...</Insets>
+        </padding>
+        <buttons>
+            <ToggleButton fx:id="changeGlobalChatButton" text="Global Chat" onAction="#switchChat" styleClass="yellow-button"/>
+            <ToggleButton fx:id="changeLobbyChatButton" text="Lobby Chat" styleClass="yellow-button"/>
+            <ToggleButton fx:id="changeWhisperChatButton" text="Whisper Chat" styleClass="yellow-button"/>
+        </buttons>
+    </ButtonBar>
 
-    </children>
-</VBox>
+</StackPane>

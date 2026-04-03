@@ -25,6 +25,10 @@ public class ChatController {
         chatClient = new ChatClient(clientService);
     }
 
+    public ChatModel getChatModel(int index) {
+        return chatModelArrayList.get(index);
+    }
+
     public void createLobbyChat(int lobbyId, ChatType chatType) {
         ChatModel chatModel = new ChatModel(chatType, username, lobbyId);
         chatModelArrayList.add(chatModel);

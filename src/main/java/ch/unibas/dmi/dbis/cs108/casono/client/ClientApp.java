@@ -38,4 +38,8 @@ public class ClientApp {
         LOGGER.info("You've selected the client. It will connect port {} at host {}", port, host);
         Launcher.main(new String[] {});
     }
+
+    public static void main(String[] args) {
+        start(args[0]);
+    }
 }
