@@ -7,7 +7,9 @@
 <?import javafx.scene.layout.*?>
 
 <!-- VBox for the global chat, should only be visible when activated via changeGlobalChatButton-->
-<VBox fx:id="globalChatVBox"
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:id="globalChatVBox"
       VBox.vgrow="ALWAYS"
       styleClass="chat-box"
       spacing="10"
@@ -15,26 +17,23 @@
       visible="true"
       fx:controller="ch.unibas.dmi.dbis.cs108.casono.client.ui.chatui.GlobalChatView">
 
-    <children>
-        <Label text="== GLOBAL CHAT ==" styleClass="chat-header" alignment="CENTER" maxWidth="Infinity"/>
-        <Region minHeight="4" styleClass="chat-separator"/>
+    <Label text="== GLOBAL CHAT ==" styleClass="chat-header" alignment="CENTER" maxWidth="Infinity"/>
+    <Region minHeight="4" styleClass="chat-separator"/>
+    <!-- Chatnachrichten werden hier hinzugefügt -->
+    <ScrollPane fx:id="globalChatScrollPane" fitToWidth="true" vbarPolicy="AS_NEEDED" hbarPolicy="NEVER"
+                VBox.vgrow="ALWAYS" styleClass="chat-scroll-pane">
+        <content>
+            <VBox fx:id="globalChat" spacing="10" styleClass="chat-VBox"/>
+        </content>
+    </ScrollPane>
 
-        <!-- Chatnachrichten werden hier hinzugefügt -->
-        <ScrollPane fx:id="globalChatScrollPane" fitToWidth="true" vbarPolicy="AS_NEEDED" hbarPolicy="NEVER"
-                    VBox.vgrow="ALWAYS" styleClass="chat-scroll-pane">
-            <content>
-                <VBox fx:id="globalChat" spacing="10" styleClass="chat-VBox"/>
-            </content>
-        </ScrollPane>
-
-        <!-- Eingabebereich -->
-        <HBox spacing="10">
-            <!-- TODO: Größe des TextFields dynamisch anpassen -->
-            <TextField fx:id="globalChatInputField" HBox.hgrow="ALWAYS" promptText="Nachricht eingeben..."
-                       styleClass="gray-input-field" onAction="#sendGlobalMessage"/>
-            <Button fx:id="globalChatSendButton" text="SENDEN" onAction="#sendGlobalMessage"
-                    styleClass="yellow-button"/>
-        </HBox>
-    </children>
+    <!-- Eingabebereich -->
+    <HBox spacing="10">
+        <!-- TODO: Größe des TextFields dynamisch anpassen -->
+        <TextField fx:id="globalChatInputField" HBox.hgrow="ALWAYS" promptText="Nachricht eingeben..."
+                   styleClass="gray-input-field" onAction="#sendGlobalMessage"/>
+        <Button fx:id="globalChatSendButton" text="SENDEN" onAction="#sendGlobalMessage"
+                styleClass="yellow-button"/>
+    </HBox>
 </VBox>
 

@@ -8,7 +8,9 @@
 
 <!-- VBox for the lobby chat, should only be visible when activated via changeLobbyChatButton-->
 
-<VBox fx:id="lobbyChatVBox"
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:id="lobbyChatVBox"
       VBox.vgrow="ALWAYS"
       styleClass="chat-box"
       spacing="10"
