@@ -13,7 +13,8 @@ The concrete implementations for each command live in `app/commands/` and are wi
 *Link to guides*
 
 ### Reference
-*Link to technical deep dives*
+- [Command Infrastructure](./commands-deep-dive.md) -
+  Technical deep-dive into the `CommandParser`, `CommandParserDispatcher`, `CommandHandler`, `CommandRouter`, `Request`, and the response hierarchy.
 
 ## Key Concepts
 **Each command is self-contained.**
