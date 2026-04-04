@@ -6,7 +6,7 @@ Each command consists of four classes: a **Parser**, a **Request**, a **Handler*
 The infrastructure for routing and dispatching commands lives in the `network/` layer and is intentionally kept generic.
 The concrete implementations for each command live in `app/commands/` and are wired together at startup in `ServerApp`.
 
-<img src="../../../images/docs/networking/commands/overview.svg" alt="Overview of all components directly related to executing requests" />
+![Overview of all components directly related to executing requests](../../../images/docs/networking/commands/overview.svg)
 
 ## Contents
 ### Guides
