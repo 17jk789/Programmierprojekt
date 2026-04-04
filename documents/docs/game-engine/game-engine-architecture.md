@@ -1,6 +1,7 @@
 # Casono Game Engine
 <!-- vim-markdown-toc GFM -->
 
+* [Architecture Overview](#architecture-overview)
 * [server/GameController](#servergamecontroller)
     * [GameController](#gamecontroller)
     * [addPlayer](#addplayer)
@@ -17,6 +18,7 @@
     * [playerRaise](#playerraise)
     * [getState](#getstate)
     * [getCommunityCards](#getcommunitycards)
+    * [determineWinner](#determinewinner)
 * [server/action/AbstractAction](#serveractionabstractaction)
     * [AbstractAction](#abstractaction)
 * [server/action/AllInAction](#serveractionallinaction)
@@ -60,6 +62,15 @@
     * [nextPlayer](#nextplayer)
 * [server/evaluator/HandEvaluator](#serverevaluatorhandevaluator)
     * [evaluate](#evaluate)
+    * [getSortedRanks](#getsortedranks)
+    * [getFlushCards](#getflushcards)
+    * [buildFlush](#buildflush)
+    * [checkStraightFlush](#checkstraightflush)
+    * [checkFourOfAKind](#checkfourofakind)
+    * [checkFullHouse](#checkfullhouse)
+    * [checkThreeOfAKind](#checkthreeofakind)
+    * [checkTwoPair](#checktwopair)
+    * [checkOnePair](#checkonepair)
     * [getRank](#getrank-1)
     * [isStraight](#isstraight)
 * [server/evaluator/HandRank](#serverevaluatorhandrank)
@@ -81,13 +92,16 @@
     * [clearHand](#clearhand)
     * [isFolded](#isfolded)
     * [setFolded](#setfolded)
+* [server/player/PlayerId](#serverplayerplayerid)
+    * [PlayerId](#playerid)
+    * [of](#of)
 * [server/rules/RuleEngine](#serverrulesruleengine)
     * [RuleEngine](#ruleengine)
     * [validate](#validate)
 * [server/rules/RuleViolationException](#serverrulesruleviolationexception)
     * [RuleViolationException](#ruleviolationexception)
 * [server/rules/showdown/CardsSpeakRule](#serverrulesshowdowncardsspeakrule)
-    * [determineWinner](#determinewinner)
+    * [determineWinner](#determinewinner-1)
     * [awardPot](#awardpot)
 * [server/state/GameState](#serverstategamestate)
     * [getPlayers](#getplayers)
@@ -124,6 +138,8 @@
     * [rotateDealer](#rotatedealer-1)
     * [getDealer](#getdealer-1)
     * [startNewHand](#startnewhand-3)
+    * [foldPlayer](#foldplayer)
+    * [isFolded](#isfolded-1)
 * [server/state/Pot](#serverstatepot)
     * [add](#add)
     * [getAmount](#getamount-3)
@@ -143,6 +159,108 @@
     * [setLastAggressorId](#setlastaggressorid)
 
 <!-- vim-markdown-toc -->
+
+## Architecture Overview
+
+```txt
+server/
+ └── domain/
+     └── game/
+         ├── GameController.java
+         │
+         ├── engine/
+         │    ├── GameEngine.java
+         │    ├── TurnManager.java
+         │    │     → 23: New Hand and New Limits 🟢
+         │    │     → 34: Button Placement and Movement 🟢
+         │    │
+         │    └── RoundManager.java
+         │          → 23: New Hand and New Limits 🟢
+         │          → 34: Button Placement and Movement 🟢
+         │
+         ├── state/
+         │    ├── GameState.java
+         │    ├── GamePhase.java
+         │    ├── TableState.java
+         │    ├── BettingState.java
+         │    └── Pot.java
+         │         → 21: Side Pots 🟡
+         │
+         ├── player/
+         │    ├── Player.java
+         │    └── PlayerStatus.java
+         │
+         ├── deck/
+         │    ├── Deck.java
+         │    │     → Responsible for shuffling and distributing cards
+         │    │
+         │    ├── Card.java
+         │    │     → Definition of a playing card
+         │    │
+         │    ├── Rank.java
+         │    └── Suit.java
+         │
+         ├── action/
+         │    ├── Action.java
+         │    ├── AbstractAction.java
+         │    ├── ActionType.java
+         │    │
+         │    ├── BlindAction.java
+         │    ├── BetAction.java
+         │    ├── CallAction.java
+         │    ├── RaiseAction.java
+         │    ├── FoldAction.java
+         │    └── AllInAction.java
+         │
+         ├── rules/
+         │    ├── Rule.java
+         │    ├── RuleEngine.java
+         │    └── RuleViolationException.java
+         │
+         │    ├── betting/
+         │    │    ├── AcceptedActionRule.java
+         │    │    │     → 49: Accepted Action 🟢
+         │    │    │
+         │    │    ├── MinimumRaiseRule.java
+         │    │    │     → 43: Raise Amounts 🟢
+         │    │    │
+         │    │    ├── RaiseReopenRule.java
+         │    │    │     → 43: Raise Amounts 🟢
+         │    │    │     → 47: Re-Opening the Bet 🟡
+         │    │    │     → 48: Number of Allowable Raises 🟡
+         │    │    │
+         │    │    ├── MinimumBetRule.java
+         │    │    │     → 52: Incorrect Bets, Underbets and Underraises 🟡
+         │    │    │
+         │    │    ├── BindingDeclarationRule.java
+         │    │    │     → 51: Binding Declarations / Undercalls in Turn 🟡
+         │    │    │     → 56: String Bets and Raises 🟡
+         │    │    │
+         │    │    ├── AllInRule.java
+         │    │    │     → 16: Face Up for All-Ins 🟢
+         │    │    │     → 62: All-In with Chips Found Behind Later 🟡
+         │    │    │
+         │    │    ├── HandActiveRule.java
+         │    │    │     → Ensures only active players can act
+         │    │    │
+         │    │    ├── ActionOrderRule.java
+         │    │    │     → 50: Acting in Turn 🟢
+         │    │    │
+         │    │    └── OutOfTurnRule.java
+         │    │          → 53: Action Out of Turn (OOT) 🟡
+         │    │
+         │    └── showdown/
+         │         └── CardsSpeakRule.java
+         │              → 12: Declarations. Cards Speak at Showdown 🟢
+         │
+         ├── evaluator/
+         │    ├── HandEvaluator.java
+         │    └── HandRank.java
+         │
+         └── exception/
+              └── RuleViolationException.java
+
+```
 
 ## server/GameController
 
@@ -203,7 +321,6 @@
 
 - **Description**: Processes a player's raise action by sending a RaiseAction to the GameEngine.
 - **Parameter (`playerId`)**: The ID of the player who is raising.
-  *
 - **Parameter (`amount`)**: The amount the player is raising.
 
 ### getState
@@ -213,6 +330,11 @@
 ### getCommunityCards
 
 - **Description**: Retrieves the list of community cards currently on the table.
+
+### determineWinner
+
+- **Description**: Retrieves the hole cards for each player in the game.
+- **Return**: A map where the key is the player's name and the value is a list of Card objects representing the player's hole cards.
 
 ## server/action/AbstractAction
 
@@ -258,8 +380,8 @@
 
 ### CallAction
 
-- **Description**: CallAction represents the action of a player calling in a poker game.
-- **Parameter (`playerId`)**: The ID of the player performing the call action.
+- **Description**: CallAction represents the action of a player calling in a poker game. When a
+- **Parameter (`playerId`)**: the ID of the player performing the call action
 
 ## server/action/FoldAction
 
@@ -387,7 +509,55 @@
 ### evaluate
 
 - **Description**: The HandEvaluator class provides functionality to evaluate a poker hand and
-- **Parameter (`cards`)**: A list of Card objects representing the player's hand and community cards.
+- **Parameter (`cards`)**: A list of Card objects representing the player's hand.
+
+### getSortedRanks
+
+- **Description**: Helper method to extract and sort the ranks of the cards in descending order.
+- **Parameter (`cards`)**: A list of Card objects representing the player's hand.
+
+### getFlushCards
+
+- **Description**: Helper method to count the occurrences of each card rank in the hand.
+- **Parameter (`ranks`)**: A list of integer ranks representing the cards in the hand.
+- **Parameter (`cards`)**: A list of Card objects representing the player's hand.
+- **Parameter (`suits`)**: A map where the key is the Suit and the value is a list of Cards belonging to that suit.
+- **Return**: A map where the key is the card rank and the value is the count of occurrences.
+
+### buildFlush
+
+- **Description**: Helper method to build a HandRank object for a flush hand.
+- **Parameter (`flushCards`)**: A list of Card objects that form a flush.
+
+### checkStraightFlush
+
+- **Description**: Helper method to check for a straight flush or royal flush in the hand.
+- **Parameter (`flushCards`)**: A list of Card objects that form a flush.
+
+### checkFourOfAKind
+
+- **Description**: Helper method to check for a four of a kind hand rank.
+- **Parameter (`rankCount`)**: A map where the key is the card rank and the value is the count of occurrences.
+
+### checkFullHouse
+
+- **Description**: Helper method to check for a full house hand rank.
+- **Parameter (`rankCount`)**: A map where the key is the card rank and the value is the count of occurrences.
+
+### checkThreeOfAKind
+
+- **Description**: Helper method to check for a three of a kind hand rank.
+- **Parameter (`rankCount`)**: A map where the key is the card rank and the value is the count of occurrences.
+
+### checkTwoPair
+
+- **Description**: Helper method to check for a two pair hand rank.
+- **Parameter (`rankCount`)**: A map where the key is the card rank and the value is the count of occurrences.
+
+### checkOnePair
+
+- **Description**: Helper method to check for a one pair hand rank.
+- **Parameter (`rankCount`)**: A map where the key is the card rank and the value is the count of occurrences.
 
 ### getRank
 
@@ -480,6 +650,18 @@
 
 - **Description**: Sets the player's folded status to the specified value.
 - **Parameter (`folded`)**: The new folded status for the player.
+
+## server/player/PlayerId
+
+### PlayerId
+
+- **Description**: PlayerId is a value object that represents the unique identifier of a player
+
+### of
+
+- **Description**: Constructs a PlayerId with the specified value. The constructor validates
+- **Parameter (`value`)**: the string value representing the player's unique identifier
+- **Parameter (`value`)**: the string value representing the player's unique identifier
 
 ## server/rules/RuleEngine
 
@@ -675,6 +857,16 @@
 ### startNewHand
 
 - **Description**: Starts a new hand by resetting the game state for the next round of poker.
+
+### foldPlayer
+
+- **Description**: Folds a player in the current hand. This method adds the specified player's ID
+- **Parameter (`playerId`)**: The ID of the player who is folding.
+
+### isFolded
+
+- **Description**: Checks if a specific player has folded in the current hand. This method
+- **Parameter (`playerId`)**: The ID of the player to check for folding status.
 
 ## server/state/Pot
 
