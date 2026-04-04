@@ -192,7 +192,7 @@ public class GameControllerTest {
         game.playerFold(PlayerId.of("Mathis"));
         game.playerCall(PlayerId.of("Jona"));
 
-        System.out.println("Pot nach Aktionen: " + game.getState().getPot().getAmount());
+        System.out.println("Pot after actions: " + game.getState().getPot().getAmount());
 
         int potAfter = game.getState().getPot().getAmount();
 
