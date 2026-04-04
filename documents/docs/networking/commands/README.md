@@ -10,7 +10,8 @@ The concrete implementations for each command live in `app/commands/` and are wi
 
 ## Contents
 ### Guides
-*Link to guides*
+- [Implementing a Command](./guide-on-implementing-a-command.md) - 
+  Step-by-step walkthrough for adding a new command to the server, including registration and common pitfalls.
 
 ### Reference
 - [Command Infrastructure](./commands-deep-dive.md) -
