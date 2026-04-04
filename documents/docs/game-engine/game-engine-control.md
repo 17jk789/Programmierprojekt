@@ -38,10 +38,10 @@ The server calls methods on the GameController to control the game.
 ```java
 GameController game = new GameController(engine);
 
-game.addPlayer("Julian", 20000);
-game.addPlayer("Mathis", 20000);
-game.addPlayer("Jona", 20000);
-game.addPlayer("Lars", 20000);
+game.addPlayer(PlayerId.of("Julian"), 20000);
+game.addPlayer(PlayerId.of("Mathis"), 20000);
+game.addPlayer(PlayerId.of("Jona"), 20000);
+game.addPlayer(PlayerId.of("Lars"), 20000);
 
 game.startGame();
 ```
@@ -63,10 +63,10 @@ When `startGame()` is called:
 During the preflop phase, players perform actions.
 
 ```java
-game.playerCall("Julian");
-game.playerFold("Mathis");
-game.playerCall("Jona");
-game.playerRaise("Lars", 1200);
+game.playerCall(PlayerId.of("Julian"));
+game.playerFold(PlayerId.of("Mathis"));
+game.playerCall(PlayerId.of("Jona"));
+game.playerRaise(PlayerId.of("Lars"), 1200);
 ```
 
 Supported actions include:
@@ -179,7 +179,7 @@ Example:
 ## Get player hole cards
 
 ```java
-Map<String, List<Card>> cards = game.getPlayerCards();
+Map<PlayerId, List<Card>> cards = game.getPlayerCards();
 ```
 
 Returns a mapping of player IDs to their hole cards.
