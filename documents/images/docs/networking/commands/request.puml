@@ -1,0 +1,11 @@
+@startuml
+skinparam backgroundColor transparent
+
+abstract class Request {
+    # context: RequestContext
+    + getContext(): RequestContext
+    + getSessionId(): SessionId
+    + getRequestId(): int
+}
+
+@enduml

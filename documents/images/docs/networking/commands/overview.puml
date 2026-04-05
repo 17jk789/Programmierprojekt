@@ -1,0 +1,33 @@
+@startuml
+skinparam backgroundColor transparent
+
+package "network/ (infrastructure)" {
+    class PrimitiveRequest <<record>>
+    interface CommandParser<T extends Request>
+    interface CommandHandler<T extends Request>
+    class CommandParserDispatcher
+    class CommandRouter
+    abstract class Request
+    abstract class Response
+
+    PrimitiveRequest --> CommandParserDispatcher : routes
+    PrimitiveRequest ..> CommandParser : parsed by
+    CommandParserDispatcher --> CommandParser : routes to
+    CommandParser --> Request : parses to
+    Request --> CommandRouter : routes
+    CommandRouter --> CommandHandler : routes to
+    Request ..> CommandHandler : executed by
+    CommandHandler --> Response : creates
+}
+
+package "app/commands/<name>/ (per command)" {
+    class ExampleParser implements CommandParser
+    class ExampleRequest extends Request
+    class ExampleHandler implements CommandHandler
+    class ExampleResponse extends Response
+
+    ExampleParser --> ExampleRequest : parses to
+    ExampleRequest --> ExampleHandler : executed by
+    ExampleHandler --> ExampleResponse : produces
+}
+@enduml
