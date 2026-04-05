@@ -8,9 +8,15 @@
       "problemMatcher": []
     },
     {
-      "label": "Export puml to SVG",
+      "label": "Export PlantUML to SVG",
       "type": "shell",
-      "command": "./scripts/export-plantuml.sh",
+      "command": "./scripts/export-plantuml-to-svg.sh",
+      "problemMatcher": []
+    },
+    {
+      "label": "Export PlantUML to PNG",
+      "type": "shell",
+      "command": "./scripts/export-plantuml-to-png.sh",
       "problemMatcher": []
     }
   ]
