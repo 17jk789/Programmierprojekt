@@ -7,11 +7,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * RoundManager is responsible for managing the flow of a poker game round. It
- * handles the progression of the game through its various phases (pre-flop,
- * flop, turn, river) and manages player actions such as posting blinds and
- * dealing cards. The RoundManager ensures that the game state is updated
- * correctly based on player actions and the current phase of the game.
+ * RoundManager is responsible for managing the flow of a poker game round. It handles the
+ * progression of the game through its various phases (pre-flop, flop, turn, river) and manages
+ * player actions such as posting blinds and dealing cards. The RoundManager ensures that the game
+ * state is updated correctly based on player actions and the current phase of the game.
  */
 public class RoundManager {
 
@@ -19,9 +18,9 @@ public class RoundManager {
     public static final int BIG_BLIND = 200;
 
     /**
-     * Starts a new hand by initializing the game state, dealing cards to players,
-     * and posting blinds. This method sets the hand as active and resets any
-     * necessary state variables to prepare for a new round of play.
+     * Starts a new hand by initializing the game state, dealing cards to players, and posting
+     * blinds. This method sets the hand as active and resets any necessary state variables to
+     * prepare for a new round of play.
      *
      * @param state The game state to be used for starting the new hand.
      */
@@ -35,13 +34,12 @@ public class RoundManager {
     }
 
     /**
-     * Checks if the betting round is finished and advances the game phase if
-     * necessary. This method evaluates the current bets of all active players and
-     * determines if the betting round can be concluded. If all players have met
-     * the current bet or are all-in, the game phase is advanced to the next stage.
+     * Checks if the betting round is finished and advances the game phase if necessary. This method
+     * evaluates the current bets of all active players and determines if the betting round can be
+     * concluded. If all players have met the current bet or are all-in, the game phase is advanced
+     * to the next stage.
      *
-     * @param state The current game state to be evaluated for betting round
-     *              progression.
+     * @param state The current game state to be evaluated for betting round progression.
      */
     public void progressIfNeeded(GameState state) {
 
@@ -51,13 +49,11 @@ public class RoundManager {
     }
 
     /**
-     * Determines if the betting round is finished by checking if all active players
-     * have met the current bet or are all-in. This method iterates through all
-     * players in the game state and evaluates their bets against the current bet on
-     * the table.
+     * Determines if the betting round is finished by checking if all active players have met the
+     * current bet or are all-in. This method iterates through all players in the game state and
+     * evaluates their bets against the current bet on the table.
      *
-     * @param state The current game state to be evaluated for betting round
-     *              completion.
+     * @param state The current game state to be evaluated for betting round completion.
      * @return true if the betting round is finished, false otherwise.
      */
     private boolean isBettingRoundFinished(GameState state) {
@@ -82,10 +78,9 @@ public class RoundManager {
     }
 
     /**
-     * Advances the game phase to the next stage (flop, turn, river, or showdown)
-     * based on the current phase of the game. This method is called when the
-     * betting round is finished and updates the game state accordingly to reflect
-     * the new phase of play.
+     * Advances the game phase to the next stage (flop, turn, river, or showdown) based on the
+     * current phase of the game. This method is called when the betting round is finished and
+     * updates the game state accordingly to reflect the new phase of play.
      *
      * @param state The current game state to be updated with the new phase.
      */
@@ -100,10 +95,9 @@ public class RoundManager {
     }
 
     /**
-     * Handles the posting of blinds at the start of a new hand. This method
-     * identifies the players responsible for posting the small and big blinds,
-     * updates their chip counts, adds the blind amounts to the pot, and updates
-     * the current bets for those players in the game state.
+     * Handles the posting of blinds at the start of a new hand. This method identifies the players
+     * responsible for posting the small and big blinds, updates their chip counts, adds the blind
+     * amounts to the pot, and updates the current bets for those players in the game state.
      *
      * @param state The current game state to be updated with the posted blinds.
      */
@@ -127,18 +121,13 @@ public class RoundManager {
         state.getTableState().setCurrentBet(bigBlind);
     }
 
-    private void dealCards(GameState state) {
-    }
+    private void dealCards(GameState state) {}
 
-    private void dealFlop(GameState state) {
-    }
+    private void dealFlop(GameState state) {}
 
-    private void dealTurn(GameState state) {
-    }
+    private void dealTurn(GameState state) {}
 
-    private void dealRiver(GameState state) {
-    }
+    private void dealRiver(GameState state) {}
 
-    private void showdown(GameState state) {
-    }
+    private void showdown(GameState state) {}
 }

@@ -12,21 +12,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The CardsSpeakRule class implements the Rule interface and defines the logic
- * for
- * determining the winner of a poker hand based on the players' hole cards and
- * the community cards. It evaluates each player's hand, compares their ranks,
- * and awards the pot to the player with the best hand.
+ * The CardsSpeakRule class implements the Rule interface and defines the logic for determining the
+ * winner of a poker hand based on the players' hole cards and the community cards. It evaluates
+ * each player's hand, compares their ranks, and awards the pot to the player with the best hand.
  */
 public class CardsSpeakRule implements Rule {
 
     /**
-     * Validates the action for the showdown phase. In this implementation, the
-     * CardsSpeakRule does not perform any validation, as it is responsible for
-     * determining the winner based on the players' hands. The validation logic for
-     * player actions during the showdown phase should be handled by other rules.
+     * Validates the action for the showdown phase. In this implementation, the CardsSpeakRule does
+     * not perform any validation, as it is responsible for determining the winner based on the
+     * players' hands. The validation logic for player actions during the showdown phase should be
+     * handled by other rules.
      *
-     * @param state  The current state of the game.
+     * @param state The current state of the game.
      * @param action The action to be validated.
      */
     @Override
@@ -35,15 +33,13 @@ public class CardsSpeakRule implements Rule {
     }
 
     /**
-     * Determines the winner of the poker hand by evaluating each player's hand
-     * rank based on their hole cards and the community cards. It compares the
-     * hand ranks of all active players and returns the player with the best hand.
+     * Determines the winner of the poker hand by evaluating each player's hand rank based on their
+     * hole cards and the community cards. It compares the hand ranks of all active players and
+     * returns the player with the best hand.
      *
-     * @param state The current state of the game, which includes player
-     *              information,
-     *              hole cards, and community cards.
-     * @return The player with the best hand, or null if there are no active
-     *         players.
+     * @param state The current state of the game, which includes player information, hole cards,
+     *     and community cards.
+     * @return The player with the best hand, or null if there are no active players.
      */
     public Player determineWinner(GameState state) {
 
@@ -76,13 +72,12 @@ public class CardsSpeakRule implements Rule {
     }
 
     /**
-     * Awards the pot to the winner of the poker hand. It determines the winner(s)
-     * using the determineWinner method, retrieves the total amount in the pot,
-     * and adds it to the winner's chips. Finally, it resets the pot for the next
-     * hand.
+     * Awards the pot to the winner of the poker hand. It determines the winner(s) using the
+     * determineWinner method, retrieves the total amount in the pot, and adds it to the winner's
+     * chips. Finally, it resets the pot for the next hand.
      *
-     * @param state The current state of the game, which includes player information
-     *              and pot details.
+     * @param state The current state of the game, which includes player information and pot
+     *     details.
      */
     public void awardPot(GameState state) {
 

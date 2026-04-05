@@ -8,21 +8,18 @@ import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.rules.RuleViolationExc
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.state.GameState;
 
 /**
- * The AllInRule class implements the Rule interface and defines the validation
- * logic for the "all-in" action in a poker game. It checks whether the player
- * attempting to go all-in has any chips left, and throws a
- * RuleViolationException
- * if the player has no chips to bet.
+ * The AllInRule class implements the Rule interface and defines the validation logic for the
+ * "all-in" action in a poker game. It checks whether the player attempting to go all-in has any
+ * chips left, and throws a RuleViolationException if the player has no chips to bet.
  */
 public class AllInRule implements Rule {
 
     /**
-     * Validates the "all-in" action by checking if the player has any chips left.
-     * If the player has no chips, a RuleViolationException is thrown.
+     * Validates the "all-in" action by checking if the player has any chips left. If the player has
+     * no chips, a RuleViolationException is thrown.
      *
-     * @param state  The current state of the game.
-     * @param action The action to be validated, which should be an instance of
-     *               AllInAction.
+     * @param state The current state of the game.
+     * @param action The action to be validated, which should be an instance of AllInAction.
      * @throws RuleViolationException if the player has no chips to go all-in.
      */
     @Override

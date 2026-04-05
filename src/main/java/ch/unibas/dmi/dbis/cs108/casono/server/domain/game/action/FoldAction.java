@@ -5,10 +5,9 @@ import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.player.PlayerId;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.state.GameState;
 
 /**
- * FoldAction represents the action of a player folding in a poker game. When a
- * player folds, they forfeit their hand and are no longer active in the current
- * round. This action updates the player's status to indicate that they have
- * folded.
+ * FoldAction represents the action of a player folding in a poker game. When a player folds, they
+ * forfeit their hand and are no longer active in the current round. This action updates the
+ * player's status to indicate that they have folded.
  */
 public class FoldAction extends AbstractAction {
 
@@ -32,8 +31,8 @@ public class FoldAction extends AbstractAction {
     }
 
     /**
-     * Executes the fold action on the given game state. This method updates the
-     * player's status to indicate that they have folded.
+     * Executes the fold action on the given game state. This method updates the player's status to
+     * indicate that they have folded.
      *
      * @param state The current game state on which to execute the action.
      */

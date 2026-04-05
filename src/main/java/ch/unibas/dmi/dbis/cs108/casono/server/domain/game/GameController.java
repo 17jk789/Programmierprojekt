@@ -17,9 +17,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * GameController is responsible for managing the flow of the poker game. It
- * interacts with the GameEngine to process player actions and update the game
- * state accordingly.
+ * GameController is responsible for managing the flow of the poker game. It interacts with the
+ * GameEngine to process player actions and update the game state accordingly.
  */
 public class GameController {
 
@@ -48,7 +47,7 @@ public class GameController {
     /**
      * Adds a player to the game with the specified name and initial chip count.
      *
-     * @param name  The name of the player to add.
+     * @param name The name of the player to add.
      * @param chips The initial number of chips the player has.
      */
     public void addPlayer(PlayerId name, int chips) {
@@ -58,14 +57,13 @@ public class GameController {
         // players.add(id);
         // engine.getState().addPlayer(id, chips);
 
-         players.add(name);
-         engine.getState().addPlayer(name, chips);
+        players.add(name);
+        engine.getState().addPlayer(name, chips);
     }
 
     /**
-     * Initializes a new hand by preparing the deck, setting the phase to PREFLOP,
-     * rotating the dealer, dealing hole cards, posting blinds,
-     * and setting the first active player.
+     * Initializes a new hand by preparing the deck, setting the phase to PREFLOP, rotating the
+     * dealer, dealing hole cards, posting blinds, and setting the first active player.
      */
     public void startGame() {
 
@@ -86,9 +84,7 @@ public class GameController {
         engine.getState().setCurrentPlayerIndex(nextPlayerIndex);
     }
 
-    /**
-     * Rotates the dealer position to the next player in the list.
-     */
+    /** Rotates the dealer position to the next player in the list. */
     private void rotateDealer() {
         dealerIndex = (dealerIndex + DEALER_OFFSET) % players.size();
     }
@@ -103,8 +99,8 @@ public class GameController {
     }
 
     /**
-     * Determines the small and big blind players relative to the dealer
-     * and submits the corresponding blind actions to the engine.
+     * Determines the small and big blind players relative to the dealer and submits the
+     * corresponding blind actions to the engine.
      */
     public void postBlinds() {
 
@@ -115,9 +111,7 @@ public class GameController {
         engine.processAction(new BlindAction(bigBlind, BIG_BLIND));
     }
 
-    /**
-     * Deals hole cards to each player from the deck.
-     */
+    /** Deals hole cards to each player from the deck. */
     public void dealHoleCards() {
 
         Deck deck = engine.getState().getDeck();
@@ -131,9 +125,7 @@ public class GameController {
         }
     }
 
-    /**
-     * Draws three cards from the deck and adds them as community cards (flop).
-     */
+    /** Draws three cards from the deck and adds them as community cards (flop). */
     public void dealFlop() {
 
         Deck deck = engine.getState().getDeck();
@@ -144,16 +136,14 @@ public class GameController {
     }
 
     /**
-     * Deals the turn by drawing one community card from the deck and adding it to
-     * the game state.
+     * Deals the turn by drawing one community card from the deck and adding it to the game state.
      */
     public void dealTurn() {
         engine.getState().addCommunityCard(engine.getState().getDeck().draw());
     }
 
     /**
-     * Deals the river by drawing one community card from the deck and adding it to
-     * the game state.
+     * Deals the river by drawing one community card from the deck and adding it to the game state.
      */
     public void dealRiver() {
         engine.getState().addCommunityCard(engine.getState().getDeck().draw());
@@ -183,7 +173,7 @@ public class GameController {
      * Processes a player's raise action by sending a RaiseAction to the GameEngine.
      *
      * @param playerId The ID of the player who is raising.
-     * @param amount   The amount the player is raising.
+     * @param amount The amount the player is raising.
      */
     public void playerRaise(PlayerId playerId, int amount) {
         // engine.processAction(new RaiseAction(PlayerId.of(playerId), amount));
@@ -211,19 +201,19 @@ public class GameController {
     /**
      * Retrieves the hole cards for each player in the game.
      *
-     * @return A map where the key is the player's name and the value is a list of
-     *         Card objects representing the player's hole cards.
+     * @return A map where the key is the player's name and the value is a list of Card objects
+     *     representing the player's hole cards.
      */
     public Map<PlayerId, List<Card>> getPlayerCards() {
         return engine.getState().getPlayerCards();
     }
 
     /**
-     * Determines the winner of the current hand by evaluating the best possible
-     * poker hand for each active player.
+     * Determines the winner of the current hand by evaluating the best possible poker hand for each
+     * active player.
      *
-     * The evaluation is based on the player's two hole cards combined with the
-     * five community cards on the board.
+     * <p>The evaluation is based on the player's two hole cards combined with the five community
+     * cards on the board.
      *
      * @return The ID of the winning player.
      */

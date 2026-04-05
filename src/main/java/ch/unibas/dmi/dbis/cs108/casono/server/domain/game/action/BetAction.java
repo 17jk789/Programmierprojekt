@@ -5,9 +5,9 @@ import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.player.PlayerId;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.state.GameState;
 
 /**
- * Represents a bet action where a player contributes a fixed amount of chips.
- * The amount is deducted from the player's chips, added to the pot, and both
- * the player's current bet and the table's current bet are set to this amount.
+ * Represents a bet action where a player contributes a fixed amount of chips. The amount is
+ * deducted from the player's chips, added to the pot, and both the player's current bet and the
+ * table's current bet are set to this amount.
  */
 public class BetAction extends AbstractAction {
 
@@ -17,7 +17,7 @@ public class BetAction extends AbstractAction {
      * Constructs a BetAction for the specified player ID and bet amount.
      *
      * @param playerId The ID of the player performing the bet action.
-     * @param amount   The amount of chips the player is betting.
+     * @param amount The amount of chips the player is betting.
      */
     public BetAction(PlayerId playerId, int amount) {
         super(playerId);
@@ -44,9 +44,8 @@ public class BetAction extends AbstractAction {
     }
 
     /**
-     * Executes the bet action on the given game state. This method updates the
-     * player's chip count, adds the bet to the pot, and updates the current bet
-     * for the player in the game state.
+     * Executes the bet action on the given game state. This method updates the player's chip count,
+     * adds the bet to the pot, and updates the current bet for the player in the game state.
      *
      * @param state The current game state on which to execute the action.
      */

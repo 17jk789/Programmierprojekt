@@ -1,57 +1,58 @@
 package ch.unibas.dmi.dbis.cs108.casono.server.domain.game;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.deck.Card;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.deck.Deck;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.deck.Rank;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.deck.Suit;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.engine.GameEngine;
-import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.evaluator.HandEvaluator;
-import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.evaluator.HandRank;
-import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.player.PlayerId;
-import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.rules.RuleEngine;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.engine.RoundManager;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.engine.TurnManager;
+import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.evaluator.HandEvaluator;
+import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.evaluator.HandRank;
+import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.player.Player;
+import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.player.PlayerId;
+import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.rules.RuleEngine;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.state.GamePhase;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.state.GameState;
-import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.deck.Card;
-import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.player.Player;
-
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.logging.Logger;
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-import java.util.*;
-import java.util.logging.Logger;
-
 /**
- * The GameControllerTest class contains unit tests for the GameController
- * class,
- * which manages the flow of a poker game. These tests simulate various game
- * scenarios, including player actions, card dealing, and hand evaluation, to
- * ensure that the GameController behaves as expected under different
- * conditions.
+ * The GameControllerTest class contains unit tests for the GameController class, which manages the
+ * flow of a poker game. These tests simulate various game scenarios, including player actions, card
+ * dealing, and hand evaluation, to ensure that the GameController behaves as expected under
+ * different conditions.
  */
 public class GameControllerTest {
 
-    private static final Logger logger = Logger.getLogger(GameControllerTest.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(GameControllerTest.class.getName());
 
     /**
-     * This test simulates a specific game scenario where Julian is expected to
-     * win with a Two Pair hand. It sets up a fixed deck to ensure that the
-     * desired cards are dealt to the players and verifies that the hand
-     * evaluation correctly identifies Julian as the winner.
+     * This test simulates a specific game scenario where Julian is expected to win with a Two Pair
+     * hand. It sets up a fixed deck to ensure that the desired cards are dealt to the players and
+     * verifies that the hand evaluation correctly identifies Julian as the winner.
      */
     @Test
     public void testFullPokerGameSimulation1() {
 
         GameState state = new GameState();
 
-        GameEngine engine = new GameEngine(
-                state,
-                new RuleEngine(new ArrayList<>()),
-                new RoundManager(),
-                new TurnManager());
+        GameEngine engine =
+                new GameEngine(
+                        state,
+                        new RuleEngine(new ArrayList<>()),
+                        new RoundManager(),
+                        new TurnManager());
 
         GameController game = new GameController(engine);
 
@@ -116,24 +117,25 @@ public class GameControllerTest {
 
         assertEquals(4, game.getState().getPlayers().size());
 
-        logger.info("Test 1 was successfully completed");
+        LOGGER.info("Test 1 was successfully completed");
     }
 
     /**
-     * This test simulates a full poker game, including player actions, card
-     * dealing, and hand evaluation. It verifies that the game state is updated
-     * correctly throughout the game and that the expected outcomes are achieved.
+     * This test simulates a full poker game, including player actions, card dealing, and hand
+     * evaluation. It verifies that the game state is updated correctly throughout the game and that
+     * the expected outcomes are achieved.
      */
     @Test
     public void testFullPokerGameSimulation2() {
 
         GameState state = new GameState();
 
-        GameEngine engine = new GameEngine(
-                state,
-                new RuleEngine(new ArrayList<>()),
-                new RoundManager(),
-                new TurnManager());
+        GameEngine engine =
+                new GameEngine(
+                        state,
+                        new RuleEngine(new ArrayList<>()),
+                        new RoundManager(),
+                        new TurnManager());
 
         GameController game = new GameController(engine);
 
@@ -142,24 +144,15 @@ public class GameControllerTest {
         game.addPlayer(PlayerId.of("Jona"), 20000);
         game.addPlayer(PlayerId.of("Lars"), 20000);
 
-        assertEquals(
-                4,
-                game.getState().getPlayers().size(),
-                "There should be exactly 4 players");
+        assertEquals(4, game.getState().getPlayers().size(), "There should be exactly 4 players");
 
         game.startGame();
 
-        assertEquals(
-                GamePhase.PREFLOP,
-                game.getState().getPhase(),
-                "The hand must start preflop");
+        assertEquals(GamePhase.PREFLOP, game.getState().getPhase(), "The hand must start preflop");
 
         Map<PlayerId, List<Card>> playerCards = game.getPlayerCards();
 
-        assertEquals(
-                4,
-                playerCards.size(),
-                "All players must receive cards");
+        assertEquals(4, playerCards.size(), "All players must receive cards");
 
         for (Map.Entry<PlayerId, List<Card>> entry : playerCards.entrySet()) {
 
@@ -177,9 +170,7 @@ public class GameControllerTest {
 
                 String key = c.getRank() + "-" + c.getSuit();
 
-                assertFalse(
-                        seenCards.contains(key),
-                        "Duplicate card found: " + key);
+                assertFalse(seenCards.contains(key), "Duplicate card found: " + key);
 
                 seenCards.add(key);
             }
@@ -196,91 +187,68 @@ public class GameControllerTest {
 
         int potAfter = game.getState().getPot().getAmount();
 
-        assertTrue(
-                potAfter >= potBefore,
-                "The pot must be larger after actions");
+        assertTrue(potAfter >= potBefore, "The pot must be larger after actions");
 
         game.dealFlop();
 
-        assertEquals(
-                3,
-                game.getCommunityCards().size(),
-                "The flop must have 3 cards");
+        assertEquals(3, game.getCommunityCards().size(), "The flop must have 3 cards");
 
         game.dealTurn();
 
-        assertEquals(
-                4,
-                game.getCommunityCards().size(),
-                "A turn must result in 4 cards");
+        assertEquals(4, game.getCommunityCards().size(), "A turn must result in 4 cards");
 
         game.dealRiver();
 
-        assertEquals(
-                5,
-                game.getCommunityCards().size(),
-                "The river must consist of 5 cards");
+        assertEquals(5, game.getCommunityCards().size(), "The river must consist of 5 cards");
 
         for (Card c : game.getCommunityCards()) {
 
             String key = c.getRank() + "-" + c.getSuit();
 
-            assertFalse(
-                    seenCards.contains(key),
-                    "Duplicate board card detected: " + key);
+            assertFalse(seenCards.contains(key), "Duplicate board card detected: " + key);
 
             seenCards.add(key);
         }
 
-        assertTrue(
-                seenCards.size() <= 52,
-                "There can be a maximum of 52 cards");
+        assertTrue(seenCards.size() <= 52, "There can be a maximum of 52 cards");
 
-        assertTrue(
-                game.getState().getPot().getAmount() > 0,
-                "The pot must contain chips");
+        assertTrue(game.getState().getPot().getAmount() > 0, "The pot must contain chips");
 
         for (Player p : game.getState().getPlayers()) {
 
-            assertTrue(
-                    p.getChips() >= 0,
-                    "A player may not have any negative chips: " + p.getId());
+            assertTrue(p.getChips() >= 0, "A player may not have any negative chips: " + p.getId());
         }
 
         assertEquals(
-                4,
-                game.getState().getPlayers().size(),
-                "The number of players must not change");
+                4, game.getState().getPlayers().size(), "The number of players must not change");
 
         for (Player p : game.getState().getPlayers()) {
 
-            logger.info(
-                    p.getId() +
-                            " | Chips: " + p.getChips());
+            LOGGER.info(p.getId() + " | Chips: " + p.getChips());
         }
 
-        logger.info("Pot: " + game.getState().getPot().getAmount());
-        logger.info("Board: " + game.getCommunityCards());
+        LOGGER.info("Pot: " + game.getState().getPot().getAmount());
+        LOGGER.info("Board: " + game.getCommunityCards());
 
-        logger.info("Test 2 was successfully completed");
+        LOGGER.info("Test 2 was successfully completed");
     }
 
     /**
-     * This test simulates a specific game scenario where Julian is expected to
-     * win with a Two Pair hand. It sets up a fixed deck to ensure that the
-     * desired cards are dealt to the players and verifies that the hand
-     * evaluation correctly identifies Julian as the winner.
+     * This test simulates a specific game scenario where Julian is expected to win with a Two Pair
+     * hand. It sets up a fixed deck to ensure that the desired cards are dealt to the players and
+     * verifies that the hand evaluation correctly identifies Julian as the winner.
      */
     @Test
     public void testFullPokerGameSimulation3() {
 
         GameState state = new GameState();
 
-        GameEngine engine = new GameEngine(
-                state,
-                new RuleEngine(new ArrayList<>()),
-                new RoundManager(),
-                new TurnManager());
+        GameEngine engine =
+                new GameEngine(
+                        state,
+                        new RuleEngine(new ArrayList<>()),
+                        new RoundManager(),
+                        new TurnManager());
 
         GameController game = new GameController(engine);
 
@@ -350,25 +318,26 @@ public class GameControllerTest {
 
         assertTrue(julianRank.compareTo(larsRank) > 0);
 
-        logger.info("Correct scenario: Julian wins with two pair.");
-        logger.info("Test 3 was successfully completed");
+        LOGGER.info("Correct scenario: Julian wins with two pair.");
+        LOGGER.info("Test 3 was successfully completed");
     }
 
     /**
-     * This test simulates a full poker game, including player actions, card
-     * dealing, and hand evaluation. It verifies that the game state is updated
-     * correctly throughout the game and that the expected outcomes are achieved.
+     * This test simulates a full poker game, including player actions, card dealing, and hand
+     * evaluation. It verifies that the game state is updated correctly throughout the game and that
+     * the expected outcomes are achieved.
      */
     @Test
     public void testFullPokerGameSimulation4() {
 
         GameState state = new GameState();
 
-        GameEngine engine = new GameEngine(
-                state,
-                new RuleEngine(new ArrayList<>()),
-                new RoundManager(),
-                new TurnManager());
+        GameEngine engine =
+                new GameEngine(
+                        state,
+                        new RuleEngine(new ArrayList<>()),
+                        new RoundManager(),
+                        new TurnManager());
 
         GameController game = new GameController(engine);
 
@@ -431,35 +400,34 @@ public class GameControllerTest {
 
         assertTrue(game.getState().getPot().getAmount() > 0, "Pot must not be zero");
 
-        assertEquals(4, game.getState().getPlayers().size(),
-                "Player count must remain stable");
+        assertEquals(4, game.getState().getPlayers().size(), "Player count must remain stable");
 
-        long activePlayers = game.getState().getPlayers().stream()
-                .filter(p -> p.getChips() > 0)
-                .count();
+        long activePlayers =
+                game.getState().getPlayers().stream().filter(p -> p.getChips() > 0).count();
 
         assertTrue(activePlayers >= 1, "At least one player must still have chips");
 
         assertNotNull(game.getState().getPhase());
 
-        logger.info("Test 4 was successfully completed");
+        LOGGER.info("Test 4 was successfully completed");
     }
 
     /**
-     * This test simulates a full poker game, including player actions, card
-     * dealing, and hand evaluation. It verifies that the game state is updated
-     * correctly throughout the game and that the expected outcomes are achieved.
+     * This test simulates a full poker game, including player actions, card dealing, and hand
+     * evaluation. It verifies that the game state is updated correctly throughout the game and that
+     * the expected outcomes are achieved.
      */
     @Test
     public void testFullPokerGameSimulation5() {
 
         GameState state = new GameState();
 
-        GameEngine engine = new GameEngine(
-                state,
-                new RuleEngine(new ArrayList<>()),
-                new RoundManager(),
-                new TurnManager());
+        GameEngine engine =
+                new GameEngine(
+                        state,
+                        new RuleEngine(new ArrayList<>()),
+                        new RoundManager(),
+                        new TurnManager());
 
         GameController game = new GameController(engine);
 
@@ -476,8 +444,7 @@ public class GameControllerTest {
         game.playerCall(PlayerId.of("ShortStack"));
 
         for (Player p : game.getState().getPlayers()) {
-            assertTrue(p.getChips() >= 0,
-                    "Negative chips detected for " + p.getId());
+            assertTrue(p.getChips() >= 0, "Negative chips detected for " + p.getId());
         }
 
         assertTrue(game.getState().getPot().getAmount() > 0);
@@ -490,9 +457,8 @@ public class GameControllerTest {
         game.playerFold(PlayerId.of("Caller"));
         game.playerFold(PlayerId.of("MidStack"));
 
-        long activePlayers = game.getState().getPlayers().stream()
-                .filter(p -> p.getChips() > 0)
-                .count();
+        long activePlayers =
+                game.getState().getPlayers().stream().filter(p -> p.getChips() > 0).count();
 
         assertTrue(activePlayers >= 1, "At least one player must remain");
 
@@ -529,12 +495,10 @@ public class GameControllerTest {
 
         assertNotNull(winner, "Winner should not be null");
 
-        assertTrue(
-                game.getPlayerCards().containsKey(winner),
-                "Winner must be a valid player");
+        assertTrue(game.getPlayerCards().containsKey(winner), "Winner must be a valid player");
 
-        logger.info("Winner determined: " + winner);
+        LOGGER.info("Winner determined: " + winner);
 
-        logger.info("Test 5 was successfully completed");
+        LOGGER.info("Test 5 was successfully completed");
     }
 }

@@ -11,7 +11,7 @@ public class RaiseAction extends AbstractAction {
     /**
      * Constructs a RaiseAction for the specified player ID and raise amount.
      *
-     * @param playerId    The ID of the player performing the raise action.
+     * @param playerId The ID of the player performing the raise action.
      * @param raiseAmount The amount of chips the player is raising.
      */
     public RaiseAction(PlayerId playerId, int raiseAmount) {
@@ -39,9 +39,9 @@ public class RaiseAction extends AbstractAction {
     }
 
     /**
-     * Executes the raise action on the given game state. This method updates the
-     * player's chip count, adds the raise amount to the pot, and updates the
-     * current bet for the player in the game state.
+     * Executes the raise action on the given game state. This method updates the player's chip
+     * count, adds the raise amount to the pot, and updates the current bet for the player in the
+     * game state.
      *
      * @param state The current game state on which to execute the action.
      */

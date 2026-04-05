@@ -3,10 +3,9 @@ package ch.unibas.dmi.dbis.cs108.casono.server.domain.game.action;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.player.PlayerId;
 
 /**
- * AbstractAction serves as a base class for all player actions in the poker
- * game.
- * It implements the Action interface and provides a common implementation for
- * retrieving the player ID associated with the action.
+ * AbstractAction serves as a base class for all player actions in the poker game. It implements the
+ * Action interface and provides a common implementation for retrieving the player ID associated
+ * with the action.
  */
 public abstract class AbstractAction implements Action {
     protected final PlayerId playerId;

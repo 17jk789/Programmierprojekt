@@ -1,11 +1,10 @@
 package ch.unibas.dmi.dbis.cs108.casono.server.domain.game.deck;
 
 /**
- * The Card class represents a single playing card in a standard deck of cards.
- * Each card has a suit (Hearts, Diamonds, Clubs, Spades) and a rank (2-10,
- * Jack, Queen, King, Ace).
- * This class provides methods to retrieve the suit and rank of the card, as
- * well as a string representation of the card.
+ * The Card class represents a single playing card in a standard deck of cards. Each card has a suit
+ * (Hearts, Diamonds, Clubs, Spades) and a rank (2-10, Jack, Queen, King, Ace). This class provides
+ * methods to retrieve the suit and rank of the card, as well as a string representation of the
+ * card.
  */
 public class Card {
 

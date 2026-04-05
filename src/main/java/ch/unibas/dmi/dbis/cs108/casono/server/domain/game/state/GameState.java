@@ -11,12 +11,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The GameState class encapsulates the entire state of a poker game at any
- * given
- * moment. It maintains information about the players, the pot, the current
- * phase of the game, the dealer position, and the cards in play. This class is
- * central to managing the flow of the game and ensuring that all actions and
- * decisions are based on an accurate representation of the current game state.
+ * The GameState class encapsulates the entire state of a poker game at any given moment. It
+ * maintains information about the players, the pot, the current phase of the game, the dealer
+ * position, and the cards in play. This class is central to managing the flow of the game and
+ * ensuring that all actions and decisions are based on an accurate representation of the current
+ * game state.
  */
 public class GameState {
 
@@ -99,8 +98,7 @@ public class GameState {
     }
 
     /**
-     * Returns the current state of the table, including player statuses and
-     * positions.
+     * Returns the current state of the table, including player statuses and positions.
      *
      * @return A TableState object representing the current state of the table.
      */
@@ -109,8 +107,8 @@ public class GameState {
     }
 
     /**
-     * Returns the current pot, which contains the total amount of chips bet by
-     * players in the current hand.
+     * Returns the current pot, which contains the total amount of chips bet by players in the
+     * current hand.
      *
      * @return A Pot object representing the current pot.
      */
@@ -140,10 +138,10 @@ public class GameState {
      * Returns the hole cards for a specific player based on their ID.
      *
      * @param playerId The ID of the player whose hole cards are being requested.
-     * @return A list of Card objects representing the player's hole cards, or an
-     *         empty list if the player has no hole cards.
+     * @return A list of Card objects representing the player's hole cards, or an empty list if the
+     *     player has no hole cards.
      */
-    public List<Card> getHoleCards(PlayerId  playerId) {
+    public List<Card> getHoleCards(PlayerId playerId) {
         return holeCards.getOrDefault(playerId, new ArrayList<>());
     }
 
@@ -159,8 +157,8 @@ public class GameState {
     /**
      * Returns a map of player IDs to their current hole cards.
      *
-     * @return A map where the key is the player ID and the value is a list of
-     *         Card objects representing the player's hole cards.
+     * @return A map where the key is the player ID and the value is a list of Card objects
+     *     representing the player's hole cards.
      */
     public Map<PlayerId, List<Card>> getPlayerCards() {
         return holeCards;
@@ -216,19 +214,18 @@ public class GameState {
     /**
      * Sets the current deck of cards being used in the game.
      *
-     * @param deck A Deck object representing the new deck of cards to be used in
-     *             the game.
+     * @param deck A Deck object representing the new deck of cards to be used in the game.
      */
     public void setDeck(Deck deck) {
         this.deck = deck;
     }
 
     /**
-     * Adds a player to the game with the specified ID and initial chip count. This
-     * method creates a new Player object, adds it to the list of players, and
-     * initializes the player's current bet and bet commitment in the game state.
+     * Adds a player to the game with the specified ID and initial chip count. This method creates a
+     * new Player object, adds it to the list of players, and initializes the player's current bet
+     * and bet commitment in the game state.
      *
-     * @param id    The ID of the player to add.
+     * @param id The ID of the player to add.
      * @param chips The initial number of chips the player has.
      */
     public void addPlayer(PlayerId id, int chips) {
@@ -248,37 +245,36 @@ public class GameState {
      * Retrieves the current bet amount for a specific player based on their ID.
      *
      * @param playerId The ID of the player whose current bet is being requested.
-     * @return An integer representing the current bet amount for the specified
-     *         player, or 0 if the player has not placed any bets.
+     * @return An integer representing the current bet amount for the specified player, or 0 if the
+     *     player has not placed any bets.
      */
     public int getCurrentBet(PlayerId playerId) {
         return currentBets.getOrDefault(playerId, 0);
     }
 
     /**
-     * Sets the current bet amount for a specific player based on their ID. This
-     * method updates the currentBets map with the new bet amount for the specified
-     * player.
+     * Sets the current bet amount for a specific player based on their ID. This method updates the
+     * currentBets map with the new bet amount for the specified player.
      *
      * @param playerId The ID of the player whose current bet is being set.
-     * @param amount   The new bet amount to be set for the specified player.
+     * @param amount The new bet amount to be set for the specified player.
      */
     public void setCurrentBet(PlayerId playerId, int amount) {
         currentBets.put(playerId, amount);
     }
 
     /**
-     * Resets the current bets for all players by clearing the currentBets map. This
-     * method is typically called at the start of a new hand to ensure that all
-     * players' bets are reset to zero.
+     * Resets the current bets for all players by clearing the currentBets map. This method is
+     * typically called at the start of a new hand to ensure that all players' bets are reset to
+     * zero.
      */
     public void resetBets() {
         currentBets.clear();
     }
 
     /**
-     * Adds a specified amount to the pot. This method updates the total amount in
-     * the pot by adding the given amount to it.
+     * Adds a specified amount to the pot. This method updates the total amount in the pot by adding
+     * the given amount to it.
      *
      * @param amount The amount of chips to be added to the pot.
      */
@@ -287,9 +283,9 @@ public class GameState {
     }
 
     /**
-     * Returns whether out-of-turn actions are allowed in the game. Out-of-turn
-     * actions refer to players being able to act when it is not their turn, which
-     * can be a feature in some poker variants or game modes.
+     * Returns whether out-of-turn actions are allowed in the game. Out-of-turn actions refer to
+     * players being able to act when it is not their turn, which can be a feature in some poker
+     * variants or game modes.
      *
      * @return true if out-of-turn actions are allowed, false otherwise.
      */
@@ -298,12 +294,11 @@ public class GameState {
     }
 
     /**
-     * Sets whether out-of-turn actions are allowed in the game. This method updates
-     * the allowOutOfTurn flag, which determines if players can act when it is not
-     * their turn.
+     * Sets whether out-of-turn actions are allowed in the game. This method updates the
+     * allowOutOfTurn flag, which determines if players can act when it is not their turn.
      *
-     * @param allowOutOfTurn A boolean value indicating whether out-of-turn actions
-     *                       should be allowed in the game.
+     * @param allowOutOfTurn A boolean value indicating whether out-of-turn actions should be
+     *     allowed in the game.
      */
     public void setAllowOutOfTurn(boolean allowOutOfTurn) {
         this.allowOutOfTurn = allowOutOfTurn;
@@ -312,9 +307,9 @@ public class GameState {
     // PLAYER HELPERS
 
     /**
-     * Retrieves a player from the game based on their ID. This method searches the
-     * list of players for a player with the specified ID and returns it. If no
-     * player with the given ID is found, a RuntimeException is thrown.
+     * Retrieves a player from the game based on their ID. This method searches the list of players
+     * for a player with the specified ID and returns it. If no player with the given ID is found, a
+     * RuntimeException is thrown.
      *
      * @param id The ID of the player to retrieve.
      * @return The Player object corresponding to the specified ID.
@@ -333,29 +328,24 @@ public class GameState {
     // BET COMMITMENTS
 
     /**
-     * Retrieves the current bet commitment for a specific player based on their ID.
-     * A bet commitment represents the total amount a player has committed to the
-     * pot in the current hand, including all bets, raises, and calls they have
-     * made.
+     * Retrieves the current bet commitment for a specific player based on their ID. A bet
+     * commitment represents the total amount a player has committed to the pot in the current hand,
+     * including all bets, raises, and calls they have made.
      *
-     * @param playerId The ID of the player whose current bet commitment is being
-     *                 requested.
-     * @return An integer representing the current bet commitment for the specified
-     *         player, or 0 if the player has not made any bet commitments.
+     * @param playerId The ID of the player whose current bet commitment is being requested.
+     * @return An integer representing the current bet commitment for the specified player, or 0 if
+     *     the player has not made any bet commitments.
      */
     public int getCurrentBetCommitment(PlayerId playerId) {
         return playerBetCommitments.getOrDefault(playerId, 0);
     }
 
     /**
-     * Sets the current bet commitment for a specific player based on their ID. This
-     * method updates the playerBetCommitments map with the new bet commitment
-     * amount for the specified player.
+     * Sets the current bet commitment for a specific player based on their ID. This method updates
+     * the playerBetCommitments map with the new bet commitment amount for the specified player.
      *
-     * @param playerId The ID of the player whose current bet commitment is being
-     *                 set.
-     * @param amount   The new bet commitment amount to be set for the specified
-     *                 player.
+     * @param playerId The ID of the player whose current bet commitment is being set.
+     * @param amount The new bet commitment amount to be set for the specified player.
      */
     public void setCurrentBetCommitment(PlayerId playerId, int amount) {
         playerBetCommitments.put(playerId, amount);
@@ -364,15 +354,13 @@ public class GameState {
     // CARDS
 
     /**
-     * Gives hole cards to a specific player based on their ID. This method takes
-     * two Card objects representing the player's hole cards and adds them to the
-     * holeCards map under the player's ID.
+     * Gives hole cards to a specific player based on their ID. This method takes two Card objects
+     * representing the player's hole cards and adds them to the holeCards map under the player's
+     * ID.
      *
      * @param playerId The ID of the player to whom the hole cards are being given.
-     * @param c1       The first Card object representing one of the player's hole
-     *                 cards.
-     * @param c2       The second Card object representing the other hole card for
-     *                 the player.
+     * @param c1 The first Card object representing one of the player's hole cards.
+     * @param c2 The second Card object representing the other hole card for the player.
      */
     public void giveHoleCards(PlayerId playerId, Card c1, Card c2) {
 
@@ -384,22 +372,19 @@ public class GameState {
     }
 
     /**
-     * Adds a community card to the game state. This method takes a Card object
-     * representing a community card and adds it to the list of community cards on
-     * the table.
+     * Adds a community card to the game state. This method takes a Card object representing a
+     * community card and adds it to the list of community cards on the table.
      *
-     * @param card The Card object representing the community card to be added to
-     *             the
-     *             game state.
+     * @param card The Card object representing the community card to be added to the game state.
      */
     public void addCommunityCard(Card card) {
         communityCards.add(card);
     }
 
     /**
-     * Resets the community cards by clearing the list of community cards. This
-     * method is typically called at the start of a new hand to ensure that all
-     * community cards from the previous hand are removed from the game state.
+     * Resets the community cards by clearing the list of community cards. This method is typically
+     * called at the start of a new hand to ensure that all community cards from the previous hand
+     * are removed from the game state.
      */
     public void resetCommunityCards() {
         communityCards.clear();
@@ -408,10 +393,9 @@ public class GameState {
     // TURN MANAGEMENT
 
     /**
-     * Advances the turn to the next player in the players list. This method updates
-     * the currentPlayerIndex by incrementing it and wrapping around to the start of
-     * the list if necessary, ensuring that the turn order is maintained correctly
-     * throughout the game.
+     * Advances the turn to the next player in the players list. This method updates the
+     * currentPlayerIndex by incrementing it and wrapping around to the start of the list if
+     * necessary, ensuring that the turn order is maintained correctly throughout the game.
      */
     public void nextPlayer() {
         int start = currentPlayerIndex;
@@ -431,19 +415,17 @@ public class GameState {
     // Dealer Rotation
 
     /**
-     * Rotates the dealer position to the next player in the players list. This
-     * method updates the dealerIndex by incrementing it and wrapping around to the
-     * start of the list if necessary, ensuring that the dealer position rotates
-     * correctly after each hand.
+     * Rotates the dealer position to the next player in the players list. This method updates the
+     * dealerIndex by incrementing it and wrapping around to the start of the list if necessary,
+     * ensuring that the dealer position rotates correctly after each hand.
      */
     public void rotateDealer() {
         dealerIndex = (dealerIndex + 1) % playerOrder.size();
     }
 
     /**
-     * Retrieves the current dealer based on the dealerIndex. This method returns
-     * the Player object corresponding to the current dealer position in the players
-     * list.
+     * Retrieves the current dealer based on the dealerIndex. This method returns the Player object
+     * corresponding to the current dealer position in the players list.
      *
      * @return The Player object representing the current dealer.
      */
@@ -455,12 +437,10 @@ public class GameState {
     // HAND RESET
 
     /**
-     * Starts a new hand by resetting the game state for the next round of poker.
-     * This
-     * method sets the handActive flag to true, resets the game phase to PREFLOP,
-     * clears the pot, resets all player bets and bet commitments, clears the
-     * community cards, and initializes a new shuffled deck of cards for the new
-     * hand.
+     * Starts a new hand by resetting the game state for the next round of poker. This method sets
+     * the handActive flag to true, resets the game phase to PREFLOP, clears the pot, resets all
+     * player bets and bet commitments, clears the community cards, and initializes a new shuffled
+     * deck of cards for the new hand.
      */
     public void startNewHand() {
 
@@ -486,9 +466,9 @@ public class GameState {
     }
 
     /**
-     * Folds a player in the current hand. This method adds the specified player's ID
-     * to the set of folded players, indicating that the player has folded and is
-     * no longer active in the current hand.
+     * Folds a player in the current hand. This method adds the specified player's ID to the set of
+     * folded players, indicating that the player has folded and is no longer active in the current
+     * hand.
      *
      * @param playerId The ID of the player who is folding.
      */
@@ -497,9 +477,9 @@ public class GameState {
     }
 
     /**
-     * Checks if a specific player has folded in the current hand. This method
-     * checks if the specified player's ID is present in the set of folded players,
-     * indicating that the player has folded.
+     * Checks if a specific player has folded in the current hand. This method checks if the
+     * specified player's ID is present in the set of folded players, indicating that the player has
+     * folded.
      *
      * @param playerId The ID of the player to check for folding status.
      * @return true if the player has folded, false otherwise.

@@ -1,11 +1,10 @@
 package ch.unibas.dmi.dbis.cs108.casono.server.domain.game.state;
 
 /**
- * The Pot class represents the total amount of chips that players have bet in a
- * poker game. It provides methods to add chips to the pot, retrieve the
- * current amount, and reset the pot for a new round. This class is essential
- * for managing the betting aspect of the game and ensuring that the pot is
- * accurately maintained throughout the game.
+ * The Pot class represents the total amount of chips that players have bet in a poker game. It
+ * provides methods to add chips to the pot, retrieve the current amount, and reset the pot for a
+ * new round. This class is essential for managing the betting aspect of the game and ensuring that
+ * the pot is accurately maintained throughout the game.
  */
 public class Pot {
 
@@ -36,10 +35,7 @@ public class Pot {
     // return total;
     // }
 
-    /**
-     * Resets the pot to zero, typically used at the end of a round or when
-     * starting a new game.
-     */
+    /** Resets the pot to zero, typically used at the end of a round or when starting a new game. */
     public void reset() {
         amount = 0;
     }

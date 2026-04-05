@@ -3,16 +3,16 @@ package ch.unibas.dmi.dbis.cs108.casono.server.domain.game.player;
 import java.util.Objects;
 
 /**
- * PlayerId is a value object that represents the unique identifier of a player
- * in the game. It encapsulates a string value and provides validation to ensure
- * that it is not null. The PlayerId class also includes a factory method for
- * creating instances and overrides the toString method for easy representation.
+ * PlayerId is a value object that represents the unique identifier of a player in the game. It
+ * encapsulates a string value and provides validation to ensure that it is not null. The PlayerId
+ * class also includes a factory method for creating instances and overrides the toString method for
+ * easy representation.
  */
 public record PlayerId(String value) {
 
     /**
-     * Constructs a PlayerId with the specified value. The constructor validates
-     * that the value is not null.
+     * Constructs a PlayerId with the specified value. The constructor validates that the value is
+     * not null.
      *
      * @param value the string value representing the player's unique identifier
      * @throws NullPointerException if the value is null
@@ -32,8 +32,7 @@ public record PlayerId(String value) {
     }
 
     /**
-     * Returns the string representation of the PlayerId, which is the encapsulated
-     * value.
+     * Returns the string representation of the PlayerId, which is the encapsulated value.
      *
      * @return the string value of the PlayerId
      */

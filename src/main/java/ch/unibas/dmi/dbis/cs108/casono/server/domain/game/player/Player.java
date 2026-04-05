@@ -5,10 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The Player class represents a participant in the poker game. It holds
- * information about the player's identity, chip count, status, and hand of
- * cards. The class provides methods for managing the player's chips, hand, and
- * status during the game.
+ * The Player class represents a participant in the poker game. It holds information about the
+ * player's identity, chip count, status, and hand of cards. The class provides methods for managing
+ * the player's chips, hand, and status during the game.
  */
 public class Player {
 
@@ -17,13 +16,13 @@ public class Player {
     private PlayerStatus status;
     private boolean folded = false;
 
-     private List<Card> hand = new ArrayList<>();
+    private List<Card> hand = new ArrayList<>();
 
     /**
-     * Constructs a Player with the specified ID and initial chip count. The
-     * player's status is set to ACTIVE by default.
+     * Constructs a Player with the specified ID and initial chip count. The player's status is set
+     * to ACTIVE by default.
      *
-     * @param id    The unique identifier for the player.
+     * @param id The unique identifier for the player.
      * @param chips The initial number of chips the player has.
      */
     public Player(PlayerId id, int chips) {
@@ -51,8 +50,7 @@ public class Player {
     }
 
     /**
-     * Returns the display name of the player.
-     * Currently identical to the player ID.
+     * Returns the display name of the player. Currently identical to the player ID.
      *
      * @return The player's name.
      */
@@ -70,8 +68,8 @@ public class Player {
     }
 
     /**
-     * Removes a specified amount of chips from the player's total. If the amount
-     * exceeds the player's current chips, it sets the chip count to zero.
+     * Removes a specified amount of chips from the player's total. If the amount exceeds the
+     * player's current chips, it sets the chip count to zero.
      *
      * @param amount The number of chips to remove from the player.
      */
@@ -127,9 +125,7 @@ public class Player {
         hand.add(card);
     }
 
-    /**
-     * Clears the player's hand of cards, removing all cards from the hand.
-     */
+    /** Clears the player's hand of cards, removing all cards from the hand. */
     public void clearHand() {
         hand.clear();
     }

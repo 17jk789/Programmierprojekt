@@ -3,20 +3,17 @@ package ch.unibas.dmi.dbis.cs108.casono.server.domain.game.evaluator;
 import java.util.List;
 
 /**
- * HandRank represents the rank of a poker hand, including its type (e.g.,
- * flush,
- * straight) and the kickers used for tie-breaking. It implements the
- * Comparable interface to allow for easy comparison between different hand
- * ranks.
+ * HandRank represents the rank of a poker hand, including its type (e.g., flush, straight) and the
+ * kickers used for tie-breaking. It implements the Comparable interface to allow for easy
+ * comparison between different hand ranks.
  */
 public class HandRank implements Comparable<HandRank> {
 
     /**
-     * The Type enumeration defines the different types of poker hands, each with
-     * an associated strength value for comparison purposes.
+     * The Type enumeration defines the different types of poker hands, each with an associated
+     * strength value for comparison purposes.
      */
     public enum Type {
-
         HIGH_CARD(1),
         ONE_PAIR(2),
         TWO_PAIR(3),
@@ -45,7 +42,7 @@ public class HandRank implements Comparable<HandRank> {
     /**
      * Constructs a HandRank with the specified type and kickers.
      *
-     * @param type    The type of the hand (e.g., flush, straight).
+     * @param type The type of the hand (e.g., flush, straight).
      * @param kickers A list of integers representing the kickers for tie-breaking.
      */
     public HandRank(Type type, List<Integer> kickers) {
@@ -72,19 +69,17 @@ public class HandRank implements Comparable<HandRank> {
     }
 
     /**
-     * Compares this HandRank with another HandRank for ordering. The comparison is
-     * based first on the type of the hand and then on the kickers for tie-breaking.
+     * Compares this HandRank with another HandRank for ordering. The comparison is based first on
+     * the type of the hand and then on the kickers for tie-breaking.
      *
      * @param other The other HandRank to compare against.
-     * @return A negative integer, zero, or a positive integer as this HandRank is
-     *         less than, equal to, or greater than the specified HandRank.
+     * @return A negative integer, zero, or a positive integer as this HandRank is less than, equal
+     *     to, or greater than the specified HandRank.
      */
     @Override
     public int compareTo(HandRank other) {
 
-        int typeCompare = Integer.compare(
-                this.type.getStrength(),
-                other.type.getStrength());
+        int typeCompare = Integer.compare(this.type.getStrength(), other.type.getStrength());
 
         if (typeCompare != 0) {
             return typeCompare;
@@ -92,9 +87,7 @@ public class HandRank implements Comparable<HandRank> {
 
         for (int i = 0; i < Math.min(kickers.size(), other.kickers.size()); i++) {
 
-            int cmp = Integer.compare(
-                    kickers.get(i),
-                    other.kickers.get(i));
+            int cmp = Integer.compare(kickers.get(i), other.kickers.get(i));
 
             if (cmp != 0) {
                 return cmp;
