@@ -1,0 +1,20 @@
+@startuml
+skinparam backgroundColor transparent
+
+participant SessionReader
+participant CommandParserDispatcher as Dispatcher
+participant "CommandParser<T>" as Parser
+participant CommandRouter as Router
+participant "CommandHandler<T>" as Handler
+participant ResponseDispatcher
+
+SessionReader -> Dispatcher : parse(primitiveRequest)
+Dispatcher -> Parser : parse(primitiveRequest)
+Parser --> Dispatcher : ExampleRequest
+Dispatcher --> SessionReader : Request
+
+SessionReader -> Router : execute(request)
+Router -> Handler : execute(ExampleRequest)
+Handler -> ResponseDispatcher : dispatch(ExampleRequest)
+
+@enduml
