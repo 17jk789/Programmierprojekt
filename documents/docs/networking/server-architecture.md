@@ -26,7 +26,7 @@ Responses start with `+OK` on success or `-ERR` when something goes wrong. Comma
 We don't use HTTP, there's no JSON body, no headers. Just a raw socket, a text stream, and a clearly defined set of commands.
 
 ## Core Components & Their Roles
-<img src="../../images/docs/networking/server-architecure/networking_components.svg" alt="PlantUML diagram of all components outlined in this document" />
+<img src="../../images/docs/networking/server-architecure/networking_components.png" alt="PlantUML diagram of all components outlined in this document" />
 
 Here's a quick rundown of the main building blocks:
 
