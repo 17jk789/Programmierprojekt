@@ -122,6 +122,8 @@ $RECYCLE.BIN/
 
 ## bin
 bin/
+
+# Gradle
 gradle.properties
 
 # LaTeX (TeX)
