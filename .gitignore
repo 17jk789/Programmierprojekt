@@ -48,6 +48,9 @@ gradle-app.setting
 # JDT-specific (Eclipse Java Development Tools)
 .classpath
 
+# Gradle properties
+gradle.properties
+
 ## MacOS
 # General
 .DS_Store
@@ -122,9 +125,6 @@ $RECYCLE.BIN/
 
 ## bin
 bin/
-
-# Gradle
-gradle.properties
 
 # LaTeX (TeX)
 ## Core latex/pdflatex auxiliary files:
