@@ -28,6 +28,7 @@ public class CasinomainuiController {
     private LobbyButtonGridManager gridManager;
     private int nextButtonId = 1;
 
+    /** Default constructor for dependency injection by FXMLLoader. */
     public CasinomainuiController() {
         // Default constructor
     }
@@ -39,7 +40,7 @@ public class CasinomainuiController {
         subtitleLabel.setText("Texas Hold'em Poker");
         logoView.setImage(new Image(getClass().getResource("/images/logo.png").toExternalForm()));
 
-        translationManager = new LobbyButtonTranslationManager();
+        translationManager = LobbyButtonTranslationManager.getInstance();
         gridManager =
                 new LobbyButtonGridManager(new javafx.scene.layout.GridPane(), translationManager);
         casinoTable.getChildren().clear();
@@ -57,7 +58,7 @@ public class CasinomainuiController {
     @FXML
     public void handleCreateLobbyButton() {
         if (translationManager.isFull()) {
-            LOGGER.warn("Grid voll! Keine weiteren Lobbys moeglich.");
+            LOGGER.warn("Grid is full! No more lobbies available.");
             return;
         }
         int buttonId = nextButtonId++;
@@ -67,7 +68,7 @@ public class CasinomainuiController {
             LOGGER.info("ButtonID: {}, LobbyID: {}", buttonId, lobbyId);
             gridManager.renderLobbyButtons();
         } catch (Exception e) {
-            LOGGER.error("Fehler beim Hinzufügen: {}", e.getMessage());
+            LOGGER.error("Error while adding lobby button: {}", e.getMessage());
         }
     }
 }

@@ -1,0 +1,23 @@
+@startuml
+skinparam backgroundColor transparent
+
+abstract class Response {
+    # context: RequestContext
+    # body: ResponseBody
+    + prefix(): String
+    + getSessionId(): SessionId
+    + getRequestId(): int
+    + getBody(): ResponseBody
+}
+
+abstract class SuccessResponse extends Response {
+    + prefix(): String (+OK)
+}
+
+class OkResponse extends SuccessResponse
+
+class ErrorResponse extends Response {
+    + prefix(): String (-ERR)
+}
+
+@enduml

@@ -1,0 +1,11 @@
+@startuml
+skinparam backgroundColor transparent
+
+class CommandParserDispatcher {
+    - parsers: Map<String, CommandParser>
+
+    + register(command: String, parser: CommandParser): void
+    + parse(primitiveRequest: PrimitiveRequest): Request
+}
+
+@enduml

@@ -12,8 +12,10 @@ import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.request.Primitive
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.request.RawRequest;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.request.Request;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.request.RequestContext;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.request.accessor.MissingParameterException;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.ErrorResponse;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.PrimitiveResponse;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.dispatcher.ResponseDispatchException;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.dispatcher.ResponseEncoder;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.transport.RawPacket;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.transport.TransportLayer;
@@ -46,11 +48,13 @@ public class SessionReader implements Runnable {
         while (!Thread.currentThread().isInterrupted()) {
             RawPacket rawPacket = null;
             RawRequest rawRequest = null;
+            RequestContext requestContext = null;
             try {
                 // Step 1: Read from transport
                 rawPacket = transport.read();
                 session.updateLastInboundActivity();
                 logger.debug("Recieved: {}", rawPacket);
+                requestContext = new RequestContext(session.getId(), rawPacket.requestId());
 
                 // Step 2: Syntax validation and conversion into transport object
                 rawRequest = ProtocolParser.parse(rawPacket.payload());
@@ -58,9 +62,7 @@ public class SessionReader implements Runnable {
 
                 PrimitiveRequest primitiveRequest =
                         new PrimitiveRequest(
-                                new RequestContext(session.getId(), rawPacket.requestId()),
-                                rawRequest.command(),
-                                rawRequest.parameters());
+                                requestContext, rawRequest.command(), rawRequest.parameters());
                 logger.debug("Converted to {}", primitiveRequest);
 
                 // Step 3: Parse into Request and execute Request
@@ -76,8 +78,7 @@ public class SessionReader implements Runnable {
 
                 sendErrorResponse(
                         new ErrorResponse(
-                                session.getId(),
-                                rawPacket.requestId(),
+                                requestContext,
                                 "PARSING_ERROR",
                                 "Error occured during parsing. Likely due to malformed payload."));
 
@@ -85,10 +86,22 @@ public class SessionReader implements Runnable {
                 logger.error("Recieved unknown command '{}' from client", rawRequest.command(), e);
                 sendErrorResponse(
                         new ErrorResponse(
-                                session.getId(),
-                                rawPacket.requestId(),
+                                requestContext,
                                 "UNKNOWN_COMMAND",
                                 "This command is unknown to the server."));
+
+            } catch (ResponseDispatchException e) {
+                logger.error(
+                        "Unexpected ResponseDispatchException exception while dispatching request",
+                        e);
+
+            } catch (MissingParameterException e) {
+                logger.error(
+                        "Recieved request for command '{}' was missing the '{}' parameter",
+                        rawRequest.command(),
+                        e.getParameterKey());
+                sendErrorResponse(
+                        new ErrorResponse(requestContext, "MISSING_PARAMETER", e.getMessage()));
 
             } catch (IOException e) {
                 logger.error("Unexpected IO exception while reading from transport", e);
@@ -97,8 +110,7 @@ public class SessionReader implements Runnable {
                 logger.error("Unexpected RuntimeException occured", e);
                 sendErrorResponse(
                         new ErrorResponse(
-                                session.getId(),
-                                rawPacket.requestId(),
+                                requestContext,
                                 "INTERNAL_ERROR",
                                 "Unexpected internal server error occured."));
             }

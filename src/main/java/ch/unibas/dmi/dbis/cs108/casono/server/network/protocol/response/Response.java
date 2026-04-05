@@ -1,24 +1,22 @@
 package ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response;
 
+import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.request.RequestContext;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.builder.ResponseBody;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.sessions.SessionId;
 
 /** Abstract base class for all server responses sent to clients. */
 public abstract class Response {
-    private final SessionId sessionId;
-    private final int requestId;
+    private final RequestContext context;
     private final ResponseBody body;
 
     /**
      * Create a new {@code Response}.
      *
-     * @param sessionId the id of the session this response targets
-     * @param requestId the request identifier this response corresponds to
+     * @param context the RequestContext of the request
      * @param body the structured response body
      */
-    protected Response(SessionId sessionId, int requestId, ResponseBody body) {
-        this.sessionId = sessionId;
-        this.requestId = requestId;
+    protected Response(RequestContext context, ResponseBody body) {
+        this.context = context;
         this.body = body;
     }
 
@@ -30,12 +28,12 @@ public abstract class Response {
     public abstract String prefix();
 
     /**
-     * Returns the session id that should receive this response.
+     * Returns the session id of the session that should receive this response.
      *
      * @return the target {@link SessionId}
      */
     public SessionId getSessionId() {
-        return sessionId;
+        return context.sessionId();
     }
 
     /**
@@ -44,7 +42,7 @@ public abstract class Response {
      * @return the numeric request id
      */
     public int getRequestId() {
-        return requestId;
+        return context.requestId();
     }
 
     /**

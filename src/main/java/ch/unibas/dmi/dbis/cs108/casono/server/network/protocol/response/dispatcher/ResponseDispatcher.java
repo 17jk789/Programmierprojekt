@@ -27,12 +27,17 @@ public class ResponseDispatcher {
      * the target session's response queue.
      *
      * @param response the response to dispatch
-     * @throws InterruptedException if the thread is interrupted while waiting to enqueue the
-     *     primitive response
+     * @throws ResponseDispatchException wraps any exceptions that occur during dispatching, such as
+     *     the {@link InterruptedException}
      */
-    public void dispatch(Response response) throws InterruptedException {
+    public void dispatch(Response response) {
         PrimitiveResponse primitiveResponse = ResponseEncoder.encode(response);
         Session session = sessionManager.getSessionById(response.getSessionId());
-        session.getResponseQueue().put(primitiveResponse);
+        try {
+            session.getResponseQueue().put(primitiveResponse);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new ResponseDispatchException("Interrupted while dispatching response", e);
+        }
     }
 }

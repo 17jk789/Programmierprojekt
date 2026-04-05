@@ -1,0 +1,14 @@
+@startuml
+skinparam backgroundColor transparent
+
+class RequestParameterAccessor {
+    - index: Map<String, String>
+
+    + RequestParameterAccessor(parameters: List<RequestParameters>)
+    + require(key: String): String
+    + require(key: String, parser: ThrowingParser<T>): T
+    + optional(key: String, defaultValue: String): String
+    + optional(key: String, defaultValue: T, parser: ThrowingParser<T>): T
+}
+
+@enduml

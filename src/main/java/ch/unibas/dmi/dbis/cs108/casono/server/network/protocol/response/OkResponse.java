@@ -1,7 +1,7 @@
 package ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response;
 
+import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.request.RequestContext;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.builder.ResponseBody;
-import ch.unibas.dmi.dbis.cs108.casono.server.network.sessions.SessionId;
 
 /**
  * A simple success response with an empty body.
@@ -12,10 +12,9 @@ public class OkResponse extends SuccessResponse {
     /**
      * Create a minimal successful response (no body content).
      *
-     * @param sessionId the target session id
-     * @param requestId the originating request id
+     * @param context the RequestContext of the request
      */
-    public OkResponse(SessionId sessionId, int requestId) {
-        super(sessionId, requestId, ResponseBody.builder().build());
+    public OkResponse(RequestContext context) {
+        super(context, ResponseBody.builder().build());
     }
 }

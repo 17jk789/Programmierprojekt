@@ -1,0 +1,10 @@
+@startuml
+skinparam backgroundColor transparent
+
+class CommandRouter {
+    - handlers: Map<Class<? extends Request>, CommandHandler<?>>
+    + register(requestClass: Class<T>, handler: CommandHandler<T>): void
+    + execute(request: Request): void
+}
+
+@enduml

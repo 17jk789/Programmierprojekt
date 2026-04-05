@@ -1,0 +1,8 @@
+@startuml
+skinparam backgroundColor transparent
+
+interface CommandHandler<T extends Request> {
+    + execute(request: T): void
+}
+
+@enduml
