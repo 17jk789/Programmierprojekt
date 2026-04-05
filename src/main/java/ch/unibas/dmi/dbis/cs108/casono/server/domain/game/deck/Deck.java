@@ -51,11 +51,10 @@ public class Deck {
     }
 
     /**
-     * Retrieves the current list of cards in the deck. This method returns a new LinkedList
-     * containing the cards, which allows for safe manipulation of the returned list without
-     * affecting the internal state of the deck.
+     * Sets the cards of the deck. This method replaces the internal list
+     * with a copy of the provided list.
      *
-     * @return A List of Card objects currently in the deck.
+     * @param cards the new list of cards to set
      */
     public void setCards(List<Card> cards) {
         this.cards = new LinkedList<>(cards);
