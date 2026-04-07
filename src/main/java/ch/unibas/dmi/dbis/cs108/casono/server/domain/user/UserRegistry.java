@@ -84,8 +84,7 @@ public class UserRegistry {
             return false;
         }
 
-        byId.remove(user.getId());
-        byName.remove(user.getName());
+        remove(user);
         return true;
     }
 
