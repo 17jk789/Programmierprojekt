@@ -6,6 +6,9 @@ import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.check_nick.CheckUsern
 import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.login.LoginHandler;
 import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.login.LoginParser;
 import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.login.LoginRequest;
+import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.logout.LogoutHandler;
+import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.logout.LogoutParser;
+import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.logout.LogoutRequest;
 import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.ping.PingHandler;
 import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.ping.PingParser;
 import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.ping.PingRequest;
@@ -98,5 +101,9 @@ public class ServerApp {
         parserDispatcher.register("LOGIN", new LoginParser());
         commandRouter.register(
                 LoginRequest.class, new LoginHandler(responseDispatcher, userRegistry));
+
+        parserDispatcher.register("LOGOUT", new LogoutParser());
+        commandRouter.register(
+                LogoutRequest.class, new LogoutHandler(responseDispatcher, userRegistry));
     }
 }
