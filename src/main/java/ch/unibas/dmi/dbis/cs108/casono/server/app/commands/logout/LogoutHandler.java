@@ -16,7 +16,7 @@ public class LogoutHandler implements CommandHandler<LogoutRequest> {
 
     @Override
     public void execute(LogoutRequest request) {
-        userRegistry.onDisconnect(request.getSessionId());
+        userRegistry.removeBySessionId(request.getSessionId());
         responseDispatcher.dispatch(new OkResponse(request.getContext()));
     }
 }
