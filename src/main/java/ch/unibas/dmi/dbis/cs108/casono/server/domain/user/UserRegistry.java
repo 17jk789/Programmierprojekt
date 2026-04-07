@@ -31,6 +31,12 @@ public class UserRegistry {
         return Optional.of(user);
     }
 
+    /**
+     * Removes a user from the registry by user ID.
+     *
+     * @param userId the ID of the user to remove
+     * @return true if a user was removed, false if no user with that ID exists
+     */
     public synchronized boolean removeByUserId(UserId userId) {
         User user = byId.get(userId);
         if (user == null) {
@@ -42,6 +48,12 @@ public class UserRegistry {
         return true;
     }
 
+    /**
+     * Removes a user from the registry by session ID.
+     *
+     * @param sessionId the session ID associated with the user to remove
+     * @return true if a user was removed, false if no user with that session exists
+     */
     public synchronized boolean removeBySessionId(SessionId sessionId) {
         User user = bySessionId.get(sessionId);
         if (user == null) {
@@ -52,6 +64,12 @@ public class UserRegistry {
         return true;
     }
 
+    /**
+     * Removes a user from the registry by username.
+     *
+     * @param username the username associated with the user to remove
+     * @return true if a user was removed, false if no user with that session exists
+     */
     public synchronized boolean removeByUsername(String username) {
         User user = byName.get(username);
         if (user == null) {
@@ -62,6 +80,11 @@ public class UserRegistry {
         return true;
     }
 
+    /**
+     * Removes a user from the internals of the registry.
+     * 
+     * @param user the user to remove
+     */
     private synchronized void remove(User user) {
         byId.remove(user.getId());
         byName.remove(user.getName());
