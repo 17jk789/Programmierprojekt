@@ -31,8 +31,8 @@ public class LogoutHandler implements CommandHandler<LogoutRequest> {
      */
     @Override
     public void execute(LogoutRequest request) {
-        boolean was_removed = userRegistry.removeBySessionId(request.getSessionId());
-        if (was_removed) {
+        boolean wasRemoved = userRegistry.removeBySessionId(request.getSessionId());
+        if (wasRemoved) {
             responseDispatcher.dispatch(new OkResponse(request.getContext()));
         } else {
             responseDispatcher.dispatch(
