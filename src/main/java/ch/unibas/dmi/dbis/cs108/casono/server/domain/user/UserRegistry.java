@@ -31,6 +31,43 @@ public class UserRegistry {
         return Optional.of(user);
     }
 
+    public synchronized boolean removeByUserId(UserId userId) {
+        User user = byId.get(userId);
+        if (user == null) {
+            return false;
+        }
+
+        byName.remove(user.getName());
+        user.getSessionId().ifPresent(bySessionId::remove);
+        return true;
+    }
+
+    public synchronized boolean removeBySessionId(SessionId sessionId) {
+        User user = bySessionId.get(sessionId);
+        if (user == null) {
+            return false;
+        }
+
+        remove(user);
+        return true;
+    }
+
+    public synchronized boolean removeByUsername(String username) {
+        User user = byName.get(username);
+        if (user == null) {
+            return false;
+        }
+
+        remove(user);
+        return true;
+    }
+
+    private synchronized void remove(User user) {
+        byId.remove(user.getId());
+        byName.remove(user.getName());
+        user.getSessionId().ifPresent(bySessionId::remove);
+    }
+
     /**
      * Removes the user with the given ID, but only if they are still disconnected. This prevents
      * removing a user who has reconnected between the cleanup job's check and its removal call.
