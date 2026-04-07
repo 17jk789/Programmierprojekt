@@ -82,7 +82,7 @@ public class UserRegistry {
 
     /**
      * Removes a user from the internals of the registry.
-     * 
+     *
      * @param user the user to remove
      */
     private synchronized void remove(User user) {
