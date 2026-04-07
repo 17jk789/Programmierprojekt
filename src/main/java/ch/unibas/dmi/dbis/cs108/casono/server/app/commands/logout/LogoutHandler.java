@@ -16,7 +16,15 @@ public class LogoutHandler implements CommandHandler<LogoutRequest> {
 
     @Override
     public void execute(LogoutRequest request) {
-        userRegistry.removeBySessionId(request.getSessionId());
-        responseDispatcher.dispatch(new OkResponse(request.getContext()));
+        boolean was_removed = userRegistry.removeBySessionId(request.getSessionId());
+        if (was_removed) {
+            responseDispatcher.dispatch(new OkResponse(request.getContext()));
+        } else {
+            responseDispatcher.dispatch(
+                    new ErrorResponse(
+                            request.getContext(),
+                            "NO_USER_ASSOCIATED",
+                            "No user is associated with your session. Did you login before?"));
+        }
     }
 }
