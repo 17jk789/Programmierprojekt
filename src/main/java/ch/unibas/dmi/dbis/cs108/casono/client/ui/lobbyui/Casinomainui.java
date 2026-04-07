@@ -1,11 +1,13 @@
 package ch.unibas.dmi.dbis.cs108.casono.client.ui.lobbyui;
 
 /** Main UI application for Casono. Loads the main FXML layout and sets up the stage. */
-import java.io.IOException;
+
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+
+import java.io.IOException;
 
 /**
  * JavaFX Application class for the Casono main UI.

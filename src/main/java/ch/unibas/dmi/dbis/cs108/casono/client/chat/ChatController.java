@@ -2,8 +2,15 @@ package ch.unibas.dmi.dbis.cs108.casono.client.chat;
 
 import ch.unibas.dmi.dbis.cs108.casono.client.network.ChatClient;
 import ch.unibas.dmi.dbis.cs108.casono.client.network.ClientService;
-import java.util.ArrayList;
+import ch.unibas.dmi.dbis.cs108.casono.client.ui.chatui.ChatBoxController;
+import org.jspecify.annotations.Nullable;
+
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.Map;
 import java.util.List;
+import java.util.LinkedHashMap;
+
 
 /**
  * responsible for the transferring of messages from the server to the ChatModel or from the
@@ -12,49 +19,84 @@ import java.util.List;
 public class ChatController {
 
     private final String username;
-    private final ClientService clientService;
 
-    private final ArrayList<ChatModel> chatModelArrayList;
     private final ChatClient chatClient;
+
+    public ChatBoxController getChatBoxController() {
+        return chatBoxController;
+    }
+
+    private final ChatBoxController chatBoxController;
+    private int lobbyId = -1;
+    private final Timer timer;
+
+
+    public record ChatKey(ChatType type, @Nullable String targetUser){
+        public ChatKey(ChatType type){
+            this(type, null);
+        }
+    }
+
+    public Map<ChatKey, ChatModel> getChatModelMap() {
+        return chatModelMap;
+    }
+
+    private Map<ChatKey, ChatModel> chatModelMap;
+
+    private static final long REFRESH_TIME = 1000;
 
     public ChatController(String username, ClientService clientService) {
         this.username = username;
-        this.clientService = clientService;
-        chatModelArrayList = new ArrayList<>();
-        chatModelArrayList.add(new ChatModel(ChatType.GLOBAL, username));
         chatClient = new ChatClient(clientService);
+        chatModelMap = new LinkedHashMap<>();
+        this.chatBoxController = new ChatBoxController(username, this);
+        this.timer = new Timer();
+        timer.schedule(
+                new TimerTask() {
+                    @Override
+                    public void run() {
+                        clientService.ping();
+                        receiveMessage();
+                    }
+                },
+                0,
+                REFRESH_TIME);
     }
 
-    public ChatModel getChatModel(int index) {
-        return chatModelArrayList.get(index);
-    }
-
-    public void createLobbyChat(int lobbyId, ChatType chatType) {
-        ChatModel chatModel = new ChatModel(chatType, username, lobbyId);
-        chatModelArrayList.add(chatModel);
+    public void setLobbyChat(int lobbyId) {
+        this.lobbyId = lobbyId;
+        ChatModel lobbyChatModel = new ChatModel(ChatType.LOBBY, username, lobbyId, null);
+        chatModelMap.put(new ChatKey(ChatType.LOBBY), lobbyChatModel);
     }
 
     /** method to get all messages from the server */
-    public Boolean receiveMessage() {
+    public void receiveMessage() {
         List<Message> newMessages = chatClient.getMessages();
         if (!newMessages.isEmpty()) {
             for (Message msg : newMessages) {
                 switch (msg.getMessageType()) {
                     case ChatType.GLOBAL:
-                        chatModelArrayList.get(0).addMessage(msg);
+                        chatModelMap.get(new ChatKey(ChatType.GLOBAL)).addMessage(msg);
                     case ChatType.LOBBY:
-                        ChatModel chatModel = chatModelArrayList.get(1);
-                        if (chatModel != null && chatModel.lobbyId == msg.lobbyId) {
-                            chatModel.addMessage(msg);
+                        if (msg.lobbyId == lobbyId) {
+                            chatModelMap.computeIfAbsent(new ChatKey(ChatType.LOBBY),
+                                    (_key) -> new ChatModel(ChatType.LOBBY, username, msg.lobbyId, null)).addMessage(msg);
                         }
                     case ChatType.WHISPER:
                         // TODO: Check, if target person is user and if yes, iterate through all
-                        // whisper chats.
+                        if (msg.target.equals(username)) {
+                            if (chatModelMap.containsKey(new ChatKey(ChatType.WHISPER, msg.sender))) {
+                                chatModelMap.get(new ChatKey(ChatType.WHISPER, msg.sender)).addMessage(msg);
+                            } else {
+                                ChatModel value = new ChatModel(ChatType.WHISPER, username, -1, msg.sender);
+                                chatModelMap.put(new ChatKey(ChatType.WHISPER, msg.sender), value);
+                                chatBoxController.addWhisperChat(msg.sender, value);
+                            }
+                        }
+
+
                 }
             }
-            return true;
-        } else {
-            return false;
         }
     }
 

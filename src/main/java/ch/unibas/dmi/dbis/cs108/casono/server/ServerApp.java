@@ -9,9 +9,18 @@ import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.login.LoginRequest;
 import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.logout.LogoutHandler;
 import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.logout.LogoutParser;
 import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.logout.LogoutRequest;
+import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.get_message_count.GetMessageCountHandler;
+import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.get_message_count.GetMessageCountParser;
+import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.get_message_count.GetMessageCountRequest;
+import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.get_next_message.GetNextMessageHandler;
+import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.get_next_message.GetNextMessageParser;
+import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.get_next_message.GetNextMessageRequest;
 import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.ping.PingHandler;
 import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.ping.PingParser;
 import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.ping.PingRequest;
+import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.send_message.SendMessageHandler;
+import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.send_message.SendMessageParser;
+import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.send_message.SendMessageRequest;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.user.UserCleanupJob;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.user.UserRegistry;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.NetworkManager;
@@ -23,12 +32,13 @@ import ch.unibas.dmi.dbis.cs108.casono.server.network.events.EventBus;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.dispatcher.ResponseDispatcher;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.sessions.SessionDisconnectJob;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.sessions.SessionManager;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.time.Duration;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /** Application class for starting the server. */
 public class ServerApp {
@@ -37,7 +47,7 @@ public class ServerApp {
     private static final int USER_CLEANUP_JOB_RECONNECT_THRESHOLD = 10;
     private static final int SESSION_DISCONNECT_JOB_DELAY = 0;
     private static final int SESSION_DISCONNECT_JOB_PERIOD = 2;
-    private static final int SESSION_DISCONNECT_JOB_TIMEOUT = 5;
+    private static final int SESSION_DISCONNECT_JOB_TIMEOUT = 30;
 
     public static void start(String arg) {
         int port = Integer.parseInt(arg);
@@ -106,5 +116,24 @@ public class ServerApp {
         parserDispatcher.register("LOGOUT", new LogoutParser());
         commandRouter.register(
                 LogoutRequest.class, new LogoutHandler(responseDispatcher, userRegistry));
+        parserDispatcher.register("SEND_MESSAGE", new SendMessageParser());
+        commandRouter.register(
+                SendMessageRequest.class,
+                new SendMessageHandler(responseDispatcher, userRegistry)
+        );
+
+
+        parserDispatcher.register("GET_MESSAGE_COUNT", new GetMessageCountParser());
+        commandRouter.register(
+                GetMessageCountRequest.class,
+                new GetMessageCountHandler(responseDispatcher, userRegistry)
+        );
+
+
+        parserDispatcher.register("GET_NEXT_MESSAGE", new GetNextMessageParser());
+        commandRouter.register(
+                GetNextMessageRequest.class,
+                new GetNextMessageHandler(responseDispatcher, userRegistry)
+        );
     }
 }

@@ -9,7 +9,6 @@ package ch.unibas.dmi.dbis.cs108.casono.client.network;
  */
 public class CoreClient {
     private final ClientService clientService;
-
     /**
      * Constructs a CoreClient with the given ClientService for communication.
      *

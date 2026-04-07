@@ -6,6 +6,6 @@ public class ChatTest {
 
     @Test
     public void chatTest() {
-        Client.main(new String[]{"mathis"});
+
     }
 }

@@ -2,44 +2,39 @@ package ch.unibas.dmi.dbis.cs108.casono.client.ui.chatui;
 
 import ch.unibas.dmi.dbis.cs108.casono.client.chat.ChatController;
 import ch.unibas.dmi.dbis.cs108.casono.client.chat.ChatModel;
-import ch.unibas.dmi.dbis.cs108.casono.client.chat.ChatType;
+import ch.unibas.dmi.dbis.cs108.casono.client.chat.Message;
+import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 
 import java.net.URL;
 import java.util.ResourceBundle;
-import java.util.Timer;
-import java.util.TimerTask;
-import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
-import javafx.scene.control.ButtonBar;
-import javafx.scene.control.ToggleButton;
-import javafx.scene.control.ToggleGroup;
-import javafx.scene.layout.VBox;
 
 /** Responsible for the presentation of the ChatModel to the Client */
 public class ChatViewController implements Initializable {
 
-    private final ChatModel globalChatModel;
-    private GlobalChatView globalChatView;
+    @FXML private Button sendButton;
 
-    private LobbyChatView lobbyChatView;
+    @FXML private TextField inputField;
+
+    @FXML private VBox chatVBox;
+
+    @FXML private HBox controlBar;
+
+    @FXML private ScrollPane scrollPane;
+
+    @FXML private VBox Chat;
+
+    private final ChatModel chatModel;
 
     private final String username;
 
     private final ChatController controller;
-
-    private final Timer timer;
-
-    private Boolean lobbyActivated;
-
-    @FXML private ToggleButton changeGlobalChatButton;
-
-    @FXML private ToggleButton changeLobbyChatButton;
-
-    @FXML private ToggleButton changeWhisperChatButton;
-
-    @FXML private ButtonBar buttonBar;
-
-    private static final int REFRESH_TIME = 1000;
 
     private static final int CHAT_PADDING = 20;
 
@@ -48,65 +43,38 @@ public class ChatViewController implements Initializable {
     }
 
     public ChatViewController(
-            String username, ChatModel globalChatModel, ChatController controller) {
+            String username, ChatModel chatModel, ChatController controller) {
         this.username = username;
         this.controller = controller;
-        this.timer = new Timer();
-        this.globalChatModel = globalChatModel;
-        timer.schedule(
-                new TimerTask() {
-                    @Override
-                    public void run() {
-                        if (controller.receiveMessage()) {
-                            globalChatView.showGlobalMessage();
-                            if (lobbyActivated) {
-                                lobbyChatView.showLobbyMessage();
-                            }
-                        }
-                    }
-                },
-                0,
-                REFRESH_TIME);
+        this.chatModel = chatModel;
     }
 
     
     @Override
     public void initialize(URL location, ResourceBundle resourceBundle) {
-        this.globalChatView =
-                new GlobalChatView(username, globalChatModel, controller);
-
+        inputField.setOnAction(event -> sendMessage());
+        sendButton.setOnAction(event -> sendMessage());
+        scrollPane.vvalueProperty().bind(chatVBox.heightProperty());
     }
 
-    public void setLobbyChat(int lobbyId) {
-        this.lobbyChatView =
-                new LobbyChatView(
-                        username, new ChatModel(ChatType.LOBBY, username), controller, lobbyId);
-
-        changeGlobalChatButton.setOnAction(event -> switchChat("globalChatButton"));
-        changeLobbyChatButton.setOnAction(event -> switchChat("lobbyChatButton"));
-        changeWhisperChatButton.setOnAction(event -> switchChat("whisperChatButton"));
-
-        ToggleGroup toggleGroup = new ToggleGroup();
-        changeGlobalChatButton.setToggleGroup(toggleGroup);
-        changeLobbyChatButton.setToggleGroup(toggleGroup);
-        changeWhisperChatButton.setToggleGroup(toggleGroup);
-        this.lobbyActivated = true;
-    }
-
-    @FXML
-    public void switchChat(String button) {
-        switch (button) {
-            case "globalChatButton":
-                globalChatView.setVisibility(true);
-                lobbyChatView.setVisibility(false);
-
-            case "lobbyChatButton":
-                globalChatView.setVisibility(false);
-                lobbyChatView.setVisibility(true);
-
-            case "whisperChatButton":
-                globalChatView.setVisibility(false);
-                lobbyChatView.setVisibility(false);
+    public void sendMessage() {
+        String message = inputField.getText().trim();
+        if (!message.isEmpty()) {
+            inputField.clear();
+            Message msg = new Message(chatModel.getChattype(), chatModel.lobbyId, username, chatModel.getTarget(), message);
+            controller.onSendToNetwork(msg);
         }
     }
+
+    public void showMessage() {
+        String msg = chatModel.viewNextMessage();
+        Label label = new Label(msg);
+        label.getStyleClass().add("info-text");
+        label.setWrapText(true);
+        label.maxWidthProperty().bind(chatVBox.widthProperty().subtract(CHAT_PADDING));
+        chatVBox.getChildren().add(label);
+    }
+
+
+
 }

@@ -1,7 +1,11 @@
 package ch.unibas.dmi.dbis.cs108.casono.client.chat;
 
+import ch.unibas.dmi.dbis.cs108.casono.server.network.command.parsing.RequestParameter;
+import org.jspecify.annotations.NonNull;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -12,7 +16,7 @@ import java.util.regex.Pattern;
 public class Message {
     private final ChatType type;
     private final String message;
-    public String user;
+    public String sender;
     public String timestamp;
     public int lobbyId = 0;
     public String target = null;
@@ -22,20 +26,20 @@ public class Message {
      *
      * @param type - Either global, local or whisper
      * @param lobbyId - lobby id, or null, if the typChatType
-     * @param user - username
+     * @param sender - username
      * @param target - username of the target user, for whisper chat
      * @param message
      */
     public Message(
             ChatType type,
             int lobbyId,
-            String user,
+            String sender,
             String target,
             String timestamp,
             String message) {
         this.type = type;
         this.lobbyId = lobbyId;
-        this.user = user;
+        this.sender = sender;
         this.target = target;
         this.timestamp = timestamp;
         this.message = message;
@@ -47,14 +51,14 @@ public class Message {
      *
      * @param type - Either global, local or whisper
      * @param lobbyId - lobby id, or null, if the type is global
-     * @param user - username
+     * @param sender - username
      * @param target - username of the target user, for whisper chat
      * @param message
      */
-    public Message(ChatType type, int lobbyId, String user, String target, String message) {
+    public Message(ChatType type, int lobbyId, String sender, String target, String message) {
         this.type = type;
         this.lobbyId = lobbyId;
-        this.user = user;
+        this.sender = sender;
         this.target = target;
         this.message = message;
         LocalDateTime now = LocalDateTime.now();
@@ -77,10 +81,10 @@ public class Message {
      */
     public String toArgsString() {
         return String.format(
-                "TYPE=%s GAME=%d USER=%s TARGET=%s TIME=%s TEXT=%s",
+                "TYPE=%s GAME=%d USER=%s TARGET=%s TIME=%s TEXT='%s'",
                 this.type.toString(),
                 this.lobbyId,
-                this.user,
+                this.sender,
                 this.target,
                 this.timestamp,
                 this.message);
@@ -91,7 +95,7 @@ public class Message {
             Pattern.compile(
                     "TYPE=(?<type>\\w+) " + "GAME=(?<game>\\w+) " +
                             "USER=(?<user>\\w+) " + "TARGET=(?<target>\\w+) " +
-                            "TIME=(?<time>[0-9:.]+) " + "TEXT=(?<text>.*)$");
+                            "TIME=(?<time>[0-9:.]+) " + "TEXT='(?<text>([^']|\\')+)'");
 
     /**
      * Method to create a Message Object, from the information given by the String
@@ -137,5 +141,41 @@ public class Message {
             default:
                 throw new RuntimeException("Unknown message type " + typeString);
         }
+    }
+
+    public static Message toMessage(List<RequestParameter> parameters) {
+        String typeString = getParString(parameters, "TYPE");
+        ChatType type = ChatType.valueOf(typeString);
+        return switch (type) {
+            case GLOBAL -> new Message(ChatType.GLOBAL,
+                    0,
+                    getParString(parameters, "USER"),
+                    null,
+                    getParString(parameters, "TIME"),
+                    getParString(parameters, "TEXT")
+            );
+            case LOBBY -> new Message(ChatType.LOBBY,
+                    Integer.parseInt(getParString(parameters, "GAME")),
+                    getParString(parameters, "USER"),
+                    null,
+                    getParString(parameters, "TIME"),
+                    getParString(parameters, "TEXT")
+            );
+            case WHISPER -> new Message(ChatType.WHISPER,
+                    Integer.parseInt(getParString(parameters, "GAME")),
+                    getParString(parameters, "USER"),
+                    getParString(parameters, "TARGET"),
+                    getParString(parameters, "TIME"),
+                    getParString(parameters, "TEXT")
+            );
+        };
+
+    }
+
+    private static @NonNull String getParString(List<RequestParameter> parameters, String keyString) {
+        return parameters.stream().filter((p) -> "TYPE".equals(p.key()))
+                .findFirst()
+                .map(RequestParameter::value)
+                .orElseThrow(() -> new RuntimeException("No " + keyString + " found"));
     }
 }

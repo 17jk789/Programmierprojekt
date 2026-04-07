@@ -4,46 +4,30 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
 
-<!--
-    Dieses Fenster wird später mit den Serveranfragen verknüpft,
-    um Nachrichten von Mitspielern und Systemmeldungen in Echtzeit anzuzeigen.
-
-    Der Chat unterscheidet intern zwischen:
-    - Player-to-Player (Privater 2-Personen-Chat)
-    - Lobby-Chat (Aktueller Raum)
-    - Globaler Chat (Gesamter Server)
-
-    Features, die später implementiert werden sollen:
-    - Schicke Chat-Bubbles mit Namen und Uhrzeit./home/mathis/dev/Gruppe-13/src/main/resources/ui-structure/gameuicomponents/chatui
--->
-
-<StackPane xmlns="http://javafx.com/javafx/21"
+<VBox xmlns="http://javafx.com/javafx/21"
       xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="ch.unibas.dmi.dbis.cs108.casono.client.ui.chatui.ChatViewController"
-      alignment="CENTER"
-      stylesheets="@chatui.css">
+      fx:id="chatBox"
+      fx:controller="ch.unibas.dmi.dbis.cs108.casono.client.ui.chatui.ChatBoxController"
+      VBox.vgrow="ALWAYS"
+      styleClass="chat-box"
+      spacing="10"
+      maxWidth="Infinity">
 
-    <!-- Innenabstand: Schafft oben, rechts und unten 30 Pixel Platz, links nur 10 Pixel (asymmetrisch) -->
-    <padding>
-        <Insets top="30" right="30" bottom="30" left="10"/>
-    </padding>
+    <children>
+        <HBox>
+            <children>
+                <Label text="== CHAT ==" styleClass="chat-header" alignment="CENTER" maxWidth="Infinity"/>
+                <Region minHeight="4" styleClass="chat-separator"/>
+            </children>
+
+        </HBox>
+
+        <TabPane fx:id="ChatTabPane">
+        </TabPane>
 
 
-    <fx:include source="globalchat.fxml"/>
 
-    <fx:include source="lobbychat.fxml"/>
+    </children>
 
-    <fx:include source="whisperchat.fxml"/>
 
-    <ButtonBar fx:id="buttonBar">
-        <padding>
-            <Insets>...</Insets>
-        </padding>
-        <buttons>
-            <ToggleButton fx:id="changeGlobalChatButton" text="Global Chat" onAction="#switchChat" styleClass="yellow-button"/>
-            <ToggleButton fx:id="changeLobbyChatButton" text="Lobby Chat" styleClass="yellow-button"/>
-            <ToggleButton fx:id="changeWhisperChatButton" text="Whisper Chat" styleClass="yellow-button"/>
-        </buttons>
-    </ButtonBar>
-
-</StackPane>
+</VBox>
