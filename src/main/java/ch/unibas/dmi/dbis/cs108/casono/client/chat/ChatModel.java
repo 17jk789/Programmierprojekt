@@ -1,5 +1,9 @@
 package ch.unibas.dmi.dbis.cs108.casono.client.chat;
 
+import ch.unibas.dmi.dbis.cs108.casono.client.ui.chatui.ChatViewController;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+
 import java.util.ArrayList;
 
 /**
@@ -11,33 +15,30 @@ public class ChatModel {
 
     public ArrayList<Message> messages;
 
-    private ChatType chattype;
+    private final ChatType chattype;
 
-    public String username;
+    /**
+     * The person currently using this client
+     */
+    public final String username;
 
-    public int count;
+    /**
+     * The person to send the message to
+     * If the chat is a whisper chat
+     */
+    private final String target;
+
+    private final IntegerProperty count;
 
     public int lobbyId;
 
-    /**
-     * Creates a new ChatModel, given a username of the client
-     *
-     * @param chattype
-     * @param username
-     */
-    public ChatModel(ChatType chattype, String username) {
+    public ChatModel(ChatType chattype, String username, int lobbyId, String target) {
         this.messages = new ArrayList<Message>();
         this.chattype = chattype;
         this.username = username;
-        this.count = 0;
-    }
-
-    public ChatModel(ChatType chattype, String username, int lobbyId) {
-        this.messages = new ArrayList<Message>();
-        this.chattype = chattype;
-        this.username = username;
-        this.count = 0;
+        this.count = new SimpleIntegerProperty(0);
         this.lobbyId = lobbyId;
+        this.target = target;
     }
 
     public ChatType getChattype() {
@@ -49,9 +50,9 @@ public class ChatModel {
      * ChatModel
      */
     public synchronized String viewNextMessage() {
-        count--;
+        count.subtract(1);
         Message msg = messages.getLast();
-        return String.format("[%s] %s: %s", msg.timestamp, msg.user, msg.getMessage());
+        return String.format("[%s] %s: %s", msg.timestamp, msg.sender, msg.getMessage());
     }
 
     /**
@@ -61,13 +62,21 @@ public class ChatModel {
      */
     public synchronized void addMessage(Message msg) {
         messages.add(msg);
-        count++;
+        count.add(1);
     }
 
-    /** method to send all current messages to the ChatViewController, if needed */
-    public void addCompleteChat() {
-        for (int i = 0; i < this.messages.size(); i++) {
-            Message msg = this.messages.get(i);
-        }
+
+    public void addListener(ChatViewController chatViewController) {
+        count.addListener(
+                (_count, _p, n) ->
+                {
+                    if(n.intValue() > 0) {
+                        chatViewController.showMessage();
+                    }
+                });
+    }
+
+    public String getTarget() {
+        return target;
     }
 }

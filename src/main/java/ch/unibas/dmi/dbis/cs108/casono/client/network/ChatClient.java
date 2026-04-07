@@ -4,6 +4,8 @@ import ch.unibas.dmi.dbis.cs108.casono.client.chat.Message;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * The ChatClient class is responsible for sending messages to the server and
@@ -12,7 +14,7 @@ import java.util.List;
  */
 public class ChatClient {
 
-    private ClientService clientService;
+    private final ClientService clientService;
 
     /**
      * Constructs a ChatClient with the given ClientService for communication.
@@ -46,7 +48,11 @@ public class ChatClient {
      */
     public List<Message> getMessages() {
         String countStr = clientService.processCommand("GET_MESSAGE_COUNT");
-        int count = Integer.parseInt(countStr);
+        Matcher m = countRex.matcher(countStr);
+        if (!m.matches()) {
+            throw new RuntimeException("Can not parse response: " + countStr);
+        }
+        int count = Integer.parseInt(m.group("count"));
         System.out.println("Got " + count + " messages");
         List<Message> messages = new ArrayList<>();
         for (int i = 0; i < count; i++) {
@@ -58,4 +64,7 @@ public class ChatClient {
         }
         return messages;
     }
+
+    public static Pattern countRex = Pattern.compile("COUNT=(?<count>[0-9]+)");
 }
+// (?<key>\w+)='(?<string>([^']|\')+)'|(?<primVal>[\d\w]+)

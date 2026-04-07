@@ -1,10 +1,10 @@
 package ch.unibas.dmi.dbis.cs108.casono.client.network;
 
-import ch.unibas.dmi.dbis.cs108.casono.client.chat.Message;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.transport.RawPacket;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.transport.TcpTransport;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
 import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -71,16 +71,24 @@ public class ClientService {
                 () -> {
                     try {
                         writeToTransport(message);
-                        String responseLine = null;
+                        String responseText = null;
                         do {
-                            responseLine = clienttcptransport.read().payload();
-                            logger.info("Raw message '" + responseLine + "'");
-                            if ("+OK".equals(responseLine)) {
-                                return;
-                            } else if (("-ERROR").equals(responseLine)) {
-                                throw new RuntimeException(responseLine);
+                            responseText = clienttcptransport.read().payload();
+                            logger.info("Raw message '" + responseText + "'");
+                            for(String line: responseText.split("\n")) {
+                                if ("+OK".equals(line)) {
+                                    return;
+                                } else if (("-ERROR").equals(responseText)) {
+                                    throw new RuntimeException(responseText);
+                                } else {
+                                    String start = response.get();
+                                    if(start == null) {
+                                        response.set(line);
+                                    } else {
+                                        response.set(start + "\n" + line);
+                                    }
+                                }
                             }
-                            response.set(responseLine);
                         } while (true);
                     } catch (Exception e) {
                         throw getRuntimeException(e);
@@ -158,4 +166,10 @@ public class ClientService {
         int id = this.idGenerator.incrementAndGet();
         this.clienttcptransport.write(new RawPacket(id, s));
     }
+
+    public void ping() {
+        processCommand("PING");
+    }
+
+
 }
