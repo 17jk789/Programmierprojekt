@@ -8,10 +8,10 @@ import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.ErrorRes
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.Response;
 import java.util.Optional;
 
-public class UserLoggedinCheck implements HandlerCheck {
+public class UserLoggedInCheck implements HandlerCheck {
     private final UserRegistry userRegistry;
 
-    public UserLoggedinCheck(UserRegistry userRegistry) {
+    public UserLoggedInCheck(UserRegistry userRegistry) {
         this.userRegistry = userRegistry;
     }
 
