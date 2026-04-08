@@ -27,7 +27,7 @@ public class LobbyClient {
      *         by the server.
      */
     public String fetchLobbyStatusString(int lobbyId) {
-        return client.processCommand("GET_LOBBY_STATUS ID=" + lobbyId);
+        return client.processCommand("GET_LOBBY_STATUS ID=" + lobbyId).getFirst();
     }
 
     /**
@@ -37,7 +37,7 @@ public class LobbyClient {
      * @return The id of the newly created lobby, as returned by the server.
      */
     public int createLobby() {
-        String response = client.processCommand("CREATE_LOBBY");
+        String response = client.processCommand("CREATE_LOBBY").getFirst();
         return Integer.parseInt(response);
     }
 
@@ -49,7 +49,7 @@ public class LobbyClient {
      *         the server.
      */
     public int getLobbyId() {
-        String response = client.processCommand("GET_LOBBY_ID");
+        String response = client.processCommand("GET_LOBBY_ID").getFirst();
         return Integer.parseInt(response);
     }
 

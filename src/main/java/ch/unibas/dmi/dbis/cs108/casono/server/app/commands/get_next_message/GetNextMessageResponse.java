@@ -7,8 +7,7 @@ import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.builder.
 
 public class GetNextMessageResponse extends SuccessResponse {
     public GetNextMessageResponse(RequestContext context, Message msg) {
-        super(context, ResponseBody.builder()
-                .param("MESSAGE", msg.toArgsString())
-                .build());
+        super(context, msg.toResponse(ResponseBody.builder())
+                );
     }
 }

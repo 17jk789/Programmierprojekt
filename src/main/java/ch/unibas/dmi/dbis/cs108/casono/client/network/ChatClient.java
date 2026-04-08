@@ -1,11 +1,12 @@
 package ch.unibas.dmi.dbis.cs108.casono.client.network;
 
 import ch.unibas.dmi.dbis.cs108.casono.client.chat.Message;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.command.parsing.RequestParameter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * The ChatClient class is responsible for sending messages to the server and
@@ -15,6 +16,7 @@ import java.util.regex.Pattern;
 public class ChatClient {
 
     private final ClientService clientService;
+    private final Logger logger;
 
     /**
      * Constructs a ChatClient with the given ClientService for communication.
@@ -24,6 +26,7 @@ public class ChatClient {
      */
     public ChatClient(ClientService clientService) {
         this.clientService = clientService;
+        this.logger = LogManager.getLogger(ChatClient.class);
     }
 
     /**
@@ -34,6 +37,7 @@ public class ChatClient {
      */
     public void sendMessage(Message message) {
         String request = "SEND_MESSAGE " + message.toArgsString();
+        logger.info("Writing to server: " + request);
         clientService.processCommand(request);
     }
 
@@ -47,24 +51,20 @@ public class ChatClient {
      *         the server.
      */
     public List<Message> getMessages() {
-        String countStr = clientService.processCommand("GET_MESSAGE_COUNT");
-        Matcher m = countRex.matcher(countStr);
-        if (!m.matches()) {
-            throw new RuntimeException("Can not parse response: " + countStr);
+        logger.info("Asking server for new messages");
+        List<RequestParameter> countStr = ClientService.convertToRequestParameters(clientService.processCommand("GET_MESSAGE_COUNT"));
+        RequestParameter countRes = countStr.getFirst();
+        if (!countRes.key().equals("COUNT")) {
+            logger.error("Not the right response from server");
         }
-        int count = Integer.parseInt(m.group("count"));
-        System.out.println("Got " + count + " messages");
-        List<Message> messages = new ArrayList<>();
+        int count = Integer.parseInt(countRes.value());
+        logger.info("Got " + count + " messages");
+        ArrayList<Message> messages = new ArrayList<>();
         for (int i = 0; i < count; i++) {
-            String message = clientService.processCommand("GET_NEXT_MESSAGE");
-            if (message != null) {
-                Message message1 = Message.toMessage(message);
-                messages.add(message1);
-            }
+            List<RequestParameter> msgRes = ClientService.convertToRequestParameters(clientService.processCommand("GET_NEXT_MESSAGE"));
+            Message msg = Message.toMessageReqPars(msgRes);
+            messages.add(msg);
         }
         return messages;
     }
-
-    public static Pattern countRex = Pattern.compile("COUNT=(?<count>[0-9]+)");
 }
-// (?<key>\w+)='(?<string>([^']|\')+)'|(?<primVal>[\d\w]+)

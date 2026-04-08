@@ -4,11 +4,13 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
 
+<!-- fx:controller="ch.unibas.dmi.dbis.cs108.casono.client.ui.chatui.ChatBoxController" -->
+
 <VBox xmlns="http://javafx.com/javafx/21"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:id="chatBox"
-      fx:controller="ch.unibas.dmi.dbis.cs108.casono.client.ui.chatui.ChatBoxController"
       VBox.vgrow="ALWAYS"
+      stylesheets="@chatui.css"
       styleClass="chat-box"
       spacing="10"
       maxWidth="Infinity">

@@ -1,10 +1,10 @@
 package ch.unibas.dmi.dbis.cs108.casono.client.chat;
 
-import ch.unibas.dmi.dbis.cs108.casono.client.ui.chatui.ChatViewController;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 
 import java.util.ArrayList;
+import java.util.function.Consumer;
 
 /**
  * ChatModel, stores the data for a specific chat
@@ -12,6 +12,8 @@ import java.util.ArrayList;
  * <p>Holds the current state of a chat
  */
 public class ChatModel {
+
+    private ArrayList<Consumer<Message>> listeners = new ArrayList<>();
 
     public ArrayList<Message> messages;
 
@@ -62,18 +64,12 @@ public class ChatModel {
      */
     public synchronized void addMessage(Message msg) {
         messages.add(msg);
-        count.add(1);
+        listeners.stream().forEach((l)-> l.accept(messages.getLast()));
     }
 
 
-    public void addListener(ChatViewController chatViewController) {
-        count.addListener(
-                (_count, _p, n) ->
-                {
-                    if(n.intValue() > 0) {
-                        chatViewController.showMessage();
-                    }
-                });
+    public void addListener(Consumer<Message> listener) {
+        this.listeners.add(listener);
     }
 
     public String getTarget() {

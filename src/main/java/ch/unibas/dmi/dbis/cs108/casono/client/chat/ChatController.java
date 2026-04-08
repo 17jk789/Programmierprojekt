@@ -77,13 +77,14 @@ public class ChatController {
                 switch (msg.getMessageType()) {
                     case ChatType.GLOBAL:
                         chatModelMap.get(new ChatKey(ChatType.GLOBAL)).addMessage(msg);
+                        break;
                     case ChatType.LOBBY:
                         if (msg.lobbyId == lobbyId) {
                             chatModelMap.computeIfAbsent(new ChatKey(ChatType.LOBBY),
                                     (_key) -> new ChatModel(ChatType.LOBBY, username, msg.lobbyId, null)).addMessage(msg);
                         }
+                        break;
                     case ChatType.WHISPER:
-                        // TODO: Check, if target person is user and if yes, iterate through all
                         if (msg.target.equals(username)) {
                             if (chatModelMap.containsKey(new ChatKey(ChatType.WHISPER, msg.sender))) {
                                 chatModelMap.get(new ChatKey(ChatType.WHISPER, msg.sender)).addMessage(msg);
@@ -93,6 +94,7 @@ public class ChatController {
                                 chatBoxController.addWhisperChat(msg.sender, value);
                             }
                         }
+                        break;
 
 
                 }

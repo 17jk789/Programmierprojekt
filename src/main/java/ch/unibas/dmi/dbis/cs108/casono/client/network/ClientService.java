@@ -1,5 +1,6 @@
 package ch.unibas.dmi.dbis.cs108.casono.client.network;
 
+import ch.unibas.dmi.dbis.cs108.casono.server.network.command.parsing.RequestParameter;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.transport.RawPacket;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.transport.TcpTransport;
 import org.apache.logging.log4j.LogManager;
@@ -8,12 +9,14 @@ import org.apache.logging.log4j.Logger;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * The ClientService class is responsible for managing the connection to the
@@ -58,6 +61,8 @@ public class ClientService {
 
     }
 
+    static Pattern responseRex = Pattern.compile("(?<key>\\w+)=(('(?<string>([^']|\\')+)')|(?<primVal>[+-]?[\\d\\w:]+))");
+
     /**
      * Sends the Requests to the server and waits for the response If the response is "+OK" it
      * proceeds normal If the response "-ERROR" it throws a runtime exception
@@ -65,36 +70,61 @@ public class ClientService {
      * @param message
      * @return - The response as a string, if it has to be returned (+OK will not be returned)
      */
-    protected String processCommand(String message) {
-        AtomicReference<String> response = new AtomicReference<>();
+    private static String unescape(String input) {
+        return input.replaceAll("\\\\'", "'");
+    }
+    public static List<RequestParameter> convertToRequestParameters(List<String> input) {
+        return input.stream().map((String parString)-> responseRex.matcher(parString))
+                .filter(Matcher::matches)
+                .map((m)->{
+                    if (!(m.group("string") == null)) {
+                        return new RequestParameter(m.group("key"), unescape(m.group("string")));
+                    } else if (!(m.group("primVal") == null)){
+                        return new RequestParameter(m.group("key"), m.group("primVal"));
+                    } else {
+                        throw new RuntimeException();
+                    }
+                }).toList();
+    }
+    protected List<String> processCommand(String message) {
+        List<String> response = new ArrayList<>();
         sendRequest(
                 () -> {
                     try {
                         writeToTransport(message);
                         String responseText = null;
-                        do {
-                            responseText = clienttcptransport.read().payload();
-                            logger.info("Raw message '" + responseText + "'");
-                            for(String line: responseText.split("\n")) {
+
+                        responseText = clienttcptransport.read().payload();
+                        logger.info("Raw message '" + responseText + "'");
+                        Boolean success = null;
+                        int count = 0;
+                        for(String line: responseText.split("\n")) {
+                            if (success == null) {
                                 if ("+OK".equals(line)) {
-                                    return;
+                                    success = true;
+                                    continue;
+
                                 } else if (("-ERROR").equals(responseText)) {
-                                    throw new RuntimeException(responseText);
-                                } else {
-                                    String start = response.get();
-                                    if(start == null) {
-                                        response.set(line);
-                                    } else {
-                                        response.set(start + "\n" + line);
-                                    }
+                                    success = false;
                                 }
+                                continue;
+                            } else if ("END".equals(line)) {
+                                break;
                             }
-                        } while (true);
+                            line = line.replaceFirst("^\t", "");
+                            response.add(line);
+
+                        }
+                        if (success!= null && success) {
+                            return;
+                        } else {
+                            throw new RuntimeException("Error in "+message+": "+response);
+                        }
                     } catch (Exception e) {
                         throw getRuntimeException(e);
                     }
                 });
-        return response.get();
+        return response;
     }
 
     /**

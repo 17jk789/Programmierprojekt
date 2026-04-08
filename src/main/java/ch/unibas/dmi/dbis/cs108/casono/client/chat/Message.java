@@ -1,12 +1,14 @@
 package ch.unibas.dmi.dbis.cs108.casono.client.chat;
 
 import ch.unibas.dmi.dbis.cs108.casono.server.network.command.parsing.RequestParameter;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.builder.ResponseBody;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.builder.ResponseBodyBuilder;
 import org.jspecify.annotations.NonNull;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.regex.Matcher;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 /**
@@ -80,10 +82,16 @@ public class Message {
      * @return - request as specified in the network protocol, as String
      */
     public String toArgsString() {
+        String gameIdString="";
+        if(lobbyId >= 0) {
+            gameIdString=" GAME="+lobbyId;
+        } else {
+            gameIdString=" GAME='-1'";
+        }
         return String.format(
-                "TYPE=%s GAME=%d USER=%s TARGET=%s TIME=%s TEXT='%s'",
+                "TYPE=%s%s USER='%s' TARGET='%s' TIME='%s' TEXT='%s'",
                 this.type.toString(),
-                this.lobbyId,
+                gameIdString,
                 this.sender,
                 this.target,
                 this.timestamp,
@@ -93,9 +101,10 @@ public class Message {
     /** Pattern, to analyze the response String with the given parameters */
     public static Pattern msgRex =
             Pattern.compile(
-                    "TYPE=(?<type>\\w+) " + "GAME=(?<game>\\w+) " +
-                            "USER=(?<user>\\w+) " + "TARGET=(?<target>\\w+) " +
+                    "TYPE=(?<type>\\w+) " + "(GAME=(?<game>\\w+) )?" +
+                            "USER=(?<user>\\w+) " + "(TARGET=(?<target>\\w+) )?" +
                             "TIME=(?<time>[0-9:.]+) " + "TEXT='(?<text>([^']|\\')+)'");
+
 
     /**
      * Method to create a Message Object, from the information given by the String
@@ -103,6 +112,7 @@ public class Message {
      * @param response - String that got sent as a response from the server
      * @return - New Message Object
      */
+    /*
     public static Message toMessage(String response) {
         Matcher m = msgRex.matcher(response);
         if (!m.matches()) {
@@ -114,16 +124,18 @@ public class Message {
             case "GLOBAL":
                 return new Message(
                         ChatType.GLOBAL,
-                        0,
+                        -1,
                         m.group("user"),
                         null,
                         m.group("time"),
                         m.group("text"));
 
             case "LOBBY":
+
+                int gameId = getGameId(m.group("game"));
                 return new Message(
                         ChatType.LOBBY,
-                        Integer.parseInt(m.group("game")),
+                        gameId,
                         m.group("user"),
                         null,
                         m.group("time"),
@@ -132,7 +144,7 @@ public class Message {
             case "WHISPER":
                 return new Message(
                         ChatType.WHISPER,
-                        Integer.parseInt(m.group("game")),
+                        -1,
                         m.group("user"),
                         m.group("target"),
                         m.group("time"),
@@ -142,13 +154,22 @@ public class Message {
                 throw new RuntimeException("Unknown message type " + typeString);
         }
     }
+    */
 
-    public static Message toMessage(List<RequestParameter> parameters) {
+    private static int getGameId(String gameIdStr) {
+        int gameId = -1;
+        if (gameIdStr != null) {
+            gameId = Integer.parseInt(gameIdStr);
+        }
+        return gameId;
+    }
+
+    public static Message toMessageReqPars(List<RequestParameter> parameters) {
         String typeString = getParString(parameters, "TYPE");
         ChatType type = ChatType.valueOf(typeString);
         return switch (type) {
             case GLOBAL -> new Message(ChatType.GLOBAL,
-                    0,
+                    -1,
                     getParString(parameters, "USER"),
                     null,
                     getParString(parameters, "TIME"),
@@ -162,7 +183,7 @@ public class Message {
                     getParString(parameters, "TEXT")
             );
             case WHISPER -> new Message(ChatType.WHISPER,
-                    Integer.parseInt(getParString(parameters, "GAME")),
+                    Integer.parseInt(getParString(parameters, "GAME", "-1")),
                     getParString(parameters, "USER"),
                     getParString(parameters, "TARGET"),
                     getParString(parameters, "TIME"),
@@ -171,11 +192,32 @@ public class Message {
         };
 
     }
-
     private static @NonNull String getParString(List<RequestParameter> parameters, String keyString) {
-        return parameters.stream().filter((p) -> "TYPE".equals(p.key()))
+        return getParString(parameters, keyString, null);
+    }
+    private static @NonNull String getParString(List<RequestParameter> parameters, String keyString, String defaultVal) {
+        Optional<String> parOption = parameters.stream().filter((p) -> keyString.equals(p.key()))
                 .findFirst()
-                .map(RequestParameter::value)
-                .orElseThrow(() -> new RuntimeException("No " + keyString + " found"));
+                .map(RequestParameter::value);
+        if(parOption.isEmpty()) {
+            if (defaultVal == null) {
+                throw new RuntimeException("No " + keyString + " found");
+            } else {
+                return defaultVal;
+            }
+        }
+        return parOption.get();
+    }
+
+    public ResponseBody toResponse(ResponseBodyBuilder builder) {
+        builder.param("TYPE", type.name());
+        builder.param("GAME", lobbyId);
+        builder.param("USER", this.sender);
+        if (target != null) {
+            builder.param("TARGET", target);
+        }
+        builder.param("TIME", this.timestamp);
+        builder.param("TEXT", this.message);
+        return builder.build();
     }
 }

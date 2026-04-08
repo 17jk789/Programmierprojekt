@@ -27,7 +27,9 @@ public class ChatApplication extends Application {
         // TODO login UI
         coreClient.login(username);
         ChatController chatController = new ChatController(username, clientService);
-        fxmlLoader.setControllerFactory(type -> {
+        ChatBoxController chatBoxController = new ChatBoxController(username, chatController);
+        fxmlLoader.setController(chatBoxController);
+        /*fxmlLoader.setControllerFactory(type -> {
                 if (type == ChatBoxController.class) {
                     return chatController.getChatBoxController();
                 } else {
@@ -37,7 +39,7 @@ public class ChatApplication extends Application {
                         throw new RuntimeException(e);
                     }
                 }
-        });
+        });*/
 
         Scene scene = new Scene(fxmlLoader.load(), SCENE_WIDTH, SCENE_HEIGHT);
         stage.setTitle("Chat");

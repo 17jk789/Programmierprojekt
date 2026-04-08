@@ -4,7 +4,6 @@ import ch.unibas.dmi.dbis.cs108.casono.client.game.Card;
 import ch.unibas.dmi.dbis.cs108.casono.client.game.GameState;
 import ch.unibas.dmi.dbis.cs108.casono.client.game.Player;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -33,7 +32,7 @@ public class GameClient {
      * @return A GameState object representing the current state of the game.
      */
     public GameState getGameState() {
-        String response = client.processCommand("GET_GAME_STATE");
+        List<String> response = client.processCommand("GET_GAME_STATE");
         return parseGameState(response);
     }
 
@@ -43,16 +42,14 @@ public class GameClient {
      * @param input The raw response string from the server.
      * @return A GameState object representing the current state of the game.
      */
-    private GameState parseGameState(String input) {
+    private GameState parseGameState(List<String> input) {
 
         GameState state = new GameState();
-
-        String[] lines = input.split("\n");
 
         Player currentPlayer = null;
         Card currentCard = null;
 
-        for (String rawLine : lines) {
+        for (String rawLine : input) {
 
             String line = rawLine.trim();
 

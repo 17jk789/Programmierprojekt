@@ -22,13 +22,13 @@ public class ChatViewController implements Initializable {
 
     @FXML private TextField inputField;
 
-    @FXML private VBox chatVBox;
+    @FXML private VBox chatInterfaceVBox;
 
     @FXML private HBox controlBar;
 
     @FXML private ScrollPane scrollPane;
 
-    @FXML private VBox Chat;
+    @FXML private VBox chat;
 
     private final ChatModel chatModel;
 
@@ -54,7 +54,7 @@ public class ChatViewController implements Initializable {
     public void initialize(URL location, ResourceBundle resourceBundle) {
         inputField.setOnAction(event -> sendMessage());
         sendButton.setOnAction(event -> sendMessage());
-        scrollPane.vvalueProperty().bind(chatVBox.heightProperty());
+        scrollPane.vvalueProperty().bind(chatInterfaceVBox.heightProperty());
     }
 
     public void sendMessage() {
@@ -66,13 +66,13 @@ public class ChatViewController implements Initializable {
         }
     }
 
-    public void showMessage() {
-        String msg = chatModel.viewNextMessage();
-        Label label = new Label(msg);
+    public void showMessage(Message msg) {
+        String msgText = String.format("[%s] %s: %s", msg.timestamp, msg.sender, msg.getMessage());
+        Label label = new Label(msgText);
         label.getStyleClass().add("info-text");
         label.setWrapText(true);
-        label.maxWidthProperty().bind(chatVBox.widthProperty().subtract(CHAT_PADDING));
-        chatVBox.getChildren().add(label);
+        label.maxWidthProperty().bind(chat.widthProperty().subtract(CHAT_PADDING));
+        chat.getChildren().add(label);
     }
 
 

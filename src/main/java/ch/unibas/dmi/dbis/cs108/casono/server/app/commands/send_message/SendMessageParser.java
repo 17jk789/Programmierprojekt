@@ -7,7 +7,7 @@ import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.request.Primitive
 public class SendMessageParser implements CommandParser<SendMessageRequest> {
     @Override
     public SendMessageRequest parse(PrimitiveRequest primitiveRequest) {
-        Message msg = Message.toMessage(primitiveRequest.parameters());
+        Message msg = Message.toMessageReqPars(primitiveRequest.parameters());
         return new SendMessageRequest(primitiveRequest.context(), msg);
     }
 }

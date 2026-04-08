@@ -31,7 +31,7 @@ public class GetNextMessageHandler implements CommandHandler<GetNextMessageReque
         } else {
             ErrorResponse response = new ErrorResponse(
                     request.getContext(),
-                    "",
+                    "NO_USER_ASSOCIATED",
                     "user could not be identified by SessionId"
 
             );

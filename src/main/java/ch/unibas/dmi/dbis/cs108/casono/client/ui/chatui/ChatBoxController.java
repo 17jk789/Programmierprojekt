@@ -51,7 +51,7 @@ public class ChatBoxController {
         URL resource = getClass().getResource(ressource);
         FXMLLoader fxmlLoader = new FXMLLoader(resource);
         ChatViewController chatViewController = new ChatViewController(username, chatModel, chatController);
-        chatModel.addListener(chatViewController);
+        chatModel.addListener((msg)-> chatViewController.showMessage(msg));
         try {
             fxmlLoader.setController(chatViewController);
             Tab newChat = new Tab(title, fxmlLoader.load());
