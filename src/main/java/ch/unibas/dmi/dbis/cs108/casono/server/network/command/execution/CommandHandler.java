@@ -2,6 +2,7 @@ package ch.unibas.dmi.dbis.cs108.casono.server.network.command.execution;
 
 import ch.unibas.dmi.dbis.cs108.casono.server.network.command.execution.checks.HandlerCheck;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.request.Request;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.dispatcher.ResponseDispatcher;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -13,6 +14,11 @@ import java.util.List;
  */
 public abstract class CommandHandler<T extends Request> {
     private final List<HandlerCheck> checks = new ArrayList<>();
+    protected final ResponseDispatcher responseDispatcher;
+
+    public CommandHandler(ResponseDispatcher responseDispatcher) {
+        this.responseDispatcher = responseDispatcher;
+    }
 
     /**
      * Adds a handler check to be performed before request execution.
