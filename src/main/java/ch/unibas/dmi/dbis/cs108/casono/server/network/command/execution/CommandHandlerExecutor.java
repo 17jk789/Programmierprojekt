@@ -30,7 +30,6 @@ public class CommandHandlerExecutor {
      *
      * @param handler the command handler containing checks and execution logic
      * @param request the incoming request to validate and process
-     * @param <Request> the type of request being processed
      * @throws NullPointerException if handler or request is null
      */
     public void execute(CommandHandler<Request> handler, Request request) {
