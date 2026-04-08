@@ -6,6 +6,11 @@ import java.util.Map;
 
 public class CommandRouter {
     private final Map<Class<? extends Request>, CommandHandler<?>> handlers = new HashMap<>();
+    private final CommandHandlerExecutor handlerExecutor;
+
+    public CommandRouter(CommandHandlerExecutor commandHandlerExecutor) {
+        this.handlerExecutor = commandHandlerExecutor;
+    }
 
     public <T extends Request> void register(Class<T> request, CommandHandler<T> handler) {
         handlers.put(request, handler);
@@ -23,6 +28,7 @@ public class CommandRouter {
             throw new UnknownRequestException(
                     "Unable to execute request " + requestName + ". Type unknown", requestName);
         }
-        handler.execute(request);
+
+        handlerExecutor.execute(handler, request);
     }
 }

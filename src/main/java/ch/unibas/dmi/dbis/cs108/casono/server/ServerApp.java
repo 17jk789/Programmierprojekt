@@ -15,6 +15,7 @@ import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.ping.PingRequest;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.user.UserCleanupJob;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.user.UserRegistry;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.NetworkManager;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.command.execution.CommandHandlerExecutor;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.command.execution.CommandRouter;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.command.parsing.CommandParserDispatcher;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.events.DisconnectEvent;
@@ -48,7 +49,8 @@ public class ServerApp {
         CommandParserDispatcher dispatcher = new CommandParserDispatcher();
         SessionManager sessionManager = new SessionManager(eventBus, dispatcher);
         ResponseDispatcher responseDispatcher = new ResponseDispatcher(sessionManager);
-        CommandRouter router = new CommandRouter();
+        CommandHandlerExecutor handlerExecutor = new CommandHandlerExecutor(responseDispatcher);
+        CommandRouter router = new CommandRouter(handlerExecutor);
 
         eventBus.subscribe(DisconnectEvent.class, event -> sessionManager.onDisconnect(event));
 
