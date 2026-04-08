@@ -16,6 +16,11 @@ public abstract class CommandHandler<T extends Request> {
     private final List<HandlerCheck> checks = new ArrayList<>();
     protected final ResponseDispatcher responseDispatcher;
 
+    /**
+     * Constructs a CommandHandler with the specified ResponseDispatcher.
+     *
+     * @param responseDispatcher the ResponseDispatcher instance used to send responses to clients.
+     */
     public CommandHandler(ResponseDispatcher responseDispatcher) {
         this.responseDispatcher = responseDispatcher;
     }
