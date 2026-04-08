@@ -7,7 +7,7 @@ import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.dispatch
 import java.util.Optional;
 
 /** Handles {@link CheckUsernameRequest}s to check whether a username is available. */
-public class CheckUsernameHandler implements CommandHandler<CheckUsernameRequest> {
+public class CheckUsernameHandler extends CommandHandler<CheckUsernameRequest> {
     private final ResponseDispatcher responseDispatcher;
     private final UserRegistry userRegistry;
 

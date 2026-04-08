@@ -13,7 +13,7 @@ import java.util.Optional;
  * Handles {@link LoginRequest}s to create a user for a session, if the session has not assigned one
  * already
  */
-public class LoginHandler implements CommandHandler<LoginRequest> {
+public class LoginHandler extends CommandHandler<LoginRequest> {
     private final ResponseDispatcher responseDispatcher;
     private final UserRegistry userRegistry;
     private final UserFactory userFactory;

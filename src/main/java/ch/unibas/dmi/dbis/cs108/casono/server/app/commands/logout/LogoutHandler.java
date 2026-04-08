@@ -7,7 +7,7 @@ import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.OkRespon
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.dispatcher.ResponseDispatcher;
 
 /** Handles {@link LogoutRequest} to logout connected user. */
-public class LogoutHandler implements CommandHandler<LogoutRequest> {
+public class LogoutHandler extends CommandHandler<LogoutRequest> {
     private final ResponseDispatcher responseDispatcher;
     private final UserRegistry userRegistry;
 
