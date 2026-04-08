@@ -5,7 +5,7 @@ import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.OkRespon
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.dispatcher.ResponseDispatcher;
 
 /** Handler for {@link PingRequest}. */
-public class PingHandler implements CommandHandler<PingRequest> {
+public class PingHandler extends CommandHandler<PingRequest> {
     private final ResponseDispatcher responseDispatcher;
 
     /**
