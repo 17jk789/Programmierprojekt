@@ -19,6 +19,10 @@ public class LobbyClient {
         this.client = client;
     }
 
+    public ClientService getClientService() {
+        return client;
+    }
+
     /**
      * Fetch the current status of the lobby with the given id from the server.
      *
@@ -60,5 +64,14 @@ public class LobbyClient {
      */
     public void joinLobby(int lobbyId) {
         client.processCommand("JOIN_LOBBY ID=" + lobbyId);
+    }
+
+    /**
+     * Logs in to the server with the given username by sending a "LOGIN" command.
+     *
+     * @param user The username to log in with.
+     */
+    public void login(String user) {
+        client.processCommand("LOGIN USERNAME=" + user);
     }
 }
