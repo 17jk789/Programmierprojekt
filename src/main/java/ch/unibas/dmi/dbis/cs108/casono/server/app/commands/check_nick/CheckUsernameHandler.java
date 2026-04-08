@@ -8,7 +8,6 @@ import java.util.Optional;
 
 /** Handles {@link CheckUsernameRequest}s to check whether a username is available. */
 public class CheckUsernameHandler extends CommandHandler<CheckUsernameRequest> {
-    private final ResponseDispatcher responseDispatcher;
     private final UserRegistry userRegistry;
 
     /**
@@ -18,7 +17,7 @@ public class CheckUsernameHandler extends CommandHandler<CheckUsernameRequest> {
      * @param userRegistry the registry used to look up existing users
      */
     public CheckUsernameHandler(ResponseDispatcher responseDispatcher, UserRegistry userRegistry) {
-        this.responseDispatcher = responseDispatcher;
+        super(responseDispatcher);
         this.userRegistry = userRegistry;
     }
 

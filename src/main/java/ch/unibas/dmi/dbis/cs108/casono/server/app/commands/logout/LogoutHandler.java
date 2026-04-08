@@ -8,7 +8,6 @@ import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.dispatch
 
 /** Handles {@link LogoutRequest} to logout connected user. */
 public class LogoutHandler extends CommandHandler<LogoutRequest> {
-    private final ResponseDispatcher responseDispatcher;
     private final UserRegistry userRegistry;
 
     /**
@@ -18,7 +17,7 @@ public class LogoutHandler extends CommandHandler<LogoutRequest> {
      * @param userRegistry registry responsible for tracking connected user sessions
      */
     public LogoutHandler(ResponseDispatcher responseDispatcher, UserRegistry userRegistry) {
-        this.responseDispatcher = responseDispatcher;
+        super(responseDispatcher);
         this.userRegistry = userRegistry;
     }
 

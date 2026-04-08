@@ -6,7 +6,6 @@ import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.dispatch
 
 /** Handler for {@link PingRequest}. */
 public class PingHandler extends CommandHandler<PingRequest> {
-    private final ResponseDispatcher responseDispatcher;
 
     /**
      * Create a new PingHandler to execute {@link PingRequest}s
@@ -14,7 +13,7 @@ public class PingHandler extends CommandHandler<PingRequest> {
      * @param responseDispatcher dispatcher used to send responses back to clients
      */
     public PingHandler(ResponseDispatcher responseDispatcher) {
-        this.responseDispatcher = responseDispatcher;
+        super(responseDispatcher);
     }
 
     /**

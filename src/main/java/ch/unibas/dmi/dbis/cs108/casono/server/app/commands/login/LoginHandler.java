@@ -14,7 +14,6 @@ import java.util.Optional;
  * already
  */
 public class LoginHandler extends CommandHandler<LoginRequest> {
-    private final ResponseDispatcher responseDispatcher;
     private final UserRegistry userRegistry;
     private final UserFactory userFactory;
 
@@ -25,7 +24,7 @@ public class LoginHandler extends CommandHandler<LoginRequest> {
      * @param userRegistry the registry used to look up existing users and create the new one
      */
     public LoginHandler(ResponseDispatcher responseDispatcher, UserRegistry userRegistry) {
-        this.responseDispatcher = responseDispatcher;
+        super(responseDispatcher);
         this.userRegistry = userRegistry;
         this.userFactory = new UserFactory(userRegistry);
     }
