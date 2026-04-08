@@ -317,8 +317,10 @@ public class LobbyButtonGridManager {
                             });
                     // Start the Game UI using the prepared stage
                     try {
-                        new ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui.CasinoGameUI()
-                                .start(gameStage);
+                        // ClientService an GameUI übergeben
+                        ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui.CasinoGameUI
+                                .setClientService(lobbyClient.getClientService());
+                        new ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui.CasinoGameUI().start(gameStage);
                     } catch (Exception e) {
                         LOGGER.error("Error starting Game UI: {}", e.getMessage());
                         // If starting fails, show the lobby again
