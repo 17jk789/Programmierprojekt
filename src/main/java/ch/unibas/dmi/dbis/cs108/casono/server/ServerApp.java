@@ -46,11 +46,11 @@ public class ServerApp {
 
         EventBus eventBus = new EventBus();
         CommandParserDispatcher dispatcher = new CommandParserDispatcher();
+        SessionManager sessionManager = new SessionManager(eventBus, dispatcher);
+        ResponseDispatcher responseDispatcher = new ResponseDispatcher(sessionManager);
         CommandRouter router = new CommandRouter();
 
-        SessionManager sessionManager = new SessionManager(eventBus, dispatcher, router);
         eventBus.subscribe(DisconnectEvent.class, event -> sessionManager.onDisconnect(event));
-        NetworkManager networkManager = new NetworkManager(port, sessionManager);
 
         UserRegistry userRegistry = new UserRegistry();
         eventBus.subscribe(
@@ -71,10 +71,9 @@ public class ServerApp {
                 SESSION_DISCONNECT_JOB_PERIOD,
                 TimeUnit.SECONDS);
 
-        ResponseDispatcher responseDispatcher = new ResponseDispatcher(sessionManager);
-
         registerCommands(dispatcher, router, responseDispatcher, userRegistry);
 
+        NetworkManager networkManager = new NetworkManager(port, sessionManager, router);
         networkManager.start();
     }
 

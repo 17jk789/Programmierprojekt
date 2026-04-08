@@ -1,5 +1,6 @@
 package ch.unibas.dmi.dbis.cs108.casono.server.network;
 
+import ch.unibas.dmi.dbis.cs108.casono.server.network.command.execution.CommandRouter;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.sessions.SessionManager;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.transport.TcpTransport;
 import java.io.IOException;
@@ -15,6 +16,7 @@ public class NetworkManager implements Runnable {
     private Thread thread;
     private Boolean running;
     private SessionManager sessionManager;
+    private CommandRouter router;
 
     /**
      * Creates a new NetworkManager with the given port, session manager, and event bus.
@@ -22,12 +24,13 @@ public class NetworkManager implements Runnable {
      * @param port the port to listen on
      * @param sessionManager the session manager to use
      */
-    public NetworkManager(Integer port, SessionManager sessionManager) {
+    public NetworkManager(Integer port, SessionManager sessionManager, CommandRouter router) {
         this.port = port;
         this.logger = LogManager.getLogger(NetworkManager.class);
         this.thread = new Thread(this, "networkManager");
         this.running = true;
         this.sessionManager = sessionManager;
+        this.router = router;
     }
 
     /** Starts the internal thread to accept new connections. */
@@ -45,7 +48,7 @@ public class NetworkManager implements Runnable {
 
                 logger.debug("Accepted connection from {}", clientSocket.getRemoteSocketAddress());
 
-                sessionManager.create(new TcpTransport(clientSocket));
+                sessionManager.create(new TcpTransport(clientSocket), router);
             }
 
         } catch (IOException e) {
