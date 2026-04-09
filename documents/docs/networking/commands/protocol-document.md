@@ -93,13 +93,23 @@ Description of the command, what it does and when it should be used.
 | :------------- | :----- | :---------------------------------- | :-------------------- |
 | `param1`       | `type` | If the parameter is optional or not | Description of param1 |
 
-### Response
+### Success Response
 | Field    | Type                | Description           |
 | :------- | :------------------ | :-------------------- |
 | `field1` | `type`              | Description of field1 |
 | `field2` | `Collection<type2>` |                       |
+| `field3` | `Enum<type3>`       | Description of field3 |
 
 | Fields of `type2` | Type   | Description           |
 | :---------------- | :----- | :-------------------- |
 | `field1`          | `type` | Description of field1 |
+
+| Members of `type` | Description            |
+| :---------------- | :--------------------- |
+| `MEMBER1`         | Description of member1 |
+
+### Error Response
+| Code         | Discription              |
+| :----------- | :----------------------- |
+| `ERROR_CODE` | Description of the error |
 -->
