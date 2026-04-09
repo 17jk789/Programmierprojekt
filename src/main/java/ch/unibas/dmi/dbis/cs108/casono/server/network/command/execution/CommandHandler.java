@@ -52,5 +52,5 @@ public abstract class CommandHandler<T extends Request> {
      *
      * @param request the request to execute, of type T
      */
-    public void execute(T request) {}
+    public abstract void execute(T request);
 }
