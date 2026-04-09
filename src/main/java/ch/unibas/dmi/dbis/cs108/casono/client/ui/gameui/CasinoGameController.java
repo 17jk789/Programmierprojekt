@@ -5,17 +5,17 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 
 /**
- * Controller für die Casino-Spielfläche.
+ * Controller for the casino gaming area.
  *
- * <p>Verantwortlich für: - die Darstellung des Pokertisches und der Spieleroberfläche, - die
- * Verarbeitung von Benutzereingaben, - die Schnittstelle zur GameEngine und zum Netzwerkprotokoll.
+ * <p>Responsible for: - the display of the poker table and the player interface, - the processing
+ * of user input, - the interface to the game engine and the network protocol.
  *
- * <p>Hinweise: - Die Methode `onTableClick()` dient aktuell nur als Test-Logik. Sie ist ggf. nicht
- * mehr funktionsfähig und wird zukünftig durch die finale Spielinteraktion ersetzt.
+ * <p>Notes: - The `onTableClick()` method currently serves only as test logic. It may no longer be
+ * functional and will be replaced by the final game interaction in the future.
  */
 public class CasinoGameController {
 
-    /** Standardkonstruktor. Wird von FXML verwendet. */
+    /** Standard constructor. Used by FXML. */
     public CasinoGameController() {
         // default constructor for FXML
     }
@@ -23,13 +23,13 @@ public class CasinoGameController {
     @FXML private Label welcomeText;
     @FXML private VBox casinoTable;
 
-    // TODO: Test-Logik: wird durch echte Spielinteraktionen ersetzt,
-    // sobald die GameEngine fertig ist
+    // TODO: Test logic: will be replaced by real game interactions,
+    // once the game engine is finished
 
     /**
-     * Temporäre Test-Methode, die bei Klick auf den Tisch eine Platzhalteraktion ausführt.
+     * Temporary test method that performs a placeholder action when the table is clicked.
      *
-     * <p>Wird in der finalen Implementierung durch die Spiel-Logik ersetzt.
+     * <p>In the final implementation, this will be replaced by the game logic.
      */
     @FXML
     public void onTableClick() {

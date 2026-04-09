@@ -31,28 +31,27 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Experimenteller integrierter Browser für Casono.
+ * Experimental embedded browser for Casono.
  *
- * <p>Diese Klasse implementiert einen einfachen eingebetteten Webbrowser auf Basis von {@link
- * javafx.scene.web.WebView}. Der Browser dient primär als Hilfswerkzeug innerhalb des Spiels, um
- * externe Inhalte wie Webseiten oder Videos anzuzeigen.
+ * <p>This class implements a simple embedded web browser based on {@link javafx.scene.web.WebView}.
+ * The browser primarily serves as a utility within the game to display external content such as web
+ * pages or videos.
  *
- * <p>Status Der Browser befindet sich derzeit in einer experimentellen Phase. Einige
- * Sicherheitsmechanismen basieren auf experimentellen KI-gestützten Empfehlungen und können sich in
- * zukünftigen Versionen noch ändern.
+ * <p>Status The browser is currently in an experimental phase. Some security mechanisms are based
+ * on experimental AI-driven recommendations and may change in future versions.
  *
- * <p>Zweck Der Browser wird aktuell experimentell genutzt, um: Pokerregeln direkt im Spiel zu
- * erklären Hilfeseiten oder Dokumentationen anzuzeigen Videos (z.B. Tutorials oder Erklärungen)
- * über Plattformen wie YouTube abzuspielen
+ * <p>Purpose The browser is currently being used experimentally to: Explain poker rules directly
+ * within the game Display help pages or documentation Play videos (e.g., tutorials or explanations)
+ * via platforms such as YouTube
  *
- * <p>Sicherheitsmechanismen Da externe Webseiten geladen werden können, wurden einige grundlegende
- * Schutzmaßnahmen integriert: - HTTPS-Zwang für Webseiten - Whitelist für bekannte Domains -
- * Warnung bei unbekannten Webseiten - JavaScript standardmäßig deaktiviert (man kann es jedoch für
- * Google etc. einschalten) - Popup-Blocker - Automatische Cookie-Löschung beim Schließen
+ * <p>Security Mechanisms Since external websites can be loaded, some basic protective measures have
+ * been integrated: - Mandatory HTTPS for websites - Whitelist for known domains - Warning for
+ * unknown websites - JavaScript disabled by default (but can be enabled for Google, etc.) - Pop-up
+ * blocker - Automatic cookie deletion upon closing
  */
 public class CasinoBrowserController {
 
-    /** Standardkonstruktor. Initialisiert den CasinoBrowserController. */
+    /** Default constructor. Initializes the CasinoBrowserController. */
     public CasinoBrowserController() {
         // Intentionally left blank; controller initialization is FXML-driven.
     }
@@ -101,7 +100,7 @@ public class CasinoBrowserController {
 
     private static boolean javascriptEnabled = false;
 
-    /** Löscht alle gespeicherten Cookies der aktuellen Browser-Sitzung. */
+    /** Deletes all cookies stored during the current browser session. */
     private static void clearCookies() {
         try {
             COOKIE_MANAGER.getCookieStore().removeAll();
@@ -110,12 +109,12 @@ public class CasinoBrowserController {
     }
 
     /**
-     * Öffnet ein neues Browserfenster und lädt eine angegebene Webseite.
+     * Opens a new browser window and loads a specified webpage.
      *
-     * <p>Falls die Webseite nicht zur Liste vertrauenswürdiger Domains gehört, wird der Benutzer
-     * gefragt, ob die Seite dennoch geladen werden soll.
+     * <p>If the webpage is not on the list of trusted domains, the user will be asked whether the
+     * page should be loaded anyway.
      *
-     * @param url die Startadresse der Webseite, die geladen werden soll
+     * @param url the URL of the webpage to be loaded
      */
     public static void open(String url) {
         Platform.runLater(
@@ -182,10 +181,10 @@ public class CasinoBrowserController {
     }
 
     /**
-     * WebView Container
+     * WebView container
      *
-     * @param webView WebView Inhalt
-     * @return StackPane Container
+     * @param webView WebView content
+     * @return StackPane container
      */
     public static StackPane createWebContainer(WebView webView) {
         StackPane webContainer = new StackPane(webView);
@@ -198,7 +197,7 @@ public class CasinoBrowserController {
     /**
      * Popup Blocker
      *
-     * @param engine WebEngine nutzen
+     * @param engine Use WebEngine
      */
     public static void configurePopupBlocker(WebEngine engine) {
         engine.setCreatePopupHandler(
@@ -212,8 +211,8 @@ public class CasinoBrowserController {
                         var stream = CasinoBrowserController.class.getResourceAsStream(LOGO_PATH);
                         Image logo = new Image(stream);
 
-                        // Variable 'streamM' abgekürzt, um das 100-Zeichen-Limit (LineLength)
-                        // einzuhalten
+                        // Variable ‘streamM’ abbreviated to comply with the 100-character
+                        // limit (LineLength)
                         var streamM =
                                 CasinoBrowserController.class.getResourceAsStream(LOGO_PATH_MAIN);
                         Image logomain = new Image(streamM);
@@ -232,7 +231,7 @@ public class CasinoBrowserController {
                             alert.setGraphic(logoView);
                         }
                     } catch (Exception e) {
-                        LOGGER.error("Logo konnte nicht geladen werden");
+                        LOGGER.error("The logo could not be loaded");
                     }
 
                     alert.showAndWait();
@@ -241,9 +240,9 @@ public class CasinoBrowserController {
     }
 
     /**
-     * Logos laden
+     * Load logos
      *
-     * @param stage Fenster Stage
+     * @param stage Window Stage
      * @return ImageView Logo
      */
     private static ImageView loadLogos(Stage stage) {
@@ -253,8 +252,7 @@ public class CasinoBrowserController {
             var stream = CasinoBrowserController.class.getResourceAsStream(LOGO_PATH);
             Image logo = new Image(stream);
 
-            // Variable 'streamM' abgekürzt, um das 100-Zeichen-Limit (LineLength)
-            // einzuhalten
+            // Variable ‘streamM’ abbreviated to comply with the 100-character limit (LineLength)
             var streamM = CasinoBrowserController.class.getResourceAsStream(LOGO_PATH_MAIN);
             Image logomain = new Image(streamM);
 
@@ -268,17 +266,17 @@ public class CasinoBrowserController {
                 browserLogo.setPreserveRatio(true);
             }
         } catch (Exception e) {
-            LOGGER.error("Logo konnte nicht geladen werden");
+            LOGGER.error("The logo could not be loaded");
         }
 
         return browserLogo;
     }
 
     /**
-     * URL Feld
+     * URL field
      *
      * @param url Start URL
-     * @return TextField Eingabe
+     * @return TextField input
      */
     public static TextField createUrlField(String url) {
         TextField urlField = new TextField(url);
@@ -289,12 +287,12 @@ public class CasinoBrowserController {
     }
 
     /**
-     * Sicherheits Label
+     * Security Label
      *
-     * @return Label Anzeige
+     * @return Label display
      */
     public static Label createSecurityLabel() {
-        Label securityLabel = new Label("SICHER");
+        Label securityLabel = new Label("SAFE");
         securityLabel.getStyleClass().add("security-label");
 
         return securityLabel;
@@ -303,8 +301,8 @@ public class CasinoBrowserController {
     /**
      * JS Toggle
      *
-     * @param engine WebEngine nutzen
-     * @return Button Umschalten
+     * @param engine Use WebEngine
+     * @return Toggle button
      */
     public static Button createJsToggle(WebEngine engine) {
         Button jsToggle = new Button("JS EINSCHALTEN");
@@ -316,7 +314,7 @@ public class CasinoBrowserController {
                     engine.setJavaScriptEnabled(javascriptEnabled);
 
                     if (javascriptEnabled) {
-                        jsToggle.setText("JS AUSSCHALTEN");
+                        jsToggle.setText("JS TURN OFF");
                         jsToggle.getStyleClass().removeAll("red-button");
                         jsToggle.getStyleClass().add("yellow-button");
 
@@ -331,10 +329,10 @@ public class CasinoBrowserController {
     }
 
     /**
-     * Zurück Button
+     * Back Button
      *
-     * @param engine WebEngine nutzen
-     * @return Button Zurück
+     * @param engine Use WebEngine
+     * @return Back button
      */
     public static Button createBackButton(WebEngine engine) {
         Button backBtn = new Button("<");
@@ -350,10 +348,10 @@ public class CasinoBrowserController {
     }
 
     /**
-     * Vorwärts Button
+     * Forward Button
      *
-     * @param engine WebEngine nutzen
-     * @return Button Vorwärts
+     * @param engine Use WebEngine
+     * @return Forward button
      */
     public static Button createForwardButton(WebEngine engine) {
         Button fwdBtn = new Button(">");
@@ -373,8 +371,8 @@ public class CasinoBrowserController {
     /**
      * Reload Button
      *
-     * @param engine WebEngine nutzen
-     * @return Button Reload
+     * @param engine Use WebEngine
+     * @return Reload button
      */
     public static Button createReloadButton(WebEngine engine) {
         Button reloadBtn = new Button("⟳");
@@ -386,9 +384,9 @@ public class CasinoBrowserController {
     /**
      * Close Button
      *
-     * @param stage Fenster Stage
-     * @param webView WebView Inhalt
-     * @return Button Schließen
+     * @param stage Window stage
+     * @param webView WebView content
+     * @return Close button
      */
     public static Button createCloseButton(Stage stage, WebView webView) {
         Button closeBtn = new Button("X");
@@ -406,9 +404,9 @@ public class CasinoBrowserController {
     /**
      * URL Events
      *
-     * @param engine WebEngine nutzen
-     * @param urlField URL Textfeld
-     * @param securityLabel Sicherheits Label
+     * @param engine Use WebEngine
+     * @param urlField URL text field
+     * @param securityLabel Security label
      */
     public static void configureUrlEvents(
             WebEngine engine, TextField urlField, Label securityLabel) {
@@ -417,11 +415,11 @@ public class CasinoBrowserController {
     }
 
     /**
-     * Scene erstellen
+     * Create a scene
      *
      * @param taskbar Taskbar HBox
-     * @param webContainer Web Container
-     * @return Scene Fenster
+     * @param webContainer Web container
+     * @return Scene window
      */
     public static Scene createScene(HBox taskbar, StackPane webContainer) {
         VBox root = new VBox(VBOX_SPACING, taskbar, webContainer);
@@ -442,8 +440,8 @@ public class CasinoBrowserController {
     /**
      * Key Events
      *
-     * @param scene Scene Fenster
-     * @param engine WebEngine nutzen
+     * @param scene Scene window
+     * @param engine Use WebEngine
      */
     public static void configureKeyEvents(Scene scene, WebEngine engine) {
         scene.setOnKeyPressed(
@@ -455,18 +453,18 @@ public class CasinoBrowserController {
     }
 
     /**
-     * Lädt eine URL in den Browser, nachdem grundlegende Sicherheitsprüfungen durchgeführt wurden.
+     * Loads a URL in the browser after performing basic security checks.
      *
-     * <p>Vor dem Laden einer Seite werden folgende Prüfungen durchgeführt: - Überprüfung des
-     * Protokolls (nur HTTPS erlaubt) - Überprüfung der Domain gegen eine Whitelist - Schutz vor
-     * Domain-Spoofing (Domain-Vortäuschung)
+     * <p>Before loading a page, the following checks are performed: - Verification of the protocol
+     * (only HTTPS allowed) - Verification of the domain against a whitelist - Protection against
+     * domain spoofing
      *
-     * <p>Falls eine Domain nicht als vertrauenswürdig eingestuft wird, muss der Benutzer
-     * bestätigen, dass die Seite dennoch geöffnet werden darf.
+     * <p>If a domain is not classified as trustworthy, the user must confirm that the page may
+     * still be opened.
      *
-     * @param engine der WebEngine-Renderer des Browsers
-     * @param url die zu ladende Webadresse
-     * @param securityLabel Label zur Anzeige des aktuellen Sicherheitsstatus
+     * @param engine the browser's WebEngine renderer
+     * @param url the web address to be loaded
+     * @param securityLabel label for displaying the current security status
      */
     private static void loadUrlSafely(WebEngine engine, String url, Label securityLabel) {
         try {
@@ -476,9 +474,9 @@ public class CasinoBrowserController {
 
             URI uri = new URI(url);
 
-            // HTTPS Pflicht
+            // HTTPS required
             if (!"https".equalsIgnoreCase(uri.getScheme())) {
-                securityLabel.setText("BLOCKIERT");
+                securityLabel.setText("BLOCKED");
                 return;
             }
 
@@ -488,19 +486,19 @@ public class CasinoBrowserController {
                 return;
             }
 
-            // Sicherer Domain Check
+            // Secure Domain Check
             boolean trusted =
                     TRUSTED_DOMAINS.stream()
                             .anyMatch(domain -> host.equals(domain) || host.endsWith("." + domain));
 
             if (!trusted) {
                 if (!showUnknownWebsiteAlert(host)) {
-                    securityLabel.setText("BLOCKIERT");
+                    securityLabel.setText("BLOCKED");
                     return;
                 }
                 securityLabel.setText("UNBEKANNT");
             } else {
-                securityLabel.setText("SICHER");
+                securityLabel.setText("SAFE");
             }
             engine.load(uri.toString());
         } catch (Exception e) {
@@ -509,20 +507,20 @@ public class CasinoBrowserController {
     }
 
     /**
-     * Zeigt Warnung an.
+     * Displays a warning.
      *
-     * @param host Website Host
-     * @return OK gedrückt
+     * @param host Website host
+     * @return OK pressed
      */
     private static boolean showUnknownWebsiteAlert(String host) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
 
-        alert.setTitle("Unbekannte Website");
-        alert.setHeaderText("Diese Website ist nicht bekannt");
+        alert.setTitle("Unknown website");
+        alert.setHeaderText("This website is unknown");
         String content =
                 host
-                        + "\n\nDiese Seite ist nicht vom Casono Browser verifiziert.\n"
-                        + "Möchten Sie sie trotzdem öffnen?";
+                        + "\n\nThis site has not been verified by the Casono browser.\n"
+                        + "Do you still want to open it?";
         alert.setContentText(content);
 
         var stream = CasinoBrowserController.class.getResourceAsStream(LOGO_PATH);
