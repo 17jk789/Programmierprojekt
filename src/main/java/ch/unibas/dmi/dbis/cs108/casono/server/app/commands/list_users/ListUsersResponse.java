@@ -1,0 +1,24 @@
+package ch.unibas.dmi.dbis.cs108.casono.server.app.commands.list_users;
+
+import ch.unibas.dmi.dbis.cs108.casono.server.domain.user.User;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.request.RequestContext;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.SuccessResponse;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.builder.ResponseBody;
+import java.util.Collection;
+
+public class ListUsersResponse extends SuccessResponse {
+    public ListUsersResponse(RequestContext context, Collection<User> users) {
+        super(
+                context,
+                ResponseBody.builder()
+                        .block(
+                                "USERS",
+                                users_block -> {
+                                    for (User user : users) {
+                                        users_block.param("USERNAME", user.getName());
+                                        users_block.param("ID", user.getId());
+                                    }
+                                })
+                        .build());
+    }
+}
