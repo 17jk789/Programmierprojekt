@@ -38,23 +38,17 @@ public class ChatViewController implements Initializable {
 
     private static final int CHAT_PADDING = 20;
 
-    public ChatViewController() {
-        this(null, null, null);
-    }
-
-    public ChatViewController(
-            String username, ChatModel chatModel, ChatController controller) {
+    public ChatViewController(ChatController chatController, ChatModel chatModel, String username){
+        this.controller = chatController;
         this.username = username;
-        this.controller = controller;
         this.chatModel = chatModel;
     }
-
     
     @Override
     public void initialize(URL location, ResourceBundle resourceBundle) {
         inputField.setOnAction(event -> sendMessage());
         sendButton.setOnAction(event -> sendMessage());
-        scrollPane.vvalueProperty().bind(chatInterfaceVBox.heightProperty());
+        scrollPane.vvalueProperty().bind(chat.heightProperty());
     }
 
     public void sendMessage() {

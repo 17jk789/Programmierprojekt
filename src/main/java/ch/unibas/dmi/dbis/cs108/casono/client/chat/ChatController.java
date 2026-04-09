@@ -3,6 +3,7 @@ package ch.unibas.dmi.dbis.cs108.casono.client.chat;
 import ch.unibas.dmi.dbis.cs108.casono.client.network.ChatClient;
 import ch.unibas.dmi.dbis.cs108.casono.client.network.ClientService;
 import ch.unibas.dmi.dbis.cs108.casono.client.ui.chatui.ChatBoxController;
+import javafx.application.Platform;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Timer;
@@ -55,8 +56,10 @@ public class ChatController {
                 new TimerTask() {
                     @Override
                     public void run() {
-                        clientService.ping();
-                        receiveMessage();
+                        Platform.runLater(() -> {
+                            clientService.ping();
+                            receiveMessage();
+                        });
                     }
                 },
                 0,
@@ -67,6 +70,7 @@ public class ChatController {
         this.lobbyId = lobbyId;
         ChatModel lobbyChatModel = new ChatModel(ChatType.LOBBY, username, lobbyId, null);
         chatModelMap.put(new ChatKey(ChatType.LOBBY), lobbyChatModel);
+        this.chatBoxController.addChatTab("Lobby", lobbyChatModel);
     }
 
     /** method to get all messages from the server */
@@ -89,9 +93,7 @@ public class ChatController {
                             if (chatModelMap.containsKey(new ChatKey(ChatType.WHISPER, msg.sender))) {
                                 chatModelMap.get(new ChatKey(ChatType.WHISPER, msg.sender)).addMessage(msg);
                             } else {
-                                ChatModel value = new ChatModel(ChatType.WHISPER, username, -1, msg.sender);
-                                chatModelMap.put(new ChatKey(ChatType.WHISPER, msg.sender), value);
-                                chatBoxController.addWhisperChat(msg.sender, value);
+                                chatBoxController.addWhisperChat(msg.sender);
                             }
                         }
                         break;

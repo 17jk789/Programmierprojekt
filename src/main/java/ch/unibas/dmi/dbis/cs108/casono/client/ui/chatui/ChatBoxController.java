@@ -5,12 +5,16 @@ import ch.unibas.dmi.dbis.cs108.casono.client.chat.ChatModel;
 import ch.unibas.dmi.dbis.cs108.casono.client.chat.ChatType;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.control.MenuButton;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.VBox;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 
 public class ChatBoxController {
 
@@ -22,7 +26,11 @@ public class ChatBoxController {
 
     @FXML private TabPane ChatTabPane;
 
+    @FXML private MenuButton addWhisperChatButton;
+
     private FXMLLoader fxmlLoader;
+
+    @FXML private List<MenuItem> whisperUsers;
 
     private String ressource =  "/ui-structure/components/chatui/chattab.fxml";
 
@@ -41,7 +49,16 @@ public class ChatBoxController {
     }
 
 
-    public void addWhisperChat(String target, ChatModel chatModel) {
+    public void addWhisperUser(String targetUserName) {
+        MenuItem menuItem = new MenuItem(targetUserName);
+        whisperUsers.add(menuItem);
+        addWhisperChatButton.getItems().add(menuItem);
+
+        menuItem.setOnAction(event -> addWhisperChat(targetUserName));
+    }
+
+    public void addWhisperChat(String target) {
+        ChatModel chatModel = new ChatModel(ChatType.WHISPER, username, -1, target);
         chatController.getChatModelMap().put(new ChatController.ChatKey(ChatType.WHISPER, target), chatModel);
         addChatTab(target, chatModel);
     }
@@ -50,11 +67,12 @@ public class ChatBoxController {
     public void addChatTab(String title, ChatModel chatModel) {
         URL resource = getClass().getResource(ressource);
         FXMLLoader fxmlLoader = new FXMLLoader(resource);
-        ChatViewController chatViewController = new ChatViewController(username, chatModel, chatController);
-        chatModel.addListener((msg)-> chatViewController.showMessage(msg));
         try {
+            ChatViewController chatViewController = new ChatViewController(this.chatController, chatModel, this.username);
             fxmlLoader.setController(chatViewController);
-            Tab newChat = new Tab(title, fxmlLoader.load());
+            Node load = fxmlLoader.load();
+            chatModel.addListener((msg)-> chatViewController.showMessage(msg));
+            Tab newChat = new Tab(title, load);
             this.ChatTabPane.getTabs().add(newChat);
         } catch (IOException e) {
             throw new RuntimeException(e);

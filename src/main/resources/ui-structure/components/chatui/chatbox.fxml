@@ -4,8 +4,9 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
 
-<!-- fx:controller="ch.unibas.dmi.dbis.cs108.casono.client.ui.chatui.ChatBoxController" -->
 
+<?import javafx.scene.control.skin.SplitPaneSkin.Content?>
+<?import com.sun.javafx.scene.control.ContextMenuContent.MenuBox?>
 <VBox xmlns="http://javafx.com/javafx/21"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:id="chatBox"
@@ -20,11 +21,14 @@
             <children>
                 <Label text="== CHAT ==" styleClass="chat-header" alignment="CENTER" maxWidth="Infinity"/>
                 <Region minHeight="4" styleClass="chat-separator"/>
+                <MenuButton fx:id="addWhisperChatButton" styleClass="gray-button" text="+" alignment="CENTER_RIGHT">
+                </MenuButton>
             </children>
 
         </HBox>
 
         <TabPane fx:id="ChatTabPane">
+
         </TabPane>
 
 

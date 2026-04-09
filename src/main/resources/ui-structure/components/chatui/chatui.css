@@ -153,3 +153,12 @@
 .scroll-pane .scroll-bar:horizontal .thumb:hover {
     -fx-pref-height: 10;
 }
+
+.tab-pane .tab-header-area {
+    -fx-background-color: #0d763b;
+}
+
+.tab .tab-label {
+    -fx-font-family: "Courier New";
+    -fx-font-weight: bold;
+}

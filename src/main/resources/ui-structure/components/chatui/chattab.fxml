@@ -1,35 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
 <!-- VBox for the global chat, should only be visible when activated via changeGlobalChatButton-->
-<VBox xmlns="http://javafx.com/javafx/21"
-      xmlns:fx="http://javafx.com/fxml/1"
-      fx:id="chatInterfaceVBox"
+
+<VBox fx:id="chatInterfaceVBox"
+      maxWidth="Infinity"
+      minHeight="500"
+      spacing="10"
+      styleClass="chat-box"
       stylesheets="@chatui.css"
-      styleClass="chat-box">
+      VBox.vgrow="ALWAYS"
+      xmlns="http://javafx.com/javafx/17.0.12"
+      xmlns:fx="http://javafx.com/fxml/1"
+>
+
+    <children>
+        <!-- Chatnachrichten werden hier hinzugefügt -->
+        <ScrollPane fx:id="scrollPane" fitToWidth="true" vbarPolicy="AS_NEEDED" hbarPolicy="NEVER" styleClass="chat-scroll-pane" VBox.vgrow="ALWAYS">
+            <content>
+                <VBox fx:id="chat" spacing="10" styleClass="chat-VBox" />
+            </content>
+        </ScrollPane>
+
+        <!-- Eingabebereich -->
+        <HBox fx:id="controlBar" spacing="10">
+            <!-- TODO: Größe des TextFields dynamisch anpassen -->
+            <TextField fx:id="inputField" promptText="Nachricht eingeben..." styleClass="gray-input-field" HBox.hgrow="ALWAYS" />
+            <Button fx:id="sendButton" styleClass="yellow-button" text="SENDEN" />
+        </HBox>
+    </children>
 
 
-    <!-- Chatnachrichten werden hier hinzugefügt -->
-    <ScrollPane fx:id="scrollPane" fitToWidth="true" vbarPolicy="AS_NEEDED" hbarPolicy="NEVER"
-                VBox.vgrow="ALWAYS" styleClass="chat-scroll-pane">
-        <content>
-            <VBox fx:id="chat" spacing="10" styleClass="chat-VBox"/>
-        </content>
-    </ScrollPane>
-
-    <!-- Eingabebereich -->
-    <HBox spacing="10"
-          fx:id="controlBar">
-        <!-- TODO: Größe des TextFields dynamisch anpassen -->
-        <TextField fx:id="inputField" HBox.hgrow="ALWAYS" promptText="Nachricht eingeben..."
-                   styleClass="gray-input-field"/>
-        <Button fx:id="sendButton" text="SENDEN"
-                styleClass="yellow-button"/>
-    </HBox>
 </VBox>
-
