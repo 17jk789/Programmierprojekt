@@ -21,20 +21,28 @@ This document describes the protocol for client-server communication in our appl
     - [Required pre-execution checks](#required-pre-execution-checks)
     - [Request Parameters](#request-parameters)
     - [Success Response](#success-response)
+    - [Example Request](#example-request)
+    - [Example Response](#example-response)
   - [CHECK\_USERNAME command](#check_username-command)
     - [Required pre-execution checks](#required-pre-execution-checks-1)
     - [Request Parameters](#request-parameters-1)
     - [Success Response](#success-response-1)
+    - [Example Request](#example-request-1)
+    - [Example Response](#example-response-1)
   - [LOGIN comamnd](#login-comamnd)
     - [Required pre-execution checks](#required-pre-execution-checks-2)
     - [Request Parameters](#request-parameters-2)
     - [Success Response](#success-response-2)
     - [Error Response](#error-response-4)
+    - [Example Request](#example-request-2)
+    - [Example Response](#example-response-2)
   - [LOGOUT command](#logout-command)
     - [Required pre-execution checks](#required-pre-execution-checks-3)
     - [Request Parameters](#request-parameters-3)
     - [Success Response](#success-response-3)
     - [Error Response](#error-response-5)
+    - [Example Request](#example-request-3)
+    - [Example Response](#example-response-3)
 
 <!-- Plase see the comments for copy n' paste ready examples -->
 
@@ -140,6 +148,23 @@ Description of the command, what it does and when it should be used.
 | Code         | Discription              |
 | :----------- | :----------------------- |
 | `ERROR_CODE` | Description of the error |
+
+### Example Request
+```
+COMMAND_NAME PARAM1='value1' PARAM2='value2'
+```
+
+### Example Response
+```
++OK
+  KEY1=VALUE1
+  FIELDS
+    FIELD
+      NESTED_KEY=NESTED_VALUE
+  END
+  KEY2=VALUE2
+END
+```
 -->
 
 ## PING command
@@ -153,6 +178,17 @@ No parameters.
 
 ### Success Response
 No response fields.
+
+### Example Request
+```
+PING
+``` 
+
+### Example Response
+```
++OK
+END
+```
 
 
 ## CHECK_USERNAME command
@@ -176,6 +212,17 @@ None.
 | `FREE`                            | Username is available      |
 | `TAKEN`                           | Username is already in use |
 
+### Example Request
+```
+CHECK_USERNAME USERNAME='Lars'
+```
+
+### Example Response
+```
++OK 
+  STATUS=FREE
+END
+```
 
 ## LOGIN comamnd
 The `LOGIN` command is used to log in a user with a specified username. If the username is already taken by another user, the server will append a suffix to the username to make it unique.
@@ -199,6 +246,19 @@ None.
 | :------------------ | :----------------------------------------------------------------------------- |
 | `ALREADY_LOGGED_IN` | The session is already associated with a user, logging in again is prohibited. |
 
+### Example Request
+```
+LOGIN USERNAME='Lars'
+```
+
+### Example Response
+```
++OK
+  USERNAME='Lars_1234'
+  ID=e47a671e-2b2a-42df-bb82-953fe2ebd307
+END
+```
+
 
 ## LOGOUT command
 Description of the command, what it does and when it should be used.
@@ -216,3 +276,14 @@ No response fields.
 | Code               | Discription                                                      |
 | :----------------- | :--------------------------------------------------------------- |
 | `NO_USER_ASSOCIATED` | The session has no user associated, logging out is not possible. |
+
+### Example Request
+```
+LOGOUT
+```
+
+### Example Response
+```
++OK
+END
+```
