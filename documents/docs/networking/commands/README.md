@@ -17,6 +17,10 @@ The concrete implementations for each command live in `app/commands/` and are wi
 - [Command Infrastructure](./commands-deep-dive.md) -
   Technical deep-dive into the `CommandParser`, `CommandParserDispatcher`, `CommandHandler`, `CommandRouter`, `Request`, and the response hierarchy.
 
+### Protocol document
+- [Protocol Document](./protocol-document.md) - 
+  List of all supported commands by the server, along with descriptions, required pre-execution checks, and an example for both request and response.
+
 ## Key Concepts
 **Each command is self-contained.**
 A command's Parser, Request, Handler, and Response all live in the same package under `app/commands/<name>/`.
