@@ -7,11 +7,11 @@ import javafx.scene.layout.VBox;
 /**
  * Controller for the casino gaming area.
  *
- * <p>Responsible for: - the display of the poker table and the player interface, - the
- * processing of user input, - the interface to the game engine and the network protocol.
+ * <p>Responsible for: - the display of the poker table and the player interface, - the processing
+ * of user input, - the interface to the game engine and the network protocol.
  *
- * <p>Notes: - The `onTableClick()` method currently serves only as test logic.
- * It may no longer be functional and will be replaced by the final game interaction in the future.
+ * <p>Notes: - The `onTableClick()` method currently serves only as test logic. It may no longer be
+ * functional and will be replaced by the final game interaction in the future.
  */
 public class CasinoGameController {
 

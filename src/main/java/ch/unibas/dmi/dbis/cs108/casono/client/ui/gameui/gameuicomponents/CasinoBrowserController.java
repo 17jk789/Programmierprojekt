@@ -33,22 +33,21 @@ import org.apache.logging.log4j.Logger;
 /**
  * Experimental embedded browser for Casono.
  *
- * <p>This class implements a simple embedded web browser based on {@link
- * javafx.scene.web.WebView}. The browser primarily serves as a utility within the game to
- * display external content such as web pages or videos.
+ * <p>This class implements a simple embedded web browser based on {@link javafx.scene.web.WebView}.
+ * The browser primarily serves as a utility within the game to display external content such as web
+ * pages or videos.
  *
- * <p>Status The browser is currently in an experimental phase. Some
- * security mechanisms are based on experimental AI-driven recommendations and may
- * change in future versions.
+ * <p>Status The browser is currently in an experimental phase. Some security mechanisms are based
+ * on experimental AI-driven recommendations and may change in future versions.
  *
- * <p>Purpose The browser is currently being used experimentally to: Explain poker rules directly within the game
- * Display help pages or documentation Play videos (e.g., tutorials or explanations)
+ * <p>Purpose The browser is currently being used experimentally to: Explain poker rules directly
+ * within the game Display help pages or documentation Play videos (e.g., tutorials or explanations)
  * via platforms such as YouTube
  *
- * <p>Security Mechanisms Since external websites can be loaded, some basic
- * protective measures have been integrated: - Mandatory HTTPS for websites - Whitelist for known domains -
- * Warning for unknown websites - JavaScript disabled by default (but can be enabled for
- * Google, etc.) - Pop-up blocker - Automatic cookie deletion upon closing
+ * <p>Security Mechanisms Since external websites can be loaded, some basic protective measures have
+ * been integrated: - Mandatory HTTPS for websites - Whitelist for known domains - Warning for
+ * unknown websites - JavaScript disabled by default (but can be enabled for Google, etc.) - Pop-up
+ * blocker - Automatic cookie deletion upon closing
  */
 public class CasinoBrowserController {
 
@@ -112,8 +111,8 @@ public class CasinoBrowserController {
     /**
      * Opens a new browser window and loads a specified webpage.
      *
-     * <p>If the webpage is not on the list of trusted domains, the user
-     * will be asked whether the page should be loaded anyway.
+     * <p>If the webpage is not on the list of trusted domains, the user will be asked whether the
+     * page should be loaded anyway.
      *
      * @param url the URL of the webpage to be loaded
      */
@@ -212,7 +211,8 @@ public class CasinoBrowserController {
                         var stream = CasinoBrowserController.class.getResourceAsStream(LOGO_PATH);
                         Image logo = new Image(stream);
 
-                        // Variable ‘streamM’ abbreviated to comply with the 100-character limit (LineLength)
+                        // Variable ‘streamM’ abbreviated to comply with the 100-character
+                        // limit (LineLength)
                         var streamM =
                                 CasinoBrowserController.class.getResourceAsStream(LOGO_PATH_MAIN);
                         Image logomain = new Image(streamM);
@@ -455,12 +455,12 @@ public class CasinoBrowserController {
     /**
      * Loads a URL in the browser after performing basic security checks.
      *
-     * <p>Before loading a page, the following checks are performed: - Verification of the
-     * protocol (only HTTPS allowed) - Verification of the domain against a whitelist - Protection against
+     * <p>Before loading a page, the following checks are performed: - Verification of the protocol
+     * (only HTTPS allowed) - Verification of the domain against a whitelist - Protection against
      * domain spoofing
      *
-     * <p>If a domain is not classified as trustworthy, the user must
-     * confirm that the page may still be opened.
+     * <p>If a domain is not classified as trustworthy, the user must confirm that the page may
+     * still be opened.
      *
      * @param engine the browser's WebEngine renderer
      * @param url the web address to be loaded

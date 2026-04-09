@@ -13,9 +13,8 @@ import org.apache.logging.log4j.Logger;
 /**
  * Controller for the interactive taskbar within the poker UI.
  *
- * Responsible for: - Drag-and-drop movement of the taskbar,
- * - Input and management of game stakes, - Control of general
- * menu functions such as Exit.
+ * <p>Responsible for: - Drag-and-drop movement of the taskbar, - Input and management of game
+ * stakes, - Control of general menu functions such as Exit.
  */
 public class TaskbarController {
 
@@ -37,8 +36,8 @@ public class TaskbarController {
     private static final int CREDIT_STEP = 5;
 
     /**
-     * Called when the taskbar is clicked with the mouse. Saves the relative
-     * position for later, correct repositioning.
+     * Called when the taskbar is clicked with the mouse. Saves the relative position for later,
+     * correct repositioning.
      *
      * @param event The mouse event
      */
@@ -49,11 +48,10 @@ public class TaskbarController {
     }
 
     /**
-     * Called while dragging the taskbar with the mouse. Updates the position
-     * and slightly scales the taskbar for visual feedback.
+     * Called while dragging the taskbar with the mouse. Updates the position and slightly scales
+     * the taskbar for visual feedback.
      *
-     * <p>TODO: It still needs to be fixed that the taskbar cannot disappear out
-     * of the window.
+     * <p>TODO: It still needs to be fixed that the taskbar cannot disappear out of the window.
      *
      * @param event Das Mausereignis
      */
@@ -67,8 +65,8 @@ public class TaskbarController {
     }
 
     /**
-     * Called when the mouse cursor is released over the taskbar. Resets the
-     * taskbar scaling to normal size.
+     * Called when the mouse cursor is released over the taskbar. Resets the taskbar scaling to
+     * normal size.
      *
      * @param event The mouse event
      */
@@ -91,8 +89,8 @@ public class TaskbarController {
     }
 
     /**
-     * Called when the submit button in the taskbar is pressed. Triggers the
-     * processing of the deployment.
+     * Called when the submit button in the taskbar is pressed. Triggers the processing of the
+     * deployment.
      */
     @FXML
     private void onInputSubmittedAction() {
@@ -117,9 +115,9 @@ public class TaskbarController {
     }
 
     /**
-     * Processes the stake entered in the text field. Only integer values between 5
-     * and 100,000 credits are accepted, in multiples of 5 (in increments of 5).
-     * The stake is currently only displayed on the console.
+     * Processes the stake entered in the text field. Only integer values between 5 and 100,000
+     * credits are accepted, in multiples of 5 (in increments of 5). The stake is currently only
+     * displayed on the console.
      */
     private void processBet() {
         String input = taskbarInput.getText();
@@ -141,8 +139,8 @@ public class TaskbarController {
     /**
      * Opens the integrated Casono web browser.
      *
-     * <p> TODO: Replace the start URL with the official project website
-     * (e.g., Tips & Tricks page) once the content for strategies and support is available.
+     * <p>TODO: Replace the start URL with the official project website (e.g., Tips & Tricks page)
+     * once the content for strategies and support is available.
      */
     @FXML
     private void onBrowserButtonClick() {

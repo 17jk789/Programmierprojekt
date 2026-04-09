@@ -12,8 +12,8 @@ import javafx.stage.Stage;
  * <p>Starts the JavaFX application, loads the graphical user interface from the FXML file, and
  * initializes the main stage for the game.
  *
- * <p>Tasks: - Loads the FXML interface "/ui-structure/Casinogameui.fxml". - Loads the
- * application icon from "/images/logoinverted.png". - Starts the application in full-screen mode.
+ * <p>Tasks: - Loads the FXML interface "/ui-structure/Casinogameui.fxml". - Loads the application
+ * icon from "/images/logoinverted.png". - Starts the application in full-screen mode.
  */
 public class CasinoGameUI extends Application {
 
