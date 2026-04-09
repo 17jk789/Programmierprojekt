@@ -3,9 +3,6 @@ package ch.unibas.dmi.dbis.cs108.casono.client.network;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.command.parsing.RequestParameter;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.transport.RawPacket;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.transport.TcpTransport;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -17,13 +14,13 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
- * The ClientService class is responsible for managing the connection to the
- * server,
- * sending commands, and receiving responses. It uses a TcpTransport to
- * communicate
- * with the server and an ExecutorService to handle asynchronous requests.
+ * The ClientService class is responsible for managing the connection to the server, sending
+ * commands, and receiving responses. It uses a TcpTransport to communicate with the server and an
+ * ExecutorService to handle asynchronous requests.
  */
 public class ClientService {
 
@@ -35,6 +32,7 @@ public class ClientService {
     public static ArrayList<String> response;
     private final AtomicInteger idGenerator;
     private final Logger logger;
+
     /*
      * Constructs a ClientService with the given server IP and port. It establishes
      * a socket connection to the server and initializes the TcpTransport and
@@ -58,10 +56,11 @@ public class ClientService {
         }
 
         executor = Executors.newSingleThreadExecutor();
-
     }
 
-    static Pattern responseRex = Pattern.compile("(?<key>\\w+)=(('(?<string>([^']|\\')+)')|(?<primVal>[+-]?[\\d\\w:]+))");
+    static Pattern responseRex =
+            Pattern.compile(
+                    "(?<key>\\w+)=(('(?<string>([^']|\\')+)')|(?<primVal>[+-]?[\\d\\w:]+))");
 
     /**
      * Sends the Requests to the server and waits for the response If the response is "+OK" it
@@ -73,19 +72,25 @@ public class ClientService {
     private static String unescape(String input) {
         return input.replaceAll("\\\\'", "'");
     }
+
     public static List<RequestParameter> convertToRequestParameters(List<String> input) {
-        return input.stream().map((String parString)-> responseRex.matcher(parString))
+        return input.stream()
+                .map((String parString) -> responseRex.matcher(parString))
                 .filter(Matcher::matches)
-                .map((m)->{
-                    if (!(m.group("string") == null)) {
-                        return new RequestParameter(m.group("key"), unescape(m.group("string")));
-                    } else if (!(m.group("primVal") == null)){
-                        return new RequestParameter(m.group("key"), m.group("primVal"));
-                    } else {
-                        throw new RuntimeException();
-                    }
-                }).toList();
+                .map(
+                        (m) -> {
+                            if (!(m.group("string") == null)) {
+                                return new RequestParameter(
+                                        m.group("key"), unescape(m.group("string")));
+                            } else if (!(m.group("primVal") == null)) {
+                                return new RequestParameter(m.group("key"), m.group("primVal"));
+                            } else {
+                                throw new RuntimeException();
+                            }
+                        })
+                .toList();
     }
+
     protected List<String> processCommand(String message) {
         List<String> response = new ArrayList<>();
         sendRequest(
@@ -98,7 +103,7 @@ public class ClientService {
                         logger.info("Raw message '" + responseText + "'");
                         Boolean success = null;
                         int count = 0;
-                        for(String line: responseText.split("\n")) {
+                        for (String line : responseText.split("\n")) {
                             if (success == null) {
                                 if ("+OK".equals(line)) {
                                     success = true;
@@ -113,12 +118,11 @@ public class ClientService {
                             }
                             line = line.replaceFirst("^\t", "");
                             response.add(line);
-
                         }
-                        if (success!= null && success) {
+                        if (success != null && success) {
                             return;
                         } else {
-                            throw new RuntimeException("Error in "+message+": "+response);
+                            throw new RuntimeException("Error in " + message + ": " + response);
                         }
                     } catch (Exception e) {
                         throw getRuntimeException(e);
@@ -128,13 +132,11 @@ public class ClientService {
     }
 
     /**
-     * Helper method to send a request to the server using the ExecutorService. It
-     * submits the request as a Runnable task and waits for its completion. If
-     * the task is interrupted or encounters an execution exception, it throws a
-     * RuntimeException with the appropriate cause.
+     * Helper method to send a request to the server using the ExecutorService. It submits the
+     * request as a Runnable task and waits for its completion. If the task is interrupted or
+     * encounters an execution exception, it throws a RuntimeException with the appropriate cause.
      *
-     * @param request The Runnable task representing the request to be sent to the
-     *                server.
+     * @param request The Runnable task representing the request to be sent to the server.
      */
     private void sendRequest(Runnable request) {
         Future<?> future = executor.submit(request);
@@ -148,11 +150,10 @@ public class ClientService {
     }
 
     /**
-     * Helper method to extract the cause of an exception and return it as a
-     * RuntimeException. If the cause is null, it returns the original exception as
-     * a RuntimeException. If the cause is already a RuntimeException, it returns
-     * it directly. Otherwise, it wraps the cause in a new RuntimeException and
-     * returns it.
+     * Helper method to extract the cause of an exception and return it as a RuntimeException. If
+     * the cause is null, it returns the original exception as a RuntimeException. If the cause is
+     * already a RuntimeException, it returns it directly. Otherwise, it wraps the cause in a new
+     * RuntimeException and returns it.
      *
      * @param e The exception from which to extract the cause.
      * @return A RuntimeException representing the cause of the original exception.
@@ -170,10 +171,9 @@ public class ClientService {
     }
 
     /**
-     * Closes the socket connection to the server and shuts down the
-     * ExecutorService.
-     * It also closes the TcpTransport used for communication. If any IOException
-     * occurs during this process, it prints the exception to the console.
+     * Closes the socket connection to the server and shuts down the ExecutorService. It also closes
+     * the TcpTransport used for communication. If any IOException occurs during this process, it
+     * prints the exception to the console.
      */
     public void closeSocket() {
         try {
@@ -200,6 +200,4 @@ public class ClientService {
     public void ping() {
         processCommand("PING");
     }
-
-
 }

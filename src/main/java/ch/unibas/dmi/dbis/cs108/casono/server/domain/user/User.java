@@ -1,9 +1,13 @@
 package ch.unibas.dmi.dbis.cs108.casono.server.domain.user;
-import ch.unibas.dmi.dbis.cs108.casono.client.chat.Message;
 
+import ch.unibas.dmi.dbis.cs108.casono.client.chat.Message;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.sessions.SessionId;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /** Represents an authenticated user on the server. */
@@ -85,9 +89,13 @@ public class User {
         messages.add(message);
     }
 
-    public synchronized int getMessageCount() { return messages.size(); }
+    public synchronized int getMessageCount() {
+        return messages.size();
+    }
 
-    public synchronized Message dequeMessage() throws NoSuchElementException { return messages.remove(); }
+    public synchronized Message dequeMessage() throws NoSuchElementException {
+        return messages.remove();
+    }
 
     public synchronized List<Message> dequeueAllMessages(Message message) {
         List<Message> allMessages = new ArrayDeque<>(messages).stream().toList();

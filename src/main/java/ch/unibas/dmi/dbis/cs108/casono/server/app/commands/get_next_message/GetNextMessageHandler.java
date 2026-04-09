@@ -6,15 +6,13 @@ import ch.unibas.dmi.dbis.cs108.casono.server.domain.user.UserRegistry;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.command.execution.CommandHandler;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.ErrorResponse;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.dispatcher.ResponseDispatcher;
-
 import java.util.Optional;
 
-public class GetNextMessageHandler implements CommandHandler<GetNextMessageRequest> {
-    public final ResponseDispatcher responseDispatcher;
+public class GetNextMessageHandler extends CommandHandler<GetNextMessageRequest> {
     private final UserRegistry userRegistry;
 
     public GetNextMessageHandler(ResponseDispatcher responseDispatcher, UserRegistry userRegistry) {
-        this.responseDispatcher = responseDispatcher;
+        super(responseDispatcher);
         this.userRegistry = userRegistry;
     }
 
@@ -23,18 +21,14 @@ public class GetNextMessageHandler implements CommandHandler<GetNextMessageReque
         Optional<User> user = userRegistry.getBySessionId(request.getSessionId());
         if (user.isPresent()) {
             Message msg = user.get().dequeMessage();
-            GetNextMessageResponse response = new GetNextMessageResponse(
-                    request.getContext(),
-                    msg
-            );
+            GetNextMessageResponse response = new GetNextMessageResponse(request.getContext(), msg);
             responseDispatcher.dispatch(response);
         } else {
-            ErrorResponse response = new ErrorResponse(
-                    request.getContext(),
-                    "NO_USER_ASSOCIATED",
-                    "user could not be identified by SessionId"
-
-            );
+            ErrorResponse response =
+                    new ErrorResponse(
+                            request.getContext(),
+                            "NO_USER_ASSOCIATED",
+                            "user could not be identified by SessionId");
             responseDispatcher.dispatch(response);
         }
     }

@@ -1,10 +1,9 @@
 package ch.unibas.dmi.dbis.cs108.casono.client.chat;
 
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-
 import java.util.ArrayList;
 import java.util.function.Consumer;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 
 /**
  * ChatModel, stores the data for a specific chat
@@ -19,15 +18,10 @@ public class ChatModel {
 
     private final ChatType chattype;
 
-    /**
-     * The person currently using this client
-     */
+    /** The person currently using this client */
     public final String username;
 
-    /**
-     * The person to send the message to
-     * If the chat is a whisper chat
-     */
+    /** The person to send the message to If the chat is a whisper chat */
     private final String target;
 
     private final IntegerProperty count;
@@ -64,9 +58,8 @@ public class ChatModel {
      */
     public synchronized void addMessage(Message msg) {
         messages.add(msg);
-        listeners.stream().forEach((l)-> l.accept(messages.getLast()));
+        listeners.stream().forEach((l) -> l.accept(messages.getLast()));
     }
-
 
     public void addListener(Consumer<Message> listener) {
         this.listeners.add(listener);

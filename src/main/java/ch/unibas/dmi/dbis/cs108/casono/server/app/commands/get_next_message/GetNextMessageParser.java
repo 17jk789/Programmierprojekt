@@ -7,7 +7,8 @@ import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.request.accessor.
 public class GetNextMessageParser implements CommandParser<GetNextMessageRequest> {
     @Override
     public GetNextMessageRequest parse(PrimitiveRequest primitiveRequest) {
-        RequestParameterAccessor accessor = new RequestParameterAccessor(primitiveRequest.parameters());
+        RequestParameterAccessor accessor =
+                new RequestParameterAccessor(primitiveRequest.parameters());
         return new GetNextMessageRequest(primitiveRequest.context());
     }
 }

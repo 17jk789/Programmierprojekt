@@ -83,7 +83,7 @@
 .gray-button {
     -fx-background-color: #333333;
     -fx-border-color: #666666;
-    -fx-text-fill: #cccccc;
+    -fx-text-fill: #ffffff;
 }
 
 .gray-button, .yellow-button, .red-button {

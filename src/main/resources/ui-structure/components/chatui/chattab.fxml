@@ -7,14 +7,12 @@
 
 <VBox fx:id="chatInterfaceVBox"
       maxWidth="Infinity"
-      minHeight="500"
       spacing="10"
       styleClass="chat-box"
       stylesheets="@chatui.css"
       VBox.vgrow="ALWAYS"
       xmlns="http://javafx.com/javafx/17.0.12"
-      xmlns:fx="http://javafx.com/fxml/1"
->
+      xmlns:fx="http://javafx.com/fxml/1">
 
     <children>
         <!-- Chatnachrichten werden hier hinzugefügt -->

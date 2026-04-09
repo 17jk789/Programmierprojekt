@@ -3,7 +3,6 @@ package ch.unibas.dmi.dbis.cs108.casono.client;
 /**
  * Entry point for the Casono client application. Handles client startup and connection parameters.
  */
-
 import ch.unibas.dmi.dbis.cs108.casono.client.ui.Launcher;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

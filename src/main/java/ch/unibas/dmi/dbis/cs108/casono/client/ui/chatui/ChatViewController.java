@@ -38,12 +38,12 @@ public class ChatViewController implements Initializable {
 
     private static final int CHAT_PADDING = 20;
 
-    public ChatViewController(ChatController chatController, ChatModel chatModel, String username){
+    public ChatViewController(ChatController chatController, ChatModel chatModel, String username) {
         this.controller = chatController;
         this.username = username;
         this.chatModel = chatModel;
     }
-    
+
     @Override
     public void initialize(URL location, ResourceBundle resourceBundle) {
         inputField.setOnAction(event -> sendMessage());
@@ -55,7 +55,13 @@ public class ChatViewController implements Initializable {
         String message = inputField.getText().trim();
         if (!message.isEmpty()) {
             inputField.clear();
-            Message msg = new Message(chatModel.getChattype(), chatModel.lobbyId, username, chatModel.getTarget(), message);
+            Message msg =
+                    new Message(
+                            chatModel.getChattype(),
+                            chatModel.lobbyId,
+                            username,
+                            chatModel.getTarget(),
+                            message);
             controller.onSendToNetwork(msg);
         }
     }
@@ -69,6 +75,7 @@ public class ChatViewController implements Initializable {
         chat.getChildren().add(label);
     }
 
-
-
+    public VBox getChatInterfaceVBox() {
+        return chatInterfaceVBox;
+    }
 }

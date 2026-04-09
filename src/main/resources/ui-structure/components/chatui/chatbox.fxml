@@ -17,17 +17,19 @@
       maxWidth="Infinity">
 
     <children>
-        <HBox>
+        <HBox spacing="10"
+              styleClass="">
             <children>
                 <Label text="== CHAT ==" styleClass="chat-header" alignment="CENTER" maxWidth="Infinity"/>
-                <Region minHeight="4" styleClass="chat-separator"/>
-                <MenuButton fx:id="addWhisperChatButton" styleClass="gray-button" text="+" alignment="CENTER_RIGHT">
+                <Region HBox.hgrow="ALWAYS" />
+                <MenuButton fx:id="addWhisperChatButton" styleClass="yellow-button" text="WHISPER CHAT" alignment="CENTER_RIGHT">
                 </MenuButton>
             </children>
 
         </HBox>
 
-        <TabPane fx:id="ChatTabPane">
+        <TabPane fx:id="ChatTabPane"
+                 VBox.vgrow="ALWAYS">
 
         </TabPane>
 

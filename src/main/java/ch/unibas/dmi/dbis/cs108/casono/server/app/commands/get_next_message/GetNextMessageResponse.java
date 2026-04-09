@@ -7,7 +7,6 @@ import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.builder.
 
 public class GetNextMessageResponse extends SuccessResponse {
     public GetNextMessageResponse(RequestContext context, Message msg) {
-        super(context, msg.toResponse(ResponseBody.builder())
-                );
+        super(context, msg.toResponse(ResponseBody.builder()));
     }
 }

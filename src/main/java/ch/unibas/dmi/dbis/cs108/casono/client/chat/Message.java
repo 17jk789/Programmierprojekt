@@ -3,13 +3,12 @@ package ch.unibas.dmi.dbis.cs108.casono.client.chat;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.command.parsing.RequestParameter;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.builder.ResponseBody;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.builder.ResponseBodyBuilder;
-import org.jspecify.annotations.NonNull;
-
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Message Object for internal handling of Chat-Messages TODO: Should be used on both sides of the
@@ -82,11 +81,11 @@ public class Message {
      * @return - request as specified in the network protocol, as String
      */
     public String toArgsString() {
-        String gameIdString="";
-        if(lobbyId >= 0) {
-            gameIdString=" GAME="+lobbyId;
+        String gameIdString = "";
+        if (lobbyId >= 0) {
+            gameIdString = " GAME=" + lobbyId;
         } else {
-            gameIdString=" GAME='-1'";
+            gameIdString = " GAME='-1'";
         }
         return String.format(
                 "TYPE=%s%s USER='%s' TARGET='%s' TIME='%s' TEXT='%s'",
@@ -101,10 +100,12 @@ public class Message {
     /** Pattern, to analyze the response String with the given parameters */
     public static Pattern msgRex =
             Pattern.compile(
-                    "TYPE=(?<type>\\w+) " + "(GAME=(?<game>\\w+) )?" +
-                            "USER=(?<user>\\w+) " + "(TARGET=(?<target>\\w+) )?" +
-                            "TIME=(?<time>[0-9:.]+) " + "TEXT='(?<text>([^']|\\')+)'");
-
+                    "TYPE=(?<type>\\w+) "
+                            + "(GAME=(?<game>\\w+) )?"
+                            + "USER=(?<user>\\w+) "
+                            + "(TARGET=(?<target>\\w+) )?"
+                            + "TIME=(?<time>[0-9:.]+) "
+                            + "TEXT='(?<text>([^']|\\')+)'");
 
     /**
      * Method to create a Message Object, from the information given by the String
@@ -167,38 +168,46 @@ public class Message {
         String typeString = getParString(parameters, "TYPE");
         ChatType type = ChatType.valueOf(typeString);
         return switch (type) {
-            case GLOBAL -> new Message(ChatType.GLOBAL,
-                    -1,
-                    getParString(parameters, "USER"),
-                    null,
-                    getParString(parameters, "TIME"),
-                    getParString(parameters, "TEXT")
-            );
-            case LOBBY -> new Message(ChatType.LOBBY,
-                    Integer.parseInt(getParString(parameters, "GAME")),
-                    getParString(parameters, "USER"),
-                    null,
-                    getParString(parameters, "TIME"),
-                    getParString(parameters, "TEXT")
-            );
-            case WHISPER -> new Message(ChatType.WHISPER,
-                    Integer.parseInt(getParString(parameters, "GAME", "-1")),
-                    getParString(parameters, "USER"),
-                    getParString(parameters, "TARGET"),
-                    getParString(parameters, "TIME"),
-                    getParString(parameters, "TEXT")
-            );
+            case GLOBAL ->
+                    new Message(
+                            ChatType.GLOBAL,
+                            -1,
+                            getParString(parameters, "USER"),
+                            null,
+                            getParString(parameters, "TIME"),
+                            getParString(parameters, "TEXT"));
+            case LOBBY ->
+                    new Message(
+                            ChatType.LOBBY,
+                            Integer.parseInt(getParString(parameters, "GAME")),
+                            getParString(parameters, "USER"),
+                            null,
+                            getParString(parameters, "TIME"),
+                            getParString(parameters, "TEXT"));
+            case WHISPER ->
+                    new Message(
+                            ChatType.WHISPER,
+                            Integer.parseInt(getParString(parameters, "GAME", "-1")),
+                            getParString(parameters, "USER"),
+                            getParString(parameters, "TARGET"),
+                            getParString(parameters, "TIME"),
+                            getParString(parameters, "TEXT"));
         };
-
     }
-    private static @NonNull String getParString(List<RequestParameter> parameters, String keyString) {
+
+    private static @NonNull String getParString(
+            List<RequestParameter> parameters, String keyString) {
         return getParString(parameters, keyString, null);
     }
-    private static @NonNull String getParString(List<RequestParameter> parameters, String keyString, String defaultVal) {
-        Optional<String> parOption = parameters.stream().filter((p) -> keyString.equals(p.key()))
-                .findFirst()
-                .map(RequestParameter::value);
-        if(parOption.isEmpty()) {
+
+    private static @NonNull String getParString(
+            List<RequestParameter> parameters, String keyString, String defaultVal) {
+        Optional<String> parOption =
+                parameters.stream()
+                        .filter((p) -> keyString.equals(p.key()))
+                        .findFirst()
+                        .map(RequestParameter::value);
+        if (parOption.isEmpty()) {
             if (defaultVal == null) {
                 throw new RuntimeException("No " + keyString + " found");
             } else {

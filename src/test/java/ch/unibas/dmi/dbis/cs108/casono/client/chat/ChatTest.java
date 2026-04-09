@@ -1,13 +1,12 @@
 package ch.unibas.dmi.dbis.cs108.casono.client.chat;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import ch.unibas.dmi.dbis.cs108.casono.client.network.ClientService;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.command.parsing.RequestParameter;
-import org.junit.jupiter.api.Test;
-
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Test;
 
 public class ChatTest {
 
@@ -20,8 +19,6 @@ public class ChatTest {
         list.add("TEXT='Hello World'");
         list.add("NUMBER=-56887387394898392849");
 
-
-
         List<RequestParameter> newList = ClientService.convertToRequestParameters(list);
         RequestParameter par0 = newList.get(0);
         assertEquals("COUNT", par0.key());
@@ -31,13 +28,12 @@ public class ChatTest {
         assertEquals("TEXT", par1.key());
         assertEquals("test ' test", par1.value());
 
-       RequestParameter par2 = newList.get(2);
+        RequestParameter par2 = newList.get(2);
         assertEquals("TEXT", par2.key());
         assertEquals("%/§§%&&/%=%$/%))==/?``*''**''§?", par2.value());
 
-      RequestParameter par4 = newList.get(4);
+        RequestParameter par4 = newList.get(4);
         assertEquals("NUMBER", par4.key());
         assertEquals("-56887387394898392849", par4.value());
     }
-
 }

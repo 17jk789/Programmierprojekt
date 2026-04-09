@@ -3,15 +3,13 @@ package ch.unibas.dmi.dbis.cs108.casono.client.chat;
 import ch.unibas.dmi.dbis.cs108.casono.client.network.ChatClient;
 import ch.unibas.dmi.dbis.cs108.casono.client.network.ClientService;
 import ch.unibas.dmi.dbis.cs108.casono.client.ui.chatui.ChatBoxController;
-import javafx.application.Platform;
-import org.jspecify.annotations.Nullable;
-
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.Map;
-import java.util.List;
-import java.util.LinkedHashMap;
-
+import javafx.application.Platform;
+import org.jspecify.annotations.Nullable;
 
 /**
  * responsible for the transferring of messages from the server to the ChatModel or from the
@@ -31,9 +29,8 @@ public class ChatController {
     private int lobbyId = -1;
     private final Timer timer;
 
-
-    public record ChatKey(ChatType type, @Nullable String targetUser){
-        public ChatKey(ChatType type){
+    public record ChatKey(ChatType type, @Nullable String targetUser) {
+        public ChatKey(ChatType type) {
             this(type, null);
         }
     }
@@ -56,10 +53,11 @@ public class ChatController {
                 new TimerTask() {
                     @Override
                     public void run() {
-                        Platform.runLater(() -> {
-                            clientService.ping();
-                            receiveMessage();
-                        });
+                        Platform.runLater(
+                                () -> {
+                                    clientService.ping();
+                                    receiveMessage();
+                                });
                     }
                 },
                 0,
@@ -84,21 +82,30 @@ public class ChatController {
                         break;
                     case ChatType.LOBBY:
                         if (msg.lobbyId == lobbyId) {
-                            chatModelMap.computeIfAbsent(new ChatKey(ChatType.LOBBY),
-                                    (_key) -> new ChatModel(ChatType.LOBBY, username, msg.lobbyId, null)).addMessage(msg);
+                            chatModelMap
+                                    .computeIfAbsent(
+                                            new ChatKey(ChatType.LOBBY),
+                                            (_key) ->
+                                                    new ChatModel(
+                                                            ChatType.LOBBY,
+                                                            username,
+                                                            msg.lobbyId,
+                                                            null))
+                                    .addMessage(msg);
                         }
                         break;
                     case ChatType.WHISPER:
                         if (msg.target.equals(username)) {
-                            if (chatModelMap.containsKey(new ChatKey(ChatType.WHISPER, msg.sender))) {
-                                chatModelMap.get(new ChatKey(ChatType.WHISPER, msg.sender)).addMessage(msg);
+                            if (chatModelMap.containsKey(
+                                    new ChatKey(ChatType.WHISPER, msg.sender))) {
+                                chatModelMap
+                                        .get(new ChatKey(ChatType.WHISPER, msg.sender))
+                                        .addMessage(msg);
                             } else {
                                 chatBoxController.addWhisperChat(msg.sender);
                             }
                         }
                         break;
-
-
                 }
             }
         }
@@ -106,6 +113,7 @@ public class ChatController {
 
     /**
      * method to send a message to the server
+     *
      * @param message
      */
     public void onSendToNetwork(Message message) {
