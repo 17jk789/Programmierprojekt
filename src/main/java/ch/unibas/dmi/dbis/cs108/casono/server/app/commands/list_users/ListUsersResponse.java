@@ -6,7 +6,14 @@ import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.SuccessR
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.builder.ResponseBody;
 import java.util.Collection;
 
+/** Response containing a list of all active users on the server */
 public class ListUsersResponse extends SuccessResponse {
+    /**
+     * Creates a new ListUsersResponse containing the given list of users
+     *
+     * @param context the {@link RequestContext} associated with the request
+     * @param users the collection of users currently active on the server
+     */
     public ListUsersResponse(RequestContext context, Collection<User> users) {
         super(
                 context,
