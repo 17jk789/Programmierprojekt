@@ -1,4 +1,3 @@
-
 package ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui;
 
 import java.io.IOException;
@@ -8,32 +7,17 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 /**
- * Main class for the casino game UI.
+ * Main class for the Casono Game UI.
  *
- * <p>Starts the JavaFX application, loads the graphical interface from the FXML file,
- * and initializes the main stage for the game.
+ * <p>Starts the JavaFX application, loads the graphical user interface from the FXML file, and
+ * initializes the main stage for the game.
  *
- * <p>Responsibilities:
- * - Loads the FXML interface "/ui-structure/Casinogameui.fxml".
- * - Loads the application icon from "/images/logoinverted.png".
- * - Starts the application in fullscreen mode.
+ * <p>Tasks: - Loads the FXML interface "/ui-structure/Casinogameui.fxml". - Loads the application
+ * icon from "/images/logoinverted.png". - Starts the application in full-screen mode.
  */
-import ch.unibas.dmi.dbis.cs108.casono.client.network.ClientService;
-
 public class CasinoGameUI extends Application {
 
-    // Static field for ClientService (workaround for JavaFX Application launch)
-    private static ClientService staticClientService;
-
-    public static void setClientService(ClientService clientService) {
-        staticClientService = clientService;
-    }
-
-    public static ClientService getClientService() {
-        return staticClientService;
-    }
-
-    /** Default no-arg constructor. */
+    /** default constructor */
     public CasinoGameUI() {
         // default no-arg constructor
     }
@@ -49,7 +33,8 @@ public class CasinoGameUI extends Application {
      */
     @Override
     public void start(Stage stage) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(CasinoGameUI.class.getResource("/ui-structure/Casinogameui.fxml"));
+        FXMLLoader fxmlLoader =
+                new FXMLLoader(CasinoGameUI.class.getResource("/ui-structure/Casinogameui.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), DEFAULT_WIDTH, DEFAULT_HEIGHT);
         stage.setTitle("Casono (GAME)");
 
@@ -61,7 +46,7 @@ public class CasinoGameUI extends Application {
     }
 
     /**
-     * Entry point of the application.
+     * Starting point of the application.
      *
      * @param args Command line arguments.
      */
