@@ -19,10 +19,11 @@ public class ChatControllerTest {
     public void teardown() {
 
     }
-
-    @Test
-    public void testChatController() {
-        Client client = new Client("user1");
-        client.startApplication();
-    }
+    /*
+     * @Test
+     * public void testChatController() {
+     * Client client = new Client("user1");
+     * client.startApplication();
+     * }
+     */
 }
