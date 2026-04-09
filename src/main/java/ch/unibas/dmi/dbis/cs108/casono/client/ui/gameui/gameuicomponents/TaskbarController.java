@@ -11,14 +11,14 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Controller für die interaktive Taskleiste innerhalb der Poker-UI.
+ * Controller for the interactive taskbar within the poker UI.
  *
- * <p>Verantwortlich für: - Drag-and-Drop-Verschieben der Taskleiste, - Eingabe und Verwaltung von
- * Spieleinsätzen, - Steuerung allgemeiner Menüfunktionen wie Exit.
+ * <p>Responsible for: - Drag-and-drop movement of the taskbar, - Input and management of game
+ * stakes, - Control of general menu functions such as Exit.
  */
 public class TaskbarController {
 
-    /** Standardkonstruktor. Wird von FXML verwendet. */
+    /** Standard constructor. Used by FXML. */
     public TaskbarController() {
         // default constructor for FXML
     }
@@ -36,10 +36,10 @@ public class TaskbarController {
     private static final int CREDIT_STEP = 5;
 
     /**
-     * Wird aufgerufen, wenn die Taskleiste mit der Maus gedrückt wird. Speichert die relative
-     * Position, um später korrekt zu verschieben.
+     * Called when the taskbar is clicked with the mouse. Saves the relative position for later,
+     * correct repositioning.
      *
-     * @param event Das Mausereignis
+     * @param event The mouse event
      */
     @FXML
     private void onTaskbarPressed(MouseEvent event) {
@@ -48,11 +48,10 @@ public class TaskbarController {
     }
 
     /**
-     * Wird aufgerufen, während die Taskleiste mit der Maus gezogen wird. Aktualisiert die Position
-     * und skaliert die Taskleiste leicht zur visuellen Rückmeldung.
+     * Called while dragging the taskbar with the mouse. Updates the position and slightly scales
+     * the taskbar for visual feedback.
      *
-     * <p>TODO: Es muss noch gefixt werden, dass die Taskleiste nicht aus dem Fenster verschwinden
-     * kann.
+     * <p>TODO: It still needs to be fixed that the taskbar cannot disappear out of the window.
      *
      * @param event Das Mausereignis
      */
@@ -66,10 +65,10 @@ public class TaskbarController {
     }
 
     /**
-     * Wird aufgerufen, wenn die Maus über der Taskleiste losgelassen wird. Setzt die Skalierung der
-     * Taskleiste wieder auf Normalgröße.
+     * Called when the mouse cursor is released over the taskbar. Resets the taskbar scaling to
+     * normal size.
      *
-     * @param event Das Mausereignis
+     * @param event The mouse event
      */
     @FXML
     private void onTaskbarReleased(MouseEvent event) {
@@ -78,9 +77,9 @@ public class TaskbarController {
     }
 
     /**
-     * Wird aufgerufen, wenn im Textfeld die Enter-Taste gedrückt wird.
+     * Called up when the Enter key is pressed in the text field.
      *
-     * @param event Das Tastaturereignis
+     * @param event The keyboard event
      */
     @FXML
     private void onInputSubmitted(KeyEvent event) {
@@ -90,8 +89,8 @@ public class TaskbarController {
     }
 
     /**
-     * Wird aufgerufen, wenn der Submit-Button in der Taskleiste gedrückt wird. Löst die
-     * Verarbeitung des Einsatzes aus.
+     * Called when the submit button in the taskbar is pressed. Triggers the processing of the
+     * deployment.
      */
     @FXML
     private void onInputSubmittedAction() {
@@ -106,7 +105,7 @@ public class TaskbarController {
                     javafx.stage.Stage currentStage =
                             (javafx.stage.Stage) taskbar.getScene().getWindow();
                     currentStage.close();
-                    // Lobby-UI starten
+                    // Start lobby UI
                     try {
                         new Casinomainui().start(new javafx.stage.Stage());
                     } catch (Exception e) {
@@ -116,9 +115,9 @@ public class TaskbarController {
     }
 
     /**
-     * Verarbeitet den im Textfeld eingegebenen Einsatz. Es werden ausschließlich ganzzahlige Werte
-     * im Bereich von 5 bis 100.000 Credits akzeptiert, die einem Vielfachen von 5 entsprechen
-     * (5er-Schritte). Der Einsatz wird aktuell nur auf der Konsole ausgegeben.
+     * Processes the stake entered in the text field. Only integer values between 5 and 100,000
+     * credits are accepted, in multiples of 5 (in increments of 5). The stake is currently only
+     * displayed on the console.
      */
     private void processBet() {
         String input = taskbarInput.getText();
@@ -126,22 +125,22 @@ public class TaskbarController {
             int credits = Integer.parseInt(input.trim());
 
             if (credits >= MIN_CREDITS && credits <= MAX_CREDITS && credits % CREDIT_STEP == 0) {
-                // TODO: Credits müssen an die GameEngine gesendet werden
-                LOGGER.info("Einsatz gesetzt: {} Casono Credits", credits);
+                // TODO: Credits must be sent to the GameEngine
+                LOGGER.info("Bet set: {} Casono Credits", credits);
                 taskbarInput.clear();
             } else {
-                LOGGER.info("Fehler: Nur 5er-Schritte (5, 10, ... 100.000) erlaubt!");
+                LOGGER.error("Error: Only increments of 5 (5, 10, ... 100,000) are allowed!");
             }
         } catch (NumberFormatException e) {
-            LOGGER.info("Fehler: Bitte nur eine Zahl eingeben!");
+            LOGGER.error("Error: Please enter only one number!");
         }
     }
 
     /**
-     * Öffnet den integrierten Casono Webbrowser.
+     * Opens the integrated Casono web browser.
      *
-     * <p>TODO: Ersetze die Start-URL durch die offizielle Projekt-Website (z.B. Tipps & Tricks
-     * Seite), sobald die Inhalte für Strategien und Support bereitstehen.
+     * <p>TODO: Replace the start URL with the official project website (e.g., Tips & Tricks page)
+     * once the content for strategies and support is available.
      */
     @FXML
     private void onBrowserButtonClick() {

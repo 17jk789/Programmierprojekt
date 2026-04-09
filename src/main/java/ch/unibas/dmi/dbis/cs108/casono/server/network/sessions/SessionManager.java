@@ -19,16 +19,13 @@ public class SessionManager {
     private final EventBus eventBus;
     private final Logger logger;
     private final CommandParserDispatcher dispatcher;
-    private final CommandRouter router;
 
     /** Constructs a new SessionManager. */
-    public SessionManager(
-            EventBus eventBus, CommandParserDispatcher dispatcher, CommandRouter router) {
+    public SessionManager(EventBus eventBus, CommandParserDispatcher dispatcher) {
         this.sessions = new ConcurrentHashMap<>();
         this.eventBus = eventBus;
         this.logger = LogManager.getLogger(SessionManager.class);
         this.dispatcher = dispatcher;
-        this.router = router;
     }
 
     /**
@@ -37,9 +34,10 @@ public class SessionManager {
      * <p>Will create both worker threads and start them.
      *
      * @param transport to create session from
+     * @param router the command router used by the created session
      * @return newly created session
      */
-    public Session create(TransportLayer transport) {
+    public Session create(TransportLayer transport, CommandRouter router) {
         Session session = new Session(transport, eventBus, dispatcher, router);
         SessionReader reader = new SessionReader(session, eventBus);
         SessionWriter writer = new SessionWriter(session);

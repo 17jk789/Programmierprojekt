@@ -1,12 +1,12 @@
 .root {
     -fx-background-color: #000000;
-    -fx-font-family: "Monospaced", "Courier New"; /* Schriftart */
+    -fx-font-family: "Monospaced", "Courier New"; /* font */
 }
 
 .background {
     -fx-background-image: url("/images/background.png");
-    -fx-background-size: cover; /* Bild füllt das ganze Fenster aus */
-    /* Zentriert das Bild und verhindert, dass es sich kachelartig wiederholt */
+    -fx-background-size: cover; /* Image fills the entire window */
+    /* Centers the image and prevents it from repeating in a tile-like pattern. */
     -fx-background-position: center center;
     -fx-background-repeat: no-repeat;
 }
@@ -181,20 +181,20 @@
 
 .status-label-small {
     -fx-text-fill: #ffffff;
-    -fx-font-family: "Monospaced"; /* Schriftart */
+    -fx-font-family: "Monospaced"; /* font */
     -fx-font-size: 15px;
 }
 
 .status-value-text {
     -fx-text-fill: #ffffff;
-    -fx-font-family: "Monospaced"; /* Schriftart */
+    -fx-font-family: "Monospaced"; /* font */
     -fx-font-size: 15px;
     -fx-font-weight: bold;
 }
 
 .status-value-money {
     -fx-text-fill: #ffffff;
-    -fx-font-family: "Monospaced"; /* Schriftart */
+    -fx-font-family: "Monospaced"; /* font */
     -fx-font-size: 15px;
     -fx-font-weight: bold;
 }

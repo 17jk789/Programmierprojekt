@@ -159,6 +159,9 @@ public class GreetHandler implements CommandHandler<GreetRequest> {
 **Rules for the Handler class:**
 
 - Declare all dependencies as `private final` fields, injected through the constructor.
+- Use `addCheck(...)` to attach pre-execution checks that should run before `execute(...)`.
+- If several handlers share the same trivial logic, such as verifying that the user is logged in, 
+  extract that logic into a separate `HandlerCheck` and reuse it instead of duplicating the code.
 - Always dispatch exactly one response per execution path. Every branch must end with a
   `responseDispatcher.dispatch(...)` call.
 - Use `ErrorResponse` for domain-level failures (e.g. entity not found, precondition not met).

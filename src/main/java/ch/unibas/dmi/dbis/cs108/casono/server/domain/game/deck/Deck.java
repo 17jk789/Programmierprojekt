@@ -51,8 +51,8 @@ public class Deck {
     }
 
     /**
-     * Sets the cards of the deck. This method replaces the internal list
-     * with a copy of the provided list.
+     * Sets the cards of the deck. This method replaces the internal list with a copy of the
+     * provided list.
      *
      * @param cards the new list of cards to set
      */

@@ -64,11 +64,31 @@ Concrete subclasses add command-specific fields, all set via constructor. Reques
 ### `CommandHandler<T extends Request>`
 <img src="../../../images/docs/networking/commands/command_handler.png" alt="Class diagram of the CommandHandler" />
 
-The `CommandHandler` is a single-method interface responsible for executing a typed request.
+The `CommandHandler` is an abstract base class responsible for executing a typed request.
 The handler contains the domain logic: reading from registries and managers, modifying state, and dispatching a response via the `ResponseDispatcher`.
 
-Handlers receive their dependencies (the `ResponseDispatcher`, registries and managers etc.) through constructor injection. 
-This keeps them fully testable without the network layer.
+Handlers receive their dependencies (the `ResponseDispatcher`, registries and managers etc.) through constructor injection.
+They can also register reusable pre-execution checks via `addCheck(...)`. These checks are stored on the handler and are evaluated before `execute(...)` runs.
+
+When a piece of trivial validation is shared by multiple handlers, it should be extracted into a dedicated `HandlerCheck` instead of being duplicated in each handler.
+
+### `HandlerCheck`
+<img src="../../../images/docs/networking/commands/handler_check.png" alt="Class diagram of HandlerCheck and CommandHandlerExecutor" />
+
+The `HandlerCheck` is a functional interface for reusable pre-execution validation.
+Its `check(...)` method receives the incoming `Request` and returns an empty `Optional` if the request may continue.
+If the check fails, it returns an `ErrorResponse` wrapped in the `Optional`, which will be dispatched to the client instead of calling the handler.
+
+This is the right place for small shared checks such as "is the user logged in?" or other simple preconditions that multiple handlers need.
+
+### `CommandHandlerExecutor`
+<img src="../../../images/docs/networking/commands/handler_check_executor.png" alt="Class diagram of HandlerCheck and CommandHandlerExecutor" />
+
+The `CommandHandlerExecutor` runs all checks registered on a handler before invoking `execute(...)`.
+If any `HandlerCheck` returns a response, the executor dispatches it immediately and aborts execution.
+Otherwise, the handler is executed normally.
+
+This keeps precondition handling separate from the actual domain logic inside the handler.
 
 ### `CommandRouter`
 <img src="../../../images/docs/networking/commands/command_router.png" alt="Class diagram of the CommandRouter" />

@@ -5,10 +5,11 @@
 <?import javafx.geometry.Insets?>
 
 <!--
-    TODO: Haupt-platzhalter für spieler-status & eingabe.
-    Dieses Layout dient aktuell der visuellen Struktur. Sobald die GameEngine und
-    Serveranfragen (API/Requests) durchgeführt werden können, werden Name, Kontostand
-    und Status-Anzeigen dynamisch mit Echtzeit-Daten vom Server befüllt.
+TODO: Main placeholder for player status & input.
+
+This layout currently serves as a visual structure. As soon as the game engine and
+server requests (API/requests) can be processed, the name, account balance
+and status displays will be dynamically populated with real-time data from the server.
 -->
 
 <VBox fx:id="playerStatusBox"
@@ -20,7 +21,7 @@
       spacing="0">
 
     <children>
-        <!-- Bereich für den Spielernamen -->
+        <!-- Area for player name -->
         <HBox styleClass="status-inner-box-top"
               alignment="CENTER_LEFT"
               maxWidth="Infinity"
@@ -31,11 +32,11 @@
             </padding>
 
             <Label text="NAME: " styleClass="status-label-small"/>
-            <!-- TODO: fx:id="playerName": Wird später durch den User-Namen aus der Server-Abfrage ersetzt -->
+            <!-- TODO: fx:id="playerName": Will later be replaced by the username from the server query -->
             <Label fx:id="playerName" text="SPIELER" styleClass="status-value-text"/>
         </HBox>
 
-        <!-- Schaft platz zwischen den Boxen -->
+        <!-- Shaft space between the boxes -->
         <HBox styleClass="status-inner-box-midle"
               alignment="CENTER_LEFT"
               maxWidth="Infinity"
@@ -46,7 +47,7 @@
             </padding>
         </HBox>
 
-        <!-- Anzeige des Kapitals/Geldstands -->
+        <!-- Display of capital/money balance -->
         <HBox styleClass="status-inner-box-bottom"
               alignment="CENTER_LEFT"
               maxWidth="Infinity"
@@ -60,7 +61,7 @@
             <Label fx:id="playerMoney" text="0 $" styleClass="status-value-money"/>
         </HBox>
 
-        <!-- TODO: User-Logo oder Icon: Platzhalter für das Profilbild oder das individuelle Logo des Spielers -->
+        <!-- TODO: User logo or icon: Placeholder for the profile picture or the player's individual logo -->
         <Pane prefHeight="0" maxWidth="Infinity">
             <Region styleClass="status-circle"
                     layoutX="-10"
