@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.geometry.Insets?>
 
 <!--
     Dieses Fenster wird später mit den Serveranfragen verknüpft,
@@ -19,9 +19,9 @@
 
 <VBox xmlns="http://javafx.com/javafx/21"
       xmlns:fx="http://javafx.com/fxml/1"
-    fx:controller="ch.unibas.dmi.dbis.cs108.casono.client.ui.chatui.ChatViewController"
+      fx:controller="ch.unibas.dmi.dbis.cs108.casono.client.ui.chatui.ChatViewController"
       alignment="CENTER"
-      stylesheets="@Chatui.css">
+      stylesheets="@chatui.css">
 
     <!-- Innenabstand: Schafft oben, rechts und unten 30 Pixel Platz, links nur 10 Pixel (asymmetrisch) -->
     <padding>
@@ -50,6 +50,7 @@
                     <!-- TODO: Größe des TextFields dynamisch anpassen -->
                     <TextField fx:id="inputField" HBox.hgrow="ALWAYS" promptText="Nachricht eingeben..." styleClass="gray-input-field" onAction="#sendMessage"/>
                     <Button fx:id="sendButton" text="SENDEN" onAction="#sendMessage" styleClass="yellow-button"/>
+                    <Button fx:id="refreshButton" text="NEU" onAction="#showMessage" styleClass="yellow-button"/>
                 </HBox>
             </children>
         </VBox>
