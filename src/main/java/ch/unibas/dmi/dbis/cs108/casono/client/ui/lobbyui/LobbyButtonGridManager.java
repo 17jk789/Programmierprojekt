@@ -12,6 +12,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import ch.unibas.dmi.dbis.cs108.casono.client.network.LobbyClient;
 import ch.unibas.dmi.dbis.cs108.casono.client.network.ClientService;
 import javafx.scene.Node;
@@ -59,6 +61,8 @@ public class LobbyButtonGridManager {
 
     /** Executor for background status/network tasks. */
     private final ExecutorService executor = Executors.newCachedThreadPool();
+    /** Scheduler for periodic refresh of lobby mappings. */
+    private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
     /**
      * Constructor for the GridManager.
@@ -72,6 +76,8 @@ public class LobbyButtonGridManager {
         // Always use the singleton
         this.translationManager = LobbyButtonTranslationManager.getInstance();
         this.lobbyClient = lobbyClient;
+        // Start periodic refresh to keep mapping in sync with server
+        startPeriodicRefresh(5, 5);
     }
 
     /**
@@ -82,6 +88,51 @@ public class LobbyButtonGridManager {
     public LobbyButtonGridManager(
             GridPane gridPane, LobbyButtonTranslationManager translationManager, ClientService clientService) {
         this(gridPane, translationManager, new LobbyClient(clientService));
+    }
+
+    /**
+     * Start periodic refresh of lobby mappings.
+     * 
+     * @param initialDelay initial delay in seconds
+     * @param period       period in seconds
+     */
+    private void startPeriodicRefresh(long initialDelay, long period) {
+        scheduler.scheduleAtFixedRate(this::refreshMappings, initialDelay, period, TimeUnit.SECONDS);
+    }
+
+    /**
+     * Refresh mappings by checking each stored lobby id on the server. If a lobby
+     * no longer exists (or an error occurs), remove it from the translation map
+     * and update the UI.
+     */
+    private void refreshMappings() {
+        Map<Integer, Integer> mapping = translationManager.getButtonIdToLobbyId();
+        if (mapping.isEmpty()) {
+            return;
+        }
+        // Make a copy of entries to avoid concurrent modification
+        List<Map.Entry<Integer, Integer>> entries = new ArrayList<>(mapping.entrySet());
+        for (Map.Entry<Integer, Integer> e : entries) {
+            int buttonId = e.getKey();
+            int lobbyId = e.getValue();
+            CompletableFuture.supplyAsync(() -> {
+                try {
+                    String status = lobbyClient.fetchLobbyStatusString(lobbyId);
+                    return status;
+                } catch (Exception ex) {
+                    LOGGER.info("Lobby {} appears missing or error: {}", lobbyId, ex.getMessage());
+                    return null;
+                }
+            }, executor).thenAccept(status -> {
+                if (status == null) {
+                    // remove mapping and update UI
+                    translationManager.removeLobbyButton(buttonId);
+                    javafx.application.Platform.runLater(() -> {
+                        updateLobbyButtonImages();
+                    });
+                }
+            });
+        }
     }
 
     // Default client creation removed to avoid implicit IP/port configuration.
@@ -309,6 +360,8 @@ public class LobbyButtonGridManager {
                             ev -> {
                                 try {
                                     currentStage.show();
+                                    // refresh mappings immediately when returning from game
+                                    refreshMappings();
                                     updateLobbyButtonImages();
                                 } catch (Exception ex) {
                                     LOGGER.error(
@@ -344,6 +397,14 @@ public class LobbyButtonGridManager {
      */
     public LobbyClient getLobbyClient() {
         return lobbyClient;
+    }
+
+    /**
+     * Trigger an immediate refresh of mappings (poll server and remove missing
+     * lobbies). Public so callers can force a refresh when UI focus returns.
+     */
+    public void refreshNow() {
+        refreshMappings();
     }
 
 }
