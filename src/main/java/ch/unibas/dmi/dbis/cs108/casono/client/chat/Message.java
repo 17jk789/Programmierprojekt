@@ -144,7 +144,6 @@ public class Message {
             case "WHISPER":
                 return new Message(
                         ChatType.WHISPER,
-                        -1,
                         m.group("user"),
                         m.group("target"),
                         m.group("time"),
