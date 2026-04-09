@@ -43,6 +43,13 @@ This document describes the protocol for client-server communication in our appl
     - [Error Response](#error-response-5)
     - [Example Request](#example-request-3)
     - [Example Response](#example-response-3)
+  - [LIST\_USERS command](#list_users-command)
+    - [Required pre-execution checks](#required-pre-execution-checks-4)
+    - [Request Parameters](#request-parameters-4)
+    - [Success Response](#success-response-4)
+    - [Error Response](#error-response-6)
+    - [Example Request](#example-request-4)
+    - [Example Response](#example-response-4)
 
 <!-- Please see the comments for copy ‚ n' paste ready examples -->
 
@@ -285,5 +292,53 @@ LOGOUT
 ### Example Response
 ```
 +OK
+END
+```
+
+## LIST_USERS command
+The `LIST_USERS` command is used to retrieve a list of all currently logged-in users.
+
+### Required pre-execution checks
+None.
+
+### Request Parameters
+No parameters.
+
+### Success Response
+| Field   | Type               | Description                              |
+| :------ | :----------------- | :--------------------------------------- |
+| `USERS` | `Collection<User>` | Collection of all users currently online |
+
+| Fields of `User` | Type                                                                    | Description                                                           |
+| :--------------- | :---------------------------------------------------------------------- | :-------------------------------------------------------------------- |
+| `USERNAME`       | `String`                                                                | Username of the newly created user, can differ from the requested one |
+| `ID`             | [`UUID`](https://docs.oracle.com/javase/8/docs/api/java/util/UUID.html) | The ID of the created user                                            |
+
+
+### Error Response
+None.
+
+### Example Request
+```
+LIST_USERS
+```
+
+### Example Response
+```
++OK
+  USERS
+    USER
+      USERNAME=Lars_001
+      ID=56765d0f-8cd3-4eec-91b2-7e36265c1a5d
+    END
+    USER
+      USERNAME=Lars_002
+      ID=b7bbd9b3-0d49-4c92-8306-b1c8506d2ff0
+    END
+    USER
+      USERNAME=Lars
+      ID=982bc78e-547f-495a-a821-433a3603f92c
+    END
+  END
 END
 ```

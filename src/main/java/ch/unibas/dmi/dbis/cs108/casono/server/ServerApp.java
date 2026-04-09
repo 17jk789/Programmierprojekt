@@ -3,6 +3,9 @@ package ch.unibas.dmi.dbis.cs108.casono.server;
 import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.check_nick.CheckUsernameHandler;
 import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.check_nick.CheckUsernameParser;
 import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.check_nick.CheckUsernameRequest;
+import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.list_users.ListUsersHandler;
+import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.list_users.ListUsersParser;
+import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.list_users.ListUsersRequest;
 import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.login.LoginHandler;
 import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.login.LoginParser;
 import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.login.LoginRequest;
@@ -106,5 +109,9 @@ public class ServerApp {
         parserDispatcher.register("LOGOUT", new LogoutParser());
         commandRouter.register(
                 LogoutRequest.class, new LogoutHandler(responseDispatcher, userRegistry));
+
+        parserDispatcher.register("LIST_USERS", new ListUsersParser());
+        commandRouter.register(
+                ListUsersRequest.class, new ListUsersHandler(responseDispatcher, userRegistry));
     }
 }
