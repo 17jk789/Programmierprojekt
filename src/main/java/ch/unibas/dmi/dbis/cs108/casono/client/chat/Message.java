@@ -3,16 +3,15 @@ package ch.unibas.dmi.dbis.cs108.casono.client.chat;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.command.parsing.RequestParameter;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.builder.ResponseBody;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.builder.ResponseBodyBuilder;
+import org.jspecify.annotations.NonNull;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
-import java.util.regex.Pattern;
-import org.jspecify.annotations.NonNull;
 
 /**
- * Message Object for internal handling of Chat-Messages TODO: Should be used on both sides of the
- * network
+ * Message Object for internal handling of Chat-Messages
  */
 public class Message {
     private final ChatType type;
@@ -23,13 +22,15 @@ public class Message {
     public String target = null;
 
     /**
-     * Constructor for creating Messages with all information given
+     * Constructs a Message with a provided timestamp. Typically used when
+     * reconstructing messages received from the server.
      *
-     * @param type - Either global, local or whisper
-     * @param lobbyId - lobby id, or null, if the typChatType
-     * @param sender - username
-     * @param target - username of the target user, for whisper chat
-     * @param message
+     * @param type      The chat category (e.g., GLOBAL, LOBBY, or WHISPER).
+     * @param lobbyId   The ID of the lobby, or -1 if not applicable.
+     * @param sender    The username of the message creator.
+     * @param target    The username of the recipient (required for whispers, otherwise null).
+     * @param timestamp The formatted time string (e.g., "HH:mm").
+     * @param message   The actual text content of the message.
      */
     public Message(
             ChatType type,
@@ -47,14 +48,14 @@ public class Message {
     }
 
     /**
-     * Constructor for creating the Messages of the current user, using this client -> time of
-     * writing is being recorded
+     * Constructs a new Message for the current user. Automatically generates
+     * a timestamp based on the local system time ("HH:mm").
      *
-     * @param type - Either global, local or whisper
-     * @param lobbyId - lobby id, or null, if the type is global
-     * @param sender - username
-     * @param target - username of the target user, for whisper chat
-     * @param message
+     * @param type    The chat category (e.g., GLOBAL, LOBBY, or WHISPER).
+     * @param lobbyId The ID of the lobby, or -1 if not applicable.
+     * @param sender  The username of the current user.
+     * @param target  The username of the recipient (for whispers).
+     * @param message The actual text content to be sent.
      */
     public Message(ChatType type, int lobbyId, String sender, String target, String message) {
         this.type = type;
@@ -67,18 +68,29 @@ public class Message {
         this.timestamp = now.format(formatter);
     }
 
+    /**
+     * Returns the text content of the message.
+     *
+     * @return The message string.
+     */
     public String getMessage() {
         return message;
     }
 
+    /**
+     * Returns the type of chat this message belongs to.
+     *
+     * @return The {@link ChatType}.
+     */
     public ChatType getMessageType() {
         return type;
     }
 
     /**
-     * Method to create the request representation of the message object, to be sent to the server
+     * Formats the message object into a string representation compatible with
+     * the network protocol arguments.
      *
-     * @return - request as specified in the network protocol, as String
+     * @return A formatted string containing all message attributes for server transmission.
      */
     public String toArgsString() {
         String gameIdString = "";
@@ -97,109 +109,62 @@ public class Message {
                 this.message);
     }
 
-    /** Pattern, to analyze the response String with the given parameters */
-    public static Pattern msgRex =
-            Pattern.compile(
-                    "TYPE=(?<type>\\w+) "
-                            + "(GAME=(?<game>\\w+) )?"
-                            + "USER=(?<user>\\w+) "
-                            + "(TARGET=(?<target>\\w+) )?"
-                            + "TIME=(?<time>[0-9:.]+) "
-                            + "TEXT='(?<text>([^']|\\')+)'");
-
     /**
-     * Method to create a Message Object, from the information given by the String
+     * Parses a list of network request parameters to reconstruct a Message object.
+     * Handles different chat types (GLOBAL, LOBBY, WHISPER) and their specific requirements.
      *
-     * @param response - String that got sent as a response from the server
-     * @return - New Message Object
+     * @param parameters A list of {@link RequestParameter} received from the network.
+     * @return A new {@link Message} instance populated with the parsed data.
      */
-    /*
-    public static Message toMessage(String response) {
-        Matcher m = msgRex.matcher(response);
-        if (!m.matches()) {
-            throw new RuntimeException("Can not parse message: '" + response + "'");
-        }
-        String typeString = m.group("type");
-
-        switch (typeString) {
-            case "GLOBAL":
-                return new Message(
-                        ChatType.GLOBAL,
-                        -1,
-                        m.group("user"),
-                        null,
-                        m.group("time"),
-                        m.group("text"));
-
-            case "LOBBY":
-
-                int gameId = getGameId(m.group("game"));
-                return new Message(
-                        ChatType.LOBBY,
-                        gameId,
-                        m.group("user"),
-                        null,
-                        m.group("time"),
-                        m.group("text"));
-
-            case "WHISPER":
-                return new Message(
-                        ChatType.WHISPER,
-                        m.group("user"),
-                        m.group("target"),
-                        m.group("time"),
-                        m.group("text"));
-
-            default:
-                throw new RuntimeException("Unknown message type " + typeString);
-        }
-    }
-    */
-
-    private static int getGameId(String gameIdStr) {
-        int gameId = -1;
-        if (gameIdStr != null) {
-            gameId = Integer.parseInt(gameIdStr);
-        }
-        return gameId;
-    }
-
     public static Message toMessageReqPars(List<RequestParameter> parameters) {
         String typeString = getParString(parameters, "TYPE");
         ChatType type = ChatType.valueOf(typeString);
         return switch (type) {
-            case GLOBAL ->
-                    new Message(
-                            ChatType.GLOBAL,
-                            -1,
-                            getParString(parameters, "USER"),
-                            null,
-                            getParString(parameters, "TIME"),
-                            getParString(parameters, "TEXT"));
-            case LOBBY ->
-                    new Message(
-                            ChatType.LOBBY,
-                            Integer.parseInt(getParString(parameters, "GAME")),
-                            getParString(parameters, "USER"),
-                            null,
-                            getParString(parameters, "TIME"),
-                            getParString(parameters, "TEXT"));
-            case WHISPER ->
-                    new Message(
-                            ChatType.WHISPER,
-                            Integer.parseInt(getParString(parameters, "GAME", "-1")),
-                            getParString(parameters, "USER"),
-                            getParString(parameters, "TARGET"),
-                            getParString(parameters, "TIME"),
-                            getParString(parameters, "TEXT"));
+            case GLOBAL -> new Message(
+                    ChatType.GLOBAL,
+                    -1,
+                    getParString(parameters, "USER"),
+                    null,
+                    getParString(parameters, "TIME"),
+                    getParString(parameters, "TEXT"));
+            case LOBBY -> new Message(
+                    ChatType.LOBBY,
+                    Integer.parseInt(getParString(parameters, "GAME")),
+                    getParString(parameters, "USER"),
+                    null,
+                    getParString(parameters, "TIME"),
+                    getParString(parameters, "TEXT"));
+            case WHISPER -> new Message(
+                    ChatType.WHISPER,
+                    Integer.parseInt(getParString(parameters, "GAME", "-1")),
+                    getParString(parameters, "USER"),
+                    getParString(parameters, "TARGET"),
+                    getParString(parameters, "TIME"),
+                    getParString(parameters, "TEXT"));
         };
     }
 
+    /**
+     * Helper method to extract a specific parameter value by its key.
+     *
+     * @param parameters The list of parameters to search.
+     * @param keyString The key to look for.
+     * @return The value associated with the key.
+     * @throws RuntimeException if the key is not found.
+     */
     private static @NonNull String getParString(
             List<RequestParameter> parameters, String keyString) {
         return getParString(parameters, keyString, null);
     }
 
+    /**
+     * Helper method to extract a specific parameter value by its key, with a fallback default value.
+     *
+     * @param parameters The list of parameters to search.
+     * @param keyString The key to look for.
+     * @param defaultVal The value to return if the key is missing.
+     * @return The found value or the default value.
+     */
     private static @NonNull String getParString(
             List<RequestParameter> parameters, String keyString, String defaultVal) {
         Optional<String> parOption =
@@ -217,6 +182,12 @@ public class Message {
         return parOption.get();
     }
 
+    /**
+     * Converts the message object into a network response body using the provided builder.
+     *
+     * @param builder The {@link ResponseBodyBuilder} used to construct the response.
+     * @return The built {@link ResponseBody} containing the message data.
+     */
     public ResponseBody toResponse(ResponseBodyBuilder builder) {
         builder.param("TYPE", type.name());
         builder.param("GAME", lobbyId);

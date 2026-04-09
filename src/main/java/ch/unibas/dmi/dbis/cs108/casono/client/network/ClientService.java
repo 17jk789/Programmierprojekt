@@ -3,6 +3,9 @@ package ch.unibas.dmi.dbis.cs108.casono.client.network;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.command.parsing.RequestParameter;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.transport.RawPacket;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.transport.TcpTransport;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -14,8 +17,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  * The ClientService class is responsible for managing the connection to the server, sending
@@ -33,7 +34,7 @@ public class ClientService {
     private final AtomicInteger idGenerator;
     private final Logger logger;
 
-    /*
+    /**
      * Constructs a ClientService with the given server IP and port. It establishes
      * a socket connection to the server and initializes the TcpTransport and
      * ExecutorService for communication.
@@ -63,16 +64,25 @@ public class ClientService {
                     "(?<key>\\w+)=(('(?<string>([^']|\\')+)')|(?<primVal>[+-]?[\\d\\w:]+))");
 
     /**
-     * Sends the Requests to the server and waits for the response If the response is "+OK" it
-     * proceeds normal If the response "-ERROR" it throws a runtime exception
+     * Removes escape characters from a string, specifically converting escaped
+     * single quotes (\') back to regular single quotes (').
      *
-     * @param message
-     * @return - The response as a string, if it has to be returned (+OK will not be returned)
+     * @param input The escaped string to process.
+     * @return The unescaped string.
      */
     private static String unescape(String input) {
         return input.replaceAll("\\\\'", "'");
     }
 
+    /**
+     * Converts a list of raw string parameters into a list of {@link RequestParameter} objects.
+     * It uses a regex matcher to distinguish between quoted strings (which are unescaped)
+     * and primitive values.
+     *
+     * @param input A list of raw strings to be parsed.
+     * @return A list of parsed {@link RequestParameter} objects.
+     * @throws RuntimeException if a parameter does not match the expected format.
+     */
     public static List<RequestParameter> convertToRequestParameters(List<String> input) {
         return input.stream()
                 .map((String parString) -> responseRex.matcher(parString))
@@ -91,6 +101,15 @@ public class ClientService {
                 .toList();
     }
 
+    /**
+     * Sends a command to the server and processes the multi-line response.
+     * It handles the protocol handshake (expecting +OK), strips leading tabs from
+     * response lines, and collects them until the "END" marker is reached.
+     *
+     * @param message The raw command string to be sent to the transport layer.
+     * @return A list of response lines received from the server (excluding protocol markers).
+     * @throws RuntimeException if the server responds with an error or if a communication failure occurs.
+     */
     protected List<String> processCommand(String message) {
         List<String> response = new ArrayList<>();
         sendRequest(

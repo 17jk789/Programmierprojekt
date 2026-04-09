@@ -3,13 +3,9 @@ package ch.unibas.dmi.dbis.cs108.casono.client.chat;
 import ch.unibas.dmi.dbis.cs108.casono.client.network.ChatClient;
 import ch.unibas.dmi.dbis.cs108.casono.client.network.ClientService;
 import ch.unibas.dmi.dbis.cs108.casono.client.ui.chatui.ChatBoxController;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
-import javafx.application.Platform;
 import org.jspecify.annotations.Nullable;
+
+import java.util.*;
 
 /**
  * responsible for the transferring of messages from the server to the ChatModel or from the
@@ -43,6 +39,12 @@ public class ChatController {
 
     private static final long REFRESH_TIME = 1000;
 
+    /**
+     * Constructor, adds TimerTask to be sent to the server regularly
+     *
+     * @param username
+     * @param clientService
+     */
     public ChatController(String username, ClientService clientService) {
         this.username = username;
         chatClient = new ChatClient(clientService);
@@ -53,17 +55,19 @@ public class ChatController {
                 new TimerTask() {
                     @Override
                     public void run() {
-                        Platform.runLater(
-                                () -> {
-                                    clientService.ping();
-                                    receiveMessage();
-                                });
+                        receiveMessage();
                     }
                 },
                 0,
                 REFRESH_TIME);
     }
 
+    /**
+     * Method to be activated, if a lobby has be chosen. It will update the UI and add a new
+     * ChatModel to hold the Data for the Lobby Chat
+     *
+     * @param lobbyId
+     */
     public void setLobbyChat(int lobbyId) {
         this.lobbyId = lobbyId;
         ChatModel lobbyChatModel = new ChatModel(ChatType.LOBBY, username, lobbyId, null);
