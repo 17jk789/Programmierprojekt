@@ -9,6 +9,9 @@ import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.get_message_count.Get
 import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.get_next_message.GetNextMessageHandler;
 import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.get_next_message.GetNextMessageParser;
 import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.get_next_message.GetNextMessageRequest;
+import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.list_users.ListUsersHandler;
+import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.list_users.ListUsersParser;
+import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.list_users.ListUsersRequest;
 import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.login.LoginHandler;
 import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.login.LoginParser;
 import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.login.LoginRequest;
@@ -115,6 +118,7 @@ public class ServerApp {
         parserDispatcher.register("LOGOUT", new LogoutParser());
         commandRouter.register(
                 LogoutRequest.class, new LogoutHandler(responseDispatcher, userRegistry));
+
         parserDispatcher.register("SEND_MESSAGE", new SendMessageParser());
         commandRouter.register(
                 SendMessageRequest.class, new SendMessageHandler(responseDispatcher, userRegistry));
@@ -128,5 +132,9 @@ public class ServerApp {
         commandRouter.register(
                 GetNextMessageRequest.class,
                 new GetNextMessageHandler(responseDispatcher, userRegistry));
+
+        parserDispatcher.register("LIST_USERS", new ListUsersParser());
+        commandRouter.register(
+                ListUsersRequest.class, new ListUsersHandler(responseDispatcher, userRegistry));
     }
 }
