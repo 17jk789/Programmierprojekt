@@ -3,12 +3,19 @@ package ch.unibas.dmi.dbis.cs108.casono.server;
 import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.check_nick.CheckUsernameHandler;
 import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.check_nick.CheckUsernameParser;
 import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.check_nick.CheckUsernameRequest;
+import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.login.LoginHandler;
+import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.login.LoginParser;
+import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.login.LoginRequest;
+import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.logout.LogoutHandler;
+import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.logout.LogoutParser;
+import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.logout.LogoutRequest;
 import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.ping.PingHandler;
 import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.ping.PingParser;
 import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.ping.PingRequest;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.user.UserCleanupJob;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.user.UserRegistry;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.NetworkManager;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.command.execution.CommandHandlerExecutor;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.command.execution.CommandRouter;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.command.parsing.CommandParserDispatcher;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.events.DisconnectEvent;
@@ -40,11 +47,12 @@ public class ServerApp {
 
         EventBus eventBus = new EventBus();
         CommandParserDispatcher dispatcher = new CommandParserDispatcher();
-        CommandRouter router = new CommandRouter();
+        SessionManager sessionManager = new SessionManager(eventBus, dispatcher);
+        ResponseDispatcher responseDispatcher = new ResponseDispatcher(sessionManager);
+        CommandHandlerExecutor handlerExecutor = new CommandHandlerExecutor(responseDispatcher);
+        CommandRouter router = new CommandRouter(handlerExecutor);
 
-        SessionManager sessionManager = new SessionManager(eventBus, dispatcher, router);
         eventBus.subscribe(DisconnectEvent.class, event -> sessionManager.onDisconnect(event));
-        NetworkManager networkManager = new NetworkManager(port, sessionManager);
 
         UserRegistry userRegistry = new UserRegistry();
         eventBus.subscribe(
@@ -65,10 +73,9 @@ public class ServerApp {
                 SESSION_DISCONNECT_JOB_PERIOD,
                 TimeUnit.SECONDS);
 
-        ResponseDispatcher responseDispatcher = new ResponseDispatcher(sessionManager);
-
         registerCommands(dispatcher, router, responseDispatcher, userRegistry);
 
+        NetworkManager networkManager = new NetworkManager(port, sessionManager, router);
         networkManager.start();
     }
 
@@ -91,5 +98,13 @@ public class ServerApp {
         commandRouter.register(
                 CheckUsernameRequest.class,
                 new CheckUsernameHandler(responseDispatcher, userRegistry));
+
+        parserDispatcher.register("LOGIN", new LoginParser());
+        commandRouter.register(
+                LoginRequest.class, new LoginHandler(responseDispatcher, userRegistry));
+
+        parserDispatcher.register("LOGOUT", new LogoutParser());
+        commandRouter.register(
+                LogoutRequest.class, new LogoutHandler(responseDispatcher, userRegistry));
     }
 }

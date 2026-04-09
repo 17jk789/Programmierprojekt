@@ -1,0 +1,31 @@
+@startuml
+skinparam backgroundColor transparent
+
+class CommandHandlerExecutor {
+    - responseDispatcher: ResponseDispatcher
+    + CommandHandlerExecutor(responseDispatcher: ResponseDispatcher)
+    + execute(handler: CommandHandler<Request>, request: Request): void
+}
+
+interface HandlerCheck {
+    + check(request: Request): Optional<Response>
+}
+
+abstract class CommandHandler<T extends Request> {
+    - checks: List<HandlerCheck>
+    # addCheck(check: HandlerCheck): void
+    + getChecks(): List<HandlerCheck>
+    + execute(request: T): void
+}
+
+interface ResponseDispatcher
+class Request
+class Response
+
+CommandHandlerExecutor --> CommandHandler : executes
+CommandHandler "1" o-- "0..*" HandlerCheck : registered checks
+CommandHandlerExecutor --> HandlerCheck : evaluates
+HandlerCheck ..> Request : inspects
+HandlerCheck ..> Response : returns failure response
+CommandHandlerExecutor --> ResponseDispatcher : dispatches failures
+@enduml

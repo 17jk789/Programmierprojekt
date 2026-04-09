@@ -1,0 +1,8 @@
+@startuml
+skinparam backgroundColor transparent
+
+interface HandlerCheck {
+    + check(request: Request): Optional<Response>
+}
+
+@enduml
