@@ -15,8 +15,12 @@ public class ListUsersResponse extends SuccessResponse {
                                 "USERS",
                                 users_block -> {
                                     for (User user : users) {
-                                        users_block.param("USERNAME", user.getName());
-                                        users_block.param("ID", user.getId().value());
+                                        users_block.block(
+                                                "USER",
+                                                user_block -> {
+                                                    user_block.param("USERNAME", user.getName());
+                                                    user_block.param("ID", user.getId().value());
+                                                });
                                     }
                                 })
                         .build());
