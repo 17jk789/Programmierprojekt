@@ -14,7 +14,27 @@ This document describes the protocol for client-server communication in our appl
   - [Command parsing](#command-parsing)
     - [Error Response](#error-response-2)
 - [Pre executions checks](#pre-executions-checks)
+  - [UserLoggedInCheck](#userloggedincheck)
+    - [Error Response](#error-response-3)
 - [Commands](#commands)
+  - [PING command](#ping-command)
+    - [Required pre-execution checks](#required-pre-execution-checks)
+    - [Request Parameters](#request-parameters)
+    - [Success Response](#success-response)
+  - [CHECK\_USERNAME command](#check_username-command)
+    - [Required pre-execution checks](#required-pre-execution-checks-1)
+    - [Request Parameters](#request-parameters-1)
+    - [Success Response](#success-response-1)
+  - [LOGIN comamnd](#login-comamnd)
+    - [Required pre-execution checks](#required-pre-execution-checks-2)
+    - [Request Parameters](#request-parameters-2)
+    - [Success Response](#success-response-2)
+    - [Error Response](#error-response-4)
+  - [LOGOUT command](#logout-command)
+    - [Required pre-execution checks](#required-pre-execution-checks-3)
+    - [Request Parameters](#request-parameters-3)
+    - [Success Response](#success-response-3)
+    - [Error Response](#error-response-5)
 
 <!-- Plase see the comments for copy n' paste ready examples -->
 
@@ -75,6 +95,14 @@ Description of the check, what it does and when it should be used.
 | `ERROR_CODE` | Description of the error |
 -->
 
+## UserLoggedInCheck
+The `UserLoggedInCheck` is a common pre-execution check that verifies whether the user is logged in (i.e. has a user associated with his session).
+
+### Error Response
+| Code                 | Discription               |
+| :------------------- | :------------------------ |
+| `USER_NOT_LOGGED_IN` | The user is not logged in |
+
 
 
 # Commands
@@ -113,3 +141,78 @@ Description of the command, what it does and when it should be used.
 | :----------- | :----------------------- |
 | `ERROR_CODE` | Description of the error |
 -->
+
+## PING command
+The `PING` command is a simple command that can be used to check if the server is responsive.
+
+### Required pre-execution checks
+None.
+
+### Request Parameters
+No parameters.
+
+### Success Response
+No response fields.
+
+
+## CHECK_USERNAME command
+The `CHECK_USERNAME` command is used to check if a username is already taken by another user. Additional users can still login with the same username, but thier name will be subsituted with a suffix.
+
+### Required pre-execution checks
+None.
+
+### Request Parameters
+| Parameter Name | Type     | Optional | Description                            |
+| :------------- | :------- | :------- | :------------------------------------- |
+| `USERNAME`     | `String` | no       | The username to check for availability |
+
+### Success Response
+| Field    | Type                         | Description                                                             |
+| :------- | :--------------------------- | :---------------------------------------------------------------------- |
+| `STATUS` | `Enum<UsernameAvailability>` | Member of enum indicating if the username is available or already taken |
+
+| Members of `UsernameAvailability` | Description                |
+| :-------------------------------- | :------------------------- |
+| `FREE`                            | Username is available      |
+| `TAKEN`                           | Username is already in use |
+
+
+## LOGIN comamnd
+The `LOGIN` command is used to log in a user with a specified username. If the username is already taken by another user, the server will append a suffix to the username to make it unique.
+
+### Required pre-execution checks
+None.
+
+### Request Parameters
+| Parameter Name | Type     | Optional | Description                          |
+| :------------- | :------- | :------- | :----------------------------------- |
+| `USERNAME`     | `String` | no       | The username to create the user with |
+
+### Success Response
+| Field      | Type                                                                    | Description                                                           |
+| :--------- | :---------------------------------------------------------------------- | :-------------------------------------------------------------------- |
+| `USERNAME` | `String`                                                                | Username of the newly created user, can differ from the requested one |
+| `ID`       | [`UUID`](https://docs.oracle.com/javase/8/docs/api/java/util/UUID.html) | The ID of the created user                                            |
+
+### Error Response
+| Code                | Discription                                                                    |
+| :------------------ | :----------------------------------------------------------------------------- |
+| `ALREADY_LOGGED_IN` | The session is already associated with a user, logging in again is prohibited. |
+
+
+## LOGOUT command
+Description of the command, what it does and when it should be used.
+
+### Required pre-execution checks
+None.
+
+### Request Parameters
+No parameters.
+
+### Success Response
+No response fields.
+
+### Error Response
+| Code               | Discription                                                      |
+| :----------------- | :--------------------------------------------------------------- |
+| `NO_USER_ASSOCIATED` | The session has no user associated, logging out is not possible. |
