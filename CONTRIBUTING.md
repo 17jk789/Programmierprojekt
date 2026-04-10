@@ -12,6 +12,7 @@ Since this project is part of a course at the University of Basel, the [Code of 
     - [Creating an issue](#creating-an-issue)
     - [During implementation](#during-implementation)
     - [Collaborative work](#collaborative-work)
+    - [Milestone Achievements](#milestone-achievements)
   - [Git Workflow](#git-workflow)
     - [Creating a branch](#creating-a-branch)
     - [Working on a branch](#working-on-a-branch)
@@ -48,6 +49,20 @@ Issue or Task in GitLab **before** any implementation begins.
 - When multiple people are working on the same issue, **prefer issue comments over private messages** for coordination. This keeps the current status, decisions, and open questions
   centrally visible and searchable.
 - Before starting work that overlaps with an existing issue, check its comment thread first to avoid duplicating effort.
+
+### Milestone Achievements
+For every process and product-related milestone achievement, there is a dedicated milestone task.
+
+- **Do not create a branch directly from a milestone task.**
+- Instead, create a normal implementation task (using the regular task template) and reference the milestone task there.
+- In the merge request, reference the milestone task again.
+- If the milestone condition is fully met, you may use `Closing #<id>` to close the milestone task.
+- If it is only partially addressed, use `Relates to #<id>` or `Contributes to #<id>` so the milestone task stays open.
+
+Milestone tasks may, but do not have to, be assigned to a specific person.
+
+- If multiple people are involved, contribution is tracked through linked tasks that reference the milestone task.
+- For small topics, a Milestone Achievement may be assigned to one person. Others should only contribute on request and should not modify components introduced under that achievement without coordination.
 
 
 ## Git Workflow
