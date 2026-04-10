@@ -18,8 +18,7 @@
       layoutX="50.0" layoutY="710.0">
 
     <!-- Placeholder buttons -->
-    Fix: correct Taskbar UI
-    Refs #52   <Button text="SETTINGS" styleClass="gray-button" />
+    <Button text="SETTINGS" styleClass="gray-button" />
     <Button text="INFO" styleClass="gray-button" />
     <!-- Buten for the Casono Browser -->
     <Button text="HELP" onAction="#onBrowserButtonClick" styleClass="gray-button" />
