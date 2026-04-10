@@ -18,16 +18,13 @@ public class UserFactory {
     }
 
     /**
-     * Creates and registers a new user with the given name and session. If the name
-     * is already
-     * taken, a numeric suffix is appended and incremented until a free name is
-     * found (e.g.
-     * Lars_001, Lars_002, ...). If the desiredName is null or empty, an automatic
-     * name of the
-     * form "playerN" is assigned, incrementing N until a free name is found.
+     * Creates and registers a new user with the given name and session. If the name is already
+     * taken, a numeric suffix is appended and incremented until a free name is found (e.g.
+     * Lars_001, Lars_002, ...). If the desiredName is null or empty, an automatic name of the form
+     * "playerN" is assigned, incrementing N until a free name is found.
      *
      * @param desiredName the preferred display name
-     * @param sessionId   the session to associate with the new user
+     * @param sessionId the session to associate with the new userwas
      * @return the newly created and registered user
      */
     public User create(String desiredName, SessionId sessionId) {

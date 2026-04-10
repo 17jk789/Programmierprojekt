@@ -20,8 +20,8 @@ public class User {
     /**
      * Creates a new User with the given ID, name and session.
      *
-     * @param id        the unique identifier for this user
-     * @param name      the display name of this user
+     * @param id the unique identifier for this user
+     * @param name the display name of this user
      * @param sessionId the session currently associated with this user
      */
     public User(UserId id, String name, SessionId sessionId) {
@@ -51,8 +51,7 @@ public class User {
     }
 
     /**
-     * Sets a new display name for this user. Thread-safe; callers must ensure the
-     * registry is
+     * Sets a new display name for this user. Thread-safe; callers must ensure the registry is
      * updated to maintain uniqueness when needed.
      *
      * @param newName the new display name
@@ -73,8 +72,7 @@ public class User {
     /**
      * Returns the time at which this user disconnected, if applicable.
      *
-     * @return an Optional containing the disconnect timestamp, or empty if
-     *         connected
+     * @return an Optional containing the disconnect timestamp, or empty if connected
      */
     public Optional<Instant> getDisconnectedAt() {
         return Optional.ofNullable(disconnectedAt);
@@ -90,10 +88,7 @@ public class User {
         this.disconnectedAt = null;
     }
 
-    /**
-     * Marks this user as disconnected by clearing the session and recording the
-     * timestamp.
-     */
+    /** Marks this user as disconnected by clearing the session and recording the timestamp. */
     public void markDisconnected() {
         this.sessionId = null;
         this.disconnectedAt = Instant.now();
