@@ -1,10 +1,10 @@
 ## Milestone Achievement
 <!-- The recommended type is: Task -->
 
-### Milestone category
+### Category
 <!-- Category of the milestone (Process, Product, Presentation) -->
 
-### Milestone title
+### Title
 <!-- Title of the milestone (equal to the title in the milestone catalog (https://p9.dmi.unibas.ch/cs108/2026) -->
 
 ### Rewarded points on completion
