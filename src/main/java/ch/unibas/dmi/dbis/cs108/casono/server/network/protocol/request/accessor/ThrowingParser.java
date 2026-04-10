@@ -6,7 +6,7 @@ package ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.request.accessor
  * @param <T> target type produced by the parser
  */
 @FunctionalInterface
-interface ThrowingParser<T> {
+public interface ThrowingParser<T> {
     /**
      * Parses the provided raw parameter value.
      *
