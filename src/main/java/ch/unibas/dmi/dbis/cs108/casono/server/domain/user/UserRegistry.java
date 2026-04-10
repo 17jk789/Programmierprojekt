@@ -12,10 +12,11 @@ public class UserRegistry {
     private final ConcurrentHashMap<SessionId, User> bySessionId = new ConcurrentHashMap<>();
 
     /**
-     * Attempts to register a user under the given name atomically. Returns the registered user, or
+     * Attempts to register a user under the given name atomically. Returns the
+     * registered user, or
      * empty if the name is already taken.
      *
-     * @param name the desired display name
+     * @param name      the desired display name
      * @param sessionId the session to associate with the new user
      * @return an Optional containing the new user, or empty if the name was taken
      */
@@ -92,8 +93,10 @@ public class UserRegistry {
     }
 
     /**
-     * Removes the user with the given ID, but only if they are still disconnected. This prevents
-     * removing a user who has reconnected between the cleanup job's check and its removal call.
+     * Removes the user with the given ID, but only if they are still disconnected.
+     * This prevents
+     * removing a user who has reconnected between the cleanup job's check and its
+     * removal call.
      *
      * @param userId the ID of the user to remove
      */
@@ -112,7 +115,8 @@ public class UserRegistry {
     }
 
     /**
-     * Marks the user associated with the given session as disconnected, clearing the session
+     * Marks the user associated with the given session as disconnected, clearing
+     * the session
      * association and recording the disconnect timestamp.
      *
      * @param sessionId the session ID of the disconnected client
@@ -127,9 +131,10 @@ public class UserRegistry {
     }
 
     /**
-     * Reassociates a user with a new session, effectively restoring them after a reconnect.
+     * Reassociates a user with a new session, effectively restoring them after a
+     * reconnect.
      *
-     * @param userId the ID of the user to reconnect
+     * @param userId    the ID of the user to reconnect
      * @param sessionId the new session ID
      * @return an Optional containing the user, or empty if the user was not found
      */
@@ -148,8 +153,9 @@ public class UserRegistry {
      * Looks up a user by their {@link SessionId}.
      *
      * @param sessionId the SessionId to look up
-     * @return an Optional containing the {@link User}, or empty if no user is associated with this
-     *     SessionId
+     * @return an Optional containing the {@link User}, or empty if no user is
+     *         associated with this
+     *         SessionId
      */
     public Optional<User> getBySessionId(SessionId sessionId) {
         return Optional.ofNullable(bySessionId.get(sessionId));
@@ -159,8 +165,9 @@ public class UserRegistry {
      * Looks up a user by their {@link UserId}.
      *
      * @param userId the UserId to look up
-     * @return an Optional containing the {@link User}, or empty if no user is associated with this
-     *     UserId
+     * @return an Optional containing the {@link User}, or empty if no user is
+     *         associated with this
+     *         UserId
      */
     public Optional<User> getByUserId(UserId userId) {
         return Optional.ofNullable(byId.get(userId));
@@ -170,8 +177,9 @@ public class UserRegistry {
      * Looks up a user by their username.
      *
      * @param username the username to look up
-     * @return an Optional containing the {@link User}, or empty if no user is associated with this
-     *     username
+     * @return an Optional containing the {@link User}, or empty if no user is
+     *         associated with this
+     *         username
      */
     public Optional<User> getByUsername(String username) {
         return Optional.ofNullable(byName.get(username));
@@ -184,5 +192,32 @@ public class UserRegistry {
      */
     public Collection<User> getAllUsers() {
         return byId.values();
+    }
+
+    /**
+     * Attempts to change the username of an existing user. Ensures the new name is
+     * not already
+     * taken and updates internal indices atomically.
+     *
+     * @param userId  the id of the user to rename
+     * @param newName the desired new name
+     * @return true if the rename succeeded, false if the name was already taken or
+     *         user not found
+     */
+    public synchronized boolean changeUsername(UserId userId, String newName) {
+        User user = byId.get(userId);
+        if (user == null) {
+            return false;
+        }
+
+        if (byName.containsKey(newName)) {
+            return false;
+        }
+
+        // remove old mapping and put new mapping
+        byName.remove(user.getName());
+        user.setName(newName);
+        byName.put(newName, user);
+        return true;
     }
 }
