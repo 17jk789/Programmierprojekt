@@ -2,11 +2,7 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.geometry.Insets?>
 
-
-<?import javafx.scene.control.skin.SplitPaneSkin.Content?>
-<?import com.sun.javafx.scene.control.ContextMenuContent.MenuBox?>
 <VBox xmlns="http://javafx.com/javafx/21"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:id="chatBox"
@@ -16,26 +12,20 @@
       spacing="10"
       maxWidth="Infinity">
 
-    <children>
-        <HBox spacing="10"
-              styleClass="">
-            <children>
-                <Label text="== CHAT ==" styleClass="chat-header" alignment="CENTER" maxWidth="Infinity"/>
-                <Region HBox.hgrow="ALWAYS" />
-                <MenuButton fx:id="addWhisperChatButton" styleClass="yellow-button" text="WHISPER CHAT" alignment="CENTER_RIGHT">
-                </MenuButton>
-            </children>
+    <HBox spacing="10"
+          fx:id="menuBox">
 
-        </HBox>
+        <Label text="== CHAT ==" styleClass="chat-header" alignment="CENTER" maxWidth="Infinity"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <MenuButton fx:id="addWhisperChatButton" styleClass="yellow-button" text="WHISPER CHAT"
+                    alignment="CENTER_RIGHT">
+        </MenuButton>
+    </HBox>
 
-        <TabPane fx:id="ChatTabPane"
-                 VBox.vgrow="ALWAYS">
+    <TabPane fx:id="chatTabPane"
+             VBox.vgrow="ALWAYS"
+             styleClass="tab-header-area">
 
-        </TabPane>
-
-
-
-    </children>
-
+    </TabPane>
 
 </VBox>

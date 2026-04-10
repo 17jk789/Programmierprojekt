@@ -5,7 +5,7 @@
     -fx-border-color: #5c3d10 #3d260a #3d260a #5c3d10;
     -fx-border-width: 12;
     -fx-padding: 20;
-    -fx-effect: dropshadow(one-pass-box, rgba(0,0,0,1), 0, 0, 15, 15);
+    /*-fx-effect: dropshadow(one-pass-box, rgba(0,0,0,1), 0, 0, 15, 15);*/
 }
 
 .chat-header {
@@ -154,11 +154,53 @@
     -fx-pref-height: 10;
 }
 
-.tab-pane .tab-header-area {
-    -fx-background-color: #0d763b;
+.tab-pane .tab-header-area .tab-header-background {
+    -fx-opacity: 0;
+    -fx-background-color: #0d9e3b;
+    -fx-background-radius: 18;
+    -fx-border-radius: 10;
+    -fx-border-color: #5c3d10 #3d260a #3d260a #5c3d10;
+    -fx-border-width: 5;
+    -fx-padding: 10;
+    -fx-effect: dropshadow(one-pass-box, rgba(0,0,0,1), 0, 0, 15, 15);
+    -fx-max-height: 10;
 }
 
+.tab-pane .tab {
+    -fx-background-color: #0d9e3b;
+    -fx-background-radius: 18;
+    -fx-border-radius: 10;
+    -fx-border-color: #5c3d10 #3d260a #3d260a #5c3d10;
+    -fx-border-width: 5;
+    -fx-padding: 10;
+}
+
+.tab-pane .tab:selected {
+    -fx-background-color: #0d763b;
+    -fx-background-radius: 18;
+    -fx-border-radius: 10;
+    -fx-border-color: #5c3d10 #3d260a #3d260a #5c3d10;
+    -fx-border-width: 5;
+    -fx-padding: 10;
+}
+
+.tab-pane .tab .tab-close-button {
+    -fx-text-fill: #0d9e3b;
+}
+
+.tab-pane .tab-header-area .headers-region {
+    -fx-background-color: #0d9e3b;
+}
+
+
 .tab .tab-label {
-    -fx-font-family: "Courier New";
+    -fx-alignment: CENTER;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 12px;
     -fx-font-weight: bold;
+}
+
+.tab:selected .tab-label {
+    -fx-alignment: CENTER;
+    -fx-text-fill: #ffffff;
 }
