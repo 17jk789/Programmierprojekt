@@ -40,33 +40,69 @@
                       alignment="CENTER"
                       styleClass="casino-table"
                       spacing="20"
-                      onMouseClicked="#onTableClick"
                       maxWidth="Infinity"
                       maxHeight="Infinity">
 
-                    <!-- TODO: Placeholder for the poker playing area: Cards, chips and opponents' bets will be dynamically displayed here later -->
-                    <HBox alignment="CENTER" spacing="15">
-                        <VBox styleClass="dealer-box" prefWidth="80" prefHeight="120" />
-                        <VBox styleClass="dealer-box" prefWidth="80" prefHeight="120" />
-                        <VBox styleClass="dealer-box" prefWidth="80" prefHeight="120" />
-                    </HBox>
+                    <!-- Inner box: Contains the header, community cards, and pot box.-->
+                    <VBox fx:id="casinoTableInnerBox"
+                          spacing="15"
+                          alignment="CENTER"
+                          AnchorPane.topAnchor="0"
+                          AnchorPane.bottomAnchor="0"
+                          AnchorPane.leftAnchor="0"
+                          AnchorPane.rightAnchor="0">
 
-                    <VBox alignment="CENTER" spacing="10">
-                        <!-- Label with logo -->
-                        <Label text="CAS0NO" styleClass="table-title">
-                            <graphic>
-                                <ImageView fitHeight="30.0" preserveRatio="true">
-                                    <image>
-                                        <Image url="@/images/logo.png" />
-                                    </image>
-                                </ImageView>
-                            </graphic>
-                        </Label>
+                        <!-- HEADER -->
+                        <VBox alignment="CENTER" spacing="5">
 
-                        <!-- TODO: Placeholder: Will be replaced once the game engine is finished and can process real-world scenarios -->
-                        <Label fx:id="welcomeText" text="Setzen Sie Ihren Einsatz" styleClass="table-title" />
+                            <Label text="CAS0NO" styleClass="table-title">
+                                <graphic>
+                                    <ImageView fitHeight="30.0" preserveRatio="true">
+                                        <image>
+                                            <Image url="@/images/logo.png" />
+                                        </image>
+                                    </ImageView>
+                                </graphic>
+                            </Label>
+
+                            <Label fx:id="TableText"
+                                   text="Place your bet"
+                                   styleClass="table-title" />
+
+                        </VBox>
+
+                        <!-- Community Cards -->
+                        <HBox fx:id="communityCardsBox"
+                              styleClass="community-cards-box"
+                              alignment="CENTER"
+                              spacing="10"/>
+
+                        <!-- Pot Box -->
+                        <HBox fx:id="potBox"
+                              alignment="CENTER"
+                              spacing="4"
+                              maxWidth="Infinity"
+                              maxHeight="Infinity"/>
+
+
                     </VBox>
                 </VBox>
+
+                <!-- Player Cards -->
+                <HBox fx:id="playerCardsBox"
+                      spacing="10"
+                      alignment="CENTER"
+                      StackPane.alignment="BOTTOM_CENTER">
+
+                    <ImageView fx:id="myDealerIcon"
+                               styleClass="dealer-box"
+                               fitWidth="100"
+                               fitHeight="100"
+                               preserveRatio="true"
+                               visible="false"/>
+
+                </HBox>
+
             </StackPane>
 
             <!-- Empty box in column 1: Creates space between the table box and the chat box -->
@@ -99,7 +135,7 @@
         </columnConstraints>
 
         <children>
-            <fx:include source="gameuicomponents/Playerstatus.fxml" GridPane.columnIndex="1"/>
+            <fx:include fx:id="player1" source="gameuicomponents/Playerstatus.fxml" GridPane.columnIndex="1"/>
         </children>
     </GridPane>
 
@@ -114,7 +150,7 @@
         </columnConstraints>
 
         <children>
-            <fx:include source="gameuicomponents/Playerstatus.fxml" GridPane.columnIndex="1"/>
+            <fx:include fx:id="player2" source="gameuicomponents/Playerstatus.fxml" GridPane.columnIndex="1"/>
         </children>
     </GridPane>
 
@@ -129,7 +165,7 @@
         </columnConstraints>
 
         <children>
-            <fx:include source="gameuicomponents/Playerstatus.fxml" GridPane.columnIndex="1"/>
+            <fx:include fx:id="player3" source="gameuicomponents/Playerstatus.fxml" GridPane.columnIndex="1"/>
         </children>
     </GridPane>
 </AnchorPane>
