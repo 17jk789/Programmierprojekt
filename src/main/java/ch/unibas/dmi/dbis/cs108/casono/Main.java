@@ -17,10 +17,13 @@ public final class Main {
             printUsage();
             System.exit(1);
         }
-
         switch (args[0]) {
             case "server" -> ServerApp.start(args[1]);
-            case "client" -> ClientApp.start(args[1]);
+            case "client" -> {
+                String address = args[1];
+                String username = args.length >= 3 ? args[2] : null;
+                ClientApp.start(address, username);
+            }
             default -> {
                 printUsage();
                 System.exit(1);
@@ -29,12 +32,13 @@ public final class Main {
     }
 
     private static boolean isValid(String[] args) {
-        if (args.length != 2) {
+        if (args.length < 2) {
             return false;
         }
 
         return switch (args[0]) {
-            case "server", "client" -> true;
+            case "server" -> args.length == 2;
+            case "client" -> args.length == 2 || args.length == 3;
             default -> false;
         };
     }
@@ -45,7 +49,7 @@ public final class Main {
                 """
                 Usage:
                   java -jar xyz.jar server <listenPort>
-                  java -jar xyz.jar client <serverIp>:<serverPort>
+                  java -jar xyz.jar client <serverIp>:<serverPort> [<username>]
                 """);
     }
 }

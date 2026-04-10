@@ -27,7 +27,7 @@ public class ClientApp {
      * @param arg Address in the format "ip:port".
      * @throws IllegalArgumentException if the address format is invalid.
      */
-    public static void start(String arg) {
+    public static void start(String arg, String username) {
         String[] parts = arg.split(":", 2);
         if (parts.length != 2) {
             throw new IllegalArgumentException("Address must be in format <ip>:<port>.");
@@ -36,6 +36,12 @@ public class ClientApp {
         int port = Integer.parseInt(parts[1]);
 
         LOGGER.info("You've selected the client. It will connect port {} at host {}", port, host);
+        // Pass connection defaults and optional username to the UI via system properties
+        System.setProperty("casono.server.host", host);
+        System.setProperty("casono.server.port", String.valueOf(port));
+        if (username != null && !username.isBlank()) {
+            System.setProperty("casono.username", username);
+        }
         Launcher.main(new String[] {});
     }
 }
