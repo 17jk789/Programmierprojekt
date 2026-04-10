@@ -7,9 +7,8 @@ import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.builder.
 
 public class GetNextMessageResponse extends SuccessResponse {
     /**
-     * Constructs a new GetNextMessageResponse. It converts the provided {@link Message}
-     * into a network-compatible response body and associates it with the original
-     * request context.
+     * Constructs a new GetNextMessageResponse. It converts the provided {@link Message} into a
+     * network-compatible response body and associates it with the original request context.
      *
      * @param context The {@link RequestContext} of the request being answered.
      * @param msg The {@link Message} to be sent back to the client.

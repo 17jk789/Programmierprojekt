@@ -6,7 +6,6 @@ import ch.unibas.dmi.dbis.cs108.casono.server.domain.user.UserRegistry;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.command.execution.CommandHandler;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.ErrorResponse;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.dispatcher.ResponseDispatcher;
-
 import java.util.Optional;
 
 public class GetNextMessageHandler extends CommandHandler<GetNextMessageRequest> {
@@ -22,11 +21,12 @@ public class GetNextMessageHandler extends CommandHandler<GetNextMessageRequest>
         super(responseDispatcher);
         this.userRegistry = userRegistry;
     }
+
     /**
-     * Executes the request to retrieve the next message for a specific user.
-     * It identifies the user via their session ID, dequeues the next available message,
-     * and dispatches a {@link GetNextMessageResponse}. If the user cannot be identified,
-     * an {@link ErrorResponse} is sent instead.
+     * Executes the request to retrieve the next message for a specific user. It identifies the user
+     * via their session ID, dequeues the next available message, and dispatches a {@link
+     * GetNextMessageResponse}. If the user cannot be identified, an {@link ErrorResponse} is sent
+     * instead.
      *
      * @param request The {@link GetNextMessageRequest} containing the session and context.
      */

@@ -3,16 +3,13 @@ package ch.unibas.dmi.dbis.cs108.casono.client.chat;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.command.parsing.RequestParameter;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.builder.ResponseBody;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.builder.ResponseBodyBuilder;
-import org.jspecify.annotations.NonNull;
-
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
+import org.jspecify.annotations.NonNull;
 
-/**
- * Message Object for internal handling of Chat-Messages
- */
+/** Message Object for internal handling of Chat-Messages */
 public class Message {
     private final ChatType type;
     private final String message;
@@ -22,15 +19,15 @@ public class Message {
     public String target = null;
 
     /**
-     * Constructs a Message with a provided timestamp. Typically used when
-     * reconstructing messages received from the server.
+     * Constructs a Message with a provided timestamp. Typically used when reconstructing messages
+     * received from the server.
      *
-     * @param type      The chat category (e.g., GLOBAL, LOBBY, or WHISPER).
-     * @param lobbyId   The ID of the lobby, or -1 if not applicable.
-     * @param sender    The username of the message creator.
-     * @param target    The username of the recipient (required for whispers, otherwise null).
+     * @param type The chat category (e.g., GLOBAL, LOBBY, or WHISPER).
+     * @param lobbyId The ID of the lobby, or -1 if not applicable.
+     * @param sender The username of the message creator.
+     * @param target The username of the recipient (required for whispers, otherwise null).
      * @param timestamp The formatted time string (e.g., "HH:mm").
-     * @param message   The actual text content of the message.
+     * @param message The actual text content of the message.
      */
     public Message(
             ChatType type,
@@ -48,13 +45,13 @@ public class Message {
     }
 
     /**
-     * Constructs a new Message for the current user. Automatically generates
-     * a timestamp based on the local system time ("HH:mm").
+     * Constructs a new Message for the current user. Automatically generates a timestamp based on
+     * the local system time ("HH:mm").
      *
-     * @param type    The chat category (e.g., GLOBAL, LOBBY, or WHISPER).
+     * @param type The chat category (e.g., GLOBAL, LOBBY, or WHISPER).
      * @param lobbyId The ID of the lobby, or -1 if not applicable.
-     * @param sender  The username of the current user.
-     * @param target  The username of the recipient (for whispers).
+     * @param sender The username of the current user.
+     * @param target The username of the recipient (for whispers).
      * @param message The actual text content to be sent.
      */
     public Message(ChatType type, int lobbyId, String sender, String target, String message) {
@@ -87,8 +84,8 @@ public class Message {
     }
 
     /**
-     * Formats the message object into a string representation compatible with
-     * the network protocol arguments.
+     * Formats the message object into a string representation compatible with the network protocol
+     * arguments.
      *
      * @return A formatted string containing all message attributes for server transmission.
      */
@@ -110,8 +107,8 @@ public class Message {
     }
 
     /**
-     * Parses a list of network request parameters to reconstruct a Message object.
-     * Handles different chat types (GLOBAL, LOBBY, WHISPER) and their specific requirements.
+     * Parses a list of network request parameters to reconstruct a Message object. Handles
+     * different chat types (GLOBAL, LOBBY, WHISPER) and their specific requirements.
      *
      * @param parameters A list of {@link RequestParameter} received from the network.
      * @return A new {@link Message} instance populated with the parsed data.
@@ -120,27 +117,30 @@ public class Message {
         String typeString = getParString(parameters, "TYPE");
         ChatType type = ChatType.valueOf(typeString);
         return switch (type) {
-            case GLOBAL -> new Message(
-                    ChatType.GLOBAL,
-                    -1,
-                    getParString(parameters, "USER"),
-                    null,
-                    getParString(parameters, "TIME"),
-                    getParString(parameters, "TEXT"));
-            case LOBBY -> new Message(
-                    ChatType.LOBBY,
-                    Integer.parseInt(getParString(parameters, "GAME")),
-                    getParString(parameters, "USER"),
-                    null,
-                    getParString(parameters, "TIME"),
-                    getParString(parameters, "TEXT"));
-            case WHISPER -> new Message(
-                    ChatType.WHISPER,
-                    Integer.parseInt(getParString(parameters, "GAME", "-1")),
-                    getParString(parameters, "USER"),
-                    getParString(parameters, "TARGET"),
-                    getParString(parameters, "TIME"),
-                    getParString(parameters, "TEXT"));
+            case GLOBAL ->
+                    new Message(
+                            ChatType.GLOBAL,
+                            -1,
+                            getParString(parameters, "USER"),
+                            null,
+                            getParString(parameters, "TIME"),
+                            getParString(parameters, "TEXT"));
+            case LOBBY ->
+                    new Message(
+                            ChatType.LOBBY,
+                            Integer.parseInt(getParString(parameters, "GAME")),
+                            getParString(parameters, "USER"),
+                            null,
+                            getParString(parameters, "TIME"),
+                            getParString(parameters, "TEXT"));
+            case WHISPER ->
+                    new Message(
+                            ChatType.WHISPER,
+                            Integer.parseInt(getParString(parameters, "GAME", "-1")),
+                            getParString(parameters, "USER"),
+                            getParString(parameters, "TARGET"),
+                            getParString(parameters, "TIME"),
+                            getParString(parameters, "TEXT"));
         };
     }
 
@@ -158,7 +158,8 @@ public class Message {
     }
 
     /**
-     * Helper method to extract a specific parameter value by its key, with a fallback default value.
+     * Helper method to extract a specific parameter value by its key, with a fallback default
+     * value.
      *
      * @param parameters The list of parameters to search.
      * @param keyString The key to look for.

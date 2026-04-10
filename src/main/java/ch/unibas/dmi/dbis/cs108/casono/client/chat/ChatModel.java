@@ -1,10 +1,9 @@
 package ch.unibas.dmi.dbis.cs108.casono.client.chat;
 
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-
 import java.util.ArrayList;
 import java.util.function.Consumer;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 
 /**
  * ChatModel, stores the data for a specific chat
@@ -48,6 +47,7 @@ public class ChatModel {
 
     /**
      * Returns the type of chat this model represents.
+     *
      * @return The {@link ChatType}.
      */
     public ChatType getChattype() {
@@ -55,8 +55,8 @@ public class ChatModel {
     }
 
     /**
-     * Adds a new message to the history and notifies all registered listeners.
-     * This method is synchronized to ensure thread safety when updating the message list.
+     * Adds a new message to the history and notifies all registered listeners. This method is
+     * synchronized to ensure thread safety when updating the message list.
      *
      * @param msg The {@link Message} to be added.
      */
@@ -76,6 +76,7 @@ public class ChatModel {
 
     /**
      * Returns the target user for this chat, primarily used for whispers.
+     *
      * @return The target username or null.
      */
     public String getTarget() {

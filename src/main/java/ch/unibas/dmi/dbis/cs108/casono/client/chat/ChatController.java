@@ -3,9 +3,12 @@ package ch.unibas.dmi.dbis.cs108.casono.client.chat;
 import ch.unibas.dmi.dbis.cs108.casono.client.network.ChatClient;
 import ch.unibas.dmi.dbis.cs108.casono.client.network.ClientService;
 import ch.unibas.dmi.dbis.cs108.casono.client.ui.chatui.ChatBoxController;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 import org.jspecify.annotations.Nullable;
-
-import java.util.*;
 
 /**
  * responsible for the transferring of messages from the server to the ChatModel or from the

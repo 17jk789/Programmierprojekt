@@ -22,8 +22,8 @@ public class SendMessageHandler extends CommandHandler<SendMessageRequest> {
 
     /**
      * Processes a message send request. This method extracts the message from the request,
-     * broadcasts it to all connected users, and dispatches a success response (OK)
-     * back to the sender.
+     * broadcasts it to all connected users, and dispatches a success response (OK) back to the
+     * sender.
      *
      * @param request The {@link SendMessageRequest} containing the message and context.
      */
@@ -36,8 +36,8 @@ public class SendMessageHandler extends CommandHandler<SendMessageRequest> {
     }
 
     /**
-     * Distributes a message to every user currently registered in the system.
-     * Each user's message queue is updated with the new message.
+     * Distributes a message to every user currently registered in the system. Each user's message
+     * queue is updated with the new message.
      *
      * @param message The {@link Message} object to be broadcast.
      */

@@ -11,8 +11,8 @@ public class GetMessageCountHandler extends CommandHandler<GetMessageCountReques
     private final UserRegistry userRegistry;
 
     /**
-     * Constructs a new GetMessageCountHandler with the necessary response dispatcher
-     * and user registry.
+     * Constructs a new GetMessageCountHandler with the necessary response dispatcher and user
+     * registry.
      *
      * @param responseDispatcher The dispatcher used to send the count or error back to the client.
      * @param userRegistry The registry used to identify the user and access their message queue.
@@ -24,10 +24,9 @@ public class GetMessageCountHandler extends CommandHandler<GetMessageCountReques
     }
 
     /**
-     * Processes a request to retrieve the number of pending messages for a user.
-     * It looks up the user by their session ID; if found, it dispatches a
-     * {@link GetMessageCountResponse} containing the current count. Otherwise,
-     * it dispatches an {@link ErrorResponse}.
+     * Processes a request to retrieve the number of pending messages for a user. It looks up the
+     * user by their session ID; if found, it dispatches a {@link GetMessageCountResponse}
+     * containing the current count. Otherwise, it dispatches an {@link ErrorResponse}.
      *
      * @param request The {@link GetMessageCountRequest} containing the session details.
      */
