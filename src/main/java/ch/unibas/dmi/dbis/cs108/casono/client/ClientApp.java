@@ -36,6 +36,12 @@ public class ClientApp {
         int port = Integer.parseInt(parts[1]);
 
         LOGGER.info("You've selected the client. It will connect port {} at host {}", port, host);
-        Launcher.main(new String[] {});
+        // Expose the chosen host/port to the UI via system properties so controllers
+        // (which read System.getProperty("casono.server.host"/"casono.server.port"))
+        // can obtain the correct connection information.
+        System.setProperty("casono.server.host", host);
+        System.setProperty("casono.server.port", Integer.toString(port));
+        // Forward the original address argument to the launcher as well.
+        Launcher.main(new String[] { arg });
     }
 }

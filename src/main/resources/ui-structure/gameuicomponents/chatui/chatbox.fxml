@@ -1,29 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.geometry.Insets?>
 
 <!--
-    This window will later be linked to the server requests,
-    to display messages from other players and system messages in real time.
+    Dieses Fenster wird später mit den Serveranfragen verknüpft,
+    um Nachrichten von Mitspielern und Systemmeldungen in Echtzeit anzuzeigen.
 
-    The chat internally distinguishes between:
-    - Player-to-Player (Private 2-person chat)
-    - Lobby Chat (Current room)
-    - Global Chat (Entire server)
+    Der Chat unterscheidet intern zwischen:
+    - Player-to-Player (Privater 2-Personen-Chat)
+    - Lobby-Chat (Aktueller Raum)
+    - Globaler Chat (Gesamter Server)
 
-    Features planned for later implementation:
-    - Stylish chat bubbles with names and timestamps.
+    Features, die später implementiert werden sollen:
+    - Schicke Chat-Bubbles mit Namen und Uhrzeit.
 -->
 
 <VBox xmlns="http://javafx.com/javafx/21"
       xmlns:fx="http://javafx.com/fxml/1"
-    fx:controller="ch.unibas.dmi.dbis.cs108.casono.client.ui.chatui.ChatViewController"
+      fx:controller="ch.unibas.dmi.dbis.cs108.casono.client.ui.chatui.ChatViewController"
       alignment="CENTER"
-      stylesheets="@Chatui.css">
+      stylesheets="@chatui.css">
 
-    <!-- Inner spacing: Creates 30 pixels of space at the top, right and bottom, only 10 pixels on the left (asymmetrical) -->
+    <!-- Innenabstand: Schafft oben, rechts und unten 30 Pixel Platz, links nur 10 Pixel (asymmetrisch) -->
     <padding>
         <Insets top="30" right="30" bottom="30" left="10"/>
     </padding>
@@ -38,18 +38,19 @@
                 <Label text="== CHAT ==" styleClass="chat-header" alignment="CENTER" maxWidth="Infinity"/>
                 <Region minHeight="4" styleClass="chat-separator"/>
 
-                <!-- Chat messages will be added here -->
+                <!-- Chatnachrichten werden hier hinzugefügt -->
                 <ScrollPane fx:id="chatScrollPane" fitToWidth="true" vbarPolicy="AS_NEEDED" hbarPolicy="NEVER" VBox.vgrow="ALWAYS" styleClass="chat-scroll-pane">
                     <content>
                         <VBox fx:id="chatVBox" spacing="10" styleClass="chat-VBox"/>
                     </content>
                 </ScrollPane>
 
-                <!-- Input area -->
+                <!-- Eingabebereich -->
                 <HBox spacing="10">
-                    <!-- TODO: Dynamically adjust the size of the text field -->
+                    <!-- TODO: Größe des TextFields dynamisch anpassen -->
                     <TextField fx:id="inputField" HBox.hgrow="ALWAYS" promptText="Nachricht eingeben..." styleClass="gray-input-field" onAction="#sendMessage"/>
                     <Button fx:id="sendButton" text="SENDEN" onAction="#sendMessage" styleClass="yellow-button"/>
+                    <Button fx:id="refreshButton" text="NEU" onAction="#showMessage" styleClass="yellow-button"/>
                 </HBox>
             </children>
         </VBox>
