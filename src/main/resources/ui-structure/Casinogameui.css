@@ -109,6 +109,52 @@
     -fx-background-color: #333333;
 }
 
+.yellow-input-field {
+    -fx-background-color: #b8860b;
+    -fx-text-fill: #ffffff;
+    -fx-prompt-text-fill: #ffffff;
+    -fx-font-family: "Courier New";
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-color: #ffd700;
+    -fx-border-width: 2;
+    -fx-padding: 5 12;
+}
+
+.yellow-input-field:hover {
+    -fx-translate-y: -3;
+    -fx-effect: dropshadow(one-pass-box, rgba(0, 0, 0, 0.8), 0, 0, 3, 3);
+}
+
+.yellow-input-field:focused {
+    -fx-border-color: #ffffff;
+    -fx-background-color: #b8860b;
+}
+
+.red-input-field {
+    -fx-background-color: #8b0000;
+    -fx-text-fill: #ffffff;
+    -fx-prompt-text-fill: #ffffff;
+    -fx-font-family: "Courier New";
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-color: #ff4444;
+    -fx-border-width: 2;
+    -fx-padding: 5 12;
+}
+
+.red-input-field:hover {
+    -fx-translate-y: -3;
+    -fx-effect: dropshadow(one-pass-box, rgba(0, 0, 0, 0.8), 0, 0, 3, 3);
+}
+
+.red-input-field:focused {
+    -fx-border-color: #ffffff;
+    -fx-background-color: #8b0000;
+}
+
 .yellow-button {
     -fx-background-color: #b8860b;
     -fx-border-color: #ffd700;
@@ -127,7 +173,13 @@
     -fx-text-fill: #cccccc;
 }
 
-.gray-button, .yellow-button, .red-button {
+.green-button {
+    -fx-background-color: #144523;
+    -fx-border-color: #0d9e3b;
+    -fx-text-fill: #ffffff;
+}
+
+.gray-button, .yellow-button, .red-button, .green-button {
     -fx-background-radius: 12;
     -fx-border-radius: 12;
     -fx-font-family: "Courier New";
@@ -137,9 +189,75 @@
     -fx-cursor: hand;
 }
 
-.gray-button:hover, .yellow-button:hover, .red-button:hover {
+.gray-button:hover, .yellow-button:hover, .red-button:hover, .green-button:hover {
     -fx-translate-y: -3;
     -fx-effect: dropshadow(one-pass-box, rgba(0, 0, 0, 0.8), 0, 0, 3, 3);
+}
+
+.community-cards-box {
+    -fx-alignment: center;
+    -fx-spacing: 12;
+    -fx-padding: 15;
+    -fx-background-color: transparent;
+}
+
+.community-card {
+    -fx-effect: dropshadow(one-pass-box, rgba(0, 0, 0, 0.8), 0, 0, 3, 3);
+
+    -fx-alignment: center;
+    -fx-spacing: 12;
+    -fx-padding: 20;
+    -fx-background-color: linear-gradient(to bottom, #0b3d2e, #06261d);
+    -fx-background-radius: 16;
+    -fx-scale-x: 1;
+    -fx-scale-y: 1;
+    -fx-translate-y: 0;
+    -fx-opacity: 1;
+}
+
+.player-card {
+    -fx-effect: dropshadow(one-pass-box, rgba(0, 0, 0, 0.8), 0, 0, 3, 3);
+
+    -fx-alignment: center;
+    -fx-spacing: 12;
+    -fx-padding: 20;
+    -fx-background-color: linear-gradient(to bottom, #0b3d2e, #06261d);
+    -fx-background-radius: 16;
+    -fx-scale-x: 1;
+    -fx-scale-y: 1;
+    -fx-translate-y: 0;
+    -fx-opacity: 1;
+}
+
+
+.chips-icon {
+    -fx-effect: dropshadow(one-pass-box, rgba(0, 0, 0, 0.8), 0, 0, 3, 3);
+}
+
+
+.dealer-icon {
+    -fx-effect: dropshadow(one-pass-box, rgba(0, 0, 0, 0.8), 0, 0, 3, 3);
+}
+
+.player-cards-box {
+    -fx-padding: 10;
+}
+
+.money-value {
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(one-pass-box, #000000, 0, 0, 2, 2);
+}
+
+.pot-title {
+    -fx-text-fill: gold;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+.pot-box {
+    -fx-padding: 5;
 }
 
 .player-status-pane {
@@ -181,30 +299,32 @@
 
 .status-label-small {
     -fx-text-fill: #ffffff;
-    -fx-font-family: "Monospaced"; /* font */
-    -fx-font-size: 15px;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(one-pass-box, #000000, 0, 0, 2, 2);
 }
 
 .status-value-text {
     -fx-text-fill: #ffffff;
-    -fx-font-family: "Monospaced"; /* font */
-    -fx-font-size: 15px;
+    -fx-font-size: 18px;
     -fx-font-weight: bold;
+    -fx-effect: dropshadow(one-pass-box, #000000, 0, 0, 2, 2);
 }
 
 .status-value-money {
     -fx-text-fill: #ffffff;
-    -fx-font-family: "Monospaced"; /* font */
-    -fx-font-size: 15px;
+    -fx-font-size: 18px;
     -fx-font-weight: bold;
+    -fx-effect: dropshadow(one-pass-box, #000000, 0, 0, 2, 2);
 }
 
 .status-circle {
     -fx-background-color: #000000;
     -fx-background-radius: 50;
     -fx-border-color: #ffffff;
-    -fx-border-width: 3;
+    -fx-border-width: 1;
     -fx-border-radius: 50;
+    -fx-effect: dropshadow(one-pass-box, rgba(0, 0, 0, 0.8), 0, 0, 3, 3);
 }
 
 .browser-root {

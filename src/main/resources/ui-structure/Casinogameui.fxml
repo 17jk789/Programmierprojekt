@@ -5,90 +5,125 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.image.*?>
 
-<!-- Hauptcontainer: Verknüpft die UI mit dem CasinoGameController und lädt casinogameui.css -->
+<!-- Main container: Links the UI to the CasinoGameController and loads Casinogameui.css -->
 <AnchorPane xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui.CasinoGameController"
             styleClass="background"
-            stylesheets="@casinogameui.css">
+            stylesheets="@Casinogameui.css">
 
     <GridPane prefWidth="1200" prefHeight="800" AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
         <columnConstraints>
-            <!-- Tisch-Box: 70% -->
+            <!-- Table-Box: 70% -->
             <ColumnConstraints percentWidth="70.0" hgrow="ALWAYS" />
-            <!-- Leere-Box: 5% -->
+            <!-- Table-Box: 5% -->
             <ColumnConstraints percentWidth="5.0" hgrow="ALWAYS" />
-            <!-- Chat-Box: 20% -->
+            <!-- Table-Box: 20% -->
             <ColumnConstraints percentWidth="25.0" hgrow="ALWAYS" />
         </columnConstraints>
 
-        <!-- Sorgt dafür, dass diese Zeile den gesamten verfügbaren vertikalen Platz nutzt -->
+        <!-- Ensures that this line uses all available vertical space -->
         <rowConstraints>
             <RowConstraints vgrow="ALWAYS" />
         </rowConstraints>
 
         <children>
-            <!-- Tisch-Box in Spalte 0 -->
+            <!-- Table box in column 0 -->
             <StackPane GridPane.columnIndex="0">
-                <!-- Innenabstand: Hält den Inhalt 10 Pixel von oben/unten und 20 Pixel von den Seiten fern -->
+                <!-- Inner spacing: Keeps the content 10 pixels away from the top/bottom and 20 pixels from the sides -->
                 <padding>
                     <Insets top="20" right="10" bottom="120" left="20"/>
                 </padding>
 
-                <!-- Zentraler Casinotisch: Zentriert den Inhalt und nutzt durch die maximale Größe (1.7976931348623157E308) das gesamte Fenster -->
+                <!-- Central Casino Table: Centers the content and utilizes the entire window due to its maximum size (1.7976931348623157E308) -->
                 <VBox fx:id="casinoTable"
                       alignment="CENTER"
                       styleClass="casino-table"
                       spacing="20"
-                      onMouseClicked="#onTableClick"
                       maxWidth="Infinity"
                       maxHeight="Infinity">
 
-                    <!-- TODO: Platzhalter für die Poker-Spielfläche: Hier werden später dynamisch Karten, Chips und Einsätze der Gegner angezeigt -->
-                    <HBox alignment="CENTER" spacing="15">
-                        <VBox styleClass="dealer-box" prefWidth="80" prefHeight="120" />
-                        <VBox styleClass="dealer-box" prefWidth="80" prefHeight="120" />
-                        <VBox styleClass="dealer-box" prefWidth="80" prefHeight="120" />
-                    </HBox>
+                    <!-- Inner box: Contains the header, community cards, and pot box.-->
+                    <VBox fx:id="casinoTableInnerBox"
+                          spacing="15"
+                          alignment="CENTER"
+                          AnchorPane.topAnchor="0"
+                          AnchorPane.bottomAnchor="0"
+                          AnchorPane.leftAnchor="0"
+                          AnchorPane.rightAnchor="0">
 
-                    <VBox alignment="CENTER" spacing="10">
-                        <!-- Label mit Logo -->
-                        <Label text="CAS0NO" styleClass="table-title">
-                            <graphic>
-                                <ImageView fitHeight="30.0" preserveRatio="true">
-                                    <image>
-                                        <Image url="@/images/logo.png" />
-                                    </image>
-                                </ImageView>
-                            </graphic>
-                        </Label>
+                        <!-- HEADER -->
+                        <VBox alignment="CENTER" spacing="5">
 
-                        <!-- TODO: Platzhalter: Wird ersetzt, sobald die GameEngine fertig ist und echte Einsätze verarbeiten kann -->
-                        <Label fx:id="welcomeText" text="Setzen Sie Ihren Einsatz" styleClass="table-title" />
+                            <Label text="CAS0NO" styleClass="table-title">
+                                <graphic>
+                                    <ImageView fitHeight="30.0" preserveRatio="true">
+                                        <image>
+                                            <Image url="@/images/logo.png" />
+                                        </image>
+                                    </ImageView>
+                                </graphic>
+                            </Label>
+
+                            <Label fx:id="tableText"
+                                   text="Place your bet"
+                                   styleClass="table-title" />
+
+                        </VBox>
+
+                        <!-- Community Cards -->
+                        <HBox fx:id="communityCardsBox"
+                              styleClass="community-cards-box"
+                              alignment="CENTER"
+                              spacing="10"/>
+
+                        <!-- Pot Box -->
+                        <HBox fx:id="potBox"
+                              alignment="CENTER"
+                              spacing="4"
+                              maxWidth="Infinity"
+                              maxHeight="Infinity"/>
+
+
                     </VBox>
                 </VBox>
+
+                <!-- Player Cards -->
+                <HBox fx:id="playerCardsBox"
+                      spacing="10"
+                      alignment="CENTER"
+                      StackPane.alignment="BOTTOM_CENTER">
+
+                    <ImageView fx:id="myDealerIcon"
+                               styleClass="dealer-box"
+                               fitWidth="100"
+                               fitHeight="100"
+                               preserveRatio="true"
+                               visible="false"/>
+
+                </HBox>
+
             </StackPane>
 
-            <!-- Leere-Box in Spalte 1: Schafft Platz zwischen dem Tisch-Box und der Chat-Box -->
+            <!-- Empty box in column 1: Creates space between the table box and the chat box -->
             <VBox GridPane.columnIndex="1"
                   alignment="CENTER"
                   minWidth="100"
                   minHeight="100">
-                <!-- Bleibt leer -->
+                <!-- Leave blank -->
             </VBox>
 
-            <!-- TODO: Platzhalter: Chat-Box in Spalte 2: -->
-            <fx:include source="components/Chatbox.fxml" GridPane.columnIndex="2"/>
+            <fx:include source="components/chatui/chatbox.fxml" GridPane.columnIndex="2"/>
 
         </children>
     </GridPane>
 
-    <!-- verschiebbare Taskbar -->
+    <!-- movable taskbar -->
     <AnchorPane>
-        <fx:include fx:id="taskbarInclude" source="gameuicomponents/taskbar.fxml"/>
+        <fx:include fx:id="taskbarInclude" source="gameuicomponents/Taskbar.fxml"/>
     </AnchorPane>
 
-    <!-- Gegner-Status 1: Eines von drei Panels, das Icon, Name und Kontostand des Mitspielers anzeigt -->
+    <!-- Opponent Status 1: One of three panels displaying the opponent's icon, name, and account balance -->
     <GridPane AnchorPane.leftAnchor="0.0"
               AnchorPane.rightAnchor="0.0"
               AnchorPane.topAnchor="50">
@@ -99,11 +134,11 @@
         </columnConstraints>
 
         <children>
-            <fx:include source="gameuicomponents/playerstatus.fxml" GridPane.columnIndex="1"/>
+            <fx:include fx:id="player1" source="gameuicomponents/Playerstatus.fxml" GridPane.columnIndex="1"/>
         </children>
     </GridPane>
 
-    <!-- Gegner-Status 2: Eines von drei Panels, das Icon, Name und Kontostand des Mitspielers anzeigt -->
+    <!-- Opponent Status 2: One of three panels displaying the opponent's icon, name, and account balance -->
     <GridPane AnchorPane.leftAnchor="0.0"
               AnchorPane.rightAnchor="0.0"
               AnchorPane.topAnchor="20">
@@ -114,11 +149,11 @@
         </columnConstraints>
 
         <children>
-            <fx:include source="gameuicomponents/playerstatus.fxml" GridPane.columnIndex="1"/>
+            <fx:include fx:id="player2" source="gameuicomponents/Playerstatus.fxml" GridPane.columnIndex="1"/>
         </children>
     </GridPane>
 
-    <!-- Gegner-Status 3: Eines von drei Panels, das Icon, Name und Kontostand des Mitspielers anzeigt -->
+    <!-- Opponent Status 3: One of three panels that displays the opponent's icon, name, and account balance -->
     <GridPane AnchorPane.leftAnchor="0.0"
               AnchorPane.rightAnchor="0.0"
               AnchorPane.topAnchor="50">
@@ -129,7 +164,7 @@
         </columnConstraints>
 
         <children>
-            <fx:include source="gameuicomponents/playerstatus.fxml" GridPane.columnIndex="1"/>
+            <fx:include fx:id="player3" source="gameuicomponents/Playerstatus.fxml" GridPane.columnIndex="1"/>
         </children>
     </GridPane>
 </AnchorPane>
