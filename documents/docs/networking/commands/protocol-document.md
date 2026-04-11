@@ -63,6 +63,7 @@ This document describes the protocol for client-server communication in our appl
     - [Example Request](#example-request)
     - [Example Response](#example-response)
   - [RAISE command](#raise-command)
+  - [CALL command](#call-command)
   - [BET command](#bet-command)
   - [SEND_MESSAGE command](#send_message-command)
     - [Required pre-execution checks](#required-pre-execution-checks)
@@ -776,6 +777,61 @@ END
 -ERR
   CODE=INSUFFICIENT_FUNDS
   MSG=Not enough chips
+END
+```
+
+## CALL command
+
+The `CALL` command lets the currently logged-in player match the current bet (call) in the ongoing game for their lobby.
+
+### Required pre-execution checks
+
+- [`UserLoggedInCheck`](#userloggedincheck)
+
+### Request Parameters
+
+| Parameter Name | Type | Optional | Description |
+| :------------- | :--- | :------: | :---------- |
+| `GAME_ID` | `int` | yes | Numeric id of the lobby/game to target. If omitted the server resolves the lobby by the requesting session's user. |
+
+### Implementation notes
+
+- Parser: `PlayerCallParser` — accepts optional `GAME_ID`.
+- Handler: `PlayerCallHandler` — validates the session, resolves the lobby by id when provided or by session otherwise and forwards to `GameController`.
+
+### Success Response
+
+No additional response fields. Server replies with `+OK` on success.
+
+### Error Response
+
+| Code | Description |
+| :--- | :---------- |
+| `NOT_YOUR_TURN` | The player attempted to call when not their turn |
+| `INSUFFICIENT_FUNDS` | Player does not have enough chips |
+| `GAME_NOT_STARTED` | No game is running in the lobby |
+| `NOT_IN_LOBBY` | Requesting user is not a member of the lobby |
+| `LOBBY_NOT_FOUND` | The specified `GAME_ID` does not exist |
+
+### Example Request
+
+```
+CALL GAME_ID=1
+```
+
+### Example Response (success)
+
+```
++OK
+END
+```
+
+### Example Response (error)
+
+```
+-ERR
+  CODE=NOT_YOUR_TURN
+  MSG=It is not your turn
 END
 ```
 
