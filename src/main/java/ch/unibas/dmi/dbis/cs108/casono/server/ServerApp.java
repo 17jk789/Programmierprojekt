@@ -86,26 +86,31 @@ public class ServerApp {
                                 SESSION_DISCONNECT_JOB_PERIOD,
                                 TimeUnit.SECONDS);
 
-        registerCommands(dispatcher, router, responseDispatcher, userRegistry);
+                LobbyManager lobbyManager = new LobbyManager();
+                registerCommands(dispatcher, router, responseDispatcher, userRegistry, lobbyManager);
 
                 NetworkManager networkManager = new NetworkManager(port, sessionManager, router);
                 networkManager.start();
         }
 
-    /**
-     * Registers command parsers and handlers.
-     *
-     * @param parserDispatcher the dispatcher responsible for parsing incoming commands
-     * @param commandRouter the router that dispatches parsed commands to appropriate handlers
-     * @param responseDispatcher the dispatcher responsible for sending responses back to clients
-     */
-    private static void registerCommands(
-            CommandParserDispatcher parserDispatcher,
-            CommandRouter commandRouter,
-            ResponseDispatcher responseDispatcher,
-            UserRegistry userRegistry) {
-        parserDispatcher.register("PING", new PingParser());
-        commandRouter.register(PingRequest.class, new PingHandler(responseDispatcher));
+        /**
+         * Registers command parsers and handlers.
+         *
+         * @param parserDispatcher   the dispatcher responsible for parsing incoming
+         *                           commands
+         * @param commandRouter      the router that dispatches parsed commands to
+         *                           appropriate handlers
+         * @param responseDispatcher the dispatcher responsible for sending responses
+         *                           back to clients
+         */
+        private static void registerCommands(
+                        CommandParserDispatcher parserDispatcher,
+                        CommandRouter commandRouter,
+                        ResponseDispatcher responseDispatcher,
+                        UserRegistry userRegistry,
+                        LobbyManager lobbyManager) {
+                parserDispatcher.register("PING", new PingParser());
+                commandRouter.register(PingRequest.class, new PingHandler(responseDispatcher));
 
                 parserDispatcher.register("CHECK_USERNAME", new CheckUsernameParser());
                 commandRouter.register(
@@ -134,8 +139,17 @@ public class ServerApp {
                                 GetNextMessageRequest.class,
                                 new GetNextMessageHandler(responseDispatcher, userRegistry));
 
-        parserDispatcher.register("LIST_USERS", new ListUsersParser());
-        commandRouter.register(
-                ListUsersRequest.class, new ListUsersHandler(responseDispatcher, userRegistry));
-    }
+                parserDispatcher.register("LIST_USERS", new ListUsersParser());
+                commandRouter.register(
+                                ListUsersRequest.class, new ListUsersHandler(responseDispatcher, userRegistry));
+
+                // JOIN_LOBBY registration
+                parserDispatcher.register(
+                                "JOIN_LOBBY",
+                                new ch.unibas.dmi.dbis.cs108.casono.server.app.commands.lobby.join_lobby.JoinLobbyParser());
+                commandRouter.register(
+                                ch.unibas.dmi.dbis.cs108.casono.server.app.commands.lobby.join_lobby.JoinLobbyRequest.class,
+                                (ch.unibas.dmi.dbis.cs108.casono.server.network.command.execution.CommandHandler<ch.unibas.dmi.dbis.cs108.casono.server.app.commands.lobby.join_lobby.JoinLobbyRequest>) new ch.unibas.dmi.dbis.cs108.casono.server.app.commands.lobby.join_lobby.JoinLobbyHandler(
+                                                responseDispatcher, lobbyManager, userRegistry));
+        }
 }
