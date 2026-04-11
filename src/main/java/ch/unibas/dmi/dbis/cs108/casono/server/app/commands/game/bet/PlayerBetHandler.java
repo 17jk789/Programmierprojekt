@@ -1,5 +1,6 @@
 package ch.unibas.dmi.dbis.cs108.casono.server.app.commands.game.bet;
 
+import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.GameController;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.player.PlayerId;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.lobby.LobbyId;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.lobby.LobbyManager;
@@ -86,7 +87,7 @@ public class PlayerBetHandler extends CommandHandler<PlayerBetRequest> {
             return;
         }
 
-        var game = lobby.getGameController();
+        GameController game = lobby.getGameController();
         if (game == null) {
             responseDispatcher.dispatch(
                     new ErrorResponse(
