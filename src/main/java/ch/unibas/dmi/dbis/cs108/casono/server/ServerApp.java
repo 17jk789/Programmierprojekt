@@ -197,5 +197,19 @@ public class ServerApp {
                                         .JoinLobbyRequest>)
                         new ch.unibas.dmi.dbis.cs108.casono.server.app.commands.lobby.join_lobby
                                 .JoinLobbyHandler(responseDispatcher, lobbyManager, userRegistry));
+
+        // START_GAME registration
+        parserDispatcher.register(
+                "START_GAME",
+                new ch.unibas.dmi.dbis.cs108.casono.server.app.commands.lobby.start_game
+                        .StartGameParser());
+        commandRouter.register(
+                ch.unibas.dmi.dbis.cs108.casono.server.app.commands.lobby.start_game
+                        .StartGameRequest.class,
+                (ch.unibas.dmi.dbis.cs108.casono.server.network.command.execution.CommandHandler<
+                                ch.unibas.dmi.dbis.cs108.casono.server.app.commands.lobby.start_game
+                                        .StartGameRequest>)
+                        new ch.unibas.dmi.dbis.cs108.casono.server.app.commands.lobby.start_game
+                                .StartGameHandler(responseDispatcher, lobbyManager, userRegistry));
     }
 }
