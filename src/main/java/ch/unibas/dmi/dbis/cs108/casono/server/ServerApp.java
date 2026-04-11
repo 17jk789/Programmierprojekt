@@ -140,6 +140,21 @@ public class ServerApp {
         commandRouter.register(
                 ListUsersRequest.class, new ListUsersHandler(responseDispatcher, userRegistry));
 
+        // GET_LOBBY_STATUS registration
+        parserDispatcher.register(
+                "GET_LOBBY_STATUS",
+                new ch.unibas.dmi.dbis.cs108.casono.server.app.commands.lobby.get_lobby_status
+                        .GetLobbyStatusParser());
+        commandRouter.register(
+                ch.unibas.dmi.dbis.cs108.casono.server.app.commands.lobby.get_lobby_status
+                        .GetLobbyStatusRequest.class,
+                (ch.unibas.dmi.dbis.cs108.casono.server.network.command.execution.CommandHandler<
+                                ch.unibas.dmi.dbis.cs108.casono.server.app.commands.lobby
+                                        .get_lobby_status.GetLobbyStatusRequest>)
+                        new ch.unibas.dmi.dbis.cs108.casono.server.app.commands.lobby
+                                .get_lobby_status.GetLobbyStatusHandler(
+                                responseDispatcher, lobbyManager, userRegistry));
+
         // JOIN_LOBBY registration
         parserDispatcher.register(
                 "JOIN_LOBBY",
