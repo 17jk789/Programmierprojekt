@@ -50,6 +50,12 @@ This document describes the protocol for client-server communication in our appl
     - [Error Response](#error-response-6)
     - [Example Request](#example-request-4)
     - [Example Response](#example-response-4)
+  - [GET_LOBBY_LIST command](#get_lobby_list-command)
+    - [Required pre-execution checks](#required-pre-execution-checks)
+    - [Request Parameters](#request-parameters)
+    - [Success Response](#success-response)
+    - [Example Request](#example-request)
+    - [Example Response](#example-response)
   - [SEND_MESSAGE command](#send_message-command)
     - [Required pre-execution checks](#required-pre-execution-checks)
     - [Request Parameters](#request-parameters)
@@ -532,6 +538,60 @@ END
 -ERR
   CODE=LOBBY_NOT_FOUND
   MESSAGE=Lobby not found
+END
+```
+
+## GET_LOBBY_LIST command
+
+The `GET_LOBBY_LIST` command requests the server to return a list of currently available lobbies with basic metadata.
+
+### Required pre-execution checks
+None.
+
+### Request Parameters
+No parameters.
+
+### Implementation notes
+
+- Parser: `GetLobbyListParser` — creates `GetLobbyListRequest` (no parameters).
+- Handler: `GetLobbyListHandler` — queries `LobbyManager#getAllLobbies()` and returns `GetLobbyListResponse`.
+- Response: `GetLobbyListResponse` — builds a `LOBBIES` collection with repeated `LOBBY` blocks containing `ID`, `NAME`, `PLAYER_COUNT`.
+
+### Success Response
+
+The response contains a `LOBBIES` collection with nested `LOBBY` entries.
+
+Example response structure:
+
+```
++OK
+  LOBBIES
+    LOBBY
+      ID=1
+      NAME=Room 1
+      PLAYER_COUNT=2
+    END
+    LOBBY
+      ID=2
+      NAME=Room 2
+      PLAYER_COUNT=3
+    END
+  END
+END
+```
+
+### Example Request
+
+```
+GET_LOBBY_LIST
+```
+
+### Example Response (error)
+
+```
+-ERR
+  CODE=NO_LOBBIES_AVAILABLE
+  MESSAGE=No lobbies available
 END
 ```
 

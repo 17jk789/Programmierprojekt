@@ -8,14 +8,7 @@ import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.ErrorRes
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.dispatcher.ResponseDispatcher;
 import java.util.Optional;
 
-/**
- * Handler for the `GET_LOBBY_STATUS` command.
- *
- * <p>Resolves the target lobby either by the optional `ID` parameter or by `USERNAME`. If both are
- * omitted the handler requires the session to be associated with a logged-in user (see the inline
- * pre-execution check). On success a {@link GetLobbyStatusResponse} is dispatched, otherwise an
- * {@link ErrorResponse} with code `LOBBY_NOT_FOUND` is sent.
- */
+/** Handler for GET_LOBBY_STATUS: returns lobby details and player list. */
 public class GetLobbyStatusHandler extends CommandHandler<GetLobbyStatusRequest> {
     private final LobbyManager lobbyManager;
     private final UserRegistry userRegistry;
@@ -53,22 +46,10 @@ public class GetLobbyStatusHandler extends CommandHandler<GetLobbyStatusRequest>
 
     @Override
     public void execute(GetLobbyStatusRequest request) {
-        // Resolve username from request or session when no explicit ID/USERNAME
-        // provided
-        String targetUsername = request.getUsername();
-        if (targetUsername == null) {
-            var maybeUser = userRegistry.getBySessionId(request.getSessionId());
-            if (maybeUser.isPresent()) {
-                targetUsername = maybeUser.get().getName();
-            }
-        }
-
         var lobby =
                 (request.getId() != null)
                         ? lobbyManager.getLobby(LobbyId.of(request.getId()))
-                        : (targetUsername != null
-                                ? lobbyManager.getLobbyByUsername(targetUsername)
-                                : null);
+                        : lobbyManager.getLobbyByUsername(request.getUsername());
 
         if (lobby == null) {
             responseDispatcher.dispatch(
