@@ -24,6 +24,7 @@ import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.ping.PingRequest;
 import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.send_message.SendMessageHandler;
 import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.send_message.SendMessageParser;
 import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.send_message.SendMessageRequest;
+import ch.unibas.dmi.dbis.cs108.casono.server.domain.lobby.LobbyManager;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.user.UserCleanupJob;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.user.UserRegistry;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.NetworkManager;
@@ -44,97 +45,121 @@ import org.apache.logging.log4j.Logger;
 
 /** Application class for starting the server. */
 public class ServerApp {
-    private static final int USER_CLEANUP_JOB_DELAY = 0;
-    private static final int USER_CLEANUP_JOB_PERIOD = 10;
-    private static final int USER_CLEANUP_JOB_RECONNECT_THRESHOLD = 10;
-    private static final int SESSION_DISCONNECT_JOB_DELAY = 0;
-    private static final int SESSION_DISCONNECT_JOB_PERIOD = 2;
-    private static final int SESSION_DISCONNECT_JOB_TIMEOUT = 5;
+        private static final int USER_CLEANUP_JOB_DELAY = 0;
+        private static final int USER_CLEANUP_JOB_PERIOD = 10;
+        private static final int USER_CLEANUP_JOB_RECONNECT_THRESHOLD = 10;
+        private static final int SESSION_DISCONNECT_JOB_DELAY = 0;
+        private static final int SESSION_DISCONNECT_JOB_PERIOD = 2;
+        private static final int SESSION_DISCONNECT_JOB_TIMEOUT = 5;
 
-    public static void start(String arg) {
-        int port = Integer.parseInt(arg);
+        public static void start(String arg) {
+                int port = Integer.parseInt(arg);
 
-        Logger logger = LogManager.getLogger(ServerApp.class);
-        logger.info("Starting server at port {}", port);
+                Logger logger = LogManager.getLogger(ServerApp.class);
+                logger.info("Starting server at port {}", port);
 
-        EventBus eventBus = new EventBus();
-        CommandParserDispatcher dispatcher = new CommandParserDispatcher();
-        SessionManager sessionManager = new SessionManager(eventBus, dispatcher);
-        ResponseDispatcher responseDispatcher = new ResponseDispatcher(sessionManager);
-        CommandHandlerExecutor handlerExecutor = new CommandHandlerExecutor(responseDispatcher);
-        CommandRouter router = new CommandRouter(handlerExecutor);
+                EventBus eventBus = new EventBus();
+                CommandParserDispatcher dispatcher = new CommandParserDispatcher();
+                SessionManager sessionManager = new SessionManager(eventBus, dispatcher);
+                ResponseDispatcher responseDispatcher = new ResponseDispatcher(sessionManager);
+                CommandHandlerExecutor handlerExecutor = new CommandHandlerExecutor(responseDispatcher);
+                CommandRouter router = new CommandRouter(handlerExecutor);
 
-        eventBus.subscribe(DisconnectEvent.class, event -> sessionManager.onDisconnect(event));
+                eventBus.subscribe(DisconnectEvent.class, event -> sessionManager.onDisconnect(event));
 
-        UserRegistry userRegistry = new UserRegistry();
-        eventBus.subscribe(
-                DisconnectEvent.class, event -> userRegistry.onDisconnect(event.sessionId()));
-        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-        scheduler.scheduleAtFixedRate(
-                new UserCleanupJob(
-                        userRegistry, Duration.ofSeconds(USER_CLEANUP_JOB_RECONNECT_THRESHOLD)),
-                USER_CLEANUP_JOB_DELAY,
-                USER_CLEANUP_JOB_PERIOD,
-                TimeUnit.SECONDS);
-        scheduler.scheduleAtFixedRate(
-                new SessionDisconnectJob(
-                        sessionManager,
-                        eventBus,
-                        Duration.ofSeconds(SESSION_DISCONNECT_JOB_TIMEOUT)),
-                SESSION_DISCONNECT_JOB_DELAY,
-                SESSION_DISCONNECT_JOB_PERIOD,
-                TimeUnit.SECONDS);
+                UserRegistry userRegistry = new UserRegistry();
+                eventBus.subscribe(
+                                DisconnectEvent.class, event -> userRegistry.onDisconnect(event.sessionId()));
+                ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+                scheduler.scheduleAtFixedRate(
+                                new UserCleanupJob(
+                                                userRegistry, Duration.ofSeconds(USER_CLEANUP_JOB_RECONNECT_THRESHOLD)),
+                                USER_CLEANUP_JOB_DELAY,
+                                USER_CLEANUP_JOB_PERIOD,
+                                TimeUnit.SECONDS);
+                scheduler.scheduleAtFixedRate(
+                                new SessionDisconnectJob(
+                                                sessionManager,
+                                                eventBus,
+                                                Duration.ofSeconds(SESSION_DISCONNECT_JOB_TIMEOUT)),
+                                SESSION_DISCONNECT_JOB_DELAY,
+                                SESSION_DISCONNECT_JOB_PERIOD,
+                                TimeUnit.SECONDS);
 
-        registerCommands(dispatcher, router, responseDispatcher, userRegistry);
+                LobbyManager lobbyManager = new LobbyManager();
+                registerCommands(dispatcher, router, responseDispatcher, userRegistry, lobbyManager);
 
-        NetworkManager networkManager = new NetworkManager(port, sessionManager, router);
-        networkManager.start();
-    }
+                NetworkManager networkManager = new NetworkManager(port, sessionManager, router);
+                networkManager.start();
+        }
 
-    /**
-     * Registers command parsers and handlers.
-     *
-     * @param parserDispatcher the dispatcher responsible for parsing incoming commands
-     * @param commandRouter the router that dispatches parsed commands to appropriate handlers
-     * @param responseDispatcher the dispatcher responsible for sending responses back to clients
-     */
-    private static void registerCommands(
-            CommandParserDispatcher parserDispatcher,
-            CommandRouter commandRouter,
-            ResponseDispatcher responseDispatcher,
-            UserRegistry userRegistry) {
-        parserDispatcher.register("PING", new PingParser());
-        commandRouter.register(PingRequest.class, new PingHandler(responseDispatcher));
+        /**
+         * Registers command parsers and handlers.
+         *
+         * @param parserDispatcher   the dispatcher responsible for parsing incoming
+         *                           commands
+         * @param commandRouter      the router that dispatches parsed commands to
+         *                           appropriate handlers
+         * @param responseDispatcher the dispatcher responsible for sending responses
+         *                           back to clients
+         */
+        private static void registerCommands(
+                        CommandParserDispatcher parserDispatcher,
+                        CommandRouter commandRouter,
+                        ResponseDispatcher responseDispatcher,
+                        UserRegistry userRegistry,
+                        LobbyManager lobbyManager) {
+                parserDispatcher.register("PING", new PingParser());
+                commandRouter.register(PingRequest.class, new PingHandler(responseDispatcher));
 
-        parserDispatcher.register("CHECK_USERNAME", new CheckUsernameParser());
-        commandRouter.register(
-                CheckUsernameRequest.class,
-                new CheckUsernameHandler(responseDispatcher, userRegistry));
+                parserDispatcher.register("CHECK_USERNAME", new CheckUsernameParser());
+                commandRouter.register(
+                                CheckUsernameRequest.class,
+                                new CheckUsernameHandler(responseDispatcher, userRegistry));
 
-        parserDispatcher.register("LOGIN", new LoginParser());
-        commandRouter.register(
-                LoginRequest.class, new LoginHandler(responseDispatcher, userRegistry));
+                parserDispatcher.register("LOGIN", new LoginParser());
+                commandRouter.register(
+                                LoginRequest.class, new LoginHandler(responseDispatcher, userRegistry));
 
-        parserDispatcher.register("LOGOUT", new LogoutParser());
-        commandRouter.register(
-                LogoutRequest.class, new LogoutHandler(responseDispatcher, userRegistry));
+                parserDispatcher.register("LOGOUT", new LogoutParser());
+                commandRouter.register(
+                                LogoutRequest.class, new LogoutHandler(responseDispatcher, userRegistry));
 
-        parserDispatcher.register("SEND_MESSAGE", new SendMessageParser());
-        commandRouter.register(
-                SendMessageRequest.class, new SendMessageHandler(responseDispatcher, userRegistry));
+                parserDispatcher.register("SEND_MESSAGE", new SendMessageParser());
+                commandRouter.register(
+                                SendMessageRequest.class, new SendMessageHandler(responseDispatcher, userRegistry));
 
-        parserDispatcher.register("GET_MESSAGE_COUNT", new GetMessageCountParser());
-        commandRouter.register(
-                GetMessageCountRequest.class,
-                new GetMessageCountHandler(responseDispatcher, userRegistry));
+                parserDispatcher.register("GET_MESSAGE_COUNT", new GetMessageCountParser());
+                commandRouter.register(
+                                GetMessageCountRequest.class,
+                                new GetMessageCountHandler(responseDispatcher, userRegistry));
 
-        parserDispatcher.register("GET_NEXT_MESSAGE", new GetNextMessageParser());
-        commandRouter.register(
-                GetNextMessageRequest.class,
-                new GetNextMessageHandler(responseDispatcher, userRegistry));
+                parserDispatcher.register("GET_NEXT_MESSAGE", new GetNextMessageParser());
+                commandRouter.register(
+                                GetNextMessageRequest.class,
+                                new GetNextMessageHandler(responseDispatcher, userRegistry));
 
-        parserDispatcher.register("LIST_USERS", new ListUsersParser());
-        commandRouter.register(
-                ListUsersRequest.class, new ListUsersHandler(responseDispatcher, userRegistry));
-    }
+                parserDispatcher.register("LIST_USERS", new ListUsersParser());
+                commandRouter.register(
+                                ListUsersRequest.class, new ListUsersHandler(responseDispatcher, userRegistry));
+
+                // Lobby commands
+                parserDispatcher.register(
+                                "JOIN_LOBBY",
+                                new ch.unibas.dmi.dbis.cs108.casono.server.app.commands.lobby.join_lobby.JoinLobbyParser());
+                commandRouter.register(
+                                ch.unibas.dmi.dbis.cs108.casono.server.app.commands.lobby.join_lobby.JoinLobbyRequest.class,
+                                new ch.unibas.dmi.dbis.cs108.casono.server.app.commands.lobby.join_lobby.JoinLobbyHandler(
+                                                responseDispatcher, lobbyManager, userRegistry));
+
+
+                // Game state: allow client to request game snapshot for their lobby
+                parserDispatcher.register(
+                                "GET_GAME_STATE",
+                                new ch.unibas.dmi.dbis.cs108.casono.server.app.commands.game.get_game_state.GetGameStateParser());
+                commandRouter.register(
+                                ch.unibas.dmi.dbis.cs108.casono.server.app.commands.game.get_game_state.GetGameStateRequest.class,
+                                new ch.unibas.dmi.dbis.cs108.casono.server.app.commands.game.get_game_state.GetGameStateHandler(
+                                                responseDispatcher, lobbyManager, userRegistry));
+        }
 }
