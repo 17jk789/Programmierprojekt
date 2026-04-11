@@ -454,3 +454,63 @@ GET_NEXT_MESSAGE
 TYPE=GLOBAL GAME=-1 USER=player1 TARGET=null TIME=9:30 TEXT="Guten Tag"
 END
 ```
+
+### Example Response (success)
+
+```
++OK
+END
+```
+
+## JOIN_LOBBY command
+
+The `JOIN_LOBBY` command requests the server to add the currently logged-in user to the lobby with the given identifier. The server resolves the username from the session; clients must only provide the `ID` parameter.
+
+### Required pre-execution checks
+
+- [`UserLoggedInCheck`](#userloggedincheck)
+
+### Request Parameters
+
+| Parameter Name | Type | Optional | Description |
+| :------------- | :--- | :------: | :---------- |
+| `ID` | `int` | no | Numeric id of the target lobby |
+
+### Implementation notes
+
+- Parser: `JoinLobbyParser` — reads the `ID` parameter and builds `JoinLobbyRequest`.
+- Handler: `JoinLobbyHandler` — resolves the username from `UserRegistry` using the session id, attempts to add the user to the lobby via `LobbyManager.addPlayerToLobby(...)` and returns appropriate responses.
+
+### Success Response
+
+No additional response fields. The server replies with a simple `+OK` on success.
+
+### Error Response
+
+| Code | Description |
+| :--- | :---------- |
+| `USER_NOT_LOGGED_IN` | No user associated with the session (pre-execution check failed) |
+| `LOBBY_NOT_FOUND` | The specified lobby id does not exist |
+| `LOBBY_FULL_OR_ALREADY_IN` | Lobby is full or the user is already in the lobby |
+
+### Example Request
+
+```
+JOIN_LOBBY ID=1
+```
+
+### Example Response (success)
+
+```
++OK
+END
+```
+
+### Example Response (error)
+
+```
+-ERR
+  CODE=LOBBY_NOT_FOUND
+  MESSAGE=Lobby not found
+END
+```

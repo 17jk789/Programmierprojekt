@@ -24,6 +24,7 @@ import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.ping.PingRequest;
 import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.send_message.SendMessageHandler;
 import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.send_message.SendMessageParser;
 import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.send_message.SendMessageRequest;
+import ch.unibas.dmi.dbis.cs108.casono.server.domain.lobby.LobbyManager;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.user.UserCleanupJob;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.user.UserRegistry;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.NetworkManager;
@@ -85,7 +86,8 @@ public class ServerApp {
                 SESSION_DISCONNECT_JOB_PERIOD,
                 TimeUnit.SECONDS);
 
-        registerCommands(dispatcher, router, responseDispatcher, userRegistry);
+        LobbyManager lobbyManager = new LobbyManager();
+        registerCommands(dispatcher, router, responseDispatcher, userRegistry, lobbyManager);
 
         NetworkManager networkManager = new NetworkManager(port, sessionManager, router);
         networkManager.start();
@@ -102,7 +104,8 @@ public class ServerApp {
             CommandParserDispatcher parserDispatcher,
             CommandRouter commandRouter,
             ResponseDispatcher responseDispatcher,
-            UserRegistry userRegistry) {
+            UserRegistry userRegistry,
+            LobbyManager lobbyManager) {
         parserDispatcher.register("PING", new PingParser());
         commandRouter.register(PingRequest.class, new PingHandler(responseDispatcher));
 
@@ -136,5 +139,19 @@ public class ServerApp {
         parserDispatcher.register("LIST_USERS", new ListUsersParser());
         commandRouter.register(
                 ListUsersRequest.class, new ListUsersHandler(responseDispatcher, userRegistry));
+
+        // JOIN_LOBBY registration
+        parserDispatcher.register(
+                "JOIN_LOBBY",
+                new ch.unibas.dmi.dbis.cs108.casono.server.app.commands.lobby.join_lobby
+                        .JoinLobbyParser());
+        commandRouter.register(
+                ch.unibas.dmi.dbis.cs108.casono.server.app.commands.lobby.join_lobby
+                        .JoinLobbyRequest.class,
+                (ch.unibas.dmi.dbis.cs108.casono.server.network.command.execution.CommandHandler<
+                                ch.unibas.dmi.dbis.cs108.casono.server.app.commands.lobby.join_lobby
+                                        .JoinLobbyRequest>)
+                        new ch.unibas.dmi.dbis.cs108.casono.server.app.commands.lobby.join_lobby
+                                .JoinLobbyHandler(responseDispatcher, lobbyManager, userRegistry));
     }
 }
