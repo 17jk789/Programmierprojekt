@@ -44,4 +44,8 @@ public class ClientApp {
         // Forward the original address argument to the launcher as well.
         Launcher.main(new String[] { arg });
     }
+
+    public static void main(String[] args) {
+        start(args[0]);
+    }
 }

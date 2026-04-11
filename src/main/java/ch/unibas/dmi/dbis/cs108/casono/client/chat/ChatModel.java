@@ -1,67 +1,85 @@
 package ch.unibas.dmi.dbis.cs108.casono.client.chat;
 
 import java.util.ArrayList;
+import java.util.function.Consumer;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 
 /**
  * ChatModel, stores the data for a specific chat
  *
- * Holds the current state of a chat
+ * <p>Holds the current state of a chat
  */
-
 public class ChatModel {
+
+    private ArrayList<Consumer<Message>> listeners = new ArrayList<>();
 
     public ArrayList<Message> messages;
 
-    public ChatType chattype;
+    private final ChatType chattype;
 
-    public String username;
+    /** The person currently using this client */
+    public final String username;
 
-    public int count;
+    /** The person to send the message to If the chat is a whisper chat */
+    private final String target;
 
-    public enum ChatType {
-        GLOBAL,
-        LOBBY,
-        WHISPER
-    }
+    private final IntegerProperty count;
+
+    public int lobbyId;
 
     /**
-     * Creates a new ChatModel, given a username of the client
-     * @param chattype
-     * @param username
+     * Constructs a new ChatModel for a specific chat type.
+     *
+     * @param chattype The type of chat (e.g., GLOBAL, LOBBY, or WHISPER).
+     * @param username The username of the current user.
+     * @param lobbyId The ID of the lobby, or -1 if not applicable.
+     * @param target The username of the whisper recipient, or null for other chat types.
      */
-
-    public ChatModel(ChatType chattype, String username) {
+    public ChatModel(ChatType chattype, String username, int lobbyId, String target) {
         this.messages = new ArrayList<Message>();
         this.chattype = chattype;
         this.username = username;
-        this.count = 0;
+        this.count = new SimpleIntegerProperty(0);
+        this.lobbyId = lobbyId;
+        this.target = target;
     }
 
     /**
-     * method, used by the ChatViewController, to access all new messages, that are stored in the ChatModel
+     * Returns the type of chat this model represents.
+     *
+     * @return The {@link ChatType}.
      */
-    public synchronized String viewNextMessage() {
-        count--;
-        Message msg = messages.getLast();
-        return String.format("[%s] %s: %s", msg.timestamp, msg.user, msg.getMessage());
+    public ChatType getChattype() {
+        return chattype;
     }
 
     /**
-     * Adds a new message
-     * method used by the ChatController
-     * @param msg
+     * Adds a new message to the history and notifies all registered listeners. This method is
+     * synchronized to ensure thread safety when updating the message list.
+     *
+     * @param msg The {@link Message} to be added.
      */
     public synchronized void addMessage(Message msg) {
         messages.add(msg);
-        count++;
+        listeners.stream().forEach((l) -> l.accept(messages.getLast()));
     }
 
     /**
-     * method to send all current messages to the ChatViewController, if needed
+     * Registers a listener to be notified whenever a new message is added to this model.
+     *
+     * @param listener A {@link Consumer} that processes the new {@link Message}.
      */
-    public void addCompleteChat() {
-        for (int i = 0; i < this.messages.size(); i++) {
-            Message msg = this.messages.get(i);
-        }
+    public void addListener(Consumer<Message> listener) {
+        this.listeners.add(listener);
+    }
+
+    /**
+     * Returns the target user for this chat, primarily used for whispers.
+     *
+     * @return The target username or null.
+     */
+    public String getTarget() {
+        return target;
     }
 }

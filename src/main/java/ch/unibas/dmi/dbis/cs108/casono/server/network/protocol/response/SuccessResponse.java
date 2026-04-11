@@ -9,14 +9,14 @@ import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.builder.
  * <p>Implementations of this class use the {@code +OK} prefix. It provides a protected constructor
  * so subclasses can supply the response body content.
  */
-public abstract class SuccessResponse extends Response {
+public class SuccessResponse extends Response {
     /**
      * Create a successful response with the provided body.
      *
      * @param context the RequestContext of the request
      * @param body the response body
      */
-    protected SuccessResponse(RequestContext context, ResponseBody body) {
+    public SuccessResponse(RequestContext context, ResponseBody body) {
         super(context, body);
     }
 

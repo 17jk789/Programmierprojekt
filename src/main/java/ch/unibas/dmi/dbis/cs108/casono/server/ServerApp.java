@@ -3,6 +3,12 @@ package ch.unibas.dmi.dbis.cs108.casono.server;
 import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.check_nick.CheckUsernameHandler;
 import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.check_nick.CheckUsernameParser;
 import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.check_nick.CheckUsernameRequest;
+import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.get_message_count.GetMessageCountHandler;
+import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.get_message_count.GetMessageCountParser;
+import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.get_message_count.GetMessageCountRequest;
+import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.get_next_message.GetNextMessageHandler;
+import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.get_next_message.GetNextMessageParser;
+import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.get_next_message.GetNextMessageRequest;
 import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.list_users.ListUsersHandler;
 import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.list_users.ListUsersParser;
 import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.list_users.ListUsersRequest;
@@ -15,6 +21,9 @@ import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.logout.LogoutRequest;
 import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.ping.PingHandler;
 import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.ping.PingParser;
 import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.ping.PingRequest;
+import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.send_message.SendMessageHandler;
+import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.send_message.SendMessageParser;
+import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.send_message.SendMessageRequest;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.user.UserCleanupJob;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.user.UserRegistry;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.NetworkManager;
@@ -26,12 +35,13 @@ import ch.unibas.dmi.dbis.cs108.casono.server.network.events.EventBus;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.dispatcher.ResponseDispatcher;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.sessions.SessionDisconnectJob;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.sessions.SessionManager;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.time.Duration;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /** Application class for starting the server. */
 public class ServerApp {
@@ -109,6 +119,20 @@ public class ServerApp {
         parserDispatcher.register("LOGOUT", new LogoutParser());
         commandRouter.register(
                 LogoutRequest.class, new LogoutHandler(responseDispatcher, userRegistry));
+
+        parserDispatcher.register("SEND_MESSAGE", new SendMessageParser());
+        commandRouter.register(
+                SendMessageRequest.class, new SendMessageHandler(responseDispatcher, userRegistry));
+
+        parserDispatcher.register("GET_MESSAGE_COUNT", new GetMessageCountParser());
+        commandRouter.register(
+                GetMessageCountRequest.class,
+                new GetMessageCountHandler(responseDispatcher, userRegistry));
+
+        parserDispatcher.register("GET_NEXT_MESSAGE", new GetNextMessageParser());
+        commandRouter.register(
+                GetNextMessageRequest.class,
+                new GetNextMessageHandler(responseDispatcher, userRegistry));
 
         parserDispatcher.register("LIST_USERS", new ListUsersParser());
         commandRouter.register(
