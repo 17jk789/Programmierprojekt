@@ -454,3 +454,57 @@ GET_NEXT_MESSAGE
 TYPE=GLOBAL GAME=-1 USER=player1 TARGET=null TIME=9:30 TEXT="Guten Tag"
 END
 ```
+
+## CREATE_LOBBY command
+
+The `CREATE_LOBBY` command requests the server to create a new lobby and return its identifier.
+
+### Required pre-execution checks
+
+None.
+
+### Request Parameters
+
+No parameters.
+
+### Implementation notes
+
+- Parser: CreateLobbyParser — constructs a CreateLobbyRequest from the incoming PrimitiveRequest context (no parameters are read).
+- Handler: CreateLobbyHandler — calls LobbyManager.createNewLobby(null).
+  - If the returned LobbyId is null, the handler dispatches an ErrorResponse with code `LOBBIES_FULL` and message "Maximum number of 8 lobbies reached".
+  - On success, the handler dispatches a CreateLobbyResponse containing the new lobby id.
+
+### Success Response
+
+| Field     | Type | Description |
+| :-------- | :--- | :---------- |
+| `LOBBY_ID`| `int`| Numeric id of the newly created lobby |
+
+### Error Response
+
+| Code        | Description                                                            |
+| :---------- | :--------------------------------------------------------------------- |
+| `LOBBIES_FULL` | The server cannot create a new lobby because the maximum number of lobbies has been reached |
+
+### Example Request
+
+```
+CREATE_LOBBY
+```
+
+### Example Success Response
+
+```
++OK
+  LOBBY_ID=1
+END
+```
+
+### Example Error Response
+
+```
+-ERR
+  CODE=LOBBIES_FULL
+  MESSAGE=Maximum number of 8 lobbies reached
+END
+```
