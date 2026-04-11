@@ -514,3 +514,64 @@ END
   MESSAGE=Lobby not found
 END
 ```
+
+## GET_LOBBY_STATUS command
+
+The `GET_LOBBY_STATUS` command requests the server to return the current state of a lobby, including the list of players and their ready state.
+
+### Required pre-execution checks
+None.
+
+### Request Parameters
+| Parameter Name | Type | Optional | Description |
+| :------------- | :--- | :------: | :---------- |
+| `ID` | `int` | no | Numeric id of the target lobby |
+
+### Implementation notes
+
+- Parser: `GetLobbyStatusParser` — reads the `ID` parameter and builds `GetLobbyStatusRequest`.
+- Handler: `GetLobbyStatusHandler` — queries `LobbyManager` for the lobby and builds a `GetLobbyStatusResponse` containing player entries.
+
+### Success Response
+
+The response contains a `LOBBY` collection with nested `PLAYERS` and one or more `PLAYER` entries. Each `PLAYER` entry contains `USERNAME` and `READY` fields.
+
+Example response structure:
+
+```
++OK
+  LOBBY
+    ID=1
+    PLAYERS
+      PLAYER
+        USERNAME=Lars_001
+        READY=false
+      END
+      PLAYER
+        USERNAME=Anna
+        READY=true
+      END
+    END
+  END
+END
+```
+
+### Error Response
+| Code | Description |
+| :--- | :---------- |
+| `LOBBY_NOT_FOUND` | The specified lobby id does not exist |
+
+### Example Request
+
+```
+GET_LOBBY_STATUS ID=1
+```
+
+### Example Response (error)
+
+```
+-ERR
+  CODE=LOBBY_NOT_FOUND
+  MESSAGE=Lobby not found
+END
+```
