@@ -210,6 +210,20 @@ public class ServerApp {
                         new ch.unibas.dmi.dbis.cs108.casono.server.app.commands.game.call
                                 .PlayerCallHandler(responseDispatcher, userRegistry, lobbyManager));
 
+        // FOLD registration
+        parserDispatcher.register(
+                "FOLD",
+                new ch.unibas.dmi.dbis.cs108.casono.server.app.commands.game.fold
+                        .PlayerFoldParser());
+        commandRouter.register(
+                ch.unibas.dmi.dbis.cs108.casono.server.app.commands.game.fold.PlayerFoldRequest
+                        .class,
+                (ch.unibas.dmi.dbis.cs108.casono.server.network.command.execution.CommandHandler<
+                                ch.unibas.dmi.dbis.cs108.casono.server.app.commands.game.fold
+                                        .PlayerFoldRequest>)
+                        new ch.unibas.dmi.dbis.cs108.casono.server.app.commands.game.fold
+                                .PlayerFoldHandler(responseDispatcher, userRegistry, lobbyManager));
+
         // GET_LOBBY_STATUS registration
         parserDispatcher.register(
                 "GET_LOBBY_STATUS",
