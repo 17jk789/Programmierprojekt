@@ -1,12 +1,15 @@
 package ch.unibas.dmi.dbis.cs108.casono.server.app.commands.check_nick;
+
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.user.User;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.user.UserRegistry;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.command.execution.CommandHandler;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.dispatcher.ResponseDispatcher;
 import java.util.Optional;
+
 /** Handles {@link CheckUsernameRequest}s to check whether a username is available. */
 public class CheckUsernameHandler extends CommandHandler<CheckUsernameRequest> {
     private final UserRegistry userRegistry;
+
     /**
      * Creates a new handler for checking username availability.
      *
@@ -17,6 +20,7 @@ public class CheckUsernameHandler extends CommandHandler<CheckUsernameRequest> {
         super(responseDispatcher);
         this.userRegistry = userRegistry;
     }
+
     /**
      * Executes the username availability check for the given request.
      *
