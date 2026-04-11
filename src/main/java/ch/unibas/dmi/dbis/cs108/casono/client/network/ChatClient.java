@@ -2,8 +2,9 @@ package ch.unibas.dmi.dbis.cs108.casono.client.network;
 
 import ch.unibas.dmi.dbis.cs108.casono.client.chat.Message;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.command.parsing.RequestParameter;
-import java.util.ArrayList;
-import java.util.List;
+
+import java.util.*;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -68,5 +69,28 @@ public class ChatClient {
             messages.add(msg);
         }
         return messages;
+    }
+
+    public List<String> getUsers() {
+        logger.info("Asking server for list of users");
+        List<String> users = clientService.processCommand("LIST_USERS");
+        List<String> parameters = new ArrayList<String>();
+        for (int i = 0; i < users.size(); i++) {
+            String line = users.get(i);
+            if (line.equals("USERS")) {
+                continue;
+            } else if (line.equals("END")) {
+                break;
+            }
+            line = line.replaceFirst("^\t", "");
+
+            if (line.equals("USER")) {
+                String username = users.get(i + 1);
+                username = username.replaceFirst("^\t", "");
+                username = username.replaceFirst("^\t", "");
+                parameters.add(username);
+            }
+        }
+        return parameters;
     }
 }

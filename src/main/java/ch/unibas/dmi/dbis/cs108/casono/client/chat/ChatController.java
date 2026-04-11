@@ -3,11 +3,12 @@ package ch.unibas.dmi.dbis.cs108.casono.client.chat;
 import ch.unibas.dmi.dbis.cs108.casono.client.network.ChatClient;
 import ch.unibas.dmi.dbis.cs108.casono.client.network.ClientService;
 import ch.unibas.dmi.dbis.cs108.casono.client.ui.chatui.ChatBoxController;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
+
+import java.util.*;
+
+import ch.unibas.dmi.dbis.cs108.casono.server.network.command.parsing.RequestParameter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -38,9 +39,13 @@ public class ChatController {
         return chatModelMap;
     }
 
-    private Map<ChatKey, ChatModel> chatModelMap;
+    private final Map<ChatKey, ChatModel> chatModelMap;
 
     private static final long REFRESH_TIME = 1000;
+
+    private List<String> localUserList;
+
+    private Logger logger;
 
     /**
      * Constructor, adds TimerTask to be sent to the server regularly
@@ -52,13 +57,16 @@ public class ChatController {
         this.username = username;
         chatClient = new ChatClient(clientService);
         chatModelMap = new LinkedHashMap<>();
+        localUserList = new ArrayList<>();
         this.chatBoxController = new ChatBoxController(username, this);
+        this.logger = LogManager.getLogger(ChatController.class);
         this.timer = new Timer();
         timer.schedule(
                 new TimerTask() {
                     @Override
                     public void run() {
                         receiveMessage();
+                        checkWhisperUsers();
                     }
                 },
                 0,
@@ -102,17 +110,40 @@ public class ChatController {
                         }
                         break;
                     case ChatType.WHISPER:
-                        if (msg.target.equals(username)) {
-                            if (chatModelMap.containsKey(
-                                    new ChatKey(ChatType.WHISPER, msg.sender))) {
+                        if (msg.target.equals(username) || msg.sender.equals(username)) {
+                            ChatKey key;
+                                    if(msg.target.equals(username)) {
+                                        key = new ChatKey(ChatType.WHISPER, msg.sender);
+                                    } else {
+                                        key = new ChatKey(ChatType.WHISPER, msg.target);
+                                    }
+                            if (chatModelMap.containsKey(key)) {
                                 chatModelMap
-                                        .get(new ChatKey(ChatType.WHISPER, msg.sender))
+                                        .get(key)
                                         .addMessage(msg);
                             } else {
-                                chatBoxController.addWhisperChat(msg.sender);
+                                ChatModel chatModel = new ChatModel(ChatType.WHISPER, username, lobbyId, key.targetUser());
+                                chatBoxController.addWhisperChat(key.targetUser(), chatModel);
+                                chatModel.addMessage(msg);
                             }
                         }
                         break;
+                }
+            }
+        }
+    }
+
+    public synchronized void checkWhisperUsers() {
+        List<String> users = chatClient.getUsers();
+        logger.info(users);
+        if (!users.isEmpty()) {
+            for (String user : users) {
+                String value = user.split("\\=")[1];
+                logger.info(value);
+                if (!(localUserList.contains(value) || value.equals(username))) {
+                    localUserList.add(value);
+                    logger.info("adding new whisper user");
+                    chatBoxController.addWhisperUser(value);
                 }
             }
         }
