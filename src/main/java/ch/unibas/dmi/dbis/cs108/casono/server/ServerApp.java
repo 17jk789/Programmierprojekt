@@ -181,6 +181,21 @@ public class ServerApp {
                         new ch.unibas.dmi.dbis.cs108.casono.server.app.commands.game.bet
                                 .PlayerBetHandler(responseDispatcher, userRegistry, lobbyManager));
 
+        // RAISE registration
+        parserDispatcher.register(
+                "RAISE",
+                new ch.unibas.dmi.dbis.cs108.casono.server.app.commands.game.raise
+                        .PlayerRaiseParser());
+        commandRouter.register(
+                ch.unibas.dmi.dbis.cs108.casono.server.app.commands.game.raise.PlayerRaiseRequest
+                        .class,
+                (ch.unibas.dmi.dbis.cs108.casono.server.network.command.execution.CommandHandler<
+                                ch.unibas.dmi.dbis.cs108.casono.server.app.commands.game.raise
+                                        .PlayerRaiseRequest>)
+                        new ch.unibas.dmi.dbis.cs108.casono.server.app.commands.game.raise
+                                .PlayerRaiseHandler(
+                                responseDispatcher, userRegistry, lobbyManager));
+
         // GET_LOBBY_STATUS registration
         parserDispatcher.register(
                 "GET_LOBBY_STATUS",
