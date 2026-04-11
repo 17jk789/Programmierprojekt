@@ -62,6 +62,7 @@ This document describes the protocol for client-server communication in our appl
     - [Success Response](#success-response)
     - [Example Request](#example-request)
     - [Example Response](#example-response)
+  - [RAISE command](#raise-command)
   - [BET command](#bet-command)
   - [SEND_MESSAGE command](#send_message-command)
     - [Required pre-execution checks](#required-pre-execution-checks)
@@ -703,6 +704,63 @@ No additional response fields. Server replies with `+OK` on success.
 
 ```
 BET GAME_ID=1 AMOUNT=50
+```
+
+### Example Response (success)
+
+```
++OK
+END
+```
+
+### Example Response (error)
+
+```
+-ERR
+  CODE=INSUFFICIENT_FUNDS
+  MSG=Not enough chips
+END
+```
+
+## RAISE command
+
+The `RAISE` command lets the currently logged-in player increase the current bet in the ongoing game for their lobby.
+
+### Required pre-execution checks
+
+- [`UserLoggedInCheck`](#userloggedincheck)
+
+### Request Parameters
+
+| Parameter Name | Type | Optional | Description |
+| :------------- | :--- | :------: | :---------- |
+| `GAME_ID` | `int` | yes | Numeric id of the lobby/game to target. If omitted the server resolves the lobby by the requesting session's user. |
+| `AMOUNT` | `int` | no | Amount the player wants to raise |
+
+### Implementation notes
+
+- Parser: `PlayerRaiseParser` — reads `AMOUNT` and optionally `GAME_ID`.
+- Handler: `PlayerRaiseHandler` — validates the session, lobby (by id when provided or else by session), player's turn and balance and forwards to `GameController`.
+
+### Success Response
+
+No additional response fields. Server replies with `+OK` on success.
+
+### Error Response
+
+| Code | Description |
+| :--- | :---------- |
+| `NOT_YOUR_TURN` | The player attempted to raise when not their turn |
+| `INSUFFICIENT_FUNDS` | Player does not have enough chips |
+| `INVALID_AMOUNT` | Amount parameter is invalid |
+| `GAME_NOT_STARTED` | No game is running in the lobby |
+| `NOT_IN_LOBBY` | Requesting user is not a member of the lobby |
+| `LOBBY_NOT_FOUND` | The specified `GAME_ID` does not exist |
+
+### Example Request
+
+```
+RAISE GAME_ID=1 AMOUNT=100
 ```
 
 ### Example Response (success)
