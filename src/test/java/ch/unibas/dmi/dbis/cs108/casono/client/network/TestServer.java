@@ -2,11 +2,9 @@ package ch.unibas.dmi.dbis.cs108.casono.client.network;
 
 import ch.unibas.dmi.dbis.cs108.casono.server.network.transport.RawPacket;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.transport.TcpTransport;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -14,9 +12,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Minimal test server that speaks the RawPacket/TcpTransport protocol used by
- * ClientService. Provides deterministic responses for CREATE_LOBBY and
- * GET_LOBBY_STATUS so unit tests can run without a real backend.
+ * Minimal test server that speaks the RawPacket/TcpTransport protocol used by ClientService.
+ * Provides deterministic responses for CREATE_LOBBY and GET_LOBBY_STATUS so unit tests can run
+ * without a real backend.
  */
 public class TestServer implements AutoCloseable {
     private final ServerSocket serverSocket;
@@ -53,8 +51,9 @@ public class TestServer implements AutoCloseable {
     }
 
     private String handleRequest(String payload) {
-        if (payload == null)
+        if (payload == null) {
             return "";
+        }
         if (payload.startsWith("CREATE_LOBBY")) {
             int id = nextLobbyId.getAndIncrement();
             lobbyStatus.put(id, "created");

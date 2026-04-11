@@ -123,7 +123,7 @@
             </VBox>
 
             <!-- RECHTER BEREICH (Info-Box) -->
-            <fx:include source="components/Chatbox.fxml" GridPane.columnIndex="2"/>
+            <fx:include source="components/chatui/chatbox.fxml" GridPane.columnIndex="2"/>
         </children>
     </GridPane>
 </AnchorPane>
