@@ -1,5 +1,6 @@
 package ch.unibas.dmi.dbis.cs108.casono.server.domain.game;
 
+import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.action.BetAction;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.action.BlindAction;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.action.CallAction;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.action.FoldAction;
@@ -178,6 +179,16 @@ public class GameController {
     public void playerRaise(PlayerId playerId, int amount) {
         // engine.processAction(new RaiseAction(PlayerId.of(playerId), amount));
         engine.processAction(new RaiseAction(playerId, amount));
+    }
+
+    /**
+     * Processes a player's bet action by sending a BetAction to the GameEngine.
+     *
+     * @param playerId The ID of the player who is betting.
+     * @param amount The amount the player is betting.
+     */
+    public void playerBet(PlayerId playerId, int amount) {
+        engine.processAction(new BetAction(playerId, amount));
     }
 
     /**
