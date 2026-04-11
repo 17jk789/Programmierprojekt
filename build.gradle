@@ -4,6 +4,7 @@ plugins {
     id 'org.openjfx.javafxplugin' version '0.1.0'
     id 'checkstyle'
     id 'com.diffplug.spotless' version '7.0.2'
+    id 'jacoco'
 }
 
 group = 'ch.unibas.dmi.dbis'
@@ -41,8 +42,17 @@ dependencies {
     implementation 'org.json:json:20240303'
 }
 
+jacoco {
+    toolVersion = "0.8.14"
+}
+
+jacocoTestReport {
+    dependsOn test
+}
+
 test {
     useJUnitPlatform()
+    finalizedBy jacocoTestReport
 }
 
 checkstyle {
