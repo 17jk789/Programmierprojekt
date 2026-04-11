@@ -7,15 +7,14 @@ import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.request.accessor.
 /**
  * Parser for the `JOIN_LOBBY` command.
  *
- * <p>
- * Expected request parameters:
+ * <p>Expected request parameters:
+ *
  * <ul>
- * <li>`ID` (int) — numeric lobby identifier (required)
+ *   <li>`ID` (int) — numeric lobby identifier (required)
  * </ul>
  *
- * <p>
- * The parser builds a {@link JoinLobbyRequest} containing the parsed lobby id
- * and the original request context.
+ * <p>The parser builds a {@link JoinLobbyRequest} containing the parsed lobby id and the original
+ * request context.
  */
 public class JoinLobbyParser implements CommandParser<JoinLobbyRequest> {
     /**
@@ -26,7 +25,8 @@ public class JoinLobbyParser implements CommandParser<JoinLobbyRequest> {
      */
     @Override
     public JoinLobbyRequest parse(PrimitiveRequest primitiveRequest) {
-        RequestParameterAccessor accessor = new RequestParameterAccessor(primitiveRequest.parameters());
+        RequestParameterAccessor accessor =
+                new RequestParameterAccessor(primitiveRequest.parameters());
         int id = accessor.require("ID", Integer::parseInt);
         return new JoinLobbyRequest(primitiveRequest.context(), id);
     }
