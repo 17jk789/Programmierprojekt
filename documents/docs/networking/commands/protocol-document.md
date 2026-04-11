@@ -342,3 +342,115 @@ LIST_USERS
   END
 END
 ```
+
+## SEND_MESSAGE command
+The `SEND_MESSAGE` command is used to transfer the chat message sent by a user to the server.
+### Required pre-execution checks
+None.
+
+### Request Parameters
+
+| Field    | Type            | Description                                                        |
+|:---------|:----------------|:-------------------------------------------------------------------|
+| `TYPE`   | `Enum<ChatType` | Member of Enum, indicating with chat type is used                  |
+| `GAME`   | `int`           | ID for identifying the Lobby Chat                                  |
+| `USER`   | `String`        | Username of the player that sent the message                       |
+| `TARGET` | `String`        | Username of to which the message is sent to (only in Whisper Chat) |
+| `TIME`   | `String`        | Timestamp, when the message was sent                               |
+| `TEXT`   | `String`        | Content of the message                                             |
+
+| Members of `ChatType` | Description                     |
+|:----------------------|:--------------------------------|
+| `GLOBAL`              | Message is for the global chat  |
+| `LOBBY`               | Message is for the lobby chat   |
+| `WHISPER`             | Message is for the whisper chat |
+
+### Success Response
+No response fields.
+
+### Error Response
+None.
+
+### Example Request
+```
+SEND_MESSAGE TYPE=GLOBAL GAME=1 USER=player1 TARGET=null TIME='10:30' TEXT='Hello World'
+```
+
+### Example Response
+```
++OK
+END
+```
+
+## GET_MESSAGE_COUNT command
+The `GET_MESSAGE_COUNT` is used to get the current number of messages that are stored in the queue for a client.
+### Required pre-execution checks
+None.
+
+### Request Parameters
+No parameters.
+
+### Success Response
+
+| Field   | Type  | Description                    |
+|:--------|:------|:-------------------------------|
+| `COUNT` | `int` | The current number of messages |
+
+### Error Response
+| Code                 | Description                                                                      |
+| :------------------- |:---------------------------------------------------------------------------------|
+| `NO_USER_ASSOCIATED` | The session has no user associated, there is no queue of messages for the client |
+
+
+### Example Request
+```
+GET_MESSAGE_COUNT
+```
+
+### Example Response
+```
++OK
+COUNT=10
+END
+```
+
+## GET_NEXT_MESSAGE command
+The `GET_NEXT_MESSAGE` command is used to get the next message stored in a queue for the client.
+### Required pre-execution checks
+None.
+
+### Request Parameters
+No parameters.
+
+### Success Response
+| Field    | Type            | Description                                                        |
+|:---------|:----------------|:-------------------------------------------------------------------|
+| `TYPE`   | `Enum<ChatType` | Member of Enum, indicating with chat type is used                  |
+| `GAME`   | `int`           | ID for identifying the Lobby Chat                                  |
+| `USER`   | `String`        | Username of the player that sent the message                       |
+| `TARGET` | `String`        | Username of to which the message is sent to (only in Whisper Chat) |
+| `TIME`   | `String`        | Timestamp, when the message was sent                               |
+| `TEXT`   | `String`        | Content of the message                                             |
+
+| Members of `ChatType` | Description                     |
+|:----------------------|:--------------------------------|
+| `GLOBAL`              | Message is for the global chat  |
+| `LOBBY`               | Message is for the lobby chat   |
+| `WHISPER`             | Message is for the whisper chat |
+
+### Error Response
+| Code                 | Description                                                                      |
+| :------------------- |:---------------------------------------------------------------------------------|
+| `NO_USER_ASSOCIATED` | The session has no user associated, there is no queue of messages for the client |
+
+### Example Request
+```
+GET_NEXT_MESSAGE
+```
+
+### Example Response
+```
++OK
+TYPE=GLOBAL GAME=-1 USER=player1 TARGET=null TIME=9:30 TEXT="Guten Tag"
+END
+```

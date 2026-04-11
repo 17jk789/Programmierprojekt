@@ -1,23 +1,26 @@
 package ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui;
 
+import ch.unibas.dmi.dbis.cs108.casono.client.network.ClientService;
 import java.io.IOException;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-/**
- * Main class for the Casono Game UI.
- *
- * <p>Starts the JavaFX application, loads the graphical user interface from the FXML file, and
- * initializes the main stage for the game.
- *
- * <p>Tasks: - Loads the FXML interface "/ui-structure/Casinogameui.fxml". - Loads the application
- * icon from "/images/logoinverted.png". - Starts the application in full-screen mode.
- */
 public class CasinoGameUI extends Application {
 
-    /** default constructor */
+    // Static field for ClientService (workaround for JavaFX Application launch)
+    private static ClientService staticClientService;
+
+    public static void setClientService(ClientService clientService) {
+        staticClientService = clientService;
+    }
+
+    public static ClientService getClientService() {
+        return staticClientService;
+    }
+
+    /** Default no-arg constructor. */
     public CasinoGameUI() {
         // default no-arg constructor
     }
@@ -46,7 +49,7 @@ public class CasinoGameUI extends Application {
     }
 
     /**
-     * Starting point of the application.
+     * Entry point of the application.
      *
      * @param args Command line arguments.
      */
