@@ -62,6 +62,7 @@ This document describes the protocol for client-server communication in our appl
     - [Success Response](#success-response)
     - [Example Request](#example-request)
     - [Example Response](#example-response)
+  - [BET command](#bet-command)
   - [SEND_MESSAGE command](#send_message-command)
     - [Required pre-execution checks](#required-pre-execution-checks)
     - [Request Parameters](#request-parameters)
@@ -660,6 +661,63 @@ GET_GAME_STATE GAME_ID=1
 -ERR
   CODE=GAME_NOT_STARTED
   MESSAGE=Game not started
+END
+```
+
+## BET command
+
+The `BET` command lets the currently logged-in player place a bet in the ongoing game for their lobby.
+
+### Required pre-execution checks
+
+- [`UserLoggedInCheck`](#userloggedincheck)
+
+### Request Parameters
+
+| Parameter Name | Type | Optional | Description |
+| :------------- | :--- | :------: | :---------- |
+| `GAME_ID` | `int` | yes | Numeric id of the lobby/game to target. If omitted the server resolves the lobby by the requesting session's user. |
+| `AMOUNT` | `int` | no | Amount the player wants to bet |
+
+### Implementation notes
+
+- Parser: `PlayerBetParser` — reads `AMOUNT` and optionally `GAME_ID`.
+- Handler: `PlayerBetHandler` — validates the session, lobby (by id when provided or else by session), player's turn and balance and forwards to `GameController`.
+
+### Success Response
+
+No additional response fields. Server replies with `+OK` on success.
+
+### Error Response
+
+| Code | Description |
+| :--- | :---------- |
+| `NOT_YOUR_TURN` | The player attempted to bet when not their turn |
+| `INSUFFICIENT_FUNDS` | Player does not have enough chips |
+| `INVALID_AMOUNT` | Amount parameter is invalid |
+| `GAME_NOT_STARTED` | No game is running in the lobby |
+| `NOT_IN_LOBBY` | Requesting user is not a member of the lobby |
+| `LOBBY_NOT_FOUND` | The specified `GAME_ID` does not exist |
+
+### Example Request
+
+```
+BET GAME_ID=1 AMOUNT=50
+```
+
+### Example Response (success)
+
+```
++OK
+END
+```
+
+### Example Response (error)
+
+```
+-ERR
+  CODE=INSUFFICIENT_FUNDS
+  MSG=Not enough chips
 END
 ```
 
