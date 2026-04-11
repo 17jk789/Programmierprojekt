@@ -352,12 +352,18 @@ None.
 
 | Field    | Type            | Description                                                        |
 |:---------|:----------------|:-------------------------------------------------------------------|
-| `TYPE`   | `Enum<ChatType` | GLOBAL, LOBBY or WHISPER, specifying the Chat                      |
+| `TYPE`   | `Enum<ChatType` | Member of Enum, indicating with chat type is used                  |
 | `GAME`   | `int`           | ID for identifying the Lobby Chat                                  |
 | `USER`   | `String`        | Username of the player that sent the message                       |
 | `TARGET` | `String`        | Username of to which the message is sent to (only in Whisper Chat) |
 | `TIME`   | `String`        | Timestamp, when the message was sent                               |
 | `TEXT`   | `String`        | Content of the message                                             |
+
+| Members of `ChatType` | Description                     |
+|:----------------------|:--------------------------------|
+| `GLOBAL`              | Message is for the global chat  |
+| `LOBBY`               | Message is for the lobby chat   |
+| `WHISPER`             | Message is for the whisper chat |
 
 ### Success Response
 No response fields.
@@ -419,12 +425,19 @@ No parameters.
 ### Success Response
 | Field    | Type            | Description                                                        |
 |:---------|:----------------|:-------------------------------------------------------------------|
-| `TYPE`   | `Enum<ChatType` | GLOBAL, LOBBY or WHISPER, specifying the Chat                      |
+| `TYPE`   | `Enum<ChatType` | Member of Enum, indicating with chat type is used                  |
 | `GAME`   | `int`           | ID for identifying the Lobby Chat                                  |
 | `USER`   | `String`        | Username of the player that sent the message                       |
 | `TARGET` | `String`        | Username of to which the message is sent to (only in Whisper Chat) |
 | `TIME`   | `String`        | Timestamp, when the message was sent                               |
 | `TEXT`   | `String`        | Content of the message                                             |
+
+| Members of `ChatType` | Description                     |
+|:----------------------|:--------------------------------|
+| `GLOBAL`              | Message is for the global chat  |
+| `LOBBY`               | Message is for the lobby chat   |
+| `WHISPER`             | Message is for the whisper chat |
+
 ### Error Response
 | Code                 | Description                                                                      |
 | :------------------- |:---------------------------------------------------------------------------------|
