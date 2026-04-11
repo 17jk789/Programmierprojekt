@@ -28,10 +28,11 @@ public class ClientService {
     private final Socket socket;
 
     private final ExecutorService executor;
+    private final boolean offlineMode;
 
     public static ArrayList<String> response;
     private final AtomicInteger idGenerator;
-    private final Logger logger;
+    private Logger logger;
 
     /**
      * Constructs a ClientService with the given server IP and port. It establishes a socket
@@ -47,6 +48,8 @@ public class ClientService {
 
         this.logger = LogManager.getLogger(ClientService.class);
 
+        this.offlineMode = false;
+
         try {
             socket = new Socket(ip, port);
             clienttcptransport = new TcpTransport(socket);
@@ -56,6 +59,25 @@ public class ClientService {
         }
 
         executor = Executors.newSingleThreadExecutor();
+    }
+
+    /**
+     * Constructs a ClientService in offline mode. No network connection will be attempted and calls
+     * to processCommand will throw a RuntimeException.
+     *
+     * @param offline true to create an offline (no-network) client service
+     */
+    public ClientService(boolean offline) {
+        this.idGenerator = new AtomicInteger(0);
+        this.offlineMode = offline;
+        this.socket = null;
+        this.clienttcptransport = null;
+        this.executor = Executors.newSingleThreadExecutor();
+    }
+
+    /** Returns true if this ClientService is running in offline mode (no network). */
+    public boolean isOffline() {
+        return offlineMode;
     }
 
     static Pattern responseRex =

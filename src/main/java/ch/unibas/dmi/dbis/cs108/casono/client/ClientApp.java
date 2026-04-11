@@ -42,7 +42,7 @@ public class ClientApp {
         System.setProperty("casono.server.host", host);
         System.setProperty("casono.server.port", Integer.toString(port));
         // Forward the original address argument to the launcher as well.
-        Launcher.main(new String[] { arg });
+        Launcher.main(new String[] {arg});
     }
 
     public static void main(String[] args) {

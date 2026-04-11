@@ -20,24 +20,34 @@ public class Message {
 
     /**
      * Constructs a Message with a provided timestamp. Typically used when reconstructing messages
-     * received from the server.
+     * received from the server. Used for Messages in the Lobby Chat.
      *
-     * @param type The chat category (e.g., GLOBAL, LOBBY, or WHISPER).
      * @param lobbyId The ID of the lobby, or -1 if not applicable.
      * @param sender The username of the message creator.
-     * @param target The username of the recipient (required for whispers, otherwise null).
      * @param timestamp The formatted time string (e.g., "HH:mm").
      * @param message The actual text content of the message.
      */
-    public Message(
-            ChatType type,
-            int lobbyId,
-            String sender,
-            String target,
-            String timestamp,
-            String message) {
-        this.type = type;
+    private Message(int lobbyId, String sender, String timestamp, String message) {
+        this.type = ChatType.LOBBY;
         this.lobbyId = lobbyId;
+        this.sender = sender;
+        this.target = null;
+        this.timestamp = timestamp;
+        this.message = message;
+    }
+
+    /**
+     * Constructs a Message with a provided timestamp. Typically used when reconstructing messages
+     * received from the server. Used for Messages in the WHISPER and GLOBAL Chat.
+     *
+     * @param type The chat category (e.g., GLOBAL or WHISPER).
+     * @param sender The username of the message creator.
+     * @param timestamp The formatted time string (e.g., "HH:mm").
+     * @param message The actual text content of the message.
+     */
+    private Message(ChatType type, String sender, String target, String timestamp, String message) {
+        this.type = type;
+        this.lobbyId = -1;
         this.sender = sender;
         this.target = target;
         this.timestamp = timestamp;
@@ -120,23 +130,19 @@ public class Message {
             case GLOBAL ->
                     new Message(
                             ChatType.GLOBAL,
-                            -1,
                             getParString(parameters, "USER"),
                             null,
                             getParString(parameters, "TIME"),
                             getParString(parameters, "TEXT"));
             case LOBBY ->
                     new Message(
-                            ChatType.LOBBY,
                             Integer.parseInt(getParString(parameters, "GAME")),
                             getParString(parameters, "USER"),
-                            null,
                             getParString(parameters, "TIME"),
                             getParString(parameters, "TEXT"));
             case WHISPER ->
                     new Message(
                             ChatType.WHISPER,
-                            Integer.parseInt(getParString(parameters, "GAME", "-1")),
                             getParString(parameters, "USER"),
                             getParString(parameters, "TARGET"),
                             getParString(parameters, "TIME"),

@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Represents a player in the poker game, including their name, chip count,
- * current bet, state (e.g., "active", "folded"), and their hole cards.
+ * Represents a player in the poker game, including their name, chip count, current bet, state
+ * (e.g., "active", "folded"), and their hole cards.
  */
 public class Player {
     public String name;

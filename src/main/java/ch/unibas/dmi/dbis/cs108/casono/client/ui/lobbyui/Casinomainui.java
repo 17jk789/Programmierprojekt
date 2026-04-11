@@ -41,11 +41,13 @@ public class Casinomainui extends Application {
                 System.setProperty("casono.server.port", parts[1]);
             }
         }
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/ui-structure/Casinomainui.fxml"));
+        FXMLLoader fxmlLoader =
+                new FXMLLoader(getClass().getResource("/ui-structure/Casinomainui.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), SCENE_WIDTH, SCENE_HEIGHT);
         stage.setTitle("Casono");
-        javafx.scene.image.Image icon = new javafx.scene.image.Image(
-                getClass().getResource("/images/logoinverted.png").toExternalForm());
+        javafx.scene.image.Image icon =
+                new javafx.scene.image.Image(
+                        getClass().getResource("/images/logoinverted.png").toExternalForm());
         stage.getIcons().add(icon);
         stage.setScene(scene);
         stage.setFullScreen(true);

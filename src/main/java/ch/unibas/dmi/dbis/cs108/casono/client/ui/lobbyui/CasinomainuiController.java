@@ -1,12 +1,14 @@
 package ch.unibas.dmi.dbis.cs108.casono.client.ui.lobbyui;
 
+import ch.unibas.dmi.dbis.cs108.casono.client.network.ClientService;
+import ch.unibas.dmi.dbis.cs108.casono.client.network.LobbyClient;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.TextField;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
@@ -14,34 +16,20 @@ import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ch.unibas.dmi.dbis.cs108.casono.client.network.ClientService;
-import ch.unibas.dmi.dbis.cs108.casono.client.network.LobbyClient;
 
-/**
- * Controller for the Casono main UI lobby. Handles UI initialization and user
- * actions.
- */
+/** Controller for the Casono main UI lobby. Handles UI initialization and user actions. */
 public class CasinomainuiController {
     private static final Logger LOGGER = LogManager.getLogger(CasinomainuiController.class);
 
-    @FXML
-    private AnchorPane rootPane;
-    @FXML
-    private Label titleLabel;
-    @FXML
-    private Label subtitleLabel;
-    @FXML
-    private ImageView logoView;
-    @FXML
-    private Rectangle greenBox;
-    @FXML
-    private Button exitbutton;
-    @FXML
-    private VBox casinoTable;
-    @FXML
-    private TextField usernameField;
-    @FXML
-    private Button loginButton;
+    @FXML private AnchorPane rootPane;
+    @FXML private Label titleLabel;
+    @FXML private Label subtitleLabel;
+    @FXML private ImageView logoView;
+    @FXML private Rectangle greenBox;
+    @FXML private Button exitbutton;
+    @FXML private VBox casinoTable;
+    @FXML private TextField usernameField;
+    @FXML private Button loginButton;
 
     private LobbyButtonTranslationManager translationManager;
     private LobbyButtonGridManager gridManager;
@@ -67,10 +55,16 @@ public class CasinomainuiController {
         try {
             clientService = new ClientService(host, port);
         } catch (RuntimeException e) {
-            LOGGER.warn("Could not connect to server {}:{} — starting in offline mode: {}", host, port, e.getMessage());
+            LOGGER.warn(
+                    "Could not connect to server {}:{} — starting in offline mode: {}",
+                    host,
+                    port,
+                    e.getMessage());
             clientService = new ClientService(true); // offline mode
         }
-        gridManager = new LobbyButtonGridManager(new javafx.scene.layout.GridPane(), translationManager, clientService);
+        gridManager =
+                new LobbyButtonGridManager(
+                        new javafx.scene.layout.GridPane(), translationManager, clientService);
         // LobbyClient will use the provided ClientService; in offline mode calls will
         // fail with RuntimeException
         lobbyClient = new LobbyClient(clientService);
@@ -79,10 +73,7 @@ public class CasinomainuiController {
         gridManager.renderLobbyButtons();
     }
 
-    /**
-     * Handles the login button action. Validates input and calls
-     * LobbyClient.login().
-     */
+    /** Handles the login button action. Validates input and calls LobbyClient.login(). */
     @FXML
     public void handleLoginButton() {
         String username = usernameField.getText();
@@ -108,9 +99,7 @@ public class CasinomainuiController {
         }
     }
 
-    /**
-     * Shows an alert dialog with the given message.
-     */
+    /** Shows an alert dialog with the given message. */
     private void showAlert(String message) {
         Alert alert = new Alert(AlertType.INFORMATION);
         alert.setTitle("Info");

@@ -15,7 +15,7 @@ public class ChatApplication extends Application {
     private static final int SCENE_HEIGHT = 800;
     String ip = "localhost";
     String username = "mathis";
-    int port = 5000;
+    final int port = 5000;
 
     public ChatApplication() {}
 

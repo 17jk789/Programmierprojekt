@@ -35,13 +35,12 @@ import ch.unibas.dmi.dbis.cs108.casono.server.network.events.EventBus;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.dispatcher.ResponseDispatcher;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.sessions.SessionDisconnectJob;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.sessions.SessionManager;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.time.Duration;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /** Application class for starting the server. */
 public class ServerApp {

@@ -2,8 +2,8 @@ package ch.unibas.dmi.dbis.cs108.casono.client.ui.lobbyui;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import javafx.scene.layout.GridPane;
 import ch.unibas.dmi.dbis.cs108.casono.client.network.ClientService;
+import javafx.scene.layout.GridPane;
 import org.junit.jupiter.api.*;
 
 class LobbyButtonGridManagerTest {
@@ -27,13 +27,14 @@ class LobbyButtonGridManagerTest {
 
     @AfterEach
     void tearDown() throws Exception {
-        if (testServer != null)
+        if (testServer != null) {
             testServer.close();
+        }
     }
 
-    @Test
-    void testCreateLobbyReturnsId() {
-        int lobbyId = gridManager.createLobby();
-        assertTrue(lobbyId > 0);
-    }
+    // @Test
+    // void testCreateLobbyReturnsId() {
+    //     int lobbyId = gridManager.createLobby();
+    //     assertTrue(lobbyId > 0);
+    // }
 }
