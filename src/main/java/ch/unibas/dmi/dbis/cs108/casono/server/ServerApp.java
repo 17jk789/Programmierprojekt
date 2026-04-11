@@ -154,7 +154,22 @@ public class ServerApp {
                         new ch.unibas.dmi.dbis.cs108.casono.server.app.commands.lobby.get_lobby_list
                                 .GetLobbyListHandler(responseDispatcher, lobbyManager));
 
-                // GET_LOBBY_STATUS registration
+        // GET_GAME_STATE registration
+        parserDispatcher.register(
+                "GET_GAME_STATE",
+                new ch.unibas.dmi.dbis.cs108.casono.server.app.commands.game.get_game_state
+                        .GetGameStateParser());
+        commandRouter.register(
+                ch.unibas.dmi.dbis.cs108.casono.server.app.commands.game.get_game_state
+                        .GetGameStateRequest.class,
+                (ch.unibas.dmi.dbis.cs108.casono.server.network.command.execution.CommandHandler<
+                                ch.unibas.dmi.dbis.cs108.casono.server.app.commands.game
+                                        .get_game_state.GetGameStateRequest>)
+                        new ch.unibas.dmi.dbis.cs108.casono.server.app.commands.game.get_game_state
+                                .GetGameStateHandler(
+                                responseDispatcher, lobbyManager, userRegistry));
+
+        // GET_LOBBY_STATUS registration
         parserDispatcher.register(
                 "GET_LOBBY_STATUS",
                 new ch.unibas.dmi.dbis.cs108.casono.server.app.commands.lobby.get_lobby_status
@@ -168,7 +183,6 @@ public class ServerApp {
                         new ch.unibas.dmi.dbis.cs108.casono.server.app.commands.lobby
                                 .get_lobby_status.GetLobbyStatusHandler(
                                 responseDispatcher, lobbyManager, userRegistry));
-
 
         // JOIN_LOBBY registration
         parserDispatcher.register(
