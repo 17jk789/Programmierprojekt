@@ -11,13 +11,9 @@ import java.util.Optional;
 /**
  * Handler for the `GET_LOBBY_STATUS` command.
  *
- * <p>
- * Resolves the target lobby either by the optional `ID` parameter or by
- * `USERNAME`. If both are
- * omitted the handler requires the session to be associated with a logged-in
- * user (see the inline
- * pre-execution check). On success a {@link GetLobbyStatusResponse} is
- * dispatched, otherwise an
+ * <p>Resolves the target lobby either by the optional `ID` parameter or by `USERNAME`. If both are
+ * omitted the handler requires the session to be associated with a logged-in user (see the inline
+ * pre-execution check). On success a {@link GetLobbyStatusResponse} is dispatched, otherwise an
  * {@link ErrorResponse} with code `LOBBY_NOT_FOUND` is sent.
  */
 public class GetLobbyStatusHandler extends CommandHandler<GetLobbyStatusRequest> {
@@ -67,11 +63,12 @@ public class GetLobbyStatusHandler extends CommandHandler<GetLobbyStatusRequest>
             }
         }
 
-        var lobby = (request.getId() != null)
-                ? lobbyManager.getLobby(LobbyId.of(request.getId()))
-                : (targetUsername != null
-                        ? lobbyManager.getLobbyByUsername(targetUsername)
-                        : null);
+        var lobby =
+                (request.getId() != null)
+                        ? lobbyManager.getLobby(LobbyId.of(request.getId()))
+                        : (targetUsername != null
+                                ? lobbyManager.getLobbyByUsername(targetUsername)
+                                : null);
 
         if (lobby == null) {
             responseDispatcher.dispatch(
