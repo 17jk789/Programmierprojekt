@@ -2,9 +2,7 @@ package ch.unibas.dmi.dbis.cs108.casono.client.game;
 
 import java.util.Objects;
 
-/**
- * Represents a unique identifier for a player in the client domain.
- */
+/** Represents a unique identifier for a player in the client domain. */
 public record PlayerId(String value) {
 
     /**
@@ -21,9 +19,7 @@ public record PlayerId(String value) {
         }
     }
 
-    /**
-     * Factory method to create a PlayerId.
-     */
+    /** Factory method to create a PlayerId. */
     public static PlayerId of(String value) {
         return new PlayerId(value);
     }

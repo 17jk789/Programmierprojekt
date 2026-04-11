@@ -183,9 +183,7 @@ public class Player {
         this.chips -= amount;
     }
 
-    /**
-     * Sets the player's state to FOLDED, indicating that they have folded in the current hand.
-     */
+    /** Sets the player's state to FOLDED, indicating that they have folded in the current hand. */
     public void fall() {
         this.state = PlayerState.FOLDED;
         if (this.id != null) {

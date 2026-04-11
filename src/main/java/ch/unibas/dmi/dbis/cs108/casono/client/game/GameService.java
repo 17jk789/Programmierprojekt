@@ -60,16 +60,12 @@ public class GameService {
         return state.players;
     }
 
-    /**
-     * Send a CALL command to the server to indicate that the player wants to call.
-     */
+    /** Send a CALL command to the server to indicate that the player wants to call. */
     public void call() {
         client.sendCall();
     }
 
-    /**
-     * Send a FOLD command to the server to indicate that the player wants to fold.
-     */
+    /** Send a FOLD command to the server to indicate that the player wants to fold. */
     public void fold() {
         client.sendFold();
     }

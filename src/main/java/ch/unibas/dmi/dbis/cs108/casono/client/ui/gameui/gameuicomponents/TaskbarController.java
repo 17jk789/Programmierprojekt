@@ -51,9 +51,7 @@ public class TaskbarController {
     private static final String STYLE_RED_INPUT = "red-input-field";
     private static final double SCALE_NORMAL = 1.0;
 
-    /**
-     * Standard constructor. Used by FXML.
-     */
+    /** Standard constructor. Used by FXML. */
     public TaskbarController() {
         // default constructor for FXML
     }
@@ -309,9 +307,7 @@ public class TaskbarController {
         processBet();
     }
 
-    /**
-     * Called when the Call button is clicked.
-     */
+    /** Called when the Call button is clicked. */
     @FXML
     private void onInputPlayerCall() {
 
@@ -326,9 +322,7 @@ public class TaskbarController {
         refreshGame();
     }
 
-    /**
-     * Called when the Fold button is clicked.
-     */
+    /** Called when the Fold button is clicked. */
     @FXML
     private void onInputPlayerFold() {
 
@@ -343,9 +337,7 @@ public class TaskbarController {
         refreshGame();
     }
 
-    /**
-     * Called when the Raise button is clicked.
-     */
+    /** Called when the Raise button is clicked. */
     @FXML
     private void onInputPlayerRaise() {
 
@@ -442,7 +434,7 @@ public class TaskbarController {
     /**
      * Opens the integrated Casono web browser.
      *
-     * TODO: Replace the start URL with the official project website (e.g., Tips & Tricks page)
+     * <p>TODO: Replace the start URL with the official project website (e.g., Tips & Tricks page)
      * once the content for strategies and support is available.
      */
     @FXML

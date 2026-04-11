@@ -5,6 +5,7 @@ import ch.unibas.dmi.dbis.cs108.casono.client.game.GameState;
 import ch.unibas.dmi.dbis.cs108.casono.client.game.Player;
 import ch.unibas.dmi.dbis.cs108.casono.client.game.PlayerId;
 import ch.unibas.dmi.dbis.cs108.casono.client.game.PlayerState;
+import java.util.List;
 
 /**
  * The GameClient class is responsible for communicating with the server to retrieve the current
@@ -33,14 +34,15 @@ public class GameClient {
      * @return A GameState object representing the current state of the game, as parsed
      */
     public GameState fetchGameState() {
+        List<String> responseLines = client.processCommand("GET_GAME_STATE\nGAME_ID=" + gameId);
 
-        String response = client.processCommand("GET_GAME_STATE\nGAME_ID=" + gameId);
-
-        if (response == null || response.isBlank()) {
+        if (responseLines == null || responseLines.isEmpty()) {
             throw new RuntimeException("Empty server response");
         }
 
-        return parse(response);
+        String fullResponse = String.join("\n", responseLines);
+
+        return parse(fullResponse);
     }
 
     /** Send a CALL command to the server to indicate that the player wants to call */
@@ -68,93 +70,202 @@ public class GameClient {
     }
 
     /**
-     * Parse the raw string response from the server into a structured GameState object.
+     * Parses the raw server response string into a structured GameState object.
      *
-     * @param input The raw string response from the server representing the game state.
-     * @return A GameState object representing the parsed game state.
+     * @param input The raw server response string containing the game state information.
+     * @return A GameState object representing the current state of the game.
      */
     private GameState parse(String input) {
-
         GameState state = new GameState();
 
-        Player currentPlayer = null;
-        Card currentCard = null;
-
-        boolean inPlayers = false;
-        boolean inPlayerCards = false;
-        boolean inCommunityCards = false;
+        ParserContext ctx = new ParserContext(state);
 
         for (String raw : input.split("\n")) {
-
             String line = raw.trim();
 
-            if (line.isEmpty() || line.startsWith("+OK")) {
+            if (shouldSkip(line)) {
                 continue;
             }
 
-            if (line.startsWith("PHASE=")) {
-                state.phase = value(line);
-            } else if (line.startsWith("POT=")) {
-                state.pot = intVal(line);
-            } else if (line.startsWith("CURRENT_BET=")) {
-                state.currentBet = intVal(line);
-            } else if (line.startsWith("DEALER=")) {
-                state.dealer = intVal(line);
-            } else if (line.startsWith("ACTIVE_PLAYER=")) {
-                state.activePlayer = intVal(line);
-            } else if (line.startsWith("WINNER=")) {
-                state.winnerIndex = intVal(line);
-            } else if (line.equals("END")) {
-                inPlayers = false;
-                inPlayerCards = false;
-                inCommunityCards = false;
-                currentPlayer = null;
-                currentCard = null;
+            if (handleGlobal(line, ctx)) {
                 continue;
-            } else if (line.equals("PLAYERS")) {
-                inPlayers = true;
-                inPlayerCards = false;
-                inCommunityCards = false;
-                continue;
-            } else if (line.equals("PLAYER")) {
-                currentPlayer = new Player();
-                state.players.add(currentPlayer);
-                continue;
-            } else if (line.startsWith("NAME=") && currentPlayer != null) {
-                currentPlayer.setId(PlayerId.of(value(line)));
-            } else if (line.startsWith("CHIPS=") && currentPlayer != null) {
-                currentPlayer.setChips(intVal(line));
-            } else if (line.startsWith("BET=") && currentPlayer != null) {
-                currentPlayer.setBet(intVal(line));
-            } else if (line.startsWith("STATE=") && currentPlayer != null) {
-                currentPlayer.setState(parseState(value(line)));
-            } else if (line.equals("CARDS")) {
+            }
 
-                if (inPlayers && currentPlayer != null) {
-                    inPlayerCards = true;
-                    inCommunityCards = false;
-                } else {
-                    inCommunityCards = true;
-                    inPlayerCards = false;
-                }
-
+            if (handleSections(line, ctx)) {
                 continue;
-            } else if (line.startsWith("CARD")) {
-                currentCard = new Card("", "");
+            }
 
-                if (inPlayerCards && currentPlayer != null) {
-                    currentPlayer.addCard(currentCard);
-                } else if (inCommunityCards) {
-                    state.communityCards.add(currentCard);
-                }
-            } else if (line.startsWith("VALUE=") && currentCard != null) {
-                currentCard.setValue(value(line));
-            } else if (line.startsWith("SUIT=") && currentCard != null) {
-                currentCard.setSuit(value(line));
+            if (handlePlayer(line, ctx)) {
+                continue;
+            }
+
+            if (handleCards(line, ctx)) {
+                continue;
             }
         }
 
         return state;
+    }
+
+    /** Holds the mutable parsing state while processing the server response. */
+    private static class ParserContext {
+        GameState state;
+        Player currentPlayer;
+        Card currentCard;
+
+        boolean inPlayers;
+        boolean inPlayerCards;
+        boolean inCommunityCards;
+
+        ParserContext(GameState state) {
+            this.state = state;
+        }
+    }
+
+    /**
+     * Checks whether a line should be ignored.
+     *
+     * @param line the current input line
+     * @return true if the line is empty or a status message, false otherwise
+     */
+    private boolean shouldSkip(String line) {
+        return line.isEmpty() || line.startsWith("+OK");
+    }
+
+    /**
+     * Parses global game state properties (e.g., phase, pot, current bet).
+     *
+     * @param line the current input line
+     * @param ctx the parser context containing the game state
+     * @return true if the line was handled, false otherwise
+     */
+    private boolean handleGlobal(String line, ParserContext ctx) {
+        GameState state = ctx.state;
+
+        if (line.startsWith("PHASE=")) {
+            state.phase = value(line);
+        } else if (line.startsWith("POT=")) {
+            state.pot = intVal(line);
+        } else if (line.startsWith("CURRENT_BET=")) {
+            state.currentBet = intVal(line);
+        } else if (line.startsWith("DEALER=")) {
+            state.dealer = intVal(line);
+        } else if (line.startsWith("ACTIVE_PLAYER=")) {
+            state.activePlayer = intVal(line);
+        } else if (line.startsWith("WINNER=")) {
+            state.winnerIndex = intVal(line);
+        } else {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Processes section markers such as PLAYERS, PLAYER, CARDS, and END. Updates the parser context
+     * accordingly.
+     *
+     * @param line the current input line
+     * @param ctx the parser context
+     * @return true if the line was handled, false otherwise
+     */
+    private boolean handleSections(String line, ParserContext ctx) {
+
+        if (line.equals("END")) {
+            ctx.inPlayers = false;
+            ctx.inPlayerCards = false;
+            ctx.inCommunityCards = false;
+            ctx.currentPlayer = null;
+            ctx.currentCard = null;
+            return true;
+        }
+
+        if (line.equals("PLAYERS")) {
+            ctx.inPlayers = true;
+            return true;
+        }
+
+        if (line.equals("PLAYER")) {
+            ctx.currentPlayer = new Player();
+            ctx.state.players.add(ctx.currentPlayer);
+            return true;
+        }
+
+        if (line.equals("CARDS")) {
+            if (ctx.inPlayers && ctx.currentPlayer != null) {
+                ctx.inPlayerCards = true;
+                ctx.inCommunityCards = false;
+            } else {
+                ctx.inCommunityCards = true;
+                ctx.inPlayerCards = false;
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Parses properties of the current player (e.g., name, chips, bet, state).
+     *
+     * @param line the current input line
+     * @param ctx the parser context
+     * @return true if the line was handled, false otherwise
+     */
+    private boolean handlePlayer(String line, ParserContext ctx) {
+        Player p = ctx.currentPlayer;
+
+        if (p == null) {
+            return false;
+        }
+
+        if (line.startsWith("NAME=")) {
+            p.setId(PlayerId.of(value(line)));
+        } else if (line.startsWith("CHIPS=")) {
+            p.setChips(intVal(line));
+        } else if (line.startsWith("BET=")) {
+            p.setBet(intVal(line));
+        } else if (line.startsWith("STATE=")) {
+            p.setState(parseState(value(line)));
+        } else {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Parses card-related lines and assigns cards to the current player or the community cards.
+     *
+     * @param line the current input line
+     * @param ctx the parser context
+     * @return true if the line was handled, false otherwise
+     */
+    private boolean handleCards(String line, ParserContext ctx) {
+
+        if (line.startsWith("CARD")) {
+            ctx.currentCard = new Card("", "");
+
+            if (ctx.inPlayerCards && ctx.currentPlayer != null) {
+                ctx.currentPlayer.addCard(ctx.currentCard);
+            } else if (ctx.inCommunityCards) {
+                ctx.state.communityCards.add(ctx.currentCard);
+            }
+
+            return true;
+        }
+
+        if (line.startsWith("VALUE=") && ctx.currentCard != null) {
+            ctx.currentCard.setValue(value(line));
+            return true;
+        }
+
+        if (line.startsWith("SUIT=") && ctx.currentCard != null) {
+            ctx.currentCard.setSuit(value(line));
+            return true;
+        }
+
+        return false;
     }
 
     /**

@@ -10,10 +10,10 @@ import javafx.stage.Stage;
 /**
  * Main class for the Casono Game UI.
  *
- * Starts the JavaFX application, loads the graphical user interface from the FXML file, and
+ * <p>Starts the JavaFX application, loads the graphical user interface from the FXML file, and
  * initializes the main stage for the game.
  *
- * Tasks: - Loads the FXML interface "/ui-structure/Casinogameui.fxml". - Loads the application
+ * <p>Tasks: - Loads the FXML interface "/ui-structure/Casinogameui.fxml". - Loads the application
  * icon from "/images/logoinverted.png". - Starts the application in full-screen mode.
  */
 public class CasinoGameUI extends Application {

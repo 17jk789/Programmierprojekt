@@ -27,9 +27,7 @@ public class PlayerStatusController {
     private static final String DEALER_IMAGE_PATH = "/images/chip-dealer-blue-3.png";
     private static final double DEALER_ICON_X_FACTOR = 0.8;
 
-    /**
-     * Initialize the controller, load dealer image, and set up bindings.
-     */
+    /** Initialize the controller, load dealer image, and set up bindings. */
     @FXML
     public void initialize() {
 
@@ -62,9 +60,7 @@ public class PlayerStatusController {
         refresh();
     }
 
-    /**
-     * Refresh UI safely
-     */
+    /** Refresh UI safely */
     public void refresh() {
 
         if (player == null) {

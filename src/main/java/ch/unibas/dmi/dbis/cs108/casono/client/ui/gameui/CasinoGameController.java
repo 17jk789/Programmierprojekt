@@ -19,10 +19,10 @@ import javafx.scene.layout.VBox;
 /**
  * Controller for the casino gaming area.
  *
- * Responsible for: - the display of the poker table and the player interface, - the processing
+ * <p>Responsible for: - the display of the poker table and the player interface, - the processing
  * of user input, - the interface to the game engine and the network protocol.
  *
- * Notes: - The `onTableClick()` method currently serves only as test logic. It may no longer be
+ * <p>Notes: - The `onTableClick()` method currently serves only as test logic. It may no longer be
  * functional and will be replaced by the final game interaction in the future.
  */
 public class CasinoGameController {
@@ -118,9 +118,7 @@ public class CasinoGameController {
     private static final long CHIP_DROP_DURATION_MS = 250;
     private static final long CHIP_STAGGER_DELAY_MULTIPLIER = 35L;
 
-    /**
-     * Standard constructor. Used by FXML.
-     */
+    /** Standard constructor. Used by FXML. */
     public CasinoGameController() {
         // default constructor for FXML
     }
@@ -136,9 +134,7 @@ public class CasinoGameController {
         this.gameService = gameService;
     }
 
-    /**
-     * Set the PlayerId of the current player.
-     */
+    /** Set the PlayerId of the current player. */
     @FXML
     public void initialize() {
         LOGGER.info("INIT UI");
@@ -265,9 +261,7 @@ public class CasinoGameController {
     //     updateGameInfo(s);
     // }
 
-    /**
-     * Start the UI update loop.
-     */
+    /** Start the UI update loop. */
     public void start() {
 
         if (gameService == null) {
