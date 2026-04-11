@@ -56,6 +56,12 @@ This document describes the protocol for client-server communication in our appl
     - [Success Response](#success-response)
     - [Example Request](#example-request)
     - [Example Response](#example-response)
+  - [GET_GAME_STATE command](#get_game_state-command)
+    - [Required pre-execution checks](#required-pre-execution-checks)
+    - [Request Parameters](#request-parameters)
+    - [Success Response](#success-response)
+    - [Example Request](#example-request)
+    - [Example Response](#example-response)
   - [SEND_MESSAGE command](#send_message-command)
     - [Required pre-execution checks](#required-pre-execution-checks)
     - [Request Parameters](#request-parameters)
@@ -592,6 +598,68 @@ GET_LOBBY_LIST
 -ERR
   CODE=NO_LOBBIES_AVAILABLE
   MESSAGE=No lobbies available
+END
+```
+
+## GET_GAME_STATE command
+
+The `GET_GAME_STATE` command returns a snapshot of the current game for a lobby. It includes global fields (`PHASE`, `POT`, `CURRENT_BET`, `DEALER`, `ACTIVE_PLAYER`), repeated `CARD` blocks for community cards and repeated `PLAYER` blocks for per-player information. If the requester is a player in the game, their hole cards are included inside their `PLAYER` block as nested `CARD` blocks.
+
+### Required pre-execution checks
+- [`UserLoggedInCheck`](#userloggedincheck)
+
+### Request Parameters
+| Parameter Name | Type   | Optional | Description |
+| :------------- | :----- | :------: | :---------- |
+| `GAME_ID`      | `int`  | yes      | Numeric id of the lobby/game to query. If omitted the server will resolve the lobby by the requesting session's associated user.
+| `USERNAME`     | `String` | yes   | Optional username to query the game state for (server will also accept session resolution).
+
+### Implementation notes
+
+- Parser: `GetGameStateParser` — accepts optional `GAME_ID` and `USERNAME` and builds `GetGameStateRequest`.
+- Handler: `GetGameStateHandler` — resolves the target lobby by `GAME_ID` when provided, otherwise by `USERNAME` or session user; if a game is running a `GetGameStateResponse` is returned.
+- Response: `GetGameStateResponse` — uses repeated `CARD` and `PLAYER` blocks to match the client parser expectations.
+
+### Success Response
+
+Top-level fields and collections (example):
+
+```
++OK
+  PHASE=PRE_FLOP
+  POT=150
+  CURRENT_BET=50
+  DEALER=2
+  ACTIVE_PLAYER=1
+  CARD
+    VALUE=K
+    SUIT=H
+  END
+  PLAYER
+    NAME=player1
+    CHIPS=1000
+    BET=50
+    STATE=ACTIVE
+    CARD
+      VALUE=A
+      SUIT=S
+    END
+  END
+END
+```
+
+### Example Request
+
+```
+GET_GAME_STATE GAME_ID=1
+```
+
+### Example Response (error)
+
+```
+-ERR
+  CODE=GAME_NOT_STARTED
+  MESSAGE=Game not started
 END
 ```
 
