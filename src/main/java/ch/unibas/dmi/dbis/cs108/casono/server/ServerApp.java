@@ -33,7 +33,11 @@ import ch.unibas.dmi.dbis.cs108.casono.server.network.command.execution.CommandR
 import ch.unibas.dmi.dbis.cs108.casono.server.network.command.parsing.CommandParserDispatcher;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.events.DisconnectEvent;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.events.EventBus;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.request.RequestContext;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.SuccessResponse;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.builder.ResponseBody;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.dispatcher.ResponseDispatcher;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.sessions.Session;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.sessions.SessionDisconnectJob;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.sessions.SessionManager;
 import java.time.Duration;
@@ -51,6 +55,9 @@ public class ServerApp {
     private static final int SESSION_DISCONNECT_JOB_DELAY = 0;
     private static final int SESSION_DISCONNECT_JOB_PERIOD = 2;
     private static final int SESSION_DISCONNECT_JOB_TIMEOUT = 5;
+    private static final int LOBBY_EXPIRY_SECONDS = 30;
+    private static final int LOBBY_CLEANUP_INITIAL_DELAY_SECONDS = 5;
+    private static final int LOBBY_CLEANUP_PERIOD_SECONDS = 5;
 
     public static void start(String arg) {
         int port = Integer.parseInt(arg);
@@ -88,6 +95,41 @@ public class ServerApp {
 
         LobbyManager lobbyManager = new LobbyManager();
         registerCommands(dispatcher, router, responseDispatcher, userRegistry, lobbyManager);
+
+        // Periodic cleanup: remove empty lobbies older than 30s and notify affected
+        // users
+        scheduler.scheduleAtFixedRate(
+                () -> {
+                    try {
+                        var expired =
+                                lobbyManager.findEmptyLobbiesOlderThan(
+                                        Duration.ofSeconds(LOBBY_EXPIRY_SECONDS));
+                        for (var lid : expired) {
+                            // remove lobby from manager first
+                            lobbyManager.removeLobby(lid);
+
+                            // broadcast LOBBY_CLOSED event to all connected sessions
+                            // (requestId=0)
+                            for (Session s : sessionManager.getAllSessions()) {
+                                RequestContext ctx = new RequestContext(s.getId(), 0);
+                                SuccessResponse ev =
+                                        new SuccessResponse(
+                                                ctx,
+                                                ResponseBody.builder()
+                                                        .param("EVENT", "LOBBY_CLOSED")
+                                                        .param("LOBBY_ID", lid.value())
+                                                        .build()) {};
+
+                                responseDispatcher.dispatch(ev);
+                            }
+                        }
+                    } catch (Exception e) {
+                        logger.warn("Lobby expiry job failed", e);
+                    }
+                },
+                LOBBY_CLEANUP_INITIAL_DELAY_SECONDS,
+                LOBBY_CLEANUP_PERIOD_SECONDS,
+                TimeUnit.SECONDS);
 
         NetworkManager networkManager = new NetworkManager(port, sessionManager, router);
         networkManager.start();
