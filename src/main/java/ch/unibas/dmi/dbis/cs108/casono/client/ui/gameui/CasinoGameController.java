@@ -47,6 +47,7 @@ public class CasinoGameController {
 
     private GameService gameService;
     private PlayerId myPlayerId;
+    @FXML private TaskbarController taskbarIncludeController;
     private TaskbarController taskbarController;
     private Image dealerImage;
     private javafx.animation.Timeline timeline;
@@ -154,12 +155,21 @@ public class CasinoGameController {
      */
     public void setGameService(GameService gameService) {
         this.gameService = gameService;
+        TaskbarController controller = resolveTaskbarController();
+        if (controller != null && myPlayerId != null) {
+            controller.setGameService(gameService, myPlayerId);
+        }
     }
 
     /** Set the PlayerId of the current player. */
     @FXML
     public void initialize() {
         LOGGER.info("INIT UI");
+
+        taskbarController = resolveTaskbarController();
+        if (taskbarController != null && gameService != null && myPlayerId != null) {
+            taskbarController.setGameService(gameService, myPlayerId);
+        }
 
         if (communityCardsBox == null) {
             LOGGER.warning("communityCardsBox is NULL");
@@ -471,8 +481,12 @@ public class CasinoGameController {
      * @param s The current game state.
      */
     private void updateTaskbar(GameState s) {
-        if (taskbarController != null) {
-            taskbarController.update(s, myPlayerId);
+        TaskbarController controller = resolveTaskbarController();
+        if (controller != null) {
+            if (gameService != null && myPlayerId != null) {
+                controller.setGameService(gameService, myPlayerId);
+            }
+            controller.update(s, myPlayerId);
         }
     }
 
@@ -868,23 +882,29 @@ public class CasinoGameController {
             return BACKSIDE;
         }
 
+        String rawSuit = card.getSuit();
+        String rawValue = card.getValue();
+        if (rawSuit == null || rawValue == null) {
+            return BACKSIDE;
+        }
+
         String suit =
-                switch (card.getSuit().toLowerCase()) {
-                    case "hearts" -> "heart";
-                    case "diamonds" -> "diamond";
-                    case "clubs", "cross" -> "cross";
-                    case "spades", "pik" -> "pik";
-                    default -> card.getSuit().toLowerCase();
+                switch (rawSuit.trim().toLowerCase()) {
+                    case "h", "hearts", "heart" -> "heart";
+                    case "d", "diamonds", "diamond" -> "diamond";
+                    case "c", "clubs", "club", "cross" -> "cross";
+                    case "s", "spades", "spade", "pik" -> "pik";
+                    default -> rawSuit.trim().toLowerCase();
                 };
 
         String value =
-                switch (card.getValue().toLowerCase()) {
+                switch (rawValue.trim().toLowerCase()) {
                     case "a", "ace" -> "ace";
                     case "k", "king" -> "king";
                     case "q", "queen" -> "queen";
                     case "j", "jack" -> "jack";
                     case "10", "t" -> "10";
-                    default -> card.getValue().toLowerCase();
+                    default -> rawValue.trim().toLowerCase();
                 };
 
         String path = "/images/card-" + suit + "-" + value + "-3.png";
@@ -1026,5 +1046,20 @@ public class CasinoGameController {
 
     public void setMyPlayerId(PlayerId id) {
         this.myPlayerId = id;
+        TaskbarController controller = resolveTaskbarController();
+        if (controller != null && gameService != null && myPlayerId != null) {
+            controller.setGameService(gameService, myPlayerId);
+        }
+    }
+
+    private TaskbarController resolveTaskbarController() {
+        if (taskbarController != null) {
+            return taskbarController;
+        }
+        if (taskbarIncludeController != null) {
+            taskbarController = taskbarIncludeController;
+            return taskbarController;
+        }
+        return null;
     }
 }

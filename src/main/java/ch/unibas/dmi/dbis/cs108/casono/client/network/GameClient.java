@@ -107,6 +107,7 @@ public class GameClient {
 
         Player currentPlayer = null;
         Card currentCard = null;
+        boolean insidePlayer = false;
 
         for (String raw : input.split("\n")) {
             String line = raw.trim();
@@ -143,6 +144,7 @@ public class GameClient {
                 currentPlayer = new Player();
                 s.players.add(currentPlayer);
                 currentCard = null;
+                insidePlayer = true;
                 continue;
             }
 
@@ -153,10 +155,10 @@ public class GameClient {
             if (line.equals("CARD")) {
                 currentCard = new Card("", "");
 
-                if (currentPlayer != null) {
-                    currentPlayer.addCard(currentCard);  // hole card
+                if (insidePlayer && currentPlayer != null) {
+                    currentPlayer.addCard(currentCard);   // hole card
                 } else {
-                    s.communityCards.add(currentCard);   // community card
+                    s.communityCards.add(currentCard);    // community card
                 }
                 continue;
             }
@@ -171,17 +173,16 @@ public class GameClient {
             }
 
             if (line.equals("END")) {
-                if (currentCard != null) {
+                if (currentCard != null) {        // schließt CARD
                     currentCard = null;
                     continue;
                 }
-
-                if (currentPlayer != null) {
+                if (insidePlayer) {               // schließt PLAYER
+                    insidePlayer = false;
                     currentPlayer = null;
                     continue;
                 }
-
-                continue;
+                continue;                         // root END
             }
 
             if (currentPlayer != null) {

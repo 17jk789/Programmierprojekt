@@ -28,9 +28,9 @@ public class GetGameStateHandler extends CommandHandler<GetGameStateRequest> {
     @Override
     public void execute(GetGameStateRequest request) {
         Integer gameId = request.getGameId();
-        String username = request.getUsername();
+        String username = resolveUsername(request);
 
-        Lobby lobby = null;
+        Lobby lobby;
         if (gameId != null) {
             lobby = lobbyManager.getLobby(LobbyId.of(gameId));
             if (lobby == null) {
@@ -70,5 +70,18 @@ public class GetGameStateHandler extends CommandHandler<GetGameStateRequest> {
         }
 
         responseDispatcher.dispatch(new GetGameStateResponse(request.getContext(), game, username));
+    }
+
+    private String resolveUsername(GetGameStateRequest request) {
+        String username = request.getUsername();
+        if (username != null && !username.isBlank()) {
+            return username.trim();
+        }
+
+        return userRegistry.getBySessionId(request.getSessionId())
+                .map(User::getName)
+                .map(String::trim)
+                .filter(name -> !name.isEmpty())
+                .orElse(null);
     }
 }

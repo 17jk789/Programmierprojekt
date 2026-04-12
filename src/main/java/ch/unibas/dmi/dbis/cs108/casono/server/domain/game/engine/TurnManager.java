@@ -18,9 +18,6 @@ public class TurnManager {
      * @param state The current game state that will be updated to reflect the next player's turn.
      */
     public void nextPlayer(GameState state) {
-
-        int next = (state.getCurrentPlayerIndex() + 1) % state.getPlayers().size();
-
-        state.setCurrentPlayerIndex(next);
+        state.nextPlayer();
     }
 }

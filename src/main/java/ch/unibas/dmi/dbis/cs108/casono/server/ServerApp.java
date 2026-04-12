@@ -54,7 +54,7 @@ public class ServerApp {
     private static final int USER_CLEANUP_JOB_RECONNECT_THRESHOLD = 10;
     private static final int SESSION_DISCONNECT_JOB_DELAY = 0;
     private static final int SESSION_DISCONNECT_JOB_PERIOD = 2;
-    private static final int SESSION_DISCONNECT_JOB_TIMEOUT = 30000;
+    private static final int SESSION_DISCONNECT_JOB_TIMEOUT = 30;
     private static final int LOBBY_EXPIRY_SECONDS = 30;
     private static final int LOBBY_CLEANUP_INITIAL_DELAY_SECONDS = 5;
     private static final int LOBBY_CLEANUP_PERIOD_SECONDS = 5;

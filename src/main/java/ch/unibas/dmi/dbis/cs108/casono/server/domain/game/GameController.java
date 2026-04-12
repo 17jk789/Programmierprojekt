@@ -29,7 +29,6 @@ public class GameController {
 
     private int dealerIndex = 0;
 
-    private static final int NEXT_PLAYER_OFFSET = 3;
     private static final int DEALER_OFFSET = 1;
     private static final int SMALL_BLIND_OFFSET = 1;
     private static final int BIG_BLIND_OFFSET = 2;
@@ -81,13 +80,13 @@ public class GameController {
         dealHoleCards();
         postBlinds();
 
-        int nextPlayerIndex = (dealerIndex + NEXT_PLAYER_OFFSET) % players.size();
-        engine.getState().setCurrentPlayerIndex(nextPlayerIndex);
+        engine.getState().setCurrentPlayerToPreflopFirstToAct();
     }
 
     /** Rotates the dealer position to the next player in the list. */
     private void rotateDealer() {
         dealerIndex = (dealerIndex + DEALER_OFFSET) % players.size();
+        engine.getState().setDealerIndex(dealerIndex);
     }
 
     /**

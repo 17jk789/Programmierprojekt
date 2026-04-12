@@ -6,6 +6,8 @@ import ch.unibas.dmi.dbis.cs108.casono.server.network.transport.TcpTransport;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -110,8 +112,7 @@ public class ClientService {
 
         List<String> lines = new ArrayList<>();
 
-        int depth = 0;
-        boolean inPlayer = false;
+        Deque<String> blockStack = new ArrayDeque<>();
 
         for (String rawLine : responseText.split("\\n")) {
             String line = rawLine;
@@ -136,27 +137,15 @@ public class ClientService {
             line = line.replaceFirst("^\\s+", "");
             trimmed = line.trim();
 
-            if ("PLAYER".equals(trimmed)) {
-                inPlayer = true;
-                lines.add("PLAYER");
-                continue;
-            }
-
             if (isContainerStart(trimmed)) {
-                depth++;
+                blockStack.push(trimmed);
                 lines.add(trimmed);
                 continue;
             }
 
             if ("END".equals(trimmed)) {
-                if (inPlayer) {
-                    inPlayer = false;
-                    lines.add("END");
-                    continue;
-                }
-
-                if (depth > 0) {
-                    depth--;
+                if (!blockStack.isEmpty()) {
+                    blockStack.pop();
                     lines.add("END");
                     continue;
                 }
@@ -180,8 +169,8 @@ public class ClientService {
             }
         }
 
-        logger.debug("Parsed response lines (rid={}, success={}, depthEnd={}, inPlayerEnd={}): {}",
-                rid, success, depth, inPlayer, lines);
+        logger.debug("Parsed response lines (rid={}, success={}, openBlocks={}): {}",
+                rid, success, blockStack.size(), lines);
 
         if (rid == 0) {
             for (Consumer<List<String>> l : eventListeners) {
@@ -205,8 +194,9 @@ public class ClientService {
         return token.equals("LOBBIES")
                 || token.equals("LOBBY")
                 || token.equals("PLAYERS")
-                || token.equals("CARDS");
-        // NOTE: PLAYER deliberately excluded
+                || token.equals("PLAYER")
+                || token.equals("CARDS")
+                || token.equals("CARD");
     }
 
     /**

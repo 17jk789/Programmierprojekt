@@ -6,8 +6,6 @@ import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.player.PlayerId;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.rules.Rule;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.rules.RuleViolationException;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.state.GameState;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * The ActionOrderRule class implements the Rule interface and defines the validation logic for
@@ -31,8 +29,7 @@ public class ActionOrderRule implements Rule {
 
         PlayerId actingPlayerId = action.getPlayerId();
 
-        List<Player> playerList = new ArrayList<>(state.getPlayers());
-        Player current = playerList.get(state.getCurrentPlayerIndex());
+        Player current = state.getCurrentPlayer();
 
         if (!current.getId().equals(actingPlayerId)) {
             throw new RuleViolationException("Not your turn");
