@@ -239,6 +239,20 @@ public class ServerApp {
                                 .get_lobby_status.GetLobbyStatusHandler(
                                 responseDispatcher, lobbyManager, userRegistry));
 
+        // CREATE_LOBBY registration
+        parserDispatcher.register(
+                "CREATE_LOBBY",
+                new ch.unibas.dmi.dbis.cs108.casono.server.app.commands.lobby.create_lobby
+                        .CreateLobbyParser());
+        commandRouter.register(
+                ch.unibas.dmi.dbis.cs108.casono.server.app.commands.lobby.create_lobby
+                        .CreateLobbyRequest.class,
+                (ch.unibas.dmi.dbis.cs108.casono.server.network.command.execution.CommandHandler<
+                                ch.unibas.dmi.dbis.cs108.casono.server.app.commands.lobby
+                                        .create_lobby.CreateLobbyRequest>)
+                        new ch.unibas.dmi.dbis.cs108.casono.server.app.commands.lobby.create_lobby
+                                .CreateLobbyHandler(responseDispatcher, lobbyManager));
+
         // JOIN_LOBBY registration
         parserDispatcher.register(
                 "JOIN_LOBBY",
