@@ -91,7 +91,10 @@
                                                                 <!-- place below the 'Lobby erstellen' button -->
                                                                 <Insets top="100" left="20" />
                                                         </GridPane.margin>
-                                                        <TextField fx:id="usernameField" promptText="Benutzername" maxWidth="180" />
+                                                        <TextField fx:id="usernameField"
+                                                                   promptText="Username"
+                                                                   styleClass="gray-input-field"
+                                                                   maxWidth="180" />
                                                         <Button text="Login"
                                                                         fx:id="loginButton"
                                                                         onAction="#handleLoginButton"
