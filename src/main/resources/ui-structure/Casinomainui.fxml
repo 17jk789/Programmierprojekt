@@ -126,7 +126,7 @@
             </VBox>
 
             <!-- RIGHT SIDE (Chat Box) -->
-            <fx:include source="components/chatui/chatbox.fxml" GridPane.columnIndex="2"/>
+            <AnchorPane fx:id="chatContainer" GridPane.columnIndex="2" />
         </children>
     </GridPane>
 </AnchorPane>
