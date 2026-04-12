@@ -21,13 +21,15 @@
         <nav>
             <div class="logo" data-aos="fade-down"><img src="images/logo.png" alt="Casono" class="site-logo"></div>
             <ul id="nav-links" data-aos="fade-down" data-aos-delay="100">
-                <li><a href="#hero">Home</a></li>
-                <li><a href="#about">Über</a></li>
-                <li><a href="#features">Features</a></li>
-                <li><a href="#world">Tisch</a></li>
-                <li><a href="#resources">Download</a></li>
-                <li><a href="#team">Team</a></li>
+                <li><a href="#hero" data-i18n="navHome">Home</a></li>
+                <li><a href="#about" data-i18n="navAbout">Über</a></li>
+                <li><a href="#features" data-i18n="navFeatures">Features</a></li>
+                <li><a href="#table" data-i18n="navTable">Tisch</a></li>
+                <li><a href="#media" data-i18n="navMedia">Trailer & Gameplay</a></li>
+                <li><a href="#resources" data-i18n="navDownload">Download</a></li>
+                <li><a href="#team" data-i18n="navTeam">Team</a></li>
             </ul>
+            <button id="language-toggle" class="language-toggle" type="button" aria-label="Switch language">EN</button>
             <button class="burger-menu" id="burger-menu" aria-label="Toggle navigation menu">
                 <span></span>
                 <span></span>
@@ -40,58 +42,89 @@
         <section id="hero" class="hero-section">
             <div class="hero-content">
                 <h1 data-aos="zoom-in">Casono</h1>
-                <p class="tagline" data-aos="fade-up" data-aos-delay="300">Erlebe den Nervenkitzel von Texas Hold'em
+                <p class="tagline" data-i18n="heroTagline" data-aos="fade-up" data-aos-delay="300">Erlebe den
+                    Nervenkitzel von Texas Hold'em
                     Poker</p>
-                <p class="description" data-aos="fade-up" data-aos-delay="500">Casono ist ein stilvolles Texas Hold'em
+                <p class="description" data-i18n="heroDescription" data-aos="fade-up" data-aos-delay="500">Casono ist
+                    ein stilvolles Texas Hold'em
                     Poker-Erlebnis mit spannenden Matches und eleganter Optik.</p>
-                <a href="#features" class="cta-button" data-aos="zoom-in-up" data-aos-delay="700">Mehr erfahren</a>
+                <a href="#features" class="cta-button" data-i18n="heroCta" data-aos="zoom-in-up"
+                    data-aos-delay="700">Mehr erfahren</a>
             </div>
             <div class="hero-overlay"></div>
         </section>
 
         <section id="about" class="content-section">
-            <h2 data-aos="fade-up">Über Casono</h2>
-            <p data-aos="fade-up" data-aos-delay="100">Casono kombiniert echtes Casino-Feeling mit leicht zugänglichem
+            <h2 data-i18n="aboutTitle" data-aos="fade-up">Über Casono</h2>
+            <p data-i18n="aboutText" data-aos="fade-up" data-aos-delay="100">Casono kombiniert echtes Casino-Feeling mit
+                leicht zugänglichem
                 Gameplay. Spiele online gegen Freunde.</p>
             <div class="about-video-container" data-aos="zoom-in" data-aos-delay="200">
                 <video class="about-video" controls playsinline preload="metadata" loading="lazy">
                     <source src="video.mp4" type="video/mp4">
-                    Ihr Browser unterstützt das Video-Tag nicht.
+                    <span data-i18n="videoFallback">Ihr Browser unterstützt das Video-Tag nicht.</span>
                 </video>
             </div>
         </section>
 
         <section id="features" class="features-section">
-            <h2 data-aos="fade-up">Key Features</h2>
+            <h2 data-i18n="featuresTitle" data-aos="fade-up">Key Features</h2>
             <div class="features-grid">
                 <div class="feature-card" data-accent="1" data-aos="fade-up" data-aos-delay="100">
-                    <h3>Sitzungen & Matchmaking</h3>
-                    <p>Realistisches Poker-Erlebnis mit spannenden Matches.</p>
+                    <h3 data-i18n="feature1Title">Sitzungen & Matchmaking</h3>
+                    <p data-i18n="feature1Text">Realistisches Poker-Erlebnis mit spannenden Matches.</p>
                 </div>
 
                 <div class="feature-card" data-accent="2" data-aos="fade-up" data-aos-delay="300">
-                    <h3>Stilvolle UI</h3>
-                    <p>Elegante und intuitive Benutzeroberfläche für ein immersives Erlebnis.</p>
+                    <h3 data-i18n="feature2Title">Stilvolle UI</h3>
+                    <p data-i18n="feature2Text">Elegante und intuitive Benutzeroberfläche für ein immersives Erlebnis.
+                    </p>
                 </div>
                 <div class="feature-card" data-accent="3" data-aos="fade-up" data-aos-delay="400">
-                    <h3>Einfache Installation</h3>
-                    <p>Download, entpacken, starten, fertig!</p>
+                    <h3 data-i18n="feature3Title">Einfache Installation</h3>
+                    <p data-i18n="feature3Text">Download, entpacken, starten, fertig!</p>
                 </div>
             </div>
         </section>
 
-        <section id="world" class="content-section world-section">
-            <h2 data-aos="fade-up">Der Tisch</h2>
-            <p data-aos="fade-up" data-aos-delay="100"> Spielen udn chatten in einer gemeinsamen eleganten Ansicht.</p>
-            <div class="world-map-container" data-aos="zoom-in" data-aos-delay="200">
-                <img src="images/table_preview.png" alt="Table Preview" class="world-map-image" loading="lazy">
+        <section id="table" class="content-section table-section">
+            <h2 data-i18n="tableTitle" data-aos="fade-up">Der Tisch</h2>
+            <p data-i18n="tableText" data-aos="fade-up" data-aos-delay="100"> Spielen und chatten in einer gemeinsamen
+                eleganten Ansicht.</p>
+            <div class="table-preview-container" data-aos="zoom-in" data-aos-delay="200">
+                <img src="images/table_preview.png" alt="Casino Tisch Vorschau" class="table-preview-image"
+                    loading="lazy">
+            </div>
+        </section>
+
+        <section id="media" class="media-section">
+            <h2 data-i18n="mediaTitle" data-aos="fade-up">Trailer & Gameplay</h2>
+            <p data-i18n="mediaText" data-aos="fade-up" data-aos-delay="100">Erhalte einen schnellen Eindruck vom Stil
+                und vom Spielablauf.
+            </p>
+            <div class="media-grid" data-aos="fade-up" data-aos-delay="200">
+                <article class="media-card">
+                    <h3 data-i18n="mediaTrailer">Trailer</h3>
+                    <video controls playsinline preload="metadata" loading="lazy">
+                        <source src="video.mp4" type="video/mp4">
+                        <span data-i18n="videoFallback">Ihr Browser unterstützt das Video-Tag nicht.</span>
+                    </video>
+                </article>
+                <article class="media-card">
+                    <h3 data-i18n="mediaGameplay">Gameplay</h3>
+                    <video controls playsinline preload="metadata" loading="lazy">
+                        <source src="video.mp4" type="video/mp4">
+                        <span data-i18n="videoFallback">Ihr Browser unterstützt das Video-Tag nicht.</span>
+                    </video>
+                </article>
             </div>
         </section>
 
         <section id="resources" class="resources-section">
-            <h2 data-aos="zoom-in-up">Download & Ressourcen</h2>
+            <h2 data-i18n="resourcesTitle" data-aos="zoom-in-up">Download & Ressourcen</h2>
             <div class="download-section" data-aos="zoom-in-up" data-aos-delay="100">
-                <a href="downloads/casono-latest.zip" class="download-button" download="casono-latest.zip">Download Game
+                <a href="downloads/casono-latest.zip" class="download-button" data-i18n="downloadButton"
+                    download="casono-latest.zip">Download Game
                     (ZIP)</a>
             </div>
 
@@ -113,7 +146,7 @@ java -jar casono.jar client &lt;serverip&gt;:&lt;serverport&gt; [username]
         </section>
 
         <section id="team" class="team-section">
-            <h2 data-aos="fade-up">Das Team</h2>
+            <h2 data-i18n="teamTitle" data-aos="fade-up">Das Team</h2>
             <div class="team-grid">
                 <div class="team-member" data-aos="fade-up" data-aos-delay="100">
                     <img src="images/team/lars.svg" alt="Lars Winzer" class="team-photo" loading="lazy">
@@ -139,14 +172,14 @@ java -jar casono.jar client &lt;serverip&gt;:&lt;serverport&gt; [username]
             <div class="github-link" data-aos="fade-up" data-aos-delay="500">
                 <a href="https://git.scicore.unibas.ch/cs108-fs26/Gruppe-13">
                     <i class="fa-brands fa-github github-icon"></i>
-                    Projekt-Repo
+                    <span data-i18n="repoLink">Projekt-Repo</span>
                 </a>
             </div>
         </section>
     </main>
 
     <footer>
-        <p>2026 Casono — Gruppe 13</p>
+        <p data-i18n="footerText">2026 Casono — Gruppe 13</p>
     </footer>
 
     <div id="trailer-modal" class="modal">
@@ -171,6 +204,101 @@ java -jar casono.jar client &lt;serverip&gt;:&lt;serverport&gt; [username]
     <script>
         AOS.init({ duration: 800, once: true });
 
+        const translations = {
+            de: {
+                navHome: 'Home',
+                navAbout: 'Über',
+                navFeatures: 'Features',
+                navTable: 'Tisch',
+                navMedia: 'Trailer & Gameplay',
+                navDownload: 'Download',
+                navTeam: 'Team',
+                heroTagline: "Erlebe den Nervenkitzel von Texas Hold'em Poker",
+                heroDescription: "Casono ist ein stilvolles Texas Hold'em Poker-Erlebnis mit spannenden Matches und eleganter Optik.",
+                heroCta: 'Mehr erfahren',
+                aboutTitle: 'Über Casono',
+                aboutText: 'Casono kombiniert echtes Casino-Feeling mit leicht zugänglichem Gameplay. Spiele online gegen Freunde.',
+                featuresTitle: 'Key Features',
+                feature1Title: 'Sitzungen & Matchmaking',
+                feature1Text: 'Realistisches Poker-Erlebnis mit spannenden Matches.',
+                feature2Title: 'Stilvolle UI',
+                feature2Text: 'Elegante und intuitive Benutzeroberfläche für ein immersives Erlebnis.',
+                feature3Title: 'Einfache Installation',
+                feature3Text: 'Download, entpacken, starten, fertig!',
+                tableTitle: 'Der Tisch',
+                tableText: 'Spielen und chatten in einer gemeinsamen eleganten Ansicht.',
+                mediaTitle: 'Trailer & Gameplay',
+                mediaText: 'Erhalte einen schnellen Eindruck vom Stil und vom Spielablauf.',
+                mediaTrailer: 'Trailer',
+                mediaGameplay: 'Gameplay',
+                resourcesTitle: 'Download & Ressourcen',
+                downloadButton: 'Download Game (ZIP)',
+                teamTitle: 'Das Team',
+                repoLink: 'Projekt-Repo',
+                footerText: '2026 Casono — Gruppe 13',
+                videoFallback: 'Ihr Browser unterstützt das Video-Tag nicht.'
+            },
+            en: {
+                navHome: 'Home',
+                navAbout: 'About',
+                navFeatures: 'Features',
+                navTable: 'Table',
+                navMedia: 'Trailer & Gameplay',
+                navDownload: 'Download',
+                navTeam: 'Team',
+                heroTagline: "Feel the thrill of Texas Hold'em Poker",
+                heroDescription: "Casono is a stylish Texas Hold'em poker experience with exciting matches and elegant visuals.",
+                heroCta: 'Learn more',
+                aboutTitle: 'About Casono',
+                aboutText: 'Casono combines real casino flair with approachable gameplay. Play online with friends.',
+                featuresTitle: 'Key Features',
+                feature1Title: 'Sessions & Matchmaking',
+                feature1Text: 'Realistic poker experience with thrilling matches.',
+                feature2Title: 'Stylish UI',
+                feature2Text: 'Elegant and intuitive interface for an immersive experience.',
+                feature3Title: 'Easy Setup',
+                feature3Text: 'Download, unpack, launch, done!',
+                tableTitle: 'The Table',
+                tableText: 'Play and chat in one shared elegant view.',
+                mediaTitle: 'Trailer & Gameplay',
+                mediaText: 'Get a quick look at the style and core gameplay loop.',
+                mediaTrailer: 'Trailer',
+                mediaGameplay: 'Gameplay',
+                resourcesTitle: 'Download & Resources',
+                downloadButton: 'Download Game (ZIP)',
+                teamTitle: 'The Team',
+                repoLink: 'Project Repo',
+                footerText: '2026 Casono — Group 13',
+                videoFallback: 'Your browser does not support the video tag.'
+            }
+        };
+
+        const languageToggle = document.getElementById('language-toggle');
+        const i18nNodes = document.querySelectorAll('[data-i18n]');
+
+        function applyLanguage(language) {
+            const dictionary = translations[language] ?? translations.de;
+            i18nNodes.forEach((node) => {
+                const key = node.getAttribute('data-i18n');
+                if (!key || !dictionary[key]) {
+                    return;
+                }
+                node.textContent = dictionary[key];
+            });
+
+            document.documentElement.lang = language;
+            languageToggle.textContent = language === 'de' ? 'EN' : 'DE';
+            localStorage.setItem('casono-language', language);
+        }
+
+        const preferredLanguage = localStorage.getItem('casono-language') === 'en' ? 'en' : 'de';
+        applyLanguage(preferredLanguage);
+
+        languageToggle?.addEventListener('click', () => {
+            const nextLanguage = document.documentElement.lang === 'de' ? 'en' : 'de';
+            applyLanguage(nextLanguage);
+        });
+
         document.getElementById('burger-menu')?.addEventListener('click', function () {
             const nav = document.querySelector('nav ul');
             nav.classList.toggle('nav-active');
@@ -184,7 +312,6 @@ java -jar casono.jar client &lt;serverip&gt;:&lt;serverport&gt; [username]
         document.getElementById('close-demo-modal')?.addEventListener('click', () => {
             document.getElementById('demo-modal').classList.remove('show');
         });
-    </script>
     </script>
 </body>
 

@@ -111,6 +111,7 @@ nav {
     justify-content: flex-start;
     align-items: center;
     width: 100%;
+    position: relative;
 }
 
 .logo {
@@ -174,6 +175,30 @@ nav ul li a:hover::after {
 
 nav ul li a {
     color: var(--team-button-bg);
+}
+
+.language-toggle {
+    position: absolute;
+    right: 24px;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: var(--team-button-bg);
+    color: var(--header-bg);
+    border: none;
+    border-radius: 999px;
+    padding: 0.35rem 0.85rem;
+    font-weight: 700;
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    transition: transform var(--transition), box-shadow var(--transition), background-color var(--transition);
+    box-shadow: var(--shadow-light);
+}
+
+.language-toggle:hover {
+    background-color: var(--accent-color);
+    color: #fff;
+    transform: translateY(-50%) translateY(-1px);
 }
 
 /* Burger Menu Button (Hidden on Desktop) */
@@ -356,20 +381,52 @@ video,
 
 /* Decorative Divider */
 .features-section::before,
-.world-section::before,
+.table-section::before,
 .resources-section::before {
     content: '';
     display: block;
-    width: 100px;
-    height: 2px;
+    width: 150px;
+    height: 3px;
     background: linear-gradient(to right, transparent, var(--secondary-color), transparent);
     margin: 1rem auto;
     opacity: 0.6;
 }
 
-/* Tighten spacing between world image and download */
-.world-section {
+
+.table-section {
     padding-bottom: 1rem;
+}
+
+.media-section {
+    padding: var(--section-padding);
+    background-color: var(--card-bg-color);
+    text-align: center;
+}
+
+.media-grid {
+    max-width: 1200px;
+    margin: 2rem auto 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(280px, 1fr));
+    gap: var(--grid-gap);
+}
+
+.media-card {
+    background-color: var(--background-color);
+    border: 1px solid var(--secondary-color);
+    border-radius: var(--border-radius);
+    padding: var(--card-padding);
+    box-shadow: var(--shadow-light);
+}
+
+.media-card h3 {
+    margin-bottom: 1rem;
+}
+
+.media-card video {
+    width: 100%;
+    border-radius: 10px;
+    display: block;
 }
 
 .resources-section {
@@ -543,18 +600,24 @@ video,
     color: var(--button-color);
 }
 
-/* World/table preview sizing + padding so it never touches edges */
-.world-map-container {
+/* Table preview sizing + padding so it never touches edges */
+.table-preview-container {
     padding: 8px;
     box-sizing: border-box;
 }
 
-.world-map-image {
+.table-preview-image {
     max-width: 100%;
     width: calc(100% - 32px);
     height: auto;
     padding: 8px;
     border-radius: 10px;
+}
+
+@media (max-width: 900px) {
+    .media-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* Modal and video: ensure padding and responsive scaling without distortion */
