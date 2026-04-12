@@ -4,12 +4,9 @@ import ch.unibas.dmi.dbis.cs108.casono.client.network.ClientService;
 import ch.unibas.dmi.dbis.cs108.casono.client.network.CoreClient;
 import ch.unibas.dmi.dbis.cs108.casono.client.ui.chatui.ChatBoxController;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;

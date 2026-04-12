@@ -2,9 +2,8 @@ package ch.unibas.dmi.dbis.cs108.casono.client.network;
 
 import ch.unibas.dmi.dbis.cs108.casono.client.chat.Message;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.command.parsing.RequestParameter;
-
-import java.util.*;
-
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -71,6 +70,12 @@ public class ChatClient {
         return messages;
     }
 
+    /**
+     * Method to poll the usernames of all users currently connected to the server, by sending the
+     * "LIST_USERS" command.
+     *
+     * @return List of all usernames retrieved from the server.
+     */
     public List<String> getUsers() {
         logger.info("Asking server for list of users");
         List<String> users = clientService.processCommand("LIST_USERS");

@@ -3,10 +3,12 @@ package ch.unibas.dmi.dbis.cs108.casono.client.chat;
 import ch.unibas.dmi.dbis.cs108.casono.client.network.ChatClient;
 import ch.unibas.dmi.dbis.cs108.casono.client.network.ClientService;
 import ch.unibas.dmi.dbis.cs108.casono.client.ui.chatui.ChatBoxController;
-
-import java.util.*;
-
-import ch.unibas.dmi.dbis.cs108.casono.server.network.command.parsing.RequestParameter;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jspecify.annotations.Nullable;
@@ -43,9 +45,10 @@ public class ChatController {
 
     private static final long REFRESH_TIME = 1000;
 
-    private List<String> localUserList;
+    /** List of all users connected to the server, to safe them locally on the client */
+    private final List<String> localUserList;
 
-    private Logger logger;
+    private final Logger logger;
 
     /**
      * Constructor, adds TimerTask to be sent to the server regularly
@@ -74,7 +77,7 @@ public class ChatController {
     }
 
     /**
-     * Method to be activated, if a lobby has be chosen. It will update the UI and add a new
+     * Method to be activated, if a lobby has been chosen. It will update the UI and add a new
      * ChatModel to hold the Data for the Lobby Chat
      *
      * @param lobbyId
@@ -86,7 +89,15 @@ public class ChatController {
         this.chatBoxController.addChatTab("Lobby", lobbyChatModel);
     }
 
-    /** method to get all messages from the server */
+    /**
+     * Method to process the Messages that got polled by the {@link ChatClient}.
+     *
+     * <p>Case distinction for every message: - Messages identified with ChatType.LOBBY -> check if
+     * they belong to the users lobby. - Messages identified with ChatType.GLOBAL -> check if the
+     * target user of that Message is the user, or the message got sent by the user.
+     *
+     * <p>All Messages get added to a particular {@link ChatModel}, if the checks passed.
+     */
     public void receiveMessage() {
         List<Message> newMessages = chatClient.getMessages();
         if (!newMessages.isEmpty()) {
@@ -112,17 +123,20 @@ public class ChatController {
                     case ChatType.WHISPER:
                         if (msg.target.equals(username) || msg.sender.equals(username)) {
                             ChatKey key;
-                                    if(msg.target.equals(username)) {
-                                        key = new ChatKey(ChatType.WHISPER, msg.sender);
-                                    } else {
-                                        key = new ChatKey(ChatType.WHISPER, msg.target);
-                                    }
-                            if (chatModelMap.containsKey(key)) {
-                                chatModelMap
-                                        .get(key)
-                                        .addMessage(msg);
+                            if (msg.target.equals(username)) {
+                                key = new ChatKey(ChatType.WHISPER, msg.sender);
                             } else {
-                                ChatModel chatModel = new ChatModel(ChatType.WHISPER, username, lobbyId, key.targetUser());
+                                key = new ChatKey(ChatType.WHISPER, msg.target);
+                            }
+                            if (chatModelMap.containsKey(key)) {
+                                chatModelMap.get(key).addMessage(msg);
+                            } else {
+                                ChatModel chatModel =
+                                        new ChatModel(
+                                                ChatType.WHISPER,
+                                                username,
+                                                lobbyId,
+                                                key.targetUser());
                                 chatBoxController.addWhisperChat(key.targetUser(), chatModel);
                                 chatModel.addMessage(msg);
                             }
@@ -133,6 +147,14 @@ public class ChatController {
         }
     }
 
+    /**
+     * Method to process the usernames of other users connected to the server, after they got polled
+     * by the {@link ChatClient}.
+     *
+     * <p>Checks for every one of the usernames, if it is already in the list localUserList and if
+     * not adds them. For every new User added in the List, they get added as an option to start a
+     * Whisper Chat with.
+     */
     public synchronized void checkWhisperUsers() {
         List<String> users = chatClient.getUsers();
         logger.info(users);
