@@ -13,9 +13,17 @@ import java.util.logging.Logger;
 /**
  * Fetches and parses game state from server.
  *
- * Protocol notes (based on your logs):
- * - Success replies contain lines like PHASE=..., POT=..., PLAYER ... END ... END
- * - Error replies contain -ERR, CODE=..., MSG=..., END
+ * Protocol notes (based on your current server implementation):
+ * - Success replies contain: PHASE, POT, CURRENT_BET, DEALER, ACTIVE_PLAYER, then blocks:
+ *   - CARD ... END (community cards on root level)
+ *   - PLAYER ... (NAME/CHIPS/BET/STATE + optional CARD blocks for requesting player) ... END
+ * - Error replies contain: -ERR then CODE=..., MSG=..., END
+ *
+ * Important:
+ * - The server does NOT wrap cards in a "CARDS" container.
+ * - CARD blocks appear either:
+ *   - at root level  -> community cards
+ *   - inside PLAYER  -> hole cards for that player (usually only for the requesting user)
  */
 public class GameClient {
 
@@ -51,7 +59,7 @@ public class GameClient {
 
         String joined = String.join("\n", lines);
 
-        if (joined.contains("-ERR")) {
+        if (joined.contains("-ERR") || joined.contains("-ERROR")) {
             String code = extractValue(joined, "CODE");
             String msg = extractValue(joined, "MSG");
             LOG.info(() -> "GET_GAME_STATE returned -ERR code=" + code + " msg=" + msg);
@@ -100,14 +108,12 @@ public class GameClient {
         Player currentPlayer = null;
         Card currentCard = null;
 
-        boolean inPlayerCards = false;
-        boolean inCommunityCards = false;
-
         for (String raw : input.split("\n")) {
             String line = raw.trim();
             if (line.isEmpty()) continue;
             if (line.startsWith("+OK")) continue;
 
+            // Global fields
             if (line.startsWith("PHASE=")) {
                 s.phase = value(line);
                 continue;
@@ -136,24 +142,21 @@ public class GameClient {
             if (line.equals("PLAYER")) {
                 currentPlayer = new Player();
                 s.players.add(currentPlayer);
-                inPlayerCards = false;
                 currentCard = null;
                 continue;
             }
 
             if (line.equals("CARDS")) {
-                inPlayerCards = (currentPlayer != null);
-                inCommunityCards = (currentPlayer == null);
-                currentCard = null;
                 continue;
             }
 
-            if (line.startsWith("CARD")) {
+            if (line.equals("CARD")) {
                 currentCard = new Card("", "");
-                if (inPlayerCards && currentPlayer != null) {
-                    currentPlayer.addCard(currentCard);
-                } else if (inCommunityCards) {
-                    s.communityCards.add(currentCard);
+
+                if (currentPlayer != null) {
+                    currentPlayer.addCard(currentCard);  // hole card
+                } else {
+                    s.communityCards.add(currentCard);   // community card
                 }
                 continue;
             }
@@ -162,7 +165,6 @@ public class GameClient {
                 currentCard.setValue(value(line));
                 continue;
             }
-
             if (line.startsWith("SUIT=") && currentCard != null) {
                 currentCard.setSuit(value(line));
                 continue;
@@ -173,18 +175,12 @@ public class GameClient {
                     currentCard = null;
                     continue;
                 }
-                if (inPlayerCards) {
-                    inPlayerCards = false;
-                    continue;
-                }
-                if (inCommunityCards) {
-                    inCommunityCards = false;
-                    continue;
-                }
+
                 if (currentPlayer != null) {
                     currentPlayer = null;
                     continue;
                 }
+
                 continue;
             }
 

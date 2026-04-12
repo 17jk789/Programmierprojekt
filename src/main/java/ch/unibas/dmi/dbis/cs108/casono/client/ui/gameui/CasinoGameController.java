@@ -51,6 +51,9 @@ public class CasinoGameController {
     private Image dealerImage;
     private javafx.animation.Timeline timeline;
     private boolean gameStarted = false;
+    private java.util.List<String> lastCommunityKeys = java.util.List.of();
+    private java.util.List<String> lastMyCardKeys = java.util.List.of();
+    private int lastPot = Integer.MIN_VALUE;
 
     private static final int TOTAL_SLOTS = 5;
     private static final int PLAYER_SLOTS = 2;
@@ -124,6 +127,22 @@ public class CasinoGameController {
     /** Standard constructor. Used by FXML. */
     public CasinoGameController() {
         // default constructor for FXML
+    }
+
+    private String cardKey(Card c) {
+        if (c == null) return "null";
+        String suit = (c.getSuit() == null) ? "" : c.getSuit().toLowerCase();
+        String value = (c.getValue() == null) ? "" : c.getValue().toLowerCase();
+        return suit + ":" + value;
+    }
+
+    private java.util.List<String> cardKeys(java.util.List<Card> cards, int slots) {
+        java.util.List<String> keys = new java.util.ArrayList<>(slots);
+        for (int i = 0; i < slots; i++) {
+            Card c = (cards != null && i < cards.size()) ? cards.get(i) : null;
+            keys.add(cardKey(c));
+        }
+        return java.util.List.copyOf(keys);
     }
 
     /**
@@ -356,15 +375,28 @@ public class CasinoGameController {
 
         List<Player> players = (s.players != null) ? s.players : List.of();
         List<Card> community = (s.communityCards != null) ? s.communityCards : List.of();
+        List<Card> myCards = getMyCards(players);
 
-        renderCommunityCards(community);
-        renderPlayerCards(getMyCards(players));
-        renderPot(s.pot);
+        java.util.List<String> newCommunityKeys = cardKeys(community, TOTAL_SLOTS);
+        if (!newCommunityKeys.equals(lastCommunityKeys)) {
+            lastCommunityKeys = newCommunityKeys;
+            renderCommunityCards(community);
+        }
+
+        java.util.List<String> newMyCardKeys = cardKeys(myCards, PLAYER_SLOTS);
+        if (!newMyCardKeys.equals(lastMyCardKeys)) {
+            lastMyCardKeys = newMyCardKeys;
+            renderPlayerCards(myCards);
+        }
+
+        if (s.pot != lastPot) {
+            lastPot = s.pot;
+            renderPot(s.pot);
+        }
 
         updatePlayers(players);
         updateGameInfo(s);
         highlightDealer(s);
-
         updateTaskbar(s);
 
         LOGGER.info("myPlayerId=" + myPlayerId);
