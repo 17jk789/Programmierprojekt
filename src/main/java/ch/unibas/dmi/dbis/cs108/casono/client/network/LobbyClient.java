@@ -1,5 +1,8 @@
 package ch.unibas.dmi.dbis.cs108.casono.client.network;
 
+import ch.unibas.dmi.dbis.cs108.casono.server.network.command.parsing.RequestParameter;
+import java.util.List;
+
 /**
  * The LobbyClient class is responsible for communicating with the server to manage game lobbies. It
  * provides methods to create a lobby, join a lobby, and fetch the current status of a lobby by
@@ -65,8 +68,23 @@ public class LobbyClient {
      * Logs in to the server with the given username by sending a "LOGIN" command.
      *
      * @param user The username to log in with.
+     * @return a {@link LoginResult} containing the assigned username and id as returned by the
+     *     server
      */
-    public void login(String user) {
-        client.processCommand("LOGIN USERNAME=" + user);
+    public LoginResult login(String user) {
+        List<String> lines = client.processCommand("LOGIN USERNAME=" + user);
+
+        List<RequestParameter> params = ClientService.convertToRequestParameters(lines);
+
+        String assigned = user;
+        String id = null;
+        for (RequestParameter p : params) {
+            if ("USERNAME".equalsIgnoreCase(p.key())) {
+                assigned = p.value();
+            } else if ("ID".equalsIgnoreCase(p.key())) {
+                id = p.value();
+            }
+        }
+        return new LoginResult(assigned, id);
     }
 }
