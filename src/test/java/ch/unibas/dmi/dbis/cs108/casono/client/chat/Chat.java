@@ -4,6 +4,6 @@ import javafx.application.Application;
 
 public class Chat {
     public static void main(String[] args) {
-        Application.launch(ChatApplication.class);
+        Application.launch(ChatApplication.class, args);
     }
 }
