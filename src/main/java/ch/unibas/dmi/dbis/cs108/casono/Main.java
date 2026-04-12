@@ -7,6 +7,12 @@ import org.apache.logging.log4j.Logger;
 
 /** Main entry point for Casono application. Handles client and server startup. */
 public final class Main {
+
+    private static final int MIN_ARGS_FOR_USERNAME = 3;
+    private static final int ARGS_COUNT_SERVER = 2;
+    private static final int ARGS_COUNT_CLIENT_MIN = 2;
+    private static final int ARGS_COUNT_CLIENT_WITH_USER = 3;
+
     /**
      * Main entry point for Casono.
      *
@@ -21,7 +27,7 @@ public final class Main {
             case "server" -> ServerApp.start(args[1]);
             case "client" -> {
                 String address = args[1];
-                String username = args.length >= 3 ? args[2] : null;
+                String username = args.length >= MIN_ARGS_FOR_USERNAME ? args[2] : null;
                 ClientApp.start(address, username);
             }
             default -> {
@@ -32,13 +38,15 @@ public final class Main {
     }
 
     private static boolean isValid(String[] args) {
-        if (args.length < 2) {
+        if (args.length < ARGS_COUNT_SERVER) {
             return false;
         }
 
         return switch (args[0]) {
-            case "server" -> args.length == 2;
-            case "client" -> args.length == 2 || args.length == 3;
+            case "server" -> args.length == ARGS_COUNT_SERVER;
+            case "client" ->
+                    args.length == ARGS_COUNT_CLIENT_MIN
+                            || args.length == ARGS_COUNT_CLIENT_WITH_USER;
             default -> false;
         };
     }
