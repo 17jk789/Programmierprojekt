@@ -496,6 +496,24 @@ public class CasinoGameController {
             return;
         }
 
+        java.util.List<Player> opponents = buildOpponents(players);
+        boolean meFound = opponents.size() != players.size();
+
+        LOGGER.info("updatePlayers: total=" + players.size()
+                + " myPlayerId=" + myPlayerId
+                + " meFound=" + meFound
+                + " opponents=" + opponents.size());
+
+        setOpponent(player1Controller, opponents, 0);
+        setOpponent(player2Controller, opponents, 1);
+        setOpponent(player3Controller, opponents, 2);
+
+        safeRefresh(player1Controller);
+        safeRefresh(player2Controller);
+        safeRefresh(player3Controller);
+    }
+
+    private java.util.List<Player> buildOpponents(List<Player> players) {
         java.util.List<Player> opponents = new java.util.ArrayList<>();
         boolean meFound = false;
 
@@ -517,18 +535,7 @@ public class CasinoGameController {
             opponents.addAll(players);
         }
 
-        LOGGER.info("updatePlayers: total=" + players.size()
-                + " myPlayerId=" + myPlayerId
-                + " meFound=" + meFound
-                + " opponents=" + opponents.size());
-
-        setOpponent(player1Controller, opponents, 0);
-        setOpponent(player2Controller, opponents, 1);
-        setOpponent(player3Controller, opponents, 2);
-
-        safeRefresh(player1Controller);
-        safeRefresh(player2Controller);
-        safeRefresh(player3Controller);
+        return opponents;
     }
 
     private void setOpponent(PlayerStatusController slot, java.util.List<Player> list, int index) {
@@ -556,30 +563,46 @@ public class CasinoGameController {
      * @param s The current game state containing the dealer index.
      */
     private void highlightDealer(GameState s) {
-
-        player1Controller.setDealer(false);
-        player2Controller.setDealer(false);
-        player3Controller.setDealer(false);
+        if (player1Controller != null) player1Controller.setDealer(false);
+        if (player2Controller != null) player2Controller.setDealer(false);
+        if (player3Controller != null) player3Controller.setDealer(false);
 
         myDealerIcon.setVisible(false);
 
-        int dealer = s.dealer;
+        if (s == null || s.players == null || s.players.isEmpty()) {
+            return;
+        }
+        if (s.dealer < 0 || s.dealer >= s.players.size()) {
+            return;
+        }
 
-        if (dealer == DEALER_PLAYER_1) {
+        Player dealerPlayer = s.players.get(s.dealer);
+        if (dealerPlayer == null || dealerPlayer.getId() == null) {
+            return;
+        }
+
+        if (myPlayerId != null && myPlayerId.equals(dealerPlayer.getId())) {
+            myDealerIcon.setVisible(true);
+            return;
+        }
+
+        java.util.List<Player> opponents = buildOpponents(s.players);
+        if (opponents.size() > 0 && samePlayer(opponents.get(0), dealerPlayer) && player1Controller != null) {
             player1Controller.setDealer(true);
         }
-
-        if (dealer == DEALER_PLAYER_2) {
+        if (opponents.size() > 1 && samePlayer(opponents.get(1), dealerPlayer) && player2Controller != null) {
             player2Controller.setDealer(true);
         }
-
-        if (dealer == DEALER_PLAYER_3) {
+        if (opponents.size() > 2 && samePlayer(opponents.get(2), dealerPlayer) && player3Controller != null) {
             player3Controller.setDealer(true);
         }
+    }
 
-        if (dealer == DEALER_MYSELF) {
-            myDealerIcon.setVisible(true);
+    private boolean samePlayer(Player a, Player b) {
+        if (a == null || b == null || a.getId() == null || b.getId() == null) {
+            return false;
         }
+        return a.getId().equals(b.getId());
     }
 
     /**
