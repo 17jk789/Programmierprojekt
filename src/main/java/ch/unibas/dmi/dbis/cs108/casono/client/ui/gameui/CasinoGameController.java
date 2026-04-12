@@ -48,6 +48,7 @@ public class CasinoGameController {
     private PlayerId myPlayerId;
     private TaskbarController taskbarController;
     private Image dealerImage;
+    private javafx.animation.Timeline timeline;
 
     private static final int TOTAL_SLOTS = 5;
     private static final int PLAYER_SLOTS = 2;
@@ -166,6 +167,8 @@ public class CasinoGameController {
 
         // uiTest();
 
+        // or
+
         // empty display only (optional)
         renderCommunityCards(List.of());
         renderPlayerCards(List.of());
@@ -277,42 +280,69 @@ public class CasinoGameController {
      */
     private void startLoop() {
 
-        javafx.animation.Timeline t =
+        timeline =
                 new javafx.animation.Timeline(
                         new javafx.animation.KeyFrame(
                                 javafx.util.Duration.seconds(UI_UPDATE_INTERVAL_SECONDS),
                                 e -> updateUI()));
 
-        t.setCycleCount(javafx.animation.Animation.INDEFINITE);
-        t.play();
+        timeline.setCycleCount(javafx.animation.Animation.INDEFINITE);
+        timeline.play();
     }
 
     /**
-     * Update the UI by fetching the latest game state from the GameService and updating all
-     * relevant components.
+     * Stop the UI update loop, which can be called when the game ends or when the user exits the
+     * game screen to prevent unnecessary updates and resource usage.
+     */
+    public void stop() {
+        if (timeline != null) {
+            timeline.stop();
+        }
+    }
+
+    /**
+     * Triggers an asynchronous UI update by fetching the current game state from the GameService.
      */
     private void updateUI() {
 
-        try {
-            GameState s = gameService.refresh();
+        java.util.concurrent.CompletableFuture.supplyAsync(
+                        () -> {
+                            try {
+                                return gameService.refresh();
+                            } catch (Exception e) {
+                                LOGGER.severe("GameService Error: " + e.getMessage());
+                                return null;
+                            }
+                        })
+                .thenAccept(
+                        s -> {
+                            if (s == null) {
+                                return;
+                            }
 
-            if (s == null) {
-                return;
-            }
+                            javafx.application.Platform.runLater(() -> applyState(s));
+                        });
+    }
 
-            renderCommunityCards(s.communityCards);
-            renderPot(s.pot);
+    /**
+     * Updates all visual UI components with the data from the provided GameState. This includes
+     * community cards, pot, player information, and the taskbar.
+     *
+     * @param s The current state of the game to be rendered.
+     */
+    private void applyState(GameState s) {
 
-            updatePlayers(s.players);
-            updatePlayerCards(s);
+        renderCommunityCards(s.communityCards);
+        renderPot(s.pot);
 
-            updateGameInfo(s);
-            highlightDealer(s);
+        updatePlayers(s.players);
+        updatePlayerCards(s);
 
-            updateTaskbar(s);
+        updateGameInfo(s);
+        highlightDealer(s);
 
-        } catch (Exception e) {
-            LOGGER.severe("Error: UI Update failed: " + e.getMessage());
+        if (taskbarController != null) {
+            taskbarController.update(s, myPlayerId);
         }
     }
 
@@ -323,14 +353,20 @@ public class CasinoGameController {
      */
     private void updatePlayerCards(GameState s) {
 
-        int active = s.activePlayer;
-
-        if (active >= 0 && active < s.players.size()) {
-            Player p = s.players.get(active);
-            renderPlayerCards(p.getCards());
-        } else {
+        if (s.players == null || myPlayerId == null) {
             renderPlayerCards(List.of());
+            return;
         }
+
+        for (Player p : s.players) {
+            if (p.getId().equals(myPlayerId)) {
+                renderPlayerCards(p.getCards());
+                return;
+            }
+        }
+
+        // fallback
+        renderPlayerCards(List.of());
     }
 
     /**
@@ -357,8 +393,9 @@ public class CasinoGameController {
      * @param s The current game state.
      */
     private void updateTaskbar(GameState s) {
-
-        taskbarController.update(s, myPlayerId);
+        if (taskbarController != null) {
+            taskbarController.update(s, myPlayerId);
+        }
     }
 
     /**
