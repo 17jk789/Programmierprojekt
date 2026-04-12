@@ -2,6 +2,7 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.geometry.Insets?>
 
 <!--
@@ -15,59 +16,58 @@ and status displays will be dynamically populated with real-time data from the s
 <VBox fx:id="playerStatusBox"
       xmlns="http://javafx.com/javafx/21"
       xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui.gameuicomponents.PlayerStatusController"
       styleClass="player-status-pane"
       prefWidth="200"
-      prefHeight="100"
-      spacing="0">
+      spacing="5">
 
     <children>
-        <!-- Area for player name -->
+
+        <!-- NAME -->
         <HBox styleClass="status-inner-box-top"
               alignment="CENTER_LEFT"
-              maxWidth="Infinity"
-              prefHeight="60">
+              prefHeight="40">
 
             <padding>
-                <Insets left="15"/>
+                <Insets left="10"/>
             </padding>
 
-            <Label text="NAME: " styleClass="status-label-small"/>
-            <!-- TODO: fx:id="playerName": Will later be replaced by the username from the server query -->
-            <Label fx:id="playerName" text="SPIELER" styleClass="status-value-text"/>
+            <Label styleClass="status-label-small"/>
+            <Label fx:id="playerName" text="-" styleClass="status-value-text"/>
         </HBox>
 
-        <!-- Shaft space between the boxes -->
-        <HBox styleClass="status-inner-box-midle"
-              alignment="CENTER_LEFT"
-              maxWidth="Infinity"
-              prefHeight="10">
+        <!-- spacer -->
+        <HBox prefHeight="5"/>
 
-            <padding>
-                <Insets left="15"/>
-            </padding>
-        </HBox>
-
-        <!-- Display of capital/money balance -->
+        <!-- MONEY -->
         <HBox styleClass="status-inner-box-bottom"
               alignment="CENTER_LEFT"
-              maxWidth="Infinity"
-              prefHeight="30">
+              prefHeight="40">
 
             <padding>
-                <Insets left="15"/>
+                <Insets left="10"/>
             </padding>
 
-            <Label text="GELD: " styleClass="status-label-small"/>
+            <Label styleClass="status-label-small"/>
             <Label fx:id="playerMoney" text="0 $" styleClass="status-value-money"/>
         </HBox>
 
-        <!-- TODO: User logo or icon: Placeholder for the profile picture or the player's individual logo -->
-        <Pane prefHeight="0" maxWidth="Infinity">
+        <!-- ICON AREA -->
+        <Pane fx:id="parent" prefHeight="40">
+
             <Region styleClass="status-circle"
-                    layoutX="-10"
-                    layoutY="-105"
-                    prefWidth="30"
-                    prefHeight="30"/>
+                    layoutX="-25"
+                    layoutY="-125"
+                    prefWidth="40"
+                    prefHeight="40"/>
+
+            <ImageView fx:id="dealerIcon"
+                       fitWidth="43"
+                       fitHeight="43"
+                       layoutY="-120"
+                       visible="false"
+                       styleClass="dealer-icon"/>
         </Pane>
+
     </children>
 </VBox>

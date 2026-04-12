@@ -1,7 +1,14 @@
 package ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui.gameuicomponents;
 
+import ch.unibas.dmi.dbis.cs108.casono.client.game.GameService;
+import ch.unibas.dmi.dbis.cs108.casono.client.game.GameState;
+import ch.unibas.dmi.dbis.cs108.casono.client.game.Player;
+import ch.unibas.dmi.dbis.cs108.casono.client.game.PlayerId;
+import ch.unibas.dmi.dbis.cs108.casono.client.game.PlayerState;
 import ch.unibas.dmi.dbis.cs108.casono.client.ui.lobbyui.Casinomainui;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -18,22 +25,225 @@ import org.apache.logging.log4j.Logger;
  */
 public class TaskbarController {
 
+    private static final Logger LOGGER = LogManager.getLogger(CasinoBrowserController.class);
+
+    @FXML private HBox taskbar;
+    @FXML private TextField taskbarInput;
+    @FXML private Button betButton;
+    @FXML private Button callButton;
+    @FXML private Button foldButton;
+    @FXML private Button raiseButton;
+    @FXML private Label moneyLabel;
+
+    private GameService gameService;
+    private PlayerId myPlayerId;
+    private double xOffset = 0;
+    private double yOffset = 0;
+    private static final double TASKBAR_SCALE = 0.95;
+    private static final int MIN_CREDITS = 5;
+    private static final int MAX_CREDITS = 100000;
+    private static final int CREDIT_STEP = 5;
+    private static final String STYLE_YELLOW_BUTTON = "yellow-button";
+    private static final String STYLE_GRAY_BUTTON = "gray-button";
+    private static final String STYLE_RED_BUTTON = "red-button";
+    private static final String STYLE_YELLOW_INPUT = "yellow-input-field";
+    private static final String STYLE_GRAY_INPUT = "gray-input-field";
+    private static final String STYLE_RED_INPUT = "red-input-field";
+    private static final double SCALE_NORMAL = 1.0;
+
     /** Standard constructor. Used by FXML. */
     public TaskbarController() {
         // default constructor for FXML
     }
 
-    private static final Logger LOGGER = LogManager.getLogger(CasinoBrowserController.class);
+    /**
+     * Updates the state of the basic action buttons (Bet, Call, Fold, Raise) and the input field
+     *
+     * @param isMyTurn Indicates whether it is currently the player's turn.
+     * @param isOut Indicates whether the player is currently out of the game (folded or all-in).
+     */
+    private void updateBasicButtons(boolean isMyTurn, boolean isOut) {
 
-    @FXML private HBox taskbar;
-    @FXML private TextField taskbarInput;
+        if (isOut) {
+            setRedButton(betButton);
+            setRedButton(callButton);
+            setRedButton(foldButton);
+            setRedButton(raiseButton);
+            setRedInputField(taskbarInput);
+            return;
+        }
 
-    private double xOffset = 0;
-    private double yOffset = 0;
-    private static final double TASKBAR_SCALE = 0.9;
-    private static final int MIN_CREDITS = 5;
-    private static final int MAX_CREDITS = 100000;
-    private static final int CREDIT_STEP = 5;
+        if (isMyTurn) {
+            activateButton(betButton);
+            activateButton(callButton);
+            activateButton(foldButton);
+            activateButton(raiseButton);
+            activateInputField(taskbarInput);
+        } else {
+            deactivateButton(betButton);
+            deactivateButton(callButton);
+            deactivateButton(foldButton);
+            deactivateButton(raiseButton);
+            deactivateInputField(taskbarInput);
+        }
+    }
+
+    /**
+     * Sets the given button to a disabled state with red styling, indicating that the player is out
+     *
+     * @param b The button to be styled as red and disabled
+     */
+    private void setRedButton(Button b) {
+        b.setDisable(true);
+
+        b.getStyleClass().remove(STYLE_YELLOW_BUTTON);
+        b.getStyleClass().remove(STYLE_GRAY_BUTTON);
+
+        if (!b.getStyleClass().contains(STYLE_RED_BUTTON)) {
+            b.getStyleClass().add(STYLE_RED_BUTTON);
+        }
+    }
+
+    /**
+     * Sets the given input field to a disabled state with red styling, indicating that the player
+     * is out
+     *
+     * @param t The text field to be styled as red and disabled
+     */
+    private void setRedInputField(TextField t) {
+        t.setDisable(true);
+
+        t.getStyleClass().remove(STYLE_YELLOW_INPUT);
+        t.getStyleClass().remove(STYLE_GRAY_INPUT);
+
+        if (!t.getStyleClass().contains(STYLE_RED_INPUT)) {
+            t.getStyleClass().add(STYLE_RED_INPUT);
+        }
+    }
+
+    /**
+     * Activates the given button by enabling it and applying yellow styling, indicating that it is
+     * the player's turn
+     *
+     * @param b The button to be activated and styled for the player's turn
+     */
+    private void activateButton(Button b) {
+        b.setDisable(false);
+
+        b.getStyleClass().remove(STYLE_GRAY_BUTTON);
+
+        if (!b.getStyleClass().contains(STYLE_YELLOW_BUTTON)) {
+            b.getStyleClass().add(STYLE_YELLOW_BUTTON);
+        }
+    }
+
+    /**
+     * Activates the given input field by enabling it and applying yellow styling, indicating that
+     * it is the player's turn
+     *
+     * @param t The text field to be activated and styled for the player's turn
+     */
+    private void activateInputField(TextField t) {
+        t.setDisable(false);
+
+        t.getStyleClass().remove(STYLE_GRAY_INPUT);
+
+        if (!t.getStyleClass().contains(STYLE_YELLOW_INPUT)) {
+            t.getStyleClass().add(STYLE_YELLOW_INPUT);
+        }
+    }
+
+    /**
+     * Deactivates the given button by disabling it and applying gray styling, indicating that it is
+     * not the player's turn
+     *
+     * @param b The button to be deactivated and styled for non-active state
+     */
+    private void deactivateButton(Button b) {
+        b.setDisable(true);
+
+        b.getStyleClass().remove(STYLE_YELLOW_BUTTON);
+        b.getStyleClass().remove(STYLE_RED_BUTTON);
+
+        if (!b.getStyleClass().contains(STYLE_GRAY_BUTTON)) {
+            b.getStyleClass().add(STYLE_GRAY_BUTTON);
+        }
+    }
+
+    /**
+     * Deactivates the given input field by disabling it and applying gray styling, indicating that
+     * it is not the player's turn
+     *
+     * @param t The text field to be deactivated and styled for non-active state
+     */
+    private void deactivateInputField(TextField t) {
+        t.setDisable(true);
+
+        t.getStyleClass().remove(STYLE_YELLOW_INPUT);
+        t.getStyleClass().remove(STYLE_RED_INPUT);
+
+        if (!t.getStyleClass().contains(STYLE_GRAY_INPUT)) {
+            t.getStyleClass().add(STYLE_GRAY_INPUT);
+        }
+    }
+
+    /**
+     * Updates the displayed amount of money the player has. The amount is shown in the format "X$".
+     *
+     * @param amount The amount of money to display for the player.
+     */
+    public void setMoney(int amount) {
+        moneyLabel.setText(amount + "$");
+    }
+
+    public void setGameService(GameService gameService, PlayerId myPlayerId) {
+        this.gameService = gameService;
+        this.myPlayerId = myPlayerId;
+    }
+
+    /**
+     * Initializes the taskbar controller. This method is called automatically after the FXML
+     * components have been loaded.
+     */
+    @FXML
+    public void initialize() {
+        updateBasicButtons(false, false);
+    }
+
+    /**
+     * Updates the taskbar based on the current game state and the player's status. It checks if
+     * it's the player's turn and whether they are out of the game (folded or all-in) to adjust the
+     * button states and displayed money accordingly.
+     *
+     * @param state
+     * @param myPlayerId
+     */
+    public void update(GameState state, PlayerId myPlayerId) {
+
+        if (state == null || state.players == null || myPlayerId == null) {
+            LOGGER.warn("Cannot update taskbar: invalid input");
+            return;
+        }
+
+        Player me =
+                state.players.stream()
+                        .filter(p -> myPlayerId.equals(p.getId()))
+                        .findFirst()
+                        .orElse(null);
+
+        if (me == null) {
+            LOGGER.error("Player not found in GameState!");
+            return;
+        }
+
+        int myIndex = state.players.indexOf(me);
+
+        boolean isMyTurn = state.activePlayer == myIndex;
+        boolean isOut = me.getState() == PlayerState.FOLDED;
+
+        updateBasicButtons(isMyTurn, isOut);
+        setMoney(me.getChips());
+    }
 
     /**
      * Called when the taskbar is clicked with the mouse. Saves the relative position for later,
@@ -72,8 +282,8 @@ public class TaskbarController {
      */
     @FXML
     private void onTaskbarReleased(MouseEvent event) {
-        taskbar.setScaleX(1.0);
-        taskbar.setScaleY(1.0);
+        taskbar.setScaleX(SCALE_NORMAL);
+        taskbar.setScaleY(SCALE_NORMAL);
     }
 
     /**
@@ -97,6 +307,76 @@ public class TaskbarController {
         processBet();
     }
 
+    /** Called when the Call button is clicked. */
+    @FXML
+    private void onInputPlayerCall() {
+
+        if (gameService == null) {
+            LOGGER.error("GameService not initialized");
+            return;
+        }
+
+        gameService.call();
+        LOGGER.info("Player CALL");
+
+        refreshGame();
+    }
+
+    /** Called when the Fold button is clicked. */
+    @FXML
+    private void onInputPlayerFold() {
+
+        if (gameService == null) {
+            LOGGER.error("GameService not initialized");
+            return;
+        }
+
+        gameService.fold();
+        LOGGER.info("Player FOLD");
+
+        refreshGame();
+    }
+
+    /** Called when the Raise button is clicked. */
+    @FXML
+    private void onInputPlayerRaise() {
+
+        String input = taskbarInput.getText();
+
+        try {
+            int amount = Integer.parseInt(input.trim());
+
+            gameService.raise(amount);
+
+            LOGGER.info("Player RAISE {}", amount);
+
+            taskbarInput.clear();
+
+            refreshGame();
+
+        } catch (NumberFormatException e) {
+            LOGGER.error("Invalid raise amount");
+        }
+    }
+
+    /**
+     * Refreshes the game state by fetching the latest state from the GameService and updating the
+     * taskbar accordingly.
+     */
+    private void refreshGame() {
+
+        try {
+            GameState newState = gameService.refresh();
+            update(newState, myPlayerId);
+
+        } catch (Exception e) {
+            LOGGER.error("Failed to refresh game state: {}", e.getMessage());
+        }
+    }
+
+    /**
+     * Called when the Exit button is clicked. Closes the current game stage and opens the lobby UI.
+     */
     @FXML
     private void onExitButtonClick() {
         javafx.application.Platform.runLater(
@@ -109,7 +389,7 @@ public class TaskbarController {
                     try {
                         new Casinomainui().start(new javafx.stage.Stage());
                     } catch (Exception e) {
-                        LOGGER.error("Fehler beim Starten der Lobby-UI: {}", e.getMessage());
+                        LOGGER.error("Error: starting the lobby UI: {}", e.getMessage());
                     }
                 });
     }
@@ -120,19 +400,34 @@ public class TaskbarController {
      * displayed on the console.
      */
     private void processBet() {
+
+        if (gameService == null) {
+            LOGGER.error("Error: GameService not initialized");
+            return;
+        }
+
         String input = taskbarInput.getText();
+
         try {
+
             int credits = Integer.parseInt(input.trim());
 
             if (credits >= MIN_CREDITS && credits <= MAX_CREDITS && credits % CREDIT_STEP == 0) {
-                // TODO: Credits must be sent to the GameEngine
-                LOGGER.info("Bet set: {} Casono Credits", credits);
+
+                gameService.bet(credits);
+
+                LOGGER.info("Bet placed: {}", credits);
+
                 taskbarInput.clear();
+
+                refreshGame();
+
             } else {
-                LOGGER.error("Error: Only increments of 5 (5, 10, ... 100,000) are allowed!");
+                LOGGER.error("Error: Bet must be between 5 and 100000 and multiple of 5");
             }
+
         } catch (NumberFormatException e) {
-            LOGGER.error("Error: Please enter only one number!");
+            LOGGER.error("Error: Invalid number entered");
         }
     }
 

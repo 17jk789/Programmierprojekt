@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<!-- VBox for the global chat, should only be visible when activated via changeGlobalChatButton-->
+
+<VBox fx:id="chatInterfaceVBox"
+      maxWidth="Infinity"
+      spacing="10"
+      styleClass="chat-box"
+      stylesheets="@chatui.css"
+      VBox.vgrow="ALWAYS"
+      xmlns="http://javafx.com/javafx/17.0.12"
+      xmlns:fx="http://javafx.com/fxml/1">
+
+    <children>
+        <!-- Chatnachrichten werden hier hinzugefügt -->
+        <ScrollPane fx:id="scrollPane" fitToWidth="true" vbarPolicy="AS_NEEDED" hbarPolicy="NEVER" styleClass="chat-scroll-pane" VBox.vgrow="ALWAYS">
+            <content>
+                <VBox fx:id="chat" spacing="10" styleClass="chat-VBox" />
+            </content>
+        </ScrollPane>
+
+        <!-- Eingabebereich -->
+        <HBox fx:id="controlBar" spacing="10">
+            <!-- TODO: Größe des TextFields dynamisch anpassen -->
+            <TextField fx:id="inputField" promptText="Nachricht eingeben..." styleClass="gray-input-field" HBox.hgrow="ALWAYS" />
+            <Button fx:id="sendButton" styleClass="yellow-button" text="SENDEN" />
+        </HBox>
+    </children>
+
+
+</VBox>

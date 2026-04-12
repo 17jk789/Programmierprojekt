@@ -30,6 +30,17 @@ public class Casinomainui extends Application {
      * @throws IOException If loading the FXML fails.
      */
     public void start(Stage stage) throws IOException {
+        // If the launcher passed an address argument (ip:port), expose it as
+        // system properties so controllers can read it without embedding defaults.
+        var raw = getParameters().getRaw();
+        if (raw != null && raw.size() > 0) {
+            String arg = raw.get(0);
+            String[] parts = arg.split(":", 2);
+            if (parts.length == 2) {
+                System.setProperty("casono.server.host", parts[0]);
+                System.setProperty("casono.server.port", parts[1]);
+            }
+        }
         FXMLLoader fxmlLoader =
                 new FXMLLoader(getClass().getResource("/ui-structure/Casinomainui.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), SCENE_WIDTH, SCENE_HEIGHT);

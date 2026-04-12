@@ -1,0 +1,206 @@
+.chat-box {
+    -fx-background-color: #0d9e3b;
+    -fx-background-radius: 58;
+    -fx-border-radius: 50;
+    -fx-border-color: #5c3d10 #3d260a #3d260a #5c3d10;
+    -fx-border-width: 12;
+    -fx-padding: 20;
+    /*-fx-effect: dropshadow(one-pass-box, rgba(0,0,0,1), 0, 0, 15, 15);*/
+}
+
+.chat-header {
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-padding: 0 0 10 0;
+    -fx-effect: dropshadow(one-pass-box, #000000, 0, 0, 3, 3);
+}
+
+.chat-separator {
+    -fx-background-color: #ffffff;
+    -fx-min-height: 4px;
+    -fx-effect: dropshadow(one-pass-box, #000000, 0, 0, 3, 3);
+}
+
+.black-input-field {
+    -fx-background-color: #1a1a1a;
+    -fx-text-fill: #ffffff;
+    -fx-font-family: "Courier New";
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-color: #444444;
+    -fx-border-width: 2;
+    -fx-padding: 5 12;
+}
+
+.black-input-field:hover {
+    -fx-translate-y: -3;
+    -fx-effect: dropshadow(one-pass-box, rgba(0, 0, 0, 0.8), 0, 0, 3, 3);
+}
+
+
+.black-input-field:focused {
+    -fx-border-color: #ffffff;
+    -fx-background-color: #000000;
+}
+
+.gray-input-field {
+    -fx-background-color: #333333;
+    -fx-text-fill: #ffffff;
+    -fx-font-family: "Courier New";
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-color: #666666;
+    -fx-color-color: #cccccc;
+    -fx-border-width: 2;
+    -fx-padding: 5 12;
+}
+
+.gray-input-field:hover {
+    -fx-translate-y: -3;
+    -fx-effect: dropshadow(one-pass-box, rgba(0, 0, 0, 0.8), 0, 0, 3, 3);
+}
+
+.gray-input-field:focused {
+    -fx-border-color: #ffffff;
+    -fx-background-color: #333333;
+}
+
+.yellow-button {
+    -fx-background-color: #b8860b;
+    -fx-border-color: #ffd700;
+    -fx-text-fill: #ffffff;
+}
+
+.red-button {
+    -fx-background-color: #8b0000;
+    -fx-border-color: #ff4444;
+    -fx-text-fill: #ffffff;
+}
+
+.gray-button {
+    -fx-background-color: #333333;
+    -fx-border-color: #666666;
+    -fx-text-fill: #ffffff;
+}
+
+.gray-button, .yellow-button, .red-button {
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-font-family: "Courier New";
+    -fx-font-weight: bold;
+    -fx-border-width: 2;
+    -fx-padding: 6 15;
+    -fx-cursor: hand;
+}
+
+.gray-button:hover, .yellow-button:hover, .red-button:hover {
+    -fx-translate-y: -3;
+    -fx-effect: dropshadow(one-pass-box, rgba(0, 0, 0, 0.8), 0, 0, 3, 3);
+}
+
+.chat-scroll-pane {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+    -fx-border-color: transparent;
+}
+
+.chat-VBox {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+}
+.scroll-pane {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.scroll-pane .scroll-bar:vertical {
+    -fx-background-color: transparent;
+}
+
+.scroll-pane .scroll-bar .track {
+    -fx-background-color: #5c3d10;
+    -fx-background-insets: 0;
+    -fx-background-radius: 5;
+}
+
+.scroll-pane .scroll-bar .thumb {
+    -fx-background-color: #3d260a;
+    -fx-background-insets: 0;
+    -fx-background-radius: 5;
+    -fx-pref-width: 6;
+    -fx-pref-height: 6;
+    -fx-padding: 0;
+}
+
+.scroll-pane .scroll-bar:horizontal {
+    -fx-background-color: transparent;
+}
+
+.scroll-pane .scroll-bar:horizontal .track {
+    -fx-background-color: #5c3d10;
+    -fx-background-radius: 5;
+}
+
+.scroll-pane .scroll-bar:horizontal .thumb {
+    -fx-background-color: #3d260a;
+    -fx-background-radius: 5;
+    -fx-pref-height: 6;
+}
+
+.scroll-pane .scroll-bar:horizontal .thumb:hover {
+    -fx-pref-height: 10;
+}
+
+.tab-pane .tab-header-area .tab-header-background {
+    -fx-opacity: 0;
+    -fx-background-color: #0d9e3b;
+    -fx-background-radius: 18;
+    -fx-border-radius: 10;
+    -fx-border-color: #5c3d10 #3d260a #3d260a #5c3d10;
+    -fx-border-width: 5;
+    -fx-padding: 10;
+    -fx-effect: dropshadow(one-pass-box, rgba(0,0,0,1), 0, 0, 15, 15);
+    -fx-max-height: 10;
+}
+
+.tab-pane .tab {
+    -fx-background-color: #0d9e3b;
+    -fx-background-radius: 18;
+    -fx-border-radius: 10;
+    -fx-border-color: #5c3d10 #3d260a #3d260a #5c3d10;
+    -fx-border-width: 5;
+    -fx-padding: 10;
+}
+
+.tab-pane .tab:selected {
+    -fx-background-color: #0d763b;
+    -fx-background-radius: 18;
+    -fx-border-radius: 10;
+    -fx-border-color: #5c3d10 #3d260a #3d260a #5c3d10;
+    -fx-border-width: 5;
+    -fx-padding: 10;
+}
+
+.tab-pane .tab .tab-close-button {
+    -fx-text-fill: #0d9e3b;
+}
+
+.tab-pane .tab-header-area .headers-region {
+    -fx-background-color: #0d9e3b;
+}
+
+
+.tab .tab-label {
+    -fx-alignment: CENTER;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+
+.tab:selected .tab-label {
+    -fx-alignment: CENTER;
+    -fx-text-fill: #ffffff;
+}
