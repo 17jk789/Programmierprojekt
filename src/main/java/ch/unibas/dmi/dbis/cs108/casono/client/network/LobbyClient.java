@@ -41,8 +41,25 @@ public class LobbyClient {
      * @return The id of the newly created lobby, as returned by the server.
      */
     public int createLobby() {
-        String response = client.processCommand("CREATE_LOBBY").getFirst();
-        return Integer.parseInt(response);
+        List<String> lines = client.processCommand("CREATE_LOBBY");
+
+        List<RequestParameter> params = ClientService.convertToRequestParameters(lines);
+        for (RequestParameter p : params) {
+            if ("LOBBY_ID".equalsIgnoreCase(p.key())) {
+                return Integer.parseInt(p.value());
+            }
+        }
+
+        // Fallback for simple legacy/test servers that return the id as a single plain
+        // line
+        if (!lines.isEmpty()) {
+            try {
+                return Integer.parseInt(lines.get(0));
+            } catch (NumberFormatException ignored) {
+            }
+        }
+
+        throw new RuntimeException("No LOBBY_ID in response: " + lines);
     }
 
     /**
