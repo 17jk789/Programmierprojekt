@@ -6,10 +6,10 @@
 .anchor-pane-bg {
     -fx-background-color: #ffffff;
     /* Optional: Remove the image or use it as an overlay */
-     -fx-background-image: url("/images/background.png"); 
-     -fx-background-size: cover; 
-     -fx-background-position: center center; 
-     -fx-background-repeat: no-repeat; 
+     -fx-background-image: url("/images/background.png");
+     -fx-background-size: cover;
+     -fx-background-position: center center;
+     -fx-background-repeat: no-repeat;
 }
 
 /* THE FLOATING INFO BOX */
@@ -243,4 +243,16 @@
     -fx-translate-y: -3;
     -fx-effect: dropshadow(one-pass-box, rgba(0, 0, 0, 0.8), 0, 0, 3, 3);
     -fx-background-color: #27ae60;
+}
+
+#lobbyBtn-1,
+#lobbyBtn-2,
+#lobbyBtn-3,
+#lobbyBtn-4,
+#lobbyBtn-5,
+#lobbyBtn-6,
+#lobbyBtn-7,
+#lobbyBtn-8 {
+    -fx-background-color: transparent;
+    -fx-effect: dropshadow(one-pass-box, rgba(0, 0, 0, 0.8), 0, 0, 3, 3);
 }
