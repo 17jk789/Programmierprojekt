@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 /** Represents an authenticated user on the server. */
 public class User {
     private final UserId id;
-    private final String name;
+    private String name;
     private SessionId sessionId;
     private Instant disconnectedAt;
     private final Queue<Message> messages;
@@ -47,8 +47,18 @@ public class User {
      *
      * @return the user name
      */
-    public String getName() {
+    public synchronized String getName() {
         return name;
+    }
+
+    /**
+     * Sets a new display name for this user. Thread-safe; callers must ensure the registry is
+     * updated to maintain uniqueness when needed.
+     *
+     * @param newName the new display name
+     */
+    public synchronized void setName(String newName) {
+        this.name = newName;
     }
 
     /**

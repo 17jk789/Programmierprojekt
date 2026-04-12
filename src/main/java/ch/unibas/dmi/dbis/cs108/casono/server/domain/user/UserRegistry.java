@@ -185,4 +185,29 @@ public class UserRegistry {
     public Collection<User> getAllUsers() {
         return byId.values();
     }
+
+    /**
+     * Attempts to change the username of an existing user. Ensures the new name is not already
+     * taken and updates internal indices atomically.
+     *
+     * @param userId the id of the user to rename
+     * @param newName the desired new name
+     * @return true if the rename succeeded, false if the name was already taken or user not found
+     */
+    public synchronized boolean changeUsername(UserId userId, String newName) {
+        User user = byId.get(userId);
+        if (user == null) {
+            return false;
+        }
+
+        if (byName.containsKey(newName)) {
+            return false;
+        }
+
+        // remove old mapping and put new mapping
+        byName.remove(user.getName());
+        user.setName(newName);
+        byName.put(newName, user);
+        return true;
+    }
 }

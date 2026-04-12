@@ -169,6 +169,61 @@ public class ServerApp {
                                 .GetGameStateHandler(
                                 responseDispatcher, lobbyManager, userRegistry));
 
+        // BET registration
+        parserDispatcher.register(
+                "BET",
+                new ch.unibas.dmi.dbis.cs108.casono.server.app.commands.game.bet.PlayerBetParser());
+        commandRouter.register(
+                ch.unibas.dmi.dbis.cs108.casono.server.app.commands.game.bet.PlayerBetRequest.class,
+                (ch.unibas.dmi.dbis.cs108.casono.server.network.command.execution.CommandHandler<
+                                ch.unibas.dmi.dbis.cs108.casono.server.app.commands.game.bet
+                                        .PlayerBetRequest>)
+                        new ch.unibas.dmi.dbis.cs108.casono.server.app.commands.game.bet
+                                .PlayerBetHandler(responseDispatcher, userRegistry, lobbyManager));
+
+        // RAISE registration
+        parserDispatcher.register(
+                "RAISE",
+                new ch.unibas.dmi.dbis.cs108.casono.server.app.commands.game.raise
+                        .PlayerRaiseParser());
+        commandRouter.register(
+                ch.unibas.dmi.dbis.cs108.casono.server.app.commands.game.raise.PlayerRaiseRequest
+                        .class,
+                (ch.unibas.dmi.dbis.cs108.casono.server.network.command.execution.CommandHandler<
+                                ch.unibas.dmi.dbis.cs108.casono.server.app.commands.game.raise
+                                        .PlayerRaiseRequest>)
+                        new ch.unibas.dmi.dbis.cs108.casono.server.app.commands.game.raise
+                                .PlayerRaiseHandler(
+                                responseDispatcher, userRegistry, lobbyManager));
+
+        // CALL registration
+        parserDispatcher.register(
+                "CALL",
+                new ch.unibas.dmi.dbis.cs108.casono.server.app.commands.game.call
+                        .PlayerCallParser());
+        commandRouter.register(
+                ch.unibas.dmi.dbis.cs108.casono.server.app.commands.game.call.PlayerCallRequest
+                        .class,
+                (ch.unibas.dmi.dbis.cs108.casono.server.network.command.execution.CommandHandler<
+                                ch.unibas.dmi.dbis.cs108.casono.server.app.commands.game.call
+                                        .PlayerCallRequest>)
+                        new ch.unibas.dmi.dbis.cs108.casono.server.app.commands.game.call
+                                .PlayerCallHandler(responseDispatcher, userRegistry, lobbyManager));
+
+        // FOLD registration
+        parserDispatcher.register(
+                "FOLD",
+                new ch.unibas.dmi.dbis.cs108.casono.server.app.commands.game.fold
+                        .PlayerFoldParser());
+        commandRouter.register(
+                ch.unibas.dmi.dbis.cs108.casono.server.app.commands.game.fold.PlayerFoldRequest
+                        .class,
+                (ch.unibas.dmi.dbis.cs108.casono.server.network.command.execution.CommandHandler<
+                                ch.unibas.dmi.dbis.cs108.casono.server.app.commands.game.fold
+                                        .PlayerFoldRequest>)
+                        new ch.unibas.dmi.dbis.cs108.casono.server.app.commands.game.fold
+                                .PlayerFoldHandler(responseDispatcher, userRegistry, lobbyManager));
+
         // GET_LOBBY_STATUS registration
         parserDispatcher.register(
                 "GET_LOBBY_STATUS",
@@ -183,6 +238,20 @@ public class ServerApp {
                         new ch.unibas.dmi.dbis.cs108.casono.server.app.commands.lobby
                                 .get_lobby_status.GetLobbyStatusHandler(
                                 responseDispatcher, lobbyManager, userRegistry));
+
+        // CREATE_LOBBY registration
+        parserDispatcher.register(
+                "CREATE_LOBBY",
+                new ch.unibas.dmi.dbis.cs108.casono.server.app.commands.lobby.create_lobby
+                        .CreateLobbyParser());
+        commandRouter.register(
+                ch.unibas.dmi.dbis.cs108.casono.server.app.commands.lobby.create_lobby
+                        .CreateLobbyRequest.class,
+                (ch.unibas.dmi.dbis.cs108.casono.server.network.command.execution.CommandHandler<
+                                ch.unibas.dmi.dbis.cs108.casono.server.app.commands.lobby
+                                        .create_lobby.CreateLobbyRequest>)
+                        new ch.unibas.dmi.dbis.cs108.casono.server.app.commands.lobby.create_lobby
+                                .CreateLobbyHandler(responseDispatcher, lobbyManager));
 
         // JOIN_LOBBY registration
         parserDispatcher.register(
