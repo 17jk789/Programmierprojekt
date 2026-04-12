@@ -1,6 +1,9 @@
 package ch.unibas.dmi.dbis.cs108.casono.server.domain.lobby;
 
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.lobby.Lobby.AddResult;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +20,7 @@ public class LobbyManager {
 
     private final Map<LobbyId, Lobby> activeLobbies = new ConcurrentHashMap<>();
     private final Map<String, LobbyId> playerToLobby = new ConcurrentHashMap<>();
+    private final Map<LobbyId, Instant> creationTimes = new ConcurrentHashMap<>();
     private final List<LobbyEventListener> listeners = new CopyOnWriteArrayList<>();
     private final int maxPlayersPerLobby;
     private static final Logger LOGGER = Logger.getLogger(LobbyManager.class.getName());
@@ -39,6 +43,7 @@ public class LobbyManager {
             if (!activeLobbies.containsKey(id)) {
                 Lobby lobby = new Lobby(id, name == null ? ("Room " + i) : name);
                 activeLobbies.put(id, lobby);
+                creationTimes.put(id, Instant.now());
                 return id;
             }
         }
@@ -134,6 +139,35 @@ public class LobbyManager {
 
     public Collection<Lobby> getAllLobbies() {
         return activeLobbies.values();
+    }
+
+    /** Find all empty lobbies that were created more than the given {@code age} ago. */
+    public List<LobbyId> findEmptyLobbiesOlderThan(Duration age) {
+        List<LobbyId> result = new ArrayList<>();
+        Instant cutoff = Instant.now().minus(age);
+        for (Map.Entry<LobbyId, Lobby> e : activeLobbies.entrySet()) {
+            LobbyId id = e.getKey();
+            Lobby l = e.getValue();
+            if (l.getPlayerNames().isEmpty()) {
+                Instant created = creationTimes.get(id);
+                if (created != null && created.isBefore(cutoff)) {
+                    result.add(id);
+                }
+            }
+        }
+        return result;
+    }
+
+    /** Remove a lobby and clean up internal mappings. */
+    public void removeLobby(LobbyId id) {
+        Lobby removed = activeLobbies.remove(id);
+        creationTimes.remove(id);
+        if (removed == null) {
+            return;
+        }
+        for (String username : removed.getPlayerNames()) {
+            playerToLobby.remove(username);
+        }
     }
 
     /**
