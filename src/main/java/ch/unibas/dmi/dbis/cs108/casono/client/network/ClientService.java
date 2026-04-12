@@ -138,33 +138,64 @@ public class ClientService {
                 () -> {
                     try {
                         writeToTransport(message);
-                        String responseText = null;
+                        String responseText = clienttcptransport.read().payload();
+                        logger.info("Raw message '{}'", responseText);
 
-                        responseText = clienttcptransport.read().payload();
-                        logger.info("Raw message '" + responseText + "'");
-                        Boolean success = null;
-                        int count = 0;
-                        for (String line : responseText.split("\n")) {
-                            if (success == null) {
+                        boolean hasStatus = false;
+                        boolean success = false;
+                        for (String rawLine : responseText.split("\n")) {
+                            String line = rawLine;
+                            if (!hasStatus) {
                                 if ("+OK".equals(line)) {
                                     success = true;
+                                    hasStatus = true;
                                     continue;
-
-                                } else if (("-ERROR").equals(responseText)) {
-                                    success = false;
                                 }
+                                if (line.startsWith("-ERR") || line.startsWith("-ERROR")) {
+                                    success = false;
+                                    hasStatus = true;
+                                    continue;
+                                }
+                                // ignore any lines before the status indicator
                                 continue;
-                            } else if ("END".equals(line)) {
+                            }
+
+                            if ("END".equals(line)) {
                                 break;
                             }
-                            line = line.replaceFirst("^\t", "");
+
+                            // strip a single leading tab if present (protocol formatting)
+                            if (line.startsWith("\t")) {
+                                line = line.substring(1);
+                            }
                             response.add(line);
                         }
-                        if (success != null && success) {
-                            return;
-                        } else {
-                            throw new RuntimeException("Error in " + message + ": " + response);
+
+                        if (!hasStatus) {
+                            // Fallback for servers that do not place the status on a
+                            // dedicated line: try to detect status markers anywhere
+                            // in the payload to remain compatible with older servers.
+                            if (responseText.contains("+OK")) {
+                                success = true;
+                                hasStatus = true;
+                            } else if (responseText.contains("-ERR")
+                                    || responseText.contains("-ERROR")) {
+                                success = false;
+                                hasStatus = true;
+                            } else {
+                                throw new RuntimeException(
+                                        "No status line in response for '"
+                                                + message
+                                                + "': "
+                                                + responseText);
+                            }
                         }
+
+                        if (success) {
+                            return;
+                        }
+
+                        throw new RuntimeException("Error in " + message + ": " + response);
                     } catch (Exception e) {
                         throw getRuntimeException(e);
                     }
@@ -200,15 +231,14 @@ public class ClientService {
      * @return A RuntimeException representing the cause of the original exception.
      */
     private static RuntimeException getRuntimeException(Exception e) {
-        Throwable reason = e.getCause();
-        RuntimeException re;
-        if (reason == null) {
-            reason = e;
-        } else if (reason instanceof RuntimeException rte) {
-            re = rte;
+        Throwable cause = e.getCause();
+        if (cause == null) {
+            return e instanceof RuntimeException ? (RuntimeException) e : new RuntimeException(e);
         }
-        re = new RuntimeException(reason);
-        return re;
+        if (cause instanceof RuntimeException) {
+            return (RuntimeException) cause;
+        }
+        return new RuntimeException(cause);
     }
 
     /**
