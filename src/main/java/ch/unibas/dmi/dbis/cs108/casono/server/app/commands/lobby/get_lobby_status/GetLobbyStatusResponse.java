@@ -22,10 +22,18 @@ public class GetLobbyStatusResponse extends SuccessResponse {
         super(
                 context,
                 ResponseBody.builder()
+                        .param("STATUS", lobby.getGameController() != null ? "RUNNING" : "CREATED")
                         .block(
                                 "LOBBY",
                                 lb -> {
                                     lb.param("ID", lobby.getId().value());
+                                    // STATUS indicates whether a game has been started in this
+                                    // lobby
+                                    lb.param(
+                                            "STATUS",
+                                            lobby.getGameController() == null
+                                                    ? "CREATED"
+                                                    : "RUNNING");
                                     lb.param("NAME", lobby.getName());
                                     lb.block(
                                             "PLAYERS",

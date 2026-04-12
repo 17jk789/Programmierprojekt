@@ -2,6 +2,7 @@ package ch.unibas.dmi.dbis.cs108.casono.client.ui.lobbyui;
 
 import ch.unibas.dmi.dbis.cs108.casono.client.network.ClientService;
 import ch.unibas.dmi.dbis.cs108.casono.client.network.LobbyClient;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.command.parsing.RequestParameter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -53,7 +54,7 @@ public class LobbyButtonGridManager {
         this.translationManager = LobbyButtonTranslationManager.getInstance();
         this.lobbyClient = lobbyClient;
 
-        startPeriodicRefresh(REFRESH_INTERVAL_SECONDS, INITIAL_DELAY_SECONDS);
+        startPeriodicRefresh(INITIAL_DELAY_SECONDS, REFRESH_INTERVAL_SECONDS);
     }
 
     public LobbyButtonGridManager(
@@ -62,6 +63,43 @@ public class LobbyButtonGridManager {
             ClientService clientService) {
 
         this(gridPane, translationManager, new LobbyClient(clientService));
+
+        // Subscribe to server-initiated events so closed lobbies are removed
+        // immediately
+        clientService.addEventListener(
+                lines -> {
+                    List<RequestParameter> params = ClientService.convertToRequestParameters(lines);
+                    String evt = null;
+                    String lidStr = null;
+                    for (RequestParameter p : params) {
+                        if ("EVENT".equalsIgnoreCase(p.key())) {
+                            evt = p.value();
+                        } else if ("LOBBY_ID".equalsIgnoreCase(p.key())) {
+                            lidStr = p.value();
+                        }
+                    }
+                    if (evt != null && "LOBBY_CLOSED".equalsIgnoreCase(evt) && lidStr != null) {
+                        int lid;
+                        try {
+                            lid = Integer.parseInt(lidStr);
+                        } catch (NumberFormatException ex) {
+                            return;
+                        }
+                        // find button id(s) for this lobby and remove mapping
+                        Map<Integer, Integer> mapping = translationManager.getButtonIdToLobbyId();
+                        Integer toRemove = null;
+                        for (Map.Entry<Integer, Integer> e : mapping.entrySet()) {
+                            if (e.getValue() != null && e.getValue().intValue() == lid) {
+                                toRemove = e.getKey();
+                                break;
+                            }
+                        }
+                        if (toRemove != null) {
+                            translationManager.removeLobbyButton(toRemove);
+                            javafx.application.Platform.runLater(this::renderLobbyButtons);
+                        }
+                    }
+                });
     }
 
     private void startPeriodicRefresh(long initialDelay, long period) {
@@ -80,7 +118,11 @@ public class LobbyButtonGridManager {
 
         for (Map.Entry<Integer, Integer> e : entries) {
             int buttonId = e.getKey();
-            int lobbyId = e.getValue();
+            Integer lobbyIdObj = e.getValue();
+            if (lobbyIdObj == null) {
+                continue;
+            }
+            int lobbyId = lobbyIdObj.intValue();
 
             CompletableFuture.supplyAsync(
                             () -> {
@@ -97,8 +139,7 @@ public class LobbyButtonGridManager {
                                 if (status == null) {
                                     translationManager.removeLobbyButton(buttonId);
 
-                                    javafx.application.Platform.runLater(
-                                            this::updateLobbyButtonImages);
+                                    javafx.application.Platform.runLater(this::renderLobbyButtons);
                                 }
                             });
         }
@@ -118,7 +159,11 @@ public class LobbyButtonGridManager {
 
         for (int index = 0; index < buttonIds.size(); index++) {
             Integer buttonId = buttonIds.get(index);
-            int lobbyId = mapping.get(buttonId);
+            Integer lobbyIdObj = mapping.get(buttonId);
+            if (lobbyIdObj == null) {
+                continue;
+            }
+            int lobbyId = lobbyIdObj.intValue();
 
             Button btn = createLobbyButton(buttonId, lobbyId);
 
@@ -253,7 +298,11 @@ public class LobbyButtonGridManager {
         }
 
         for (Integer buttonId : mapping.keySet()) {
-            int lobbyId = mapping.get(buttonId);
+            Integer lobbyIdObj = mapping.get(buttonId);
+            if (lobbyIdObj == null) {
+                continue;
+            }
+            int lobbyId = lobbyIdObj.intValue();
 
             CompletableFuture.supplyAsync(
                             () -> {
@@ -360,9 +409,5 @@ public class LobbyButtonGridManager {
 
     public LobbyClient getLobbyClient() {
         return lobbyClient;
-    }
-
-    public void refreshNow() {
-        refreshMappings();
     }
 }

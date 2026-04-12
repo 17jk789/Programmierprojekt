@@ -34,30 +34,37 @@ public class GameClient {
      * @return A GameState object representing the current state of the game, as parsed
      */
     public GameState fetchGameState() {
-        List<String> responseLines = client.processCommand("GET_GAME_STATE\nGAME_ID=" + gameId);
+        List<String> responseLines = client.processCommand("GET_GAME_STATE GAME_ID=" + gameId);
 
         if (responseLines == null || responseLines.isEmpty()) {
             throw new RuntimeException("Empty server response");
         }
 
-        String fullResponse = String.join("\n", responseLines);
+        if (responseLines.get(0).startsWith("-ERR")) {
+            throw new RuntimeException("Server Error: " + String.join(" ", responseLines));
+        }
 
+        if (!responseLines.get(0).startsWith("+OK")) {
+            throw new RuntimeException("Invalid response: missing +OK");
+        }
+
+        String fullResponse = String.join("\n", responseLines);
         return parse(fullResponse);
     }
 
     /** Send a CALL command to the server to indicate that the player wants to call */
     public void sendCall() {
-        client.processCommand("CALL\nGAME_ID=" + gameId);
+        client.processCommand("CALL GAME_ID=" + gameId);
     }
 
     /** Send a FOLD command to the server to indicate that the player wants to fold */
     public void sendFold() {
-        client.processCommand("FOLD\nGAME_ID=" + gameId);
+        client.processCommand("FOLD GAME_ID=" + gameId);
     }
 
     /** Send a BET command to the server to indicate that the player wants to bet */
     public void sendBet(int amount) {
-        client.processCommand("BET\nGAME_ID=" + gameId + "\nAMOUNT=" + amount);
+        client.processCommand("BET GAME_ID=" + gameId + " AMOUNT=" + amount);
     }
 
     /**
@@ -66,7 +73,7 @@ public class GameClient {
      * @param amount The amount to raise to
      */
     public void sendRaise(int amount) {
-        client.processCommand("RAISE\nGAME_ID=" + gameId + "\nAMOUNT=" + amount);
+        client.processCommand("RAISE GAME_ID=" + gameId + " AMOUNT=" + amount);
     }
 
     /**
@@ -76,8 +83,12 @@ public class GameClient {
      * @return A GameState object representing the current state of the game.
      */
     private GameState parse(String input) {
-        GameState state = new GameState();
 
+        if (input.startsWith("-ERR")) {
+            throw new RuntimeException("Server returned Error:\n" + input);
+        }
+
+        GameState state = new GameState();
         ParserContext ctx = new ParserContext(state);
 
         for (String raw : input.split("\n")) {
@@ -156,6 +167,7 @@ public class GameClient {
             state.winnerIndex = intVal(line);
         } else {
             return false;
+            // throw new RuntimeException("Unknown global field: " + line);
         }
         return true;
     }
@@ -171,7 +183,7 @@ public class GameClient {
     private boolean handleSections(String line, ParserContext ctx) {
 
         if (line.equals("END")) {
-            ctx.inPlayers = false;
+            // ctx.inPlayers = false;
             ctx.inPlayerCards = false;
             ctx.inCommunityCards = false;
             ctx.currentPlayer = null;

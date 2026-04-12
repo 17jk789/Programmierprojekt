@@ -5,7 +5,13 @@ import ch.unibas.dmi.dbis.cs108.casono.client.chat.ChatModel;
 import ch.unibas.dmi.dbis.cs108.casono.client.chat.ChatType;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -13,6 +19,7 @@ import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
@@ -28,15 +35,21 @@ public class ChatBoxController {
 
     @FXML private MenuButton addWhisperChatButton;
 
+    @FXML private HBox menuBox;
+
     private FXMLLoader fxmlLoader;
 
-    @FXML private List<MenuItem> whisperUsers;
+    private final List<String> activeWhisperChats;
+
+    @FXML private final Map<String, Tab> usernameTabMap;
 
     private String ressource = "/ui-structure/components/chatui/chattab.fxml";
 
     public ChatBoxController(String username, ChatController chatController) {
         this.username = username;
         this.chatController = chatController;
+        activeWhisperChats = new ArrayList<>();
+        usernameTabMap = new HashMap<>();
     }
 
     /**
@@ -51,7 +64,7 @@ public class ChatBoxController {
                 .getChatModelMap()
                 .put(new ChatController.ChatKey(ChatType.GLOBAL), globalChatModel);
         addChatTab("GLOBAL", globalChatModel);
-        // TODO: Button to add new Whisper Chat
+        addWhisperChatButton.setOnAction(event -> addWhisperChatButton.show());
     }
 
     /**
@@ -61,10 +74,20 @@ public class ChatBoxController {
      * @param targetUserName The username of the person to be added to the whisper list.
      */
     public void addWhisperUser(String targetUserName) {
-        MenuItem menuItem = new MenuItem(targetUserName);
-        whisperUsers.add(menuItem);
-        addWhisperChatButton.getItems().add(menuItem);
-        menuItem.setOnAction(event -> addWhisperChat(targetUserName));
+        Platform.runLater(
+                () -> {
+                    MenuItem menuItem = new MenuItem(targetUserName);
+                    addWhisperChatButton.getItems().add(menuItem);
+                    menuItem.setOnAction(
+                            event ->
+                                    addWhisperChat(
+                                            targetUserName,
+                                            new ChatModel(
+                                                    ChatType.WHISPER,
+                                                    username,
+                                                    -1,
+                                                    targetUserName)));
+                });
     }
 
     /**
@@ -73,12 +96,16 @@ public class ChatBoxController {
      *
      * @param target The username of the recipient for the private messages.
      */
-    public void addWhisperChat(String target) {
-        ChatModel chatModel = new ChatModel(ChatType.WHISPER, username, -1, target);
-        chatController
-                .getChatModelMap()
-                .put(new ChatController.ChatKey(ChatType.WHISPER, target), chatModel);
-        addChatTab(target, chatModel);
+    public void addWhisperChat(String target, ChatModel chatModel) {
+        if (!activeWhisperChats.contains(target)) {
+            activeWhisperChats.add(target);
+            chatController
+                    .getChatModelMap()
+                    .put(new ChatController.ChatKey(ChatType.WHISPER, target), chatModel);
+            addChatTab(target, chatModel);
+        } else {
+            chatTabPane.getSelectionModel().select(usernameTabMap.get(target));
+        }
     }
 
     /**
@@ -93,20 +120,56 @@ public class ChatBoxController {
     public void addChatTab(String title, ChatModel chatModel) {
         URL resource = getClass().getResource(ressource);
         FXMLLoader fxmlLoader = new FXMLLoader(resource);
-        try {
-            ChatViewController chatViewController =
-                    new ChatViewController(this.chatController, chatModel, this.username);
-            fxmlLoader.setController(chatViewController);
-            Node load = fxmlLoader.load();
-            VBox.setVgrow(load, Priority.ALWAYS);
-            VBox vbox = new VBox();
-            VBox.setVgrow(vbox, Priority.ALWAYS);
-            vbox.getChildren().add(load);
-            chatModel.addListener((msg) -> chatViewController.showMessage(msg));
-            Tab newChat = new Tab(title, vbox);
-            this.chatTabPane.getTabs().add(newChat);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        runOnPlatformSynchronized(
+                () -> {
+                    try {
+                        ChatViewController chatViewController =
+                                new ChatViewController(
+                                        this.chatController, chatModel, this.username);
+                        fxmlLoader.setController(chatViewController);
+                        Node load = fxmlLoader.load();
+                        VBox.setVgrow(load, Priority.ALWAYS);
+                        VBox vbox = new VBox();
+                        VBox.setVgrow(vbox, Priority.ALWAYS);
+                        vbox.getChildren().add(load);
+                        chatModel.addListener((msg) -> chatViewController.showMessage(msg));
+                        Tab newChat = new Tab(title, vbox);
+                        usernameTabMap.put(title, newChat);
+                        this.chatTabPane.getTabs().add(newChat);
+                        this.chatTabPane.getSelectionModel().select(newChat);
+                        return newChat;
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+    }
+
+    /**
+     * Helper Function to cope with a Threads problem occurring when the main JavaFX Thread performs
+     * the task to add a new whisper Chat tab, and the task is specified to runLater.
+     */
+    public static <T> T runOnPlatformSynchronized(Callable<T> code) {
+        if (Platform.isFxApplicationThread()) {
+            try {
+                return code.call();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            CompletableFuture<T> futureLock = new CompletableFuture<>();
+            Platform.runLater(
+                    () -> {
+                        try {
+                            futureLock.complete(code.call());
+                        } catch (Exception e) {
+                            futureLock.completeExceptionally(e);
+                        }
+                    });
+            try {
+                return futureLock.get();
+            } catch (Throwable e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 }

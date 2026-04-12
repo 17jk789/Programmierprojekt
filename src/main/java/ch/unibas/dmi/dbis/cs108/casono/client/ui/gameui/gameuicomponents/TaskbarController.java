@@ -387,9 +387,26 @@ public class TaskbarController {
                     currentStage.close();
                     // Start lobby UI
                     try {
-                        new Casinomainui().start(new javafx.stage.Stage());
+                        javafx.stage.Stage newStage = new javafx.stage.Stage();
+                        javafx.fxml.FXMLLoader fxmlLoader =
+                                new javafx.fxml.FXMLLoader(
+                                        getClass().getResource("/ui-structure/Casinomainui.fxml"));
+                        javafx.scene.Parent root = fxmlLoader.load();
+                        javafx.scene.Scene scene =
+                                new javafx.scene.Scene(
+                                        root, Casinomainui.SCENE_WIDTH, Casinomainui.SCENE_HEIGHT);
+                        newStage.setTitle("Casono");
+                        javafx.scene.image.Image icon =
+                                new javafx.scene.image.Image(
+                                        getClass()
+                                                .getResource("/images/logoinverted.png")
+                                                .toExternalForm());
+                        newStage.getIcons().add(icon);
+                        newStage.setScene(scene);
+                        newStage.setFullScreen(true);
+                        newStage.show();
                     } catch (Exception e) {
-                        LOGGER.error("Error: starting the lobby UI: {}", e.getMessage());
+                        LOGGER.error("Error: starting the lobby UI: {}", e.getMessage(), e);
                     }
                 });
     }
