@@ -69,4 +69,33 @@ public class ChatClient {
         }
         return messages;
     }
+
+    /**
+     * Method to poll the usernames of all users currently connected to the server, by sending the
+     * "LIST_USERS" command.
+     *
+     * @return List of all usernames retrieved from the server.
+     */
+    public List<String> getUsers() {
+        logger.info("Asking server for list of users");
+        List<String> users = clientService.processCommand("LIST_USERS");
+        List<String> parameters = new ArrayList<String>();
+        for (int i = 0; i < users.size(); i++) {
+            String line = users.get(i);
+            if (line.equals("USERS")) {
+                continue;
+            } else if (line.equals("END")) {
+                break;
+            }
+            line = line.replaceFirst("^\t", "");
+
+            if (line.equals("USER")) {
+                String username = users.get(i + 1);
+                username = username.replaceFirst("^\t", "");
+                username = username.replaceFirst("^\t", "");
+                parameters.add(username);
+            }
+        }
+        return parameters;
+    }
 }
