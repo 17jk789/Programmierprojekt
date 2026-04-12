@@ -105,7 +105,7 @@ public class ClientApp {
     }
 
     /**
-     * Main entry point. Usage: <host:port> [username]
+     * Main entry point. {@code <host:port>} (e.g. {@code 127.0.0.1:1234})
      *
      * <p>If a username is provided the application attempts a startup LOGIN on the shared
      * connection; the UI will still start and will reuse the connection when possible. The username
