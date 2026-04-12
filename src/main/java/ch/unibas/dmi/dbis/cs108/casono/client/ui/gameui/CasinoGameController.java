@@ -18,12 +18,15 @@ import java.util.concurrent.CompletableFuture;
 import java.util.logging.Logger;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
 /**
  * Controller for the casino gaming area.
@@ -229,24 +232,42 @@ public class CasinoGameController {
     }
 
     private void initializeChatIfPossible() {
-        if (chatInitialized || chatContainer == null || chatClientService == null || chatUsername == null) {
+        if (chatInitialized || chatClientService == null || chatUsername == null) {
             return;
         }
+
         try {
             chatController = new ChatController(chatUsername, chatClientService);
+
             URL resource = getClass().getResource("/ui-structure/components/chatui/chatbox.fxml");
             FXMLLoader loader = new FXMLLoader(resource);
             loader.setController(chatController.getChatBoxController());
-            javafx.scene.Node chatNode = loader.load();
-            chatContainer.getChildren().setAll(chatNode);
-            AnchorPane.setTopAnchor(chatNode, 0.0);
-            AnchorPane.setBottomAnchor(chatNode, 0.0);
-            AnchorPane.setLeftAnchor(chatNode, 0.0);
-            AnchorPane.setRightAnchor(chatNode, 0.0);
+
+            Parent root = loader.load();
+
+            Stage chatStage = new Stage();
+
+            chatStage.setTitle("Casono");
+
+            String iconPath = getClass().getResource("/images/logoinverted.png").toExternalForm();
+            chatStage.getIcons().add(new Image(iconPath));
+
+            Scene scene = new Scene(root);
+            chatStage.setScene(scene);
+
+            chatStage.setWidth(400);
+            chatStage.setHeight(600);
+
+            chatStage.setOnCloseRequest(event -> chatInitialized = false);
+
+            chatStage.show();
+
             if (chatLobbyId >= 0) {
                 chatController.setLobbyChat(chatLobbyId);
             }
+
             chatInitialized = true;
+
         } catch (IOException e) {
             LOGGER.warning("Could not initialize game chat UI: " + e.getMessage());
         }
