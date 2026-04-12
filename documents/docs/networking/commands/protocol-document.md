@@ -82,6 +82,7 @@ This document describes the protocol for client-server communication in our appl
     - [Required pre-execution checks](#required-pre-execution-checks)
     - [Request Parameters](#request-parameters)
     - [Success Response](#success-response)
+  - [START_GAME command](#start_game-command)
   - [GET_LOBBY_STATUS command](#get_lobby_status-command)
     - [Required pre-execution checks](#required-pre-execution-checks)
     - [Request Parameters](#request-parameters)
@@ -547,8 +548,64 @@ END
 ```
 -ERR
   CODE=LOBBY_NOT_FOUND
-  MESSAGE=Lobby not found
+  MSG=Lobby not found
 END
+
+## START_GAME command
+
+The `START_GAME` command requests the server to start a new game in the specified lobby. The
+server requires an explicit numeric `ID` parameter identifying the target lobby.
+
+### Required pre-execution checks
+- [`UserLoggedInCheck`](#userloggedincheck)
+
+### Request Parameters
+| Parameter Name | Type | Optional | Description |
+| :------------- | :--- | :------: | :---------- |
+| `ID` | `int` | no | Numeric id of the target lobby |
+
+### Implementation notes
+
+- Parser: `StartGameParser` — reads the required `ID` parameter and builds `StartGameRequest`.
+- Handler: `StartGameHandler` — resolves the lobby by id, checks the requester is a member of the
+  lobby, verifies a game is not already running and that enough players are present, initializes
+  `GameController` and attaches it to the lobby. On success a structured `START_GAME` success
+  response containing `GAME` and `MESSAGE` fields is returned.
+
+### Success Response
+| Field    | Type    | Description                       |
+| :------- | :------ | :-------------------------------- |
+| `GAME`   | `int`   | Numeric id of the started game (uses lobby id) |
+| `MESSAGE`| `String`| Human-readable status message     |
+
+### Error Response
+| Code             | Description                               |
+| :--------------- | :---------------------------------------- |
+| `MISSING_PARAMETER` | Required parameter `ID` missing (parser) |
+| `LOBBY_NOT_FOUND` | The specified lobby id does not exist     |
+| `NOT_IN_LOBBY`    | Requesting user is not a member of the lobby |
+| `NOT_ENOUGH_PLAYERS` | Not enough players to start the game   |
+| `ALREADY_STARTED` | A game is already running in the lobby   |
+| `USER_NOT_LOGGED_IN` | No user associated with the session    |
+
+### Example Request
+
+```
+
+START_GAME ID=1
+
+```
+
+### Example Response (success)
+
+```
+
++OK
+  GAME=1
+  MESSAGE=Game started successfully
+END
+
+```
 ```
 
 ## GET_LOBBY_LIST command
