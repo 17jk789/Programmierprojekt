@@ -121,10 +121,19 @@ Die aktuelle Testabdeckung ist wie folgt:
     \toprule
     \textbf{Paketname (gekürzt)}        & \textbf{Instr.\ Cov.} & \textbf{Branch Cov.} \\
     \midrule
-    \texttt{package.name}               & nil\,\%  & nil\,\% \\
-    \texttt{another.package.name}       & nil\,\%  & nil\,\% \\
+    \texttt{client.chat}                                & 0\,\%  & 0\,\% \\
+    \texttt{client.game}                                & 0\,\%  & 0\,\% \\
+    \texttt{client.network}                             & 3\,\%  & 1\,\% \\
+    \texttt{client.ui} (von Abdeckung ausgeschlossen)   & 0\,\%  & 0\,\% \\
+    \texttt{server.app.checks}                          & 0\,\%  & 0\,\% \\
+    \texttt{server.app.commands}                        & 0\,\%  & 0\,\% \\
+    \texttt{server.domain.game}                         & 94\,\%  & 91\,\% \\
+    \texttt{server.domain.*}                            & 45\,\%  & 37\,\% \\
+    \texttt{server.network.transport}                   & 0\,\%  & 0\,\% \\
+    \texttt{server.network.protocol}                    & 0\,\%  & 0\,\% \\
+    \texttt{server.network.*}                           & 2\,\%  & 1\,\% \\
     \midrule
-    \textbf{Summe}                      & \textbf{nil\,\%} & \textbf{nil\,\%} \\
+    \textbf{Summe}                          & \textbf{12\,\%} & \textbf{9\,\%} \\
     \bottomrule
   \end{tabular}
 \end{table}
