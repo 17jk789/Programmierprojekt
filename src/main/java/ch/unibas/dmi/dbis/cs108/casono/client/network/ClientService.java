@@ -24,8 +24,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * The ClientService class is responsible for managing the connection to the server, sending
- * commands, and receiving responses. It uses a TcpTransport to communicate with the server and an
+ * The ClientService class is responsible for managing the connection to the
+ * server, sending
+ * commands, and receiving responses. It uses a TcpTransport to communicate with
+ * the server and an
  * ExecutorService to handle asynchronous requests.
  */
 public class ClientService {
@@ -39,20 +41,20 @@ public class ClientService {
     private final AtomicInteger idGenerator;
     private Logger logger;
 
-    private final Map<Integer, ArrayBlockingQueue<ParsedResponse>> pendingResponses =
-            new ConcurrentHashMap<>();
-    private final CopyOnWriteArrayList<Consumer<List<String>>> eventListeners =
-            new CopyOnWriteArrayList<>();
+    private final Map<Integer, ArrayBlockingQueue<ParsedResponse>> pendingResponses = new ConcurrentHashMap<>();
+    private final CopyOnWriteArrayList<Consumer<List<String>>> eventListeners = new CopyOnWriteArrayList<>();
     private Thread readerThread = null;
     private final AtomicBoolean running = new AtomicBoolean(false);
     private static final int READER_JOIN_TIMEOUT_MS = 500;
 
     /**
-     * Constructs a ClientService with the given server IP and port. It establishes a socket
-     * connection to the server and initializes the TcpTransport and ExecutorService for
+     * Constructs a ClientService with the given server IP and port. It establishes
+     * a socket
+     * connection to the server and initializes the TcpTransport and ExecutorService
+     * for
      * communication.
      *
-     * @param ip The IP address of the server to connect to.
+     * @param ip   The IP address of the server to connect to.
      * @param port The port number of the server to connect to.
      */
     public ClientService(String ip, int port) {
@@ -77,25 +79,24 @@ public class ClientService {
 
     private void startReaderThread() {
         running.set(true);
-        readerThread =
-                new Thread(
-                        () -> {
-                            while (running.get()) {
-                                try {
-                                    RawPacket rp = clienttcptransport.read();
-                                    processRawPacket(rp);
-                                } catch (IOException e) {
-                                    if (running.get()) {
-                                        logger.warn("IO error on transport reader", e);
-                                    }
-                                    break;
-                                } catch (InterruptedException e) {
-                                    Thread.currentThread().interrupt();
-                                    break;
-                                }
+        readerThread = new Thread(
+                () -> {
+                    while (running.get()) {
+                        try {
+                            RawPacket rp = clienttcptransport.read();
+                            processRawPacket(rp);
+                        } catch (IOException e) {
+                            if (running.get()) {
+                                logger.warn("IO error on transport reader", e);
                             }
-                        },
-                        "casono-client-reader");
+                            break;
+                        } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
+                            break;
+                        }
+                    }
+                },
+                "casono-client-reader");
         readerThread.setDaemon(true);
         readerThread.start();
     }
@@ -111,13 +112,14 @@ public class ClientService {
 
         for (String rawLine : responseText.split("\\n")) {
             String line = rawLine;
+            String trimmed = line.trim();
             if (!hasStatus) {
-                if ("+OK".equals(line)) {
+                if ("+OK".equals(trimmed)) {
                     success = true;
                     hasStatus = true;
                     continue;
                 }
-                if (line.startsWith("-ERR") || line.startsWith("-ERROR")) {
+                if (trimmed.startsWith("-ERR") || trimmed.startsWith("-ERROR")) {
                     success = false;
                     hasStatus = true;
                     continue;
@@ -125,13 +127,12 @@ public class ClientService {
                 continue;
             }
 
-            if ("END".equals(line)) {
+            if ("END".equals(trimmed)) {
                 break;
             }
 
-            if (line.startsWith("\t")) {
-                line = line.substring(1);
-            }
+            // remove leading indentation (tabs/spaces) so parameters match regex parsing
+            line = line.replaceFirst("^\\s+", "");
             lines.add(line);
         }
 
@@ -152,6 +153,7 @@ public class ClientService {
         if (rid == 0) {
             for (Consumer<List<String>> l : eventListeners) {
                 try {
+                    logger.debug("Parsed response lines: {}", lines);
                     l.accept(List.copyOf(lines));
                 } catch (Exception e) {
                     logger.warn("Event listener threw", e);
@@ -168,7 +170,8 @@ public class ClientService {
     }
 
     /**
-     * Constructs a ClientService in offline mode. No network connection will be attempted and calls
+     * Constructs a ClientService in offline mode. No network connection will be
+     * attempted and calls
      * to processCommand will throw a RuntimeException.
      *
      * @param offline true to create an offline (no-network) client service
@@ -181,19 +184,21 @@ public class ClientService {
         this.executor = Executors.newSingleThreadExecutor();
     }
 
-    /** Returns true if this ClientService is running in offline mode (no network). */
+    /**
+     * Returns true if this ClientService is running in offline mode (no network).
+     */
     public boolean isOffline() {
         return offlineMode;
     }
 
     // Allow primitive values to contain hyphens (UUIDs) in addition to
     // digits/words/colons
-    static Pattern responseRex =
-            Pattern.compile(
-                    "(?<key>\\w+)=(('(?<string>([^']|\\')+)')|(?<primVal>[+-]?[-\\d\\w:]+))");
+    static Pattern responseRex = Pattern.compile(
+            "(?<key>\\w+)=(('(?<string>([^']|\\')+)')|(?<primVal>[+-]?[-\\d\\w:]+))");
 
     /**
-     * Removes escape characters from a string, specifically converting escaped single quotes (\')
+     * Removes escape characters from a string, specifically converting escaped
+     * single quotes (\')
      * back to regular single quotes (').
      *
      * @param input The escaped string to process.
@@ -204,8 +209,10 @@ public class ClientService {
     }
 
     /**
-     * Converts a list of raw string parameters into a list of {@link RequestParameter} objects. It
-     * uses a regex matcher to distinguish between quoted strings (which are unescaped) and
+     * Converts a list of raw string parameters into a list of
+     * {@link RequestParameter} objects. It
+     * uses a regex matcher to distinguish between quoted strings (which are
+     * unescaped) and
      * primitive values.
      *
      * @param input A list of raw strings to be parsed.
@@ -230,10 +237,12 @@ public class ClientService {
                 .toList();
     }
 
-    private static record ParsedResponse(boolean success, List<String> lines) {}
+    private static record ParsedResponse(boolean success, List<String> lines) {
+    }
 
     /**
-     * Register an event listener that receives unsolicited event payload lines (no status prefix).
+     * Register an event listener that receives unsolicited event payload lines (no
+     * status prefix).
      */
     public void addEventListener(Consumer<List<String>> listener) {
         eventListeners.add(listener);
@@ -244,14 +253,18 @@ public class ClientService {
     }
 
     /**
-     * Sends a command to the server and processes the multi-line response. It handles the protocol
-     * handshake (expecting +OK), strips leading tabs from response lines, and collects them until
+     * Sends a command to the server and processes the multi-line response. It
+     * handles the protocol
+     * handshake (expecting +OK), strips leading tabs from response lines, and
+     * collects them until
      * the "END" marker is reached.
      *
      * @param message The raw command string to be sent to the transport layer.
-     * @return A list of response lines received from the server (excluding protocol markers).
-     * @throws RuntimeException if the server responds with an error or if a communication failure
-     *     occurs.
+     * @return A list of response lines received from the server (excluding protocol
+     *         markers).
+     * @throws RuntimeException if the server responds with an error or if a
+     *                          communication failure
+     *                          occurs.
      */
     protected List<String> processCommand(String message) {
         if (offlineMode) {
@@ -262,15 +275,14 @@ public class ClientService {
         ArrayBlockingQueue<ParsedResponse> q = new ArrayBlockingQueue<>(1);
         pendingResponses.put(reqId, q);
 
-        Future<?> writeFuture =
-                executor.submit(
-                        () -> {
-                            try {
-                                clienttcptransport.write(new RawPacket(reqId, message));
-                            } catch (IOException e) {
-                                throw new RuntimeException(e);
-                            }
-                        });
+        Future<?> writeFuture = executor.submit(
+                () -> {
+                    try {
+                        clienttcptransport.write(new RawPacket(reqId, message));
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
 
         try {
             writeFuture.get();
@@ -302,11 +314,15 @@ public class ClientService {
     }
 
     /**
-     * Helper method to send a request to the server using the ExecutorService. It submits the
-     * request as a Runnable task and waits for its completion. If the task is interrupted or
-     * encounters an execution exception, it throws a RuntimeException with the appropriate cause.
+     * Helper method to send a request to the server using the ExecutorService. It
+     * submits the
+     * request as a Runnable task and waits for its completion. If the task is
+     * interrupted or
+     * encounters an execution exception, it throws a RuntimeException with the
+     * appropriate cause.
      *
-     * @param request The Runnable task representing the request to be sent to the server.
+     * @param request The Runnable task representing the request to be sent to the
+     *                server.
      */
     private void sendRequest(Runnable request) {
         Future<?> future = executor.submit(request);
@@ -320,9 +336,12 @@ public class ClientService {
     }
 
     /**
-     * Helper method to extract the cause of an exception and return it as a RuntimeException. If
-     * the cause is null, it returns the original exception as a RuntimeException. If the cause is
-     * already a RuntimeException, it returns it directly. Otherwise, it wraps the cause in a new
+     * Helper method to extract the cause of an exception and return it as a
+     * RuntimeException. If
+     * the cause is null, it returns the original exception as a RuntimeException.
+     * If the cause is
+     * already a RuntimeException, it returns it directly. Otherwise, it wraps the
+     * cause in a new
      * RuntimeException and returns it.
      *
      * @param e The exception from which to extract the cause.
@@ -340,8 +359,10 @@ public class ClientService {
     }
 
     /**
-     * Closes the socket connection to the server and shuts down the ExecutorService. It also closes
-     * the TcpTransport used for communication. If any IOException occurs during this process, it
+     * Closes the socket connection to the server and shuts down the
+     * ExecutorService. It also closes
+     * the TcpTransport used for communication. If any IOException occurs during
+     * this process, it
      * prints the exception to the console.
      */
     public void closeSocket() {

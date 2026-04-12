@@ -54,7 +54,7 @@ public class ServerApp {
     private static final int USER_CLEANUP_JOB_RECONNECT_THRESHOLD = 10;
     private static final int SESSION_DISCONNECT_JOB_DELAY = 0;
     private static final int SESSION_DISCONNECT_JOB_PERIOD = 2;
-    private static final int SESSION_DISCONNECT_JOB_TIMEOUT = 5;
+    private static final int SESSION_DISCONNECT_JOB_TIMEOUT = 30000;
     private static final int LOBBY_EXPIRY_SECONDS = 30;
     private static final int LOBBY_CLEANUP_INITIAL_DELAY_SECONDS = 5;
     private static final int LOBBY_CLEANUP_PERIOD_SECONDS = 5;
@@ -94,7 +94,7 @@ public class ServerApp {
                 TimeUnit.SECONDS);
 
         LobbyManager lobbyManager = new LobbyManager();
-        registerCommands(dispatcher, router, responseDispatcher, userRegistry, lobbyManager);
+        registerCommands(dispatcher, router, responseDispatcher, userRegistry, lobbyManager, sessionManager);
 
         // Periodic cleanup: remove empty lobbies older than 30s and notify affected
         // users
@@ -147,7 +147,8 @@ public class ServerApp {
             CommandRouter commandRouter,
             ResponseDispatcher responseDispatcher,
             UserRegistry userRegistry,
-            LobbyManager lobbyManager) {
+            LobbyManager lobbyManager,
+            SessionManager sessionManager) {
         parserDispatcher.register("PING", new PingParser());
         commandRouter.register(PingRequest.class, new PingHandler(responseDispatcher));
 
@@ -292,8 +293,8 @@ public class ServerApp {
                 (ch.unibas.dmi.dbis.cs108.casono.server.network.command.execution.CommandHandler<
                                 ch.unibas.dmi.dbis.cs108.casono.server.app.commands.lobby
                                         .create_lobby.CreateLobbyRequest>)
-                        new ch.unibas.dmi.dbis.cs108.casono.server.app.commands.lobby.create_lobby
-                                .CreateLobbyHandler(responseDispatcher, lobbyManager));
+                                new ch.unibas.dmi.dbis.cs108.casono.server.app.commands.lobby.create_lobby
+                                        .CreateLobbyHandler(responseDispatcher, lobbyManager, sessionManager));
 
         // JOIN_LOBBY registration
         parserDispatcher.register(
