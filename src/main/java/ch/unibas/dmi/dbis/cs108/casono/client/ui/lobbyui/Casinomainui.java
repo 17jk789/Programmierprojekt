@@ -19,8 +19,8 @@ public class Casinomainui extends Application {
         // Default constructor
     }
 
-    private static final int SCENE_WIDTH = 1200;
-    private static final int SCENE_HEIGHT = 800;
+    public static final int SCENE_WIDTH = 1200;
+    public static final int SCENE_HEIGHT = 800;
 
     @Override
     /**

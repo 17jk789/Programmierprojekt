@@ -5,7 +5,7 @@ import ch.unibas.dmi.dbis.cs108.casono.client.game.GameState;
 import ch.unibas.dmi.dbis.cs108.casono.client.game.Player;
 import ch.unibas.dmi.dbis.cs108.casono.client.game.PlayerId;
 import ch.unibas.dmi.dbis.cs108.casono.client.game.PlayerState;
-// Casinomainui is loaded via FXMLLoader when switching back to the lobby UI
+import ch.unibas.dmi.dbis.cs108.casono.client.ui.lobbyui.Casinomainui;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -20,29 +20,20 @@ import org.apache.logging.log4j.Logger;
 /**
  * Controller for the interactive taskbar within the poker UI.
  *
- * <p>
- * Responsible for: - Drag-and-drop movement of the taskbar, - Input and
- * management of game
+ * <p>Responsible for: - Drag-and-drop movement of the taskbar, - Input and management of game
  * stakes, - Control of general menu functions such as Exit.
  */
 public class TaskbarController {
 
     private static final Logger LOGGER = LogManager.getLogger(CasinoBrowserController.class);
 
-    @FXML
-    private HBox taskbar;
-    @FXML
-    private TextField taskbarInput;
-    @FXML
-    private Button betButton;
-    @FXML
-    private Button callButton;
-    @FXML
-    private Button foldButton;
-    @FXML
-    private Button raiseButton;
-    @FXML
-    private Label moneyLabel;
+    @FXML private HBox taskbar;
+    @FXML private TextField taskbarInput;
+    @FXML private Button betButton;
+    @FXML private Button callButton;
+    @FXML private Button foldButton;
+    @FXML private Button raiseButton;
+    @FXML private Label moneyLabel;
 
     private GameService gameService;
     private PlayerId myPlayerId;
@@ -66,12 +57,10 @@ public class TaskbarController {
     }
 
     /**
-     * Updates the state of the basic action buttons (Bet, Call, Fold, Raise) and
-     * the input field
+     * Updates the state of the basic action buttons (Bet, Call, Fold, Raise) and the input field
      *
      * @param isMyTurn Indicates whether it is currently the player's turn.
-     * @param isOut    Indicates whether the player is currently out of the game
-     *                 (folded or all-in).
+     * @param isOut Indicates whether the player is currently out of the game (folded or all-in).
      */
     private void updateBasicButtons(boolean isMyTurn, boolean isOut) {
 
@@ -100,8 +89,7 @@ public class TaskbarController {
     }
 
     /**
-     * Sets the given button to a disabled state with red styling, indicating that
-     * the player is out
+     * Sets the given button to a disabled state with red styling, indicating that the player is out
      *
      * @param b The button to be styled as red and disabled
      */
@@ -117,8 +105,7 @@ public class TaskbarController {
     }
 
     /**
-     * Sets the given input field to a disabled state with red styling, indicating
-     * that the player
+     * Sets the given input field to a disabled state with red styling, indicating that the player
      * is out
      *
      * @param t The text field to be styled as red and disabled
@@ -135,8 +122,7 @@ public class TaskbarController {
     }
 
     /**
-     * Activates the given button by enabling it and applying yellow styling,
-     * indicating that it is
+     * Activates the given button by enabling it and applying yellow styling, indicating that it is
      * the player's turn
      *
      * @param b The button to be activated and styled for the player's turn
@@ -152,8 +138,7 @@ public class TaskbarController {
     }
 
     /**
-     * Activates the given input field by enabling it and applying yellow styling,
-     * indicating that
+     * Activates the given input field by enabling it and applying yellow styling, indicating that
      * it is the player's turn
      *
      * @param t The text field to be activated and styled for the player's turn
@@ -169,8 +154,7 @@ public class TaskbarController {
     }
 
     /**
-     * Deactivates the given button by disabling it and applying gray styling,
-     * indicating that it is
+     * Deactivates the given button by disabling it and applying gray styling, indicating that it is
      * not the player's turn
      *
      * @param b The button to be deactivated and styled for non-active state
@@ -187,8 +171,7 @@ public class TaskbarController {
     }
 
     /**
-     * Deactivates the given input field by disabling it and applying gray styling,
-     * indicating that
+     * Deactivates the given input field by disabling it and applying gray styling, indicating that
      * it is not the player's turn
      *
      * @param t The text field to be deactivated and styled for non-active state
@@ -205,8 +188,7 @@ public class TaskbarController {
     }
 
     /**
-     * Updates the displayed amount of money the player has. The amount is shown in
-     * the format "X$".
+     * Updates the displayed amount of money the player has. The amount is shown in the format "X$".
      *
      * @param amount The amount of money to display for the player.
      */
@@ -220,8 +202,7 @@ public class TaskbarController {
     }
 
     /**
-     * Initializes the taskbar controller. This method is called automatically after
-     * the FXML
+     * Initializes the taskbar controller. This method is called automatically after the FXML
      * components have been loaded.
      */
     @FXML
@@ -230,10 +211,8 @@ public class TaskbarController {
     }
 
     /**
-     * Updates the taskbar based on the current game state and the player's status.
-     * It checks if
-     * it's the player's turn and whether they are out of the game (folded or
-     * all-in) to adjust the
+     * Updates the taskbar based on the current game state and the player's status. It checks if
+     * it's the player's turn and whether they are out of the game (folded or all-in) to adjust the
      * button states and displayed money accordingly.
      *
      * @param state
@@ -246,10 +225,11 @@ public class TaskbarController {
             return;
         }
 
-        Player me = state.players.stream()
-                .filter(p -> myPlayerId.equals(p.getId()))
-                .findFirst()
-                .orElse(null);
+        Player me =
+                state.players.stream()
+                        .filter(p -> myPlayerId.equals(p.getId()))
+                        .findFirst()
+                        .orElse(null);
 
         if (me == null) {
             LOGGER.error("Player not found in GameState!");
@@ -266,8 +246,7 @@ public class TaskbarController {
     }
 
     /**
-     * Called when the taskbar is clicked with the mouse. Saves the relative
-     * position for later,
+     * Called when the taskbar is clicked with the mouse. Saves the relative position for later,
      * correct repositioning.
      *
      * @param event The mouse event
@@ -279,13 +258,10 @@ public class TaskbarController {
     }
 
     /**
-     * Called while dragging the taskbar with the mouse. Updates the position and
-     * slightly scales
+     * Called while dragging the taskbar with the mouse. Updates the position and slightly scales
      * the taskbar for visual feedback.
      *
-     * <p>
-     * TODO: It still needs to be fixed that the taskbar cannot disappear out of the
-     * window.
+     * <p>TODO: It still needs to be fixed that the taskbar cannot disappear out of the window.
      *
      * @param event Das Mausereignis
      */
@@ -299,8 +275,7 @@ public class TaskbarController {
     }
 
     /**
-     * Called when the mouse cursor is released over the taskbar. Resets the taskbar
-     * scaling to
+     * Called when the mouse cursor is released over the taskbar. Resets the taskbar scaling to
      * normal size.
      *
      * @param event The mouse event
@@ -324,8 +299,7 @@ public class TaskbarController {
     }
 
     /**
-     * Called when the submit button in the taskbar is pressed. Triggers the
-     * processing of the
+     * Called when the submit button in the taskbar is pressed. Triggers the processing of the
      * deployment.
      */
     @FXML
@@ -386,8 +360,7 @@ public class TaskbarController {
     }
 
     /**
-     * Refreshes the game state by fetching the latest state from the GameService
-     * and updating the
+     * Refreshes the game state by fetching the latest state from the GameService and updating the
      * taskbar accordingly.
      */
     private void refreshGame() {
@@ -402,28 +375,32 @@ public class TaskbarController {
     }
 
     /**
-     * Called when the Exit button is clicked. Closes the current game stage and
-     * opens the lobby UI.
+     * Called when the Exit button is clicked. Closes the current game stage and opens the lobby UI.
      */
     @FXML
     private void onExitButtonClick() {
         javafx.application.Platform.runLater(
                 () -> {
                     // Close game stage
-                    javafx.stage.Stage currentStage = (javafx.stage.Stage) taskbar.getScene().getWindow();
+                    javafx.stage.Stage currentStage =
+                            (javafx.stage.Stage) taskbar.getScene().getWindow();
                     currentStage.close();
                     // Start lobby UI
                     try {
                         javafx.stage.Stage newStage = new javafx.stage.Stage();
-                        javafx.fxml.FXMLLoader fxmlLoader = new javafx.fxml.FXMLLoader(
-                                getClass().getResource("/ui-structure/Casinomainui.fxml"));
+                        javafx.fxml.FXMLLoader fxmlLoader =
+                                new javafx.fxml.FXMLLoader(
+                                        getClass().getResource("/ui-structure/Casinomainui.fxml"));
                         javafx.scene.Parent root = fxmlLoader.load();
-                        javafx.scene.Scene scene = new javafx.scene.Scene(root, 1200, 800);
+                        javafx.scene.Scene scene =
+                                new javafx.scene.Scene(
+                                        root, Casinomainui.SCENE_WIDTH, Casinomainui.SCENE_HEIGHT);
                         newStage.setTitle("Casono");
-                        javafx.scene.image.Image icon = new javafx.scene.image.Image(
-                                getClass()
-                                        .getResource("/images/logoinverted.png")
-                                        .toExternalForm());
+                        javafx.scene.image.Image icon =
+                                new javafx.scene.image.Image(
+                                        getClass()
+                                                .getResource("/images/logoinverted.png")
+                                                .toExternalForm());
                         newStage.getIcons().add(icon);
                         newStage.setScene(scene);
                         newStage.setFullScreen(true);
@@ -435,10 +412,8 @@ public class TaskbarController {
     }
 
     /**
-     * Processes the stake entered in the text field. Only integer values between 5
-     * and 100,000
-     * credits are accepted, in multiples of 5 (in increments of 5). The stake is
-     * currently only
+     * Processes the stake entered in the text field. Only integer values between 5 and 100,000
+     * credits are accepted, in multiples of 5 (in increments of 5). The stake is currently only
      * displayed on the console.
      */
     private void processBet() {
@@ -476,9 +451,7 @@ public class TaskbarController {
     /**
      * Opens the integrated Casono web browser.
      *
-     * <p>
-     * TODO: Replace the start URL with the official project website (e.g., Tips &
-     * Tricks page)
+     * <p>TODO: Replace the start URL with the official project website (e.g., Tips & Tricks page)
      * once the content for strategies and support is available.
      */
     @FXML
