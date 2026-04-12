@@ -94,7 +94,12 @@ public class ServerApp {
                 TimeUnit.SECONDS);
 
         LobbyManager lobbyManager = new LobbyManager();
-        registerCommands(dispatcher, router, responseDispatcher, userRegistry, lobbyManager, sessionManager);
+        registerCommands(
+                dispatcher,
+                router,
+                responseDispatcher,
+                userRegistry,
+                new CommandContext(lobbyManager, sessionManager));
 
         // Periodic cleanup: remove empty lobbies older than 30s and notify affected
         // users
@@ -135,6 +140,9 @@ public class ServerApp {
         networkManager.start();
     }
 
+    private static record CommandContext(
+            LobbyManager lobbyManager, SessionManager sessionManager) {}
+
     /**
      * Registers command parsers and handlers.
      *
@@ -147,8 +155,7 @@ public class ServerApp {
             CommandRouter commandRouter,
             ResponseDispatcher responseDispatcher,
             UserRegistry userRegistry,
-            LobbyManager lobbyManager,
-            SessionManager sessionManager) {
+            CommandContext context) {
         parserDispatcher.register("PING", new PingParser());
         commandRouter.register(PingRequest.class, new PingHandler(responseDispatcher));
 
@@ -195,7 +202,7 @@ public class ServerApp {
                                 ch.unibas.dmi.dbis.cs108.casono.server.app.commands.lobby
                                         .get_lobby_list.GetLobbyListRequest>)
                         new ch.unibas.dmi.dbis.cs108.casono.server.app.commands.lobby.get_lobby_list
-                                .GetLobbyListHandler(responseDispatcher, lobbyManager));
+                                .GetLobbyListHandler(responseDispatcher, context.lobbyManager()));
 
         // GET_GAME_STATE registration
         parserDispatcher.register(
@@ -210,7 +217,7 @@ public class ServerApp {
                                         .get_game_state.GetGameStateRequest>)
                         new ch.unibas.dmi.dbis.cs108.casono.server.app.commands.game.get_game_state
                                 .GetGameStateHandler(
-                                responseDispatcher, lobbyManager, userRegistry));
+                                responseDispatcher, context.lobbyManager(), userRegistry));
 
         // BET registration
         parserDispatcher.register(
@@ -222,7 +229,8 @@ public class ServerApp {
                                 ch.unibas.dmi.dbis.cs108.casono.server.app.commands.game.bet
                                         .PlayerBetRequest>)
                         new ch.unibas.dmi.dbis.cs108.casono.server.app.commands.game.bet
-                                .PlayerBetHandler(responseDispatcher, userRegistry, lobbyManager));
+                                .PlayerBetHandler(
+                                responseDispatcher, userRegistry, context.lobbyManager()));
 
         // RAISE registration
         parserDispatcher.register(
@@ -237,7 +245,7 @@ public class ServerApp {
                                         .PlayerRaiseRequest>)
                         new ch.unibas.dmi.dbis.cs108.casono.server.app.commands.game.raise
                                 .PlayerRaiseHandler(
-                                responseDispatcher, userRegistry, lobbyManager));
+                                responseDispatcher, userRegistry, context.lobbyManager()));
 
         // CALL registration
         parserDispatcher.register(
@@ -251,7 +259,8 @@ public class ServerApp {
                                 ch.unibas.dmi.dbis.cs108.casono.server.app.commands.game.call
                                         .PlayerCallRequest>)
                         new ch.unibas.dmi.dbis.cs108.casono.server.app.commands.game.call
-                                .PlayerCallHandler(responseDispatcher, userRegistry, lobbyManager));
+                                .PlayerCallHandler(
+                                responseDispatcher, userRegistry, context.lobbyManager()));
 
         // FOLD registration
         parserDispatcher.register(
@@ -265,7 +274,8 @@ public class ServerApp {
                                 ch.unibas.dmi.dbis.cs108.casono.server.app.commands.game.fold
                                         .PlayerFoldRequest>)
                         new ch.unibas.dmi.dbis.cs108.casono.server.app.commands.game.fold
-                                .PlayerFoldHandler(responseDispatcher, userRegistry, lobbyManager));
+                                .PlayerFoldHandler(
+                                responseDispatcher, userRegistry, context.lobbyManager()));
 
         // GET_LOBBY_STATUS registration
         parserDispatcher.register(
@@ -280,7 +290,7 @@ public class ServerApp {
                                         .get_lobby_status.GetLobbyStatusRequest>)
                         new ch.unibas.dmi.dbis.cs108.casono.server.app.commands.lobby
                                 .get_lobby_status.GetLobbyStatusHandler(
-                                responseDispatcher, lobbyManager, userRegistry));
+                                responseDispatcher, context.lobbyManager(), userRegistry));
 
         // CREATE_LOBBY registration
         parserDispatcher.register(
@@ -293,8 +303,11 @@ public class ServerApp {
                 (ch.unibas.dmi.dbis.cs108.casono.server.network.command.execution.CommandHandler<
                                 ch.unibas.dmi.dbis.cs108.casono.server.app.commands.lobby
                                         .create_lobby.CreateLobbyRequest>)
-                                new ch.unibas.dmi.dbis.cs108.casono.server.app.commands.lobby.create_lobby
-                                        .CreateLobbyHandler(responseDispatcher, lobbyManager, sessionManager));
+                        new ch.unibas.dmi.dbis.cs108.casono.server.app.commands.lobby.create_lobby
+                                .CreateLobbyHandler(
+                                responseDispatcher,
+                                context.lobbyManager(),
+                                context.sessionManager()));
 
         // JOIN_LOBBY registration
         parserDispatcher.register(
@@ -308,7 +321,8 @@ public class ServerApp {
                                 ch.unibas.dmi.dbis.cs108.casono.server.app.commands.lobby.join_lobby
                                         .JoinLobbyRequest>)
                         new ch.unibas.dmi.dbis.cs108.casono.server.app.commands.lobby.join_lobby
-                                .JoinLobbyHandler(responseDispatcher, lobbyManager, userRegistry));
+                                .JoinLobbyHandler(
+                                responseDispatcher, context.lobbyManager(), userRegistry));
 
         // START_GAME registration
         parserDispatcher.register(
@@ -322,6 +336,7 @@ public class ServerApp {
                                 ch.unibas.dmi.dbis.cs108.casono.server.app.commands.lobby.start_game
                                         .StartGameRequest>)
                         new ch.unibas.dmi.dbis.cs108.casono.server.app.commands.lobby.start_game
-                                .StartGameHandler(responseDispatcher, lobbyManager, userRegistry));
+                                .StartGameHandler(
+                                responseDispatcher, context.lobbyManager(), userRegistry));
     }
 }

@@ -28,6 +28,7 @@ public class LobbyButtonGridManager {
     private static final int REFRESH_INTERVAL_SECONDS = 5;
     private static final int INITIAL_DELAY_SECONDS = 5;
     private static final int COLS = 4;
+    private static final int MAX_BUTTONS = 8;
 
     private static final Logger LOGGER = LogManager.getLogger(LobbyButtonGridManager.class);
 
@@ -66,79 +67,106 @@ public class LobbyButtonGridManager {
 
         // Subscribe to server-initiated events so closed lobbies are removed
         // immediately
-        clientService.addEventListener(
-                lines -> {
-                    List<RequestParameter> params = ClientService.convertToRequestParameters(lines);
-                    String evt = null;
-                    String lidStr = null;
-                    for (RequestParameter p : params) {
-                        if ("EVENT".equalsIgnoreCase(p.key())) {
-                            evt = p.value();
-                        } else if ("LOBBY_ID".equalsIgnoreCase(p.key())) {
-                            lidStr = p.value();
-                        }
-                    }
-                    if (evt != null && "LOBBY_CLOSED".equalsIgnoreCase(evt) && lidStr != null) {
-                        int lid;
-                        try {
-                            lid = Integer.parseInt(lidStr);
-                        } catch (NumberFormatException ex) {
-                            return;
-                        }
-                        LOGGER.info("LOBBY_CLOSED event for lobby {} — mapping before: {}", lid,
-                                translationManager.getButtonIdToLobbyId());
-                        // find button id(s) for this lobby and remove mapping
-                        Map<Integer, Integer> mapping = translationManager.getButtonIdToLobbyId();
-                        Integer toRemove = null;
-                        for (Map.Entry<Integer, Integer> e : mapping.entrySet()) {
-                            if (e.getValue() != null && e.getValue().intValue() == lid) {
-                                toRemove = e.getKey();
-                                break;
-                            }
-                        }
-                        if (toRemove != null) {
-                            LOGGER.info("Removing mapping for button {} -> lobby {} (LOBBY_CLOSED event)", toRemove,
-                                    lid);
-                            translationManager.removeLobbyButton(toRemove);
-                            LOGGER.debug("Mapping after removal: {}", translationManager.getButtonIdToLobbyId());
-                            javafx.application.Platform.runLater(this::renderLobbyButtons);
-                        }
-                    } else if (evt != null && "LOBBY_CREATED".equalsIgnoreCase(evt) && lidStr != null) {
-                        int lid;
-                        try {
-                            lid = Integer.parseInt(lidStr);
-                        } catch (NumberFormatException ex) {
-                            return;
-                        }
+        clientService.addEventListener(this::handleClientServiceEvent);
+    }
 
-                        LOGGER.info("LOBBY_CREATED event for lobby {} — mapping before: {}", lid,
-                                translationManager.getButtonIdToLobbyId());
+    private static record EventInfo(String event, String lobbyId) {}
 
-                        Map<Integer, Integer> mapping = translationManager.getButtonIdToLobbyId();
+    private EventInfo extractEventInfo(List<RequestParameter> params) {
+        String evt = null;
+        String lidStr = null;
+        for (RequestParameter p : params) {
+            if ("EVENT".equalsIgnoreCase(p.key())) {
+                evt = p.value();
+            } else if ("LOBBY_ID".equalsIgnoreCase(p.key())) {
+                lidStr = p.value();
+            }
+        }
+        return new EventInfo(evt, lidStr);
+    }
 
-                        // If this lobby is already known, nothing to do
-                        if (mapping.containsValue(lid)) {
-                            LOGGER.debug("Lobby {} already mapped, skipping", lid);
-                            return;
-                        }
+    private Integer tryParseInt(String s) {
+        try {
+            return Integer.parseInt(s);
+        } catch (NumberFormatException ex) {
+            return null;
+        }
+    }
 
-                        // find next free button id (1..8)
-                        for (int candidate = 1; candidate <= 8; candidate++) {
-                            if (!mapping.containsKey(candidate)) {
-                                try {
-                                    translationManager.addLobbyButton(candidate, lid);
-                                    LOGGER.info("Mapped new lobby {} to button {}", lid, candidate);
-                                    LOGGER.debug("Mapping after add: {}", translationManager.getButtonIdToLobbyId());
-                                    javafx.application.Platform.runLater(this::renderLobbyButtons);
-                                    break;
-                                } catch (Exception ex) {
-                                    // grid full? try next candidate
-                                    LOGGER.debug("Could not map created lobby {}: {}", lid, ex.getMessage());
-                                }
-                            }
-                        }
-                    }
-                });
+    private void handleLobbyClosed(int lid) {
+        LOGGER.info(
+                "LOBBY_CLOSED event for lobby {} — mapping before: {}",
+                lid,
+                translationManager.getButtonIdToLobbyId());
+        // find button id(s) for this lobby and remove mapping
+        Map<Integer, Integer> mapping = translationManager.getButtonIdToLobbyId();
+        Integer toRemove = null;
+        for (Map.Entry<Integer, Integer> e : mapping.entrySet()) {
+            if (e.getValue() != null && e.getValue().intValue() == lid) {
+                toRemove = e.getKey();
+                break;
+            }
+        }
+        if (toRemove != null) {
+            LOGGER.info(
+                    "Removing mapping for button {} -> lobby {} (LOBBY_CLOSED event)",
+                    toRemove,
+                    lid);
+            translationManager.removeLobbyButton(toRemove);
+            LOGGER.debug("Mapping after removal: {}", translationManager.getButtonIdToLobbyId());
+            javafx.application.Platform.runLater(this::renderLobbyButtons);
+        }
+    }
+
+    private void handleLobbyCreated(int lid) {
+        LOGGER.info(
+                "LOBBY_CREATED event for lobby {} — mapping before: {}",
+                lid,
+                translationManager.getButtonIdToLobbyId());
+
+        Map<Integer, Integer> mapping = translationManager.getButtonIdToLobbyId();
+
+        // If this lobby is already known, nothing to do
+        if (mapping.containsValue(lid)) {
+            LOGGER.debug("Lobby {} already mapped, skipping", lid);
+            return;
+        }
+
+        // find next free button id (1..MAX_BUTTONS)
+        for (int candidate = 1; candidate <= MAX_BUTTONS; candidate++) {
+            if (!mapping.containsKey(candidate)) {
+                try {
+                    translationManager.addLobbyButton(candidate, lid);
+                    LOGGER.info("Mapped new lobby {} to button {}", lid, candidate);
+                    LOGGER.debug(
+                            "Mapping after add: {}", translationManager.getButtonIdToLobbyId());
+                    javafx.application.Platform.runLater(this::renderLobbyButtons);
+                    break;
+                } catch (Exception ex) {
+                    // grid full? try next candidate
+                    LOGGER.debug("Could not map created lobby {}: {}", lid, ex.getMessage());
+                }
+            }
+        }
+    }
+
+    private void handleClientServiceEvent(List<String> lines) {
+        EventInfo info = extractEventInfo(ClientService.convertToRequestParameters(lines));
+
+        if (info.event() == null || info.lobbyId() == null) {
+            return;
+        }
+
+        Integer lid = tryParseInt(info.lobbyId());
+        if (lid == null) {
+            return;
+        }
+
+        if ("LOBBY_CLOSED".equalsIgnoreCase(info.event())) {
+            handleLobbyClosed(lid);
+        } else if ("LOBBY_CREATED".equalsIgnoreCase(info.event())) {
+            handleLobbyCreated(lid);
+        }
     }
 
     private void startPeriodicRefresh(long initialDelay, long period) {
@@ -185,15 +213,15 @@ public class LobbyButtonGridManager {
             int lobbyId = lobbyIdObj.intValue();
 
             CompletableFuture.supplyAsync(
-                    () -> {
-                        try {
-                            return lobbyClient.fetchLobbyStatusString(lobbyId);
-                        } catch (Exception ex) {
-                            LOGGER.info("Lobby {} missing: {}", lobbyId, ex.getMessage());
-                            return null;
-                        }
-                    },
-                    executor)
+                            () -> {
+                                try {
+                                    return lobbyClient.fetchLobbyStatusString(lobbyId);
+                                } catch (Exception ex) {
+                                    LOGGER.info("Lobby {} missing: {}", lobbyId, ex.getMessage());
+                                    return null;
+                                }
+                            },
+                            executor)
                     .thenAccept(
                             status -> {
                                 // Do not remove a mapping just because the status fetch
@@ -203,10 +231,12 @@ public class LobbyButtonGridManager {
                                 if (status == null) {
                                     if (!serverIds.contains(lobbyId)) {
                                         translationManager.removeLobbyButton(buttonId);
-                                        javafx.application.Platform.runLater(this::renderLobbyButtons);
+                                        javafx.application.Platform.runLater(
+                                                this::renderLobbyButtons);
                                     } else {
                                         // treat as created/running later; keep mapping
-                                        LOGGER.debug("Temporary missing status for lobby {} - keeping mapping",
+                                        LOGGER.debug(
+                                                "Missing status for lobby {} - keeping mapping",
                                                 lobbyId);
                                     }
                                 }
@@ -241,7 +271,9 @@ public class LobbyButtonGridManager {
             }
         }
         for (Integer bid : toRemove) {
-            LOGGER.info("Reconciling: removing mapping for button {} (server no longer lists lobby)", bid);
+            LOGGER.info(
+                    "Reconciling: removing mapping for button {} (server no longer lists lobby)",
+                    bid);
             translationManager.removeLobbyButton(bid);
         }
 
@@ -250,16 +282,20 @@ public class LobbyButtonGridManager {
             if (mapping.containsValue(li.id)) {
                 continue;
             }
-            // find next free button id (1..8)
-            for (int candidate = 1; candidate <= 8; candidate++) {
+            // find next free button id (1..MAX_BUTTONS)
+            for (int candidate = 1; candidate <= MAX_BUTTONS; candidate++) {
                 if (!mapping.containsKey(candidate)) {
                     try {
                         translationManager.addLobbyButton(candidate, li.id);
-                        LOGGER.info("Reconciling: added mapping button {} -> lobby {}", candidate, li.id);
+                        LOGGER.info(
+                                "Reconciling: added mapping button {} -> lobby {}",
+                                candidate,
+                                li.id);
                         break;
                     } catch (Exception ex) {
                         // grid full? try next candidate
-                        LOGGER.debug("Could not add mapping for lobby {}: {}", li.id, ex.getMessage());
+                        LOGGER.debug(
+                                "Could not add mapping for lobby {}: {}", li.id, ex.getMessage());
                     }
                 }
             }
@@ -340,8 +376,9 @@ public class LobbyButtonGridManager {
                         statusStr -> {
                             LobbyStatus status = parseLobbyStatus(statusStr);
 
-                            String path = getImagePathForLobby(
-                                    lobbyId, status == null ? LobbyStatus.CREATED : status);
+                            String path =
+                                    getImagePathForLobby(
+                                            lobbyId, status == null ? LobbyStatus.CREATED : status);
 
                             Image img = safeLoadImage(path);
 
@@ -428,14 +465,14 @@ public class LobbyButtonGridManager {
             int lobbyId = lobbyIdObj.intValue();
 
             CompletableFuture.supplyAsync(
-                    () -> {
-                        String statusStr = lobbyClient.fetchLobbyStatusString(lobbyId);
+                            () -> {
+                                String statusStr = lobbyClient.fetchLobbyStatusString(lobbyId);
 
-                        LobbyStatus status = parseLobbyStatus(statusStr);
+                                LobbyStatus status = parseLobbyStatus(statusStr);
 
-                        return status == null ? LobbyStatus.CREATED : status;
-                    },
-                    executor)
+                                return status == null ? LobbyStatus.CREATED : status;
+                            },
+                            executor)
                     .thenAccept(
                             status -> {
                                 String path = getImagePathForLobby(lobbyId, status);
@@ -445,13 +482,15 @@ public class LobbyButtonGridManager {
                                             for (Node node : gridPane.getChildren()) {
 
                                                 boolean isButton = node instanceof Button;
-                                                boolean idMatches = ("lobbyBtn-" + buttonId)
-                                                        .equals(node.getId());
+                                                boolean idMatches =
+                                                        ("lobbyBtn-" + buttonId)
+                                                                .equals(node.getId());
 
                                                 if (isButton && idMatches) {
                                                     Button btn = (Button) node;
 
-                                                    ImageView iv = new ImageView(safeLoadImage(path));
+                                                    ImageView iv =
+                                                            new ImageView(safeLoadImage(path));
 
                                                     iv.setPreserveRatio(true);
                                                     iv.fitWidthProperty()
@@ -496,7 +535,8 @@ public class LobbyButtonGridManager {
 
         javafx.application.Platform.runLater(
                 () -> {
-                    javafx.stage.Stage currentStage = (javafx.stage.Stage) gridPane.getScene().getWindow();
+                    javafx.stage.Stage currentStage =
+                            (javafx.stage.Stage) gridPane.getScene().getWindow();
 
                     currentStage.hide();
 
