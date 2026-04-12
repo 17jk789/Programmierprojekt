@@ -39,6 +39,7 @@ public class GameService {
      * @return The current GameState object representing the state of the game.
      */
     public int getPot() {
+        ensureState();
         return state.pot;
     }
 
@@ -48,6 +49,7 @@ public class GameService {
      * @return The current GameState object representing the state of the game.
      */
     public List<Card> getCommunityCards() {
+        ensureState();
         return state.communityCards;
     }
 
@@ -57,6 +59,7 @@ public class GameService {
      * @return A list of Player objects representing the players in the current game state.
      */
     public List<Player> getPlayers() {
+        ensureState();
         return state.players;
     }
 
@@ -98,10 +101,19 @@ public class GameService {
      *     yet.
      */
     public Player getWinner() {
+        ensureState();
+
         if (state.winnerIndex < 0) {
             return null;
         }
 
         return state.players.get(state.winnerIndex);
+    }
+
+    /** Ensure that the game state has been initialized before accessing it. */
+    private void ensureState() {
+        if (state == null) {
+            throw new IllegalStateException("Call refresh() first");
+        }
     }
 }
