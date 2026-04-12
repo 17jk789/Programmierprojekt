@@ -9,6 +9,8 @@ import ch.unibas.dmi.dbis.cs108.casono.server.network.command.execution.CommandH
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.ErrorResponse;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.OkResponse;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.dispatcher.ResponseDispatcher;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Handler for the `JOIN_LOBBY` command.
@@ -21,6 +23,7 @@ import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.dispatch
 public class JoinLobbyHandler extends CommandHandler<JoinLobbyRequest> {
     private final LobbyManager lobbyManager;
     private final UserRegistry userRegistry;
+    private static final Logger LOGGER = LogManager.getLogger(JoinLobbyHandler.class);
 
     /**
      * Create a new {@link JoinLobbyHandler}.
@@ -46,9 +49,17 @@ public class JoinLobbyHandler extends CommandHandler<JoinLobbyRequest> {
      */
     @Override
     public void execute(JoinLobbyRequest request) {
+        LOGGER.info(
+                "JOIN_LOBBY request: session={}, lobbyId={}",
+                request.getContext().sessionId(),
+                request.getId());
         LobbyId lid = LobbyId.of(request.getId());
         var lobby = lobbyManager.getLobby(lid);
         if (lobby == null) {
+            LOGGER.warn(
+                    "JOIN_LOBBY: Lobby {} not found (session={})",
+                    request.getId(),
+                    request.getContext().sessionId());
             responseDispatcher.dispatch(
                     new ErrorResponse(request.getContext(), "LOBBY_NOT_FOUND", "Lobby not found"));
             return;
@@ -56,7 +67,9 @@ public class JoinLobbyHandler extends CommandHandler<JoinLobbyRequest> {
 
         var maybeUser = userRegistry.getBySessionId(request.getContext().sessionId());
         if (maybeUser.isEmpty()) {
-            // UserLoggedInCheck should normally prevent this; keep safe fallback
+            LOGGER.warn(
+                    "JOIN_LOBBY: No user associated with session {}",
+                    request.getContext().sessionId());
             responseDispatcher.dispatch(
                     new ErrorResponse(
                             request.getContext(),
@@ -70,6 +83,10 @@ public class JoinLobbyHandler extends CommandHandler<JoinLobbyRequest> {
 
         boolean ok = lobbyManager.addPlayerToLobby(username, lid);
         if (!ok) {
+            LOGGER.warn(
+                    "JOIN_LOBBY: User '{}' failed to join lobby {} (full or already in)",
+                    username,
+                    request.getId());
             responseDispatcher.dispatch(
                     new ErrorResponse(
                             request.getContext(),
@@ -77,6 +94,8 @@ public class JoinLobbyHandler extends CommandHandler<JoinLobbyRequest> {
                             "Lobby full or user already in lobby"));
             return;
         }
+
+        LOGGER.info("User '{}' joined lobby {}", username, request.getId());
 
         responseDispatcher.dispatch(new OkResponse(request.getContext()));
     }

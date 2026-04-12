@@ -80,9 +80,11 @@ public class ClientService {
         return offlineMode;
     }
 
+    // Allow primitive values to contain hyphens (UUIDs) in addition to
+    // digits/words/colons
     static Pattern responseRex =
             Pattern.compile(
-                    "(?<key>\\w+)=(('(?<string>([^']|\\')+)')|(?<primVal>[+-]?[\\d\\w:]+))");
+                    "(?<key>\\w+)=(('(?<string>([^']|\\')+)')|(?<primVal>[+-]?[-\\d\\w:]+))");
 
     /**
      * Removes escape characters from a string, specifically converting escaped single quotes (\')

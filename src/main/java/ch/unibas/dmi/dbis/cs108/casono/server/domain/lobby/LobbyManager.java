@@ -69,6 +69,15 @@ public class LobbyManager {
                 lobby.addPlayerAndMaybeStart(
                         username, maxPlayersPerLobby, AUTO_START_PLAYERS, DEFAULT_START_CHIPS);
         if (result != AddResult.NOT_ADDED) {
+            LOGGER.info(
+                    () ->
+                            "User '"
+                                    + username
+                                    + "' joined lobby "
+                                    + lobbyId.value()
+                                    + " (result="
+                                    + result
+                                    + ")");
             playerToLobby.put(username, lobbyId);
             if (result == AddResult.ADDED_AND_STARTED) {
                 LOGGER.info(
