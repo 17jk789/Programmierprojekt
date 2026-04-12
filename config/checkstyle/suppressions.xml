@@ -21,4 +21,7 @@
 
     <!-- Allow for compacter line seperators -->
     <suppress checks="EmptyLineSeparator" files=".*Test\.java"/>
+
+    <!-- Allow longer method length in composition root -->
+    <suppress checks="MethodLength" files="ServerApp.java"/>
 </suppressions>

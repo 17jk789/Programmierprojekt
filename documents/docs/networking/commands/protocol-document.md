@@ -50,6 +50,42 @@ This document describes the protocol for client-server communication in our appl
     - [Error Response](#error-response-6)
     - [Example Request](#example-request-4)
     - [Example Response](#example-response-4)
+  - [GET_LOBBY_LIST command](#get_lobby_list-command)
+    - [Required pre-execution checks](#required-pre-execution-checks)
+    - [Request Parameters](#request-parameters)
+    - [Success Response](#success-response)
+    - [Example Request](#example-request)
+    - [Example Response](#example-response)
+  - [GET_GAME_STATE command](#get_game_state-command)
+    - [Required pre-execution checks](#required-pre-execution-checks)
+    - [Request Parameters](#request-parameters)
+    - [Success Response](#success-response)
+    - [Example Request](#example-request)
+    - [Example Response](#example-response)
+  - [RAISE command](#raise-command)
+  - [CALL command](#call-command)
+  - [FOLD command](#fold-command)
+  - [BET command](#bet-command)
+  - [SEND_MESSAGE command](#send_message-command)
+    - [Required pre-execution checks](#required-pre-execution-checks)
+    - [Request Parameters](#request-parameters)
+    - [Success Response](#success-response)
+  - [GET_MESSAGE_COUNT command](#get_message_count-command)
+    - [Required pre-execution checks](#required-pre-execution-checks)
+    - [Request Parameters](#request-parameters)
+    - [Success Response](#success-response)
+  - [GET_NEXT_MESSAGE command](#get_next_message-command)
+    - [Required pre-execution checks](#required-pre-execution-checks)
+    - [Request Parameters](#request-parameters)
+    - [Success Response](#success-response)
+  - [JOIN_LOBBY command](#join_lobby-command)
+    - [Required pre-execution checks](#required-pre-execution-checks)
+    - [Request Parameters](#request-parameters)
+    - [Success Response](#success-response)
+  - [GET_LOBBY_STATUS command](#get_lobby_status-command)
+    - [Required pre-execution checks](#required-pre-execution-checks)
+    - [Request Parameters](#request-parameters)
+    - [Success Response](#success-response)
 
 <!-- Please see the comments for copy ‚ n' paste ready examples -->
 
@@ -452,6 +488,628 @@ GET_NEXT_MESSAGE
 ```
 +OK
 TYPE=GLOBAL GAME=-1 USER=player1 TARGET=null TIME=9:30 TEXT="Guten Tag"
+END
+```
+
+### Example Response (success)
+
+```
++OK
+END
+```
+
+## JOIN_LOBBY command
+
+The `JOIN_LOBBY` command requests the server to add the currently logged-in user to the lobby with the given identifier. The server resolves the username from the session; clients must only provide the `ID` parameter.
+
+### Required pre-execution checks
+
+- [`UserLoggedInCheck`](#userloggedincheck)
+
+### Request Parameters
+
+| Parameter Name | Type | Optional | Description |
+| :------------- | :--- | :------: | :---------- |
+| `ID` | `int` | no | Numeric id of the target lobby |
+
+### Implementation notes
+
+- Parser: `JoinLobbyParser` — reads the `ID` parameter and builds `JoinLobbyRequest`.
+- Handler: `JoinLobbyHandler` — resolves the username from `UserRegistry` using the session id, attempts to add the user to the lobby via `LobbyManager.addPlayerToLobby(...)` and returns appropriate responses.
+
+### Success Response
+
+No additional response fields. The server replies with a simple `+OK` on success.
+
+### Error Response
+
+| Code | Description |
+| :--- | :---------- |
+| `USER_NOT_LOGGED_IN` | No user associated with the session (pre-execution check failed) |
+| `LOBBY_NOT_FOUND` | The specified lobby id does not exist |
+| `LOBBY_FULL_OR_ALREADY_IN` | Lobby is full or the user is already in the lobby |
+
+### Example Request
+
+```
+JOIN_LOBBY ID=1
+```
+
+### Example Response (success)
+
+```
++OK
+END
+```
+
+### Example Response (error)
+
+```
+-ERR
+  CODE=LOBBY_NOT_FOUND
+  MESSAGE=Lobby not found
+END
+```
+
+## GET_LOBBY_LIST command
+
+The `GET_LOBBY_LIST` command requests the server to return a list of currently available lobbies with basic metadata.
+
+### Required pre-execution checks
+None.
+
+### Request Parameters
+No parameters.
+
+### Implementation notes
+
+- Parser: `GetLobbyListParser` — creates `GetLobbyListRequest` (no parameters).
+- Handler: `GetLobbyListHandler` — queries `LobbyManager#getAllLobbies()` and returns `GetLobbyListResponse`.
+- Response: `GetLobbyListResponse` — builds a `LOBBIES` collection with repeated `LOBBY` blocks containing `ID`, `NAME`, `PLAYER_COUNT`.
+
+### Success Response
+
+The response contains a `LOBBIES` collection with nested `LOBBY` entries.
+
+Example response structure:
+
+```
++OK
+  LOBBIES
+    LOBBY
+      ID=1
+      NAME=Room 1
+      PLAYER_COUNT=2
+    END
+    LOBBY
+      ID=2
+      NAME=Room 2
+      PLAYER_COUNT=3
+    END
+  END
+END
+```
+
+### Example Request
+
+```
+GET_LOBBY_LIST
+```
+
+### Example Response (error)
+
+```
+-ERR
+  CODE=NO_LOBBIES_AVAILABLE
+  MESSAGE=No lobbies available
+END
+```
+
+## GET_GAME_STATE command
+
+The `GET_GAME_STATE` command returns a snapshot of the current game for a lobby. It includes global fields (`PHASE`, `POT`, `CURRENT_BET`, `DEALER`, `ACTIVE_PLAYER`), repeated `CARD` blocks for community cards and repeated `PLAYER` blocks for per-player information. If the requester is a player in the game, their hole cards are included inside their `PLAYER` block as nested `CARD` blocks.
+
+### Required pre-execution checks
+- [`UserLoggedInCheck`](#userloggedincheck)
+
+### Request Parameters
+| Parameter Name | Type   | Optional | Description |
+| :------------- | :----- | :------: | :---------- |
+| `GAME_ID`      | `int`  | yes      | Numeric id of the lobby/game to query. If omitted the server will resolve the lobby by the requesting session's associated user.
+| `USERNAME`     | `String` | yes   | Optional username to query the game state for (server will also accept session resolution).
+
+### Implementation notes
+
+- Parser: `GetGameStateParser` — accepts optional `GAME_ID` and `USERNAME` and builds `GetGameStateRequest`.
+- Handler: `GetGameStateHandler` — resolves the target lobby by `GAME_ID` when provided, otherwise by `USERNAME` or session user; if a game is running a `GetGameStateResponse` is returned.
+- Response: `GetGameStateResponse` — uses repeated `CARD` and `PLAYER` blocks to match the client parser expectations.
+
+### Success Response
+
+Top-level fields and collections (example):
+
+```
++OK
+  PHASE=PRE_FLOP
+  POT=150
+  CURRENT_BET=50
+  DEALER=2
+  ACTIVE_PLAYER=1
+  CARD
+    VALUE=K
+    SUIT=H
+  END
+  PLAYER
+    NAME=player1
+    CHIPS=1000
+    BET=50
+    STATE=ACTIVE
+    CARD
+      VALUE=A
+      SUIT=S
+    END
+  END
+END
+```
+
+### Example Request
+
+```
+GET_GAME_STATE GAME_ID=1
+```
+
+### Example Response (error)
+
+```
+-ERR
+  CODE=GAME_NOT_STARTED
+  MESSAGE=Game not started
+END
+```
+
+## BET command
+
+The `BET` command lets the currently logged-in player place a bet in the ongoing game for their lobby.
+
+### Required pre-execution checks
+
+- [`UserLoggedInCheck`](#userloggedincheck)
+
+### Request Parameters
+
+| Parameter Name | Type | Optional | Description |
+| :------------- | :--- | :------: | :---------- |
+| `GAME_ID` | `int` | yes | Numeric id of the lobby/game to target. If omitted the server resolves the lobby by the requesting session's user. |
+| `AMOUNT` | `int` | no | Amount the player wants to bet |
+
+### Implementation notes
+
+- Parser: `PlayerBetParser` — reads `AMOUNT` and optionally `GAME_ID`.
+- Handler: `PlayerBetHandler` — validates the session, lobby (by id when provided or else by session), player's turn and balance and forwards to `GameController`.
+
+### Success Response
+
+No additional response fields. Server replies with `+OK` on success.
+
+### Error Response
+
+| Code | Description |
+| :--- | :---------- |
+| `NOT_YOUR_TURN` | The player attempted to bet when not their turn |
+| `INSUFFICIENT_FUNDS` | Player does not have enough chips |
+| `INVALID_AMOUNT` | Amount parameter is invalid |
+| `GAME_NOT_STARTED` | No game is running in the lobby |
+| `NOT_IN_LOBBY` | Requesting user is not a member of the lobby |
+| `LOBBY_NOT_FOUND` | The specified `GAME_ID` does not exist |
+
+### Example Request
+
+```
+BET GAME_ID=1 AMOUNT=50
+```
+
+### Example Response (success)
+
+```
++OK
+END
+```
+
+### Example Response (error)
+
+```
+-ERR
+  CODE=INSUFFICIENT_FUNDS
+  MSG=Not enough chips
+END
+```
+
+## RAISE command
+
+The `RAISE` command lets the currently logged-in player increase the current bet in the ongoing game for their lobby.
+
+### Required pre-execution checks
+
+- [`UserLoggedInCheck`](#userloggedincheck)
+
+### Request Parameters
+
+| Parameter Name | Type | Optional | Description |
+| :------------- | :--- | :------: | :---------- |
+| `GAME_ID` | `int` | yes | Numeric id of the lobby/game to target. If omitted the server resolves the lobby by the requesting session's user. |
+| `AMOUNT` | `int` | no | Amount the player wants to raise |
+
+### Implementation notes
+
+- Parser: `PlayerRaiseParser` — reads `AMOUNT` and optionally `GAME_ID`.
+- Handler: `PlayerRaiseHandler` — validates the session, lobby (by id when provided or else by session), player's turn and balance and forwards to `GameController`.
+
+### Success Response
+
+No additional response fields. Server replies with `+OK` on success.
+
+### Error Response
+
+| Code | Description |
+| :--- | :---------- |
+| `NOT_YOUR_TURN` | The player attempted to raise when not their turn |
+| `INSUFFICIENT_FUNDS` | Player does not have enough chips |
+| `INVALID_AMOUNT` | Amount parameter is invalid |
+| `GAME_NOT_STARTED` | No game is running in the lobby |
+| `NOT_IN_LOBBY` | Requesting user is not a member of the lobby |
+| `LOBBY_NOT_FOUND` | The specified `GAME_ID` does not exist |
+
+### Example Request
+
+```
+RAISE GAME_ID=1 AMOUNT=100
+```
+
+### Example Response (success)
+
+```
++OK
+END
+```
+
+### Example Response (error)
+
+```
+-ERR
+  CODE=INSUFFICIENT_FUNDS
+  MSG=Not enough chips
+END
+```
+
+## CALL command
+
+The `CALL` command lets the currently logged-in player match the current bet (call) in the ongoing game for their lobby.
+
+### Required pre-execution checks
+
+- [`UserLoggedInCheck`](#userloggedincheck)
+
+### Request Parameters
+
+| Parameter Name | Type | Optional | Description |
+| :------------- | :--- | :------: | :---------- |
+| `GAME_ID` | `int` | yes | Numeric id of the lobby/game to target. If omitted the server resolves the lobby by the requesting session's user. |
+
+### Implementation notes
+
+- Parser: `PlayerCallParser` — accepts optional `GAME_ID`.
+- Handler: `PlayerCallHandler` — validates the session, resolves the lobby by id when provided or by session otherwise and forwards to `GameController`.
+
+### Success Response
+
+No additional response fields. Server replies with `+OK` on success.
+
+### Error Response
+
+| Code | Description |
+| :--- | :---------- |
+| `NOT_YOUR_TURN` | The player attempted to call when not their turn |
+| `INSUFFICIENT_FUNDS` | Player does not have enough chips |
+| `GAME_NOT_STARTED` | No game is running in the lobby |
+| `NOT_IN_LOBBY` | Requesting user is not a member of the lobby |
+| `LOBBY_NOT_FOUND` | The specified `GAME_ID` does not exist |
+
+### Example Request
+
+```
+CALL GAME_ID=1
+```
+
+### Example Response (success)
+
+```
++OK
+END
+```
+
+### Example Response (error)
+
+```
+-ERR
+  CODE=NOT_YOUR_TURN
+  MSG=It is not your turn
+END
+```
+
+## FOLD command
+
+The `FOLD` command lets the currently logged-in player leave the current hand (fold) in the ongoing game for their lobby.
+
+### Required pre-execution checks
+
+- [`UserLoggedInCheck`](#userloggedincheck)
+
+### Request Parameters
+
+| Parameter Name | Type | Optional | Description |
+| :------------- | :--- | :------: | :---------- |
+| `GAME_ID` | `int` | yes | Numeric id of the lobby/game to target. If omitted the server resolves the lobby by the requesting session's user. |
+
+### Implementation notes
+
+- Parser: `PlayerFoldParser` — accepts optional `GAME_ID`.
+- Handler: `PlayerFoldHandler` — validates the session, resolves the lobby by id when provided or by session otherwise and forwards to `GameController`.
+
+### Success Response
+
+No additional response fields. Server replies with `+OK` on success.
+
+### Error Response
+
+| Code | Description |
+| :--- | :---------- |
+| `NOT_YOUR_TURN` | The player attempted to fold when not their turn |
+| `GAME_NOT_STARTED` | No game is running in the lobby |
+| `NOT_IN_LOBBY` | Requesting user is not a member of the lobby |
+| `LOBBY_NOT_FOUND` | The specified `GAME_ID` does not exist |
+
+### Example Request
+
+```
+FOLD GAME_ID=1
+```
+
+### Example Response (success)
+
+```
++OK
+END
+```
+
+### Example Response (error)
+
+```
+-ERR
+  CODE=NOT_YOUR_TURN
+  MSG=It is not your turn
+END
+```
+
+## FOLD command
+
+The `FOLD` command lets the currently logged-in player leave the current hand (fold) in the ongoing game for their lobby.
+
+### Required pre-execution checks
+
+- [`UserLoggedInCheck`](#userloggedincheck)
+
+### Request Parameters
+
+| Parameter Name | Type | Optional | Description |
+| :------------- | :--- | :------: | :---------- |
+| `GAME_ID` | `int` | yes | Numeric id of the lobby/game to target. If omitted the server resolves the lobby by the requesting session's user. |
+
+### Implementation notes
+
+- Parser: `PlayerFoldParser` — accepts optional `GAME_ID`.
+- Handler: `PlayerFoldHandler` — validates the session, resolves the lobby by id when provided or by session otherwise and forwards to `GameController`.
+
+### Success Response
+
+No additional response fields. Server replies with `+OK` on success.
+
+### Error Response
+
+| Code | Description |
+| :--- | :---------- |
+| `NOT_YOUR_TURN` | The player attempted to fold when not their turn |
+| `GAME_NOT_STARTED` | No game is running in the lobby |
+| `NOT_IN_LOBBY` | Requesting user is not a member of the lobby |
+| `LOBBY_NOT_FOUND` | The specified `GAME_ID` does not exist |
+
+### Example Request
+
+```
+FOLD GAME_ID=1
+```
+
+### Example Response (success)
+
+```
++OK
+END
+```
+
+### Example Response (error)
+
+```
+-ERR
+  CODE=NOT_YOUR_TURN
+  MSG=It is not your turn
+END
+```
+
+## FOLD command
+
+The `FOLD` command lets the currently logged-in player leave the current hand (fold) in the ongoing game for their lobby.
+
+### Required pre-execution checks
+
+- [`UserLoggedInCheck`](#userloggedincheck)
+
+### Request Parameters
+
+| Parameter Name | Type | Optional | Description |
+| :------------- | :--- | :------: | :---------- |
+| `GAME_ID` | `int` | yes | Numeric id of the lobby/game to target. If omitted the server resolves the lobby by the requesting session's user. |
+
+### Implementation notes
+
+- Parser: `PlayerFoldParser` — accepts optional `GAME_ID`.
+- Handler: `PlayerFoldHandler` — validates the session, resolves the lobby by id when provided or by session otherwise and forwards to `GameController`.
+
+### Success Response
+
+No additional response fields. Server replies with `+OK` on success.
+
+### Error Response
+
+| Code | Description |
+| :--- | :---------- |
+| `NOT_YOUR_TURN` | The player attempted to fold when not their turn |
+| `GAME_NOT_STARTED` | No game is running in the lobby |
+| `NOT_IN_LOBBY` | Requesting user is not a member of the lobby |
+| `LOBBY_NOT_FOUND` | The specified `GAME_ID` does not exist |
+
+### Example Request
+
+```
+FOLD GAME_ID=1
+```
+
+### Example Response (success)
+
+```
++OK
+END
+```
+
+### Example Response (error)
+
+```
+-ERR
+  CODE=NOT_YOUR_TURN
+  MSG=It is not your turn
+END
+```
+
+## FOLD command
+
+The `FOLD` command lets the currently logged-in player leave the current hand (fold) in the ongoing game for their lobby.
+
+### Required pre-execution checks
+
+- [`UserLoggedInCheck`](#userloggedincheck)
+
+### Request Parameters
+
+| Parameter Name | Type | Optional | Description |
+| :------------- | :--- | :------: | :---------- |
+| `GAME_ID` | `int` | yes | Numeric id of the lobby/game to target. If omitted the server resolves the lobby by the requesting session's user. |
+
+### Implementation notes
+
+- Parser: `PlayerFoldParser` — accepts optional `GAME_ID`.
+- Handler: `PlayerFoldHandler` — validates the session, resolves the lobby by id when provided or by session otherwise and forwards to `GameController`.
+
+### Success Response
+
+No additional response fields. Server replies with `+OK` on success.
+
+### Error Response
+
+| Code | Description |
+| :--- | :---------- |
+| `NOT_YOUR_TURN` | The player attempted to fold when not their turn |
+| `GAME_NOT_STARTED` | No game is running in the lobby |
+| `NOT_IN_LOBBY` | Requesting user is not a member of the lobby |
+| `LOBBY_NOT_FOUND` | The specified `GAME_ID` does not exist |
+
+### Example Request
+
+```
+FOLD GAME_ID=1
+```
+
+### Example Response (success)
+
+```
++OK
+END
+```
+
+### Example Response (error)
+
+```
+-ERR
+  CODE=NOT_YOUR_TURN
+  MSG=It is not your turn
+END
+```
+
+## GET_LOBBY_STATUS command
+
+The `GET_LOBBY_STATUS` command requests the server to return the current state of a lobby, including the list of players and their ready state.
+
+### Required pre-execution checks
+None.
+
+### Request Parameters
+| Parameter Name | Type | Optional | Description |
+| :------------- | :--- | :------: | :---------- |
+| `ID` | `int` | no | Numeric id of the target lobby |
+
+### Implementation notes
+
+- Parser: `GetLobbyStatusParser` — reads the `ID` parameter and builds `GetLobbyStatusRequest`.
+- Handler: `GetLobbyStatusHandler` — queries `LobbyManager` for the lobby and builds a `GetLobbyStatusResponse` containing player entries.
+
+### Success Response
+
+The response contains a `LOBBY` collection with nested `PLAYERS` and one or more `PLAYER` entries. Each `PLAYER` entry contains `USERNAME` and `READY` fields.
+
+Example response structure:
+
+```
++OK
+  LOBBY
+    ID=1
+    PLAYERS
+      PLAYER
+        USERNAME=Lars_001
+        READY=false
+      END
+      PLAYER
+        USERNAME=Anna
+        READY=true
+      END
+    END
+  END
+END
+```
+
+### Error Response
+| Code | Description |
+| :--- | :---------- |
+| `LOBBY_NOT_FOUND` | The specified lobby id does not exist |
+
+### Example Request
+
+```
+GET_LOBBY_STATUS ID=1
+```
+
+### Example Response (error)
+
+```
+-ERR
+  CODE=LOBBY_NOT_FOUND
+  MESSAGE=Lobby not found
 END
 ```
 

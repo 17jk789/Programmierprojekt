@@ -1,7 +1,19 @@
 package ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui;
 
+import ch.unibas.dmi.dbis.cs108.casono.client.game.Card;
+import ch.unibas.dmi.dbis.cs108.casono.client.game.GameService;
+import ch.unibas.dmi.dbis.cs108.casono.client.game.GameState;
+import ch.unibas.dmi.dbis.cs108.casono.client.game.Player;
+import ch.unibas.dmi.dbis.cs108.casono.client.game.PlayerId;
+import ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui.gameuicomponents.PlayerStatusController;
+import ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui.gameuicomponents.TaskbarController;
+import java.util.List;
+import java.util.logging.Logger;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 /**
@@ -15,24 +27,853 @@ import javafx.scene.layout.VBox;
  */
 public class CasinoGameController {
 
+    private static final Logger LOGGER = Logger.getLogger(CasinoGameController.class.getName());
+
+    @FXML private Label tableText;
+    @FXML private VBox casinoTable;
+    @FXML private HBox communityCardsBox;
+    @FXML private VBox casinoTableInnerBox;
+    @FXML private HBox playerCardsBox;
+    @FXML private HBox potBox;
+    @FXML private PlayerStatusController playerStatusController;
+    @FXML private PlayerStatusController player1Controller;
+    @FXML private PlayerStatusController player2Controller;
+    @FXML private PlayerStatusController player3Controller;
+    @FXML private VBox player1;
+    @FXML private VBox player2;
+    @FXML private VBox player3;
+    @FXML private ImageView myDealerIcon;
+
+    private GameService gameService;
+    private PlayerId myPlayerId;
+    private TaskbarController taskbarController;
+    private Image dealerImage;
+
+    private static final int TOTAL_SLOTS = 5;
+    private static final int PLAYER_SLOTS = 2;
+    private int pot = 0;
+    private static final String BACKSIDE = "/images/card-background-3.png";
+    private static final String DEALER_IMAGE_PATH = "/images/chip-dealer-blue-3.png";
+    private static final double TABLE_OFFSET_Y_FACTOR = 0.09;
+    private static final double PLAYER_CARDS_OFFSET_Y_FACTOR = 0.35;
+    private static final double MOVE_FROM_X = -40;
+    private static final double MOVE_FROM_Y = -10;
+    private static final double MOVE_TO_X = 0;
+    private static final double MOVE_TO_Y = 0;
+    private static final double FADE_FROM = 0;
+    private static final double FADE_TO = 1;
+    private static final double SCALE_FROM = 0.95;
+    private static final double SCALE_TO = 1;
+    private static final double SETTLE_FROM_Y = 0;
+    private static final double SETTLE_TO_Y = 10;
+    private static final boolean SETTLE_AUTO_REVERSE = true;
+    private static final int SETTLE_CYCLE_COUNT = 2;
+    private static final long ANIMATION_DURATION_MS = 350;
+    private static final long SETTLE_DURATION_MS = 150;
+    private static final long STAGGER_DELAY_MS = 120;
+    private static final double HOVER_SCALE_ON = 1.08;
+    private static final double HOVER_SCALE_OFF = 1.0;
+    private static final double HOVER_LIFT_ON = -8;
+    private static final double HOVER_LIFT_OFF = 0;
+    private static final long HOVER_DURATION_MS = 180;
+    private static final long UI_UPDATE_INTERVAL_SECONDS = 1;
+    private static final int PLAYER_INDEX_0 = 0;
+    private static final int PLAYER_INDEX_1 = 1;
+    private static final int PLAYER_INDEX_2 = 2;
+    private static final int DEALER_INDEX_PLAYER_1 = 0;
+    private static final int DEALER_INDEX_PLAYER_2 = 1;
+    private static final int DEALER_INDEX_PLAYER_3 = 2;
+    private static final int DEALER_PLAYER_1 = 0;
+    private static final int DEALER_PLAYER_2 = 1;
+    private static final int DEALER_PLAYER_3 = 2;
+    private static final int DEALER_MYSELF = 3;
+    private static final double CARD_START_OPACITY = 0.0;
+    private static final double CARD_START_SCALE = 0.85;
+    private static final double COMMUNITY_CARD_HEIGHT_RATIO = 0.22;
+    private static final double COMMUNITY_CARD_WIDTH_RATIO = 0.11;
+    private static final double PLAYER_CARD_HEIGHT_RATIO = 0.30;
+    private static final double PLAYER_CARD_WIDTH_RATIO = 0.15;
+    private static final double PLAYER_CARDS_Y_OFFSET_FACTOR = 0.10;
+    private static final int[] CHIP_VALUES = {
+        100000, 50000, 20000, 10000,
+        5000, 2000, 1000, 500,
+        200, 100, 50, 20,
+        10, 5, 2, 1
+    };
+    private static final double CHIP_HEIGHT_RATIO = 0.08;
+    private static final double CHIP_WIDTH_RATIO = 0.04;
+    private static final double CHIP_OPACITY_START = 0.0;
+    private static final double CHIP_SCALE_START = 0.6;
+    private static final double CHIP_SCALE_END = 1.0;
+    private static final double CHIP_RANDOM_X_FACTOR = 20.0;
+    private static final double CHIP_RANDOM_X_CENTER = 0.5;
+    private static final double CHIP_RANDOM_Y_BASE = -30.0;
+    private static final double CHIP_RANDOM_Y_VARIATION = 20.0;
+    private static final double CHIP_TRANSLATE_RESET_X = 0.0;
+    private static final double CHIP_TRANSLATE_RESET_Y = 0.0;
+    private static final double CHIP_FADE_TO = 1.0;
+    private static final double CHIP_SCALE_TO = 1.0;
+    private static final long CHIP_FADE_DURATION_MS = 200;
+    private static final long CHIP_SCALE_DURATION_MS = 220;
+    private static final long CHIP_DROP_DURATION_MS = 250;
+    private static final long CHIP_STAGGER_DELAY_MULTIPLIER = 35L;
+
     /** Standard constructor. Used by FXML. */
     public CasinoGameController() {
         // default constructor for FXML
     }
 
-    @FXML private Label welcomeText;
-    @FXML private VBox casinoTable;
+    /**
+     * Set the GameService for this controller. This method must be called before starting the UI to
+     * ensure that the controller has access to the game logic and can update the interface
+     * accordingly.
+     *
+     * @param gameService The GameService instance that provides access to the game state and logic.
+     */
+    public void setGameService(GameService gameService) {
+        this.gameService = gameService;
+    }
 
-    // TODO: Test logic: will be replaced by real game interactions,
-    // once the game engine is finished
+    /** Set the PlayerId of the current player. */
+    @FXML
+    public void initialize() {
+        LOGGER.info("INIT UI");
+
+        if (communityCardsBox == null) {
+            LOGGER.warning("communityCardsBox is NULL");
+            return;
+        }
+
+        try {
+
+            var url = getClass().getResource(DEALER_IMAGE_PATH);
+
+            if (url != null) {
+                dealerImage = new Image(url.toExternalForm(), true);
+                myDealerIcon.setImage(dealerImage);
+            }
+
+        } catch (Exception e) {
+            LOGGER.warning("Dealer icon load failed");
+        }
+
+        myDealerIcon.setVisible(false);
+
+        javafx.stage.Screen screen = javafx.stage.Screen.getPrimary();
+        double screenHeight = screen.getBounds().getHeight();
+        casinoTableInnerBox.setTranslateY(-screenHeight * TABLE_OFFSET_Y_FACTOR);
+        playerCardsBox.setTranslateY(screenHeight * PLAYER_CARDS_OFFSET_Y_FACTOR);
+
+        // uiTest();
+
+        // empty display only (optional)
+        renderCommunityCards(List.of());
+        renderPlayerCards(List.of());
+    }
+
+    // Test method to demonstrate the UI functionality with sample data.
+    // @FXML
+    // public void uiTest() {
+    //     if (communityCardsBox == null) {
+    //         LOGGER.info("communityCardsBox is NULL");
+    //         return;
+    //     }
+    //
+    //     try {
+    //         renderCommunityCards(
+    //                 List.of(
+    //                         new Card("ace", "hearts"),
+    //                         new Card("king", "spades"),
+    //                         new Card("10", "diamonds")));
+    //
+    //         renderPlayerCards(List.of(new Card("10", "spades"), new Card("king", "spades")));
+    //     } catch (Exception e) {
+    //         e.printStackTrace();
+    //     }
+    //
+    //     Player mathis = new Player(PlayerId.of("Mathis"), 20000);
+    //     mathis.setState(PlayerState.ACTIVE);
+    //
+    //     Player jona = new Player(PlayerId.of("Jona"), 20000);
+    //     jona.setState(PlayerState.FOLDED);
+    //
+    //     Player lars = new Player(PlayerId.of("Lars"), 20000);
+    //     lars.setState(PlayerState.ACTIVE);
+    //
+    //     player1Controller.setPlayer(mathis);
+    //     player2Controller.setPlayer(jona);
+    //     player3Controller.setPlayer(lars);
+    //
+    //     LOGGER.info(
+    //             "Player 1: "
+    //             + mathis.getName()
+    //             + " | $"
+    //             + mathis.getChips()
+    //             + " | "
+    //             + mathis.getState());
+    //     LOGGER.info(
+    //             "Player 2: "
+    //             + jona.getName()
+    //             + " | $"
+    //             + jona.getChips()
+    //             + " | "
+    //             + jona.getState());
+    //     LOGGER.info(
+    //             "Player 3: "
+    //             + lars.getName()
+    //             + " | $"
+    //             + lars.getChips()
+    //             + " | "
+    //             + lars.getState());
+    //
+    //     if (playerStatusController != null) {
+    //         playerStatusController.setPlayer(mathis);
+    //     } else {
+    //         LOGGER.warning("PlayerStatusController is NULL");
+    //     }
+    //
+    //     javafx.stage.Screen screen = javafx.stage.Screen.getPrimary();
+    //     double screenHeight = screen.getBounds().getHeight();
+    //
+    //     casinoTableInnerBox.setTranslateY(-screenHeight * 0.08);
+    //     playerCardsBox.setTranslateY(screenHeight * 0.35);
+    //
+    //     renderPot(500);
+    //
+    //     lars.removeChips(500);
+    //     LOGGER.info("Lars: $" + lars.getChips());
+    //
+    //     player3Controller.refresh();
+    //
+    //     mathis.fall();
+    //     player1Controller.refresh();
+    //
+    //     GameState s = new GameState();
+    //     s.dealer = 3;
+    //     highlightDealer(s);
+    //
+    //     s.phase = "FLOP";
+    //
+    //     updateGameInfo(s);
+    //
+    //     s.winnerIndex = 1;
+    //
+    //     updateGameInfo(s);
+    // }
+
+    /** Start the UI update loop. */
+    public void start() {
+
+        if (gameService == null) {
+            throw new IllegalStateException("GameService not set!");
+        }
+
+        startLoop();
+    }
 
     /**
-     * Temporary test method that performs a placeholder action when the table is clicked.
-     *
-     * <p>In the final implementation, this will be replaced by the game logic.
+     * Start a loop that periodically updates the UI by fetching the latest game state from the
+     * GameService.
      */
-    @FXML
-    public void onTableClick() {
-        welcomeText.setText("Einsatz akzeptiert!");
+    private void startLoop() {
+
+        javafx.animation.Timeline t =
+                new javafx.animation.Timeline(
+                        new javafx.animation.KeyFrame(
+                                javafx.util.Duration.seconds(UI_UPDATE_INTERVAL_SECONDS),
+                                e -> updateUI()));
+
+        t.setCycleCount(javafx.animation.Animation.INDEFINITE);
+        t.play();
+    }
+
+    /**
+     * Update the UI by fetching the latest game state from the GameService and updating all
+     * relevant components.
+     */
+    private void updateUI() {
+
+        try {
+            GameState s = gameService.refresh();
+
+            if (s == null) {
+                return;
+            }
+
+            renderCommunityCards(s.communityCards);
+            renderPot(s.pot);
+
+            updatePlayers(s.players);
+            updatePlayerCards(s);
+
+            updateGameInfo(s);
+            highlightDealer(s);
+
+            updateTaskbar(s);
+
+        } catch (Exception e) {
+            LOGGER.severe("Error: UI Update failed: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Update the player's hole cards based on the active player in the game state.
+     *
+     * @param s The current game state.
+     */
+    private void updatePlayerCards(GameState s) {
+
+        int active = s.activePlayer;
+
+        if (active >= 0 && active < s.players.size()) {
+            Player p = s.players.get(active);
+            renderPlayerCards(p.getCards());
+        } else {
+            renderPlayerCards(List.of());
+        }
+    }
+
+    /**
+     * Update the game information display, such as the current phase and the winner if the hand has
+     * ended.
+     *
+     * @param s The current game state.
+     */
+    private void updateGameInfo(GameState s) {
+
+        String text = "Phase: " + s.phase;
+
+        if (s.winnerIndex >= 0 && s.winnerIndex < s.players.size()) {
+            Player winner = s.players.get(s.winnerIndex);
+            text = "Winner: " + winner.getName();
+        }
+
+        tableText.setText(text);
+    }
+
+    /**
+     * Update the taskbar with the current game state and the player's ID.
+     *
+     * @param s The current game state.
+     */
+    private void updateTaskbar(GameState s) {
+
+        taskbarController.update(s, myPlayerId);
+    }
+
+    /**
+     * Update the player status components with the latest player information from the game state.
+     *
+     * @param p The list of players in the current game state.
+     */
+    private void updatePlayers(List<Player> p) {
+
+        if (p == null) {
+            return;
+        }
+
+        if (p.size() > PLAYER_INDEX_0) {
+            player1Controller.setPlayer(p.get(PLAYER_INDEX_0));
+        }
+
+        if (p.size() > PLAYER_INDEX_1) {
+            player2Controller.setPlayer(p.get(PLAYER_INDEX_1));
+        }
+
+        if (p.size() > PLAYER_INDEX_2) {
+            player3Controller.setPlayer(p.get(PLAYER_INDEX_2));
+        }
+
+        player1Controller.refresh();
+        player2Controller.refresh();
+        player3Controller.refresh();
+    }
+
+    /**
+     * Highlight the dealer in the UI based on the dealer index in the game state.
+     *
+     * @param s The current game state containing the dealer index.
+     */
+    private void highlightDealer(GameState s) {
+
+        player1Controller.setDealer(false);
+        player2Controller.setDealer(false);
+        player3Controller.setDealer(false);
+
+        myDealerIcon.setVisible(false);
+
+        int dealer = s.dealer;
+
+        if (dealer == DEALER_PLAYER_1) {
+            player1Controller.setDealer(true);
+        }
+
+        if (dealer == DEALER_PLAYER_2) {
+            player2Controller.setDealer(true);
+        }
+
+        if (dealer == DEALER_PLAYER_3) {
+            player3Controller.setDealer(true);
+        }
+
+        if (dealer == DEALER_MYSELF) {
+            myDealerIcon.setVisible(true);
+        }
+    }
+
+    /**
+     * Render the community cards on the table based on the list of cards provided.
+     *
+     * @param cards The list of community cards to display.
+     */
+    private void renderCommunityCards(List<Card> cards) {
+
+        communityCardsBox.getChildren().clear();
+
+        if (cards == null) {
+            cards = List.of();
+        }
+
+        for (int i = 0; i < TOTAL_SLOTS; i++) {
+
+            ImageView view = new ImageView();
+            styleCommunityCard(view);
+
+            Image image;
+
+            if (i < cards.size() && cards.get(i) != null) {
+                image = loadImageSafe(mapCardToImage(cards.get(i)));
+            } else {
+                image = loadImageSafe(BACKSIDE);
+            }
+
+            view.setImage(image);
+
+            view.setOnMouseEntered(e -> animateCardHover(view, true));
+            view.setOnMouseExited(e -> animateCardHover(view, false));
+
+            view.setOpacity(CARD_START_OPACITY);
+
+            view.setScaleX(CARD_START_SCALE);
+            view.setScaleY(CARD_START_SCALE);
+
+            communityCardsBox.getChildren().add(view);
+
+            animateCardAppear(view, i);
+        }
+    }
+
+    /**
+     * Render the player's hole cards based on the list of cards provided.
+     *
+     * @param cards The list of hole cards to display for the player.
+     */
+    private void renderPlayerCards(List<Card> cards) {
+
+        playerCardsBox.getChildren().clear();
+
+        playerCardsBox.getChildren().add(myDealerIcon);
+
+        if (cards == null) {
+            cards = List.of();
+        }
+
+        for (int i = 0; i < PLAYER_SLOTS; i++) {
+
+            ImageView view = new ImageView();
+            stylePlayerCard(view);
+
+            Image image;
+
+            if (i < cards.size() && cards.get(i) != null) {
+                image = loadImageSafe(mapCardToImage(cards.get(i)));
+            } else {
+                image = loadImageSafe(BACKSIDE);
+            }
+
+            view.setImage(image);
+
+            view.setOnMouseEntered(e -> animateCardHover(view, true));
+            view.setOnMouseExited(e -> animateCardHover(view, false));
+
+            view.setOpacity(CARD_START_OPACITY);
+
+            view.setScaleX(CARD_START_SCALE);
+            view.setScaleY(CARD_START_SCALE);
+
+            playerCardsBox.getChildren().add(view);
+
+            animateCardAppear(view, i);
+        }
+    }
+
+    /**
+     * Load an image from the given path safely, falling back to a default backside image if the
+     * specified image cannot be found.
+     *
+     * @param path The path to the image resource to load.
+     * @return The loaded Image object.
+     */
+    private Image loadImageSafe(String path) {
+
+        var stream = getClass().getResourceAsStream(path);
+
+        if (stream == null) {
+            LOGGER.warning("IMAGE NOT FOUND: " + path);
+            stream = getClass().getResourceAsStream(BACKSIDE);
+        }
+
+        return new Image(stream);
+    }
+
+    /**
+     * Apply styling to the given ImageView for community cards, including CSS classes and size
+     * bindings.
+     *
+     * @param view The ImageView to style as a community card.
+     */
+    private void styleCommunityCard(ImageView view) {
+
+        view.getStyleClass().add("community-card");
+
+        view.setPreserveRatio(true);
+        view.setSmooth(true);
+
+        javafx.scene.Scene scene = communityCardsBox.getScene();
+
+        if (scene != null) {
+            bindCommunityCardSize(view, scene);
+        } else {
+            communityCardsBox
+                    .sceneProperty()
+                    .addListener(
+                            (obs, oldScene, newScene) -> {
+                                if (newScene != null) {
+                                    bindCommunityCardSize(view, newScene);
+                                }
+                            });
+        }
+    }
+
+    /**
+     * Apply styling to the given ImageView for player hole cards, including CSS classes and size
+     * bindings.
+     *
+     * @param view The ImageView to style as a player hole card.
+     */
+    private void stylePlayerCard(ImageView view) {
+
+        view.getStyleClass().add("player-card");
+
+        view.setPreserveRatio(true);
+        view.setSmooth(true);
+
+        javafx.scene.Scene scene = playerCardsBox.getScene();
+
+        if (scene != null) {
+            bindPlayerCardSize(view, scene);
+        } else {
+            playerCardsBox
+                    .sceneProperty()
+                    .addListener(
+                            (obs, oldScene, newScene) -> {
+                                if (newScene != null) {
+                                    bindPlayerCardSize(view, newScene);
+                                }
+                            });
+        }
+    }
+
+    /**
+     * Bind the size of the given ImageView to the scene dimensions for community cards.
+     *
+     * @param view The ImageView representing a community card whose size should be bound to the
+     *     scene dimensions.
+     * @param scene The JavaFX Scene to which the ImageView belongs, used for binding the size
+     *     properties.
+     */
+    private void bindCommunityCardSize(ImageView view, javafx.scene.Scene scene) {
+
+        view.fitHeightProperty().bind(scene.heightProperty().multiply(COMMUNITY_CARD_HEIGHT_RATIO));
+
+        view.fitWidthProperty().bind(scene.widthProperty().multiply(COMMUNITY_CARD_WIDTH_RATIO));
+    }
+
+    /**
+     * Bind the size of the given ImageView to the scene dimensions for player hole cards.
+     *
+     * @param view The ImageView representing a player hole card whose size should be bound to the
+     *     scene dimensions.
+     * @param scene The JavaFX Scene to which the ImageView belongs, used for binding the size
+     *     properties.
+     */
+    private void bindPlayerCardSize(ImageView view, javafx.scene.Scene scene) {
+
+        view.fitHeightProperty().bind(scene.heightProperty().multiply(PLAYER_CARD_HEIGHT_RATIO));
+
+        view.fitWidthProperty().bind(scene.widthProperty().multiply(PLAYER_CARD_WIDTH_RATIO));
+    }
+
+    /**
+     * Animate the appearance of a card by applying a sequence of transitions, including movement,
+     * fading, scaling, and settling.
+     *
+     * @param view The ImageView representing the card to animate.
+     * @param index The index of the card in the display order.
+     */
+    private void animateCardAppear(ImageView view, int index) {
+
+        javafx.animation.TranslateTransition move =
+                new javafx.animation.TranslateTransition(
+                        javafx.util.Duration.millis(ANIMATION_DURATION_MS), view);
+
+        move.setFromX(MOVE_FROM_X);
+        move.setToX(MOVE_TO_X);
+
+        move.setFromY(MOVE_FROM_Y);
+        move.setToY(MOVE_TO_Y);
+
+        move.setInterpolator(javafx.animation.Interpolator.EASE_OUT);
+
+        javafx.animation.FadeTransition fade =
+                new javafx.animation.FadeTransition(
+                        javafx.util.Duration.millis(ANIMATION_DURATION_MS), view);
+
+        fade.setFromValue(FADE_FROM);
+        fade.setToValue(FADE_TO);
+
+        javafx.animation.ScaleTransition scale =
+                new javafx.animation.ScaleTransition(
+                        javafx.util.Duration.millis(ANIMATION_DURATION_MS), view);
+
+        scale.setFromX(SCALE_FROM);
+        scale.setFromY(SCALE_FROM);
+        scale.setToX(SCALE_TO);
+        scale.setToY(SCALE_TO);
+        scale.setInterpolator(javafx.animation.Interpolator.EASE_OUT);
+
+        javafx.animation.TranslateTransition settle =
+                new javafx.animation.TranslateTransition(
+                        javafx.util.Duration.millis(SETTLE_DURATION_MS), view);
+
+        settle.setFromY(SETTLE_FROM_Y);
+        settle.setToY(SETTLE_TO_Y);
+        settle.setAutoReverse(SETTLE_AUTO_REVERSE);
+        settle.setCycleCount(SETTLE_CYCLE_COUNT);
+
+        javafx.animation.SequentialTransition st =
+                new javafx.animation.SequentialTransition(
+                        new javafx.animation.ParallelTransition(move, fade, scale), settle);
+
+        st.setDelay(javafx.util.Duration.millis(index * STAGGER_DELAY_MS));
+
+        st.play();
+    }
+
+    /**
+     * Animate a card hover effect by scaling and lifting the card when hovered and resetting it
+     * when not hovered.
+     *
+     * @param view The ImageView representing the card to animate on hover.
+     * @param hover A boolean indicating whether the card is being hovered (true) or not (false).
+     */
+    private void animateCardHover(ImageView view, boolean hover) {
+
+        double scale = hover ? HOVER_SCALE_ON : HOVER_SCALE_OFF;
+        double lift = hover ? HOVER_LIFT_ON : HOVER_LIFT_OFF;
+
+        javafx.animation.ScaleTransition st =
+                new javafx.animation.ScaleTransition(
+                        javafx.util.Duration.millis(HOVER_DURATION_MS), view);
+        st.setToX(scale);
+        st.setToY(scale);
+
+        javafx.animation.TranslateTransition tt =
+                new javafx.animation.TranslateTransition(
+                        javafx.util.Duration.millis(HOVER_DURATION_MS), view);
+        tt.setToY(lift);
+
+        st.play();
+        tt.play();
+    }
+
+    /**
+     * Position the player's hole cards box on the screen based on a predefined offset factor
+     * relative to the screen height.
+     */
+    private void positionPlayerCards() {
+
+        javafx.stage.Screen screen = javafx.stage.Screen.getPrimary();
+        double screenHeight = screen.getBounds().getHeight();
+
+        playerCardsBox.setTranslateY(screenHeight * PLAYER_CARDS_Y_OFFSET_FACTOR);
+    }
+
+    /**
+     * Map a Card object to the corresponding image path based on its suit and value.
+     *
+     * @param card The Card object to be mapped to an image path.
+     * @return The string path to the image representing the given card.
+     */
+    private String mapCardToImage(Card card) {
+
+        if (card == null) {
+            return BACKSIDE;
+        }
+
+        String suit =
+                switch (card.getSuit().toLowerCase()) {
+                    case "hearts" -> "heart";
+                    case "diamonds" -> "diamond";
+                    case "clubs", "cross" -> "cross";
+                    case "spades", "pik" -> "pik";
+                    default -> card.getSuit().toLowerCase();
+                };
+
+        String value =
+                switch (card.getValue().toLowerCase()) {
+                    case "a", "ace" -> "ace";
+                    case "k", "king" -> "king";
+                    case "q", "queen" -> "queen";
+                    case "j", "jack" -> "jack";
+                    case "10", "t" -> "10";
+                    default -> card.getValue().toLowerCase();
+                };
+
+        String path = "/images/card-" + suit + "-" + value + "-3.png";
+
+        // LOGGER.info("CARD PATH: " + path);
+
+        return path;
+    }
+
+    /**
+     * Render the pot by calculating the required chips based on the pot amount and displaying them
+     * with animations.
+     *
+     * @param pot The total amount in the pot that needs to be represented with chips on the UI.
+     */
+    private void renderPot(int pot) {
+
+        potBox.getChildren().clear();
+
+        int remaining = pot;
+
+        int index = 0;
+
+        for (int chipValue : CHIP_VALUES) {
+
+            while (remaining >= chipValue) {
+
+                ImageView chip =
+                        new ImageView(loadImageSafe("/images/chip-" + chipValue + "-5.png"));
+
+                if (chip.getImage() == null) {
+                    LOGGER.warning("Missing chip image: " + chipValue);
+                    break;
+                }
+
+                styleChip(chip);
+
+                potBox.getChildren().add(chip);
+
+                animateChipAppear(chip, index);
+
+                remaining -= chipValue;
+                index++;
+            }
+        }
+
+        // LOGGER.info("POT RENDERED: " + pot + " -> remaining: " + remaining);
+    }
+
+    /**
+     * Apply styling to the given ImageView for chips, including CSS classes and size bindings.
+     *
+     * @param view The ImageView to style as a chip in the pot display.
+     */
+    private void styleChip(ImageView view) {
+
+        view.getStyleClass().add("chips-icon");
+
+        view.setPreserveRatio(true);
+        view.setSmooth(true);
+
+        javafx.scene.Scene scene = potBox.getScene();
+
+        if (scene != null) {
+            bindChipSize(view, scene);
+        } else {
+            potBox.sceneProperty()
+                    .addListener(
+                            (obs, oldScene, newScene) -> {
+                                if (newScene != null) {
+                                    bindChipSize(view, newScene);
+                                }
+                            });
+        }
+    }
+
+    /**
+     * Bind the size of the given ImageView to the scene dimensions for chips in the pot display.
+     *
+     * @param view The ImageView representing a chip whose size should be bound to the scene
+     *     dimensions.
+     * @param scene The JavaFX Scene to which the ImageView belongs, used for binding the size
+     *     properties.
+     */
+    private void bindChipSize(ImageView view, javafx.scene.Scene scene) {
+
+        view.fitHeightProperty()
+                .bind(
+                        scene.heightProperty().multiply(CHIP_HEIGHT_RATIO) // kleiner als Karten
+                        );
+
+        view.fitWidthProperty().bind(scene.widthProperty().multiply(CHIP_WIDTH_RATIO));
+    }
+
+    /**
+     * Animate the appearance of a chip by applying a sequence of transitions, including random
+     * initial positioning, fading, scaling, and dropping into place.
+     *
+     * @param view The ImageView representing the chip to animate.
+     * @param index The index of the chip in the display order, used to stagger the animation timing
+     *     for multiple chips.
+     */
+    private void animateChipAppear(ImageView view, int index) {
+
+        view.setOpacity(CHIP_OPACITY_START);
+        view.setScaleX(CHIP_SCALE_START);
+        view.setScaleY(CHIP_SCALE_START);
+
+        double randomX = (Math.random() - CHIP_RANDOM_X_CENTER) * CHIP_RANDOM_X_FACTOR;
+        double randomY = CHIP_RANDOM_Y_BASE - Math.random() * CHIP_RANDOM_Y_VARIATION;
+
+        view.setTranslateX(randomX);
+        view.setTranslateY(randomY);
+
+        javafx.animation.FadeTransition fade =
+                new javafx.animation.FadeTransition(
+                        javafx.util.Duration.millis(CHIP_FADE_DURATION_MS), view);
+        fade.setToValue(CHIP_FADE_TO);
+
+        javafx.animation.ScaleTransition scale =
+                new javafx.animation.ScaleTransition(
+                        javafx.util.Duration.millis(CHIP_SCALE_DURATION_MS), view);
+        scale.setToX(CHIP_SCALE_TO);
+        scale.setToY(CHIP_SCALE_TO);
+
+        javafx.animation.TranslateTransition drop =
+                new javafx.animation.TranslateTransition(
+                        javafx.util.Duration.millis(CHIP_DROP_DURATION_MS), view);
+        drop.setToX(CHIP_TRANSLATE_RESET_X);
+        drop.setToY(CHIP_TRANSLATE_RESET_Y);
+
+        javafx.animation.SequentialTransition st =
+                new javafx.animation.SequentialTransition(fade, scale, drop);
+
+        st.setDelay(javafx.util.Duration.millis(index * CHIP_STAGGER_DELAY_MULTIPLIER));
+
+        st.play();
     }
 }

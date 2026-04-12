@@ -13,6 +13,7 @@ public class GameState {
     public int currentBet;
     public int dealer;
     public int activePlayer;
+    public int winnerIndex = -1;
 
     public List<Card> communityCards = new ArrayList<>();
     public List<Player> players = new ArrayList<>();
