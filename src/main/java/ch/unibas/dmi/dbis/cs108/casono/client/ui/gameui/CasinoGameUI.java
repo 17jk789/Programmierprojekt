@@ -1,9 +1,15 @@
 package ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui;
 
+import ch.unibas.dmi.dbis.cs108.casono.client.game.GameService;
+import ch.unibas.dmi.dbis.cs108.casono.client.game.PlayerId;
 import ch.unibas.dmi.dbis.cs108.casono.client.network.ClientService;
+import ch.unibas.dmi.dbis.cs108.casono.client.network.GameClient;
 import java.io.IOException;
+import java.util.UUID;
+import java.util.logging.Logger;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
@@ -12,18 +18,18 @@ import javafx.stage.Stage;
  *
  * <p>Starts the JavaFX application, loads the graphical user interface from the FXML file, and
  * initializes the main stage for the game.
- *
- * <p>Tasks: - Loads the FXML interface "/ui-structure/Casinogameui.fxml". - Loads the application
- * icon from "/images/logoinverted.png". - Starts the application in full-screen mode.
  */
 public class CasinoGameUI extends Application {
 
+    private static final Logger LOG = Logger.getLogger(CasinoGameUI.class.getName());
+
     private static ClientService clientService;
+
+    private static String username;
 
     private static final int DEFAULT_WIDTH = 1200;
     private static final int DEFAULT_HEIGHT = 800;
 
-    /** default constructor */
     public CasinoGameUI() {
         // default no-arg constructor
     }
@@ -32,31 +38,69 @@ public class CasinoGameUI extends Application {
         CasinoGameUI.clientService = clientService;
     }
 
-    /**
-     * Starts the main stage of the application.
-     *
-     * @param stage The main stage provided by the system.
-     * @throws IOException If the FXML file or resources cannot be loaded.
-     */
+    public static void setUsername(String username) {
+        CasinoGameUI.username = username;
+    }
+
     @Override
     public void start(Stage stage) throws IOException {
+
+        if (clientService == null) {
+            clientService = ch.unibas.dmi.dbis.cs108.casono.client.ClientApp.getSharedClientService();
+        }
+        if (clientService == null) {
+            throw new IllegalStateException(
+                    "CasinoGameUI: clientService is null. "
+                            + "Call CasinoGameUI.setClientService(...) or start via ClientApp with a shared connection.");
+        }
+
+        String effectiveUsername = normalize(username);
+
+        if (effectiveUsername == null) {
+            effectiveUsername =
+                    normalize(ch.unibas.dmi.dbis.cs108.casono.client.ClientApp.getSharedUsername());
+        }
+
+        if (effectiveUsername == null) {
+            effectiveUsername = "Guest-" + UUID.randomUUID().toString().substring(0, 8);
+        }
+
+        LOG.info("CasinoGameUI starting: effectiveUsername='" + effectiveUsername
+                + "', injectedUsername='" + username
+                + "', sharedUsername='" + ch.unibas.dmi.dbis.cs108.casono.client.ClientApp.getSharedUsername()
+                + "', hasClientService=" + (clientService != null));
+
         FXMLLoader fxmlLoader =
                 new FXMLLoader(CasinoGameUI.class.getResource("/ui-structure/Casinogameui.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), DEFAULT_WIDTH, DEFAULT_HEIGHT);
+        Parent root = fxmlLoader.load();
+        CasinoGameController controller = fxmlLoader.getController();
+
+        int gameId = 1; // TODO echte gameId einsetzen
+        GameClient gameClient = new GameClient(clientService, gameId);
+        GameService gameService = new GameService(gameClient);
+        controller.setGameService(gameService);
+
+        controller.setMyPlayerId(PlayerId.of(effectiveUsername));
+
+        Scene scene = new Scene(root, DEFAULT_WIDTH, DEFAULT_HEIGHT);
         stage.setTitle("Casono");
 
         String iconPath = getClass().getResource("/images/logoinverted.png").toExternalForm();
         stage.getIcons().add(new javafx.scene.image.Image(iconPath));
+
         stage.setScene(scene);
         stage.setFullScreen(true);
         stage.show();
+
+        controller.start();
     }
 
-    /**
-     * Starting point of the application.
-     *
-     * @param args Command line arguments.
-     */
+    private static String normalize(String s) {
+        if (s == null) return null;
+        String t = s.trim();
+        return t.isBlank() ? null : t;
+    }
+
     public static void main(String[] args) {
         launch();
     }

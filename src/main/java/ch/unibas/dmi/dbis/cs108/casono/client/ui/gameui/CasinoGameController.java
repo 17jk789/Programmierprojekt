@@ -8,6 +8,7 @@ import ch.unibas.dmi.dbis.cs108.casono.client.game.PlayerId;
 import ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui.gameuicomponents.PlayerStatusController;
 import ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui.gameuicomponents.TaskbarController;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Logger;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -49,6 +50,7 @@ public class CasinoGameController {
     private TaskbarController taskbarController;
     private Image dealerImage;
     private javafx.animation.Timeline timeline;
+    private boolean gameStarted = false;
 
     private static final int TOTAL_SLOTS = 5;
     private static final int PLAYER_SLOTS = 2;
@@ -305,23 +307,37 @@ public class CasinoGameController {
      */
     private void updateUI() {
 
-        java.util.concurrent.CompletableFuture.supplyAsync(
-                        () -> {
-                            try {
-                                return gameService.refresh();
-                            } catch (Exception e) {
-                                LOGGER.severe("GameService Error: " + e.getMessage());
-                                return null;
-                            }
-                        })
-                .thenAccept(
-                        s -> {
-                            if (s == null) {
-                                return;
-                            }
+        if (gameService == null) {
+            LOGGER.warning("GameService is null, skipping update.");
+            return;
+        }
 
-                            javafx.application.Platform.runLater(() -> applyState(s));
-                        });
+        CompletableFuture
+                .supplyAsync(() -> {
+                    try {
+                        return gameService.refresh();
+                    } catch (Exception e) {
+                        LOGGER.severe("refresh failed: " + e.getMessage());
+                        e.printStackTrace();
+                        return null;
+                    }
+                })
+                .thenAccept(state -> {
+
+                    if (state == null) {
+                        LOGGER.info("No state received yet.");
+                        return;
+                    }
+
+                    javafx.application.Platform.runLater(() -> {
+                        applyState(state);
+                    });
+                })
+                .exceptionally(ex -> {
+                    LOGGER.severe("UI update Error: " + ex.getMessage());
+                    ex.printStackTrace();
+                    return null;
+                });
     }
 
     /**
@@ -332,18 +348,48 @@ public class CasinoGameController {
      */
     private void applyState(GameState s) {
 
-        renderCommunityCards(s.communityCards);
+        if (s == null) return;
+
+        LOGGER.info("applyState -> phase=" + s.phase +
+                " pot=" + s.pot +
+                " players=" + (s.players != null ? s.players.size() : 0));
+
+        List<Player> players = (s.players != null) ? s.players : List.of();
+        List<Card> community = (s.communityCards != null) ? s.communityCards : List.of();
+
+        renderCommunityCards(community);
+        renderPlayerCards(getMyCards(players));
         renderPot(s.pot);
 
-        updatePlayers(s.players);
-        updatePlayerCards(s);
-
+        updatePlayers(players);
         updateGameInfo(s);
         highlightDealer(s);
 
-        if (taskbarController != null) {
-            taskbarController.update(s, myPlayerId);
+        updateTaskbar(s);
+
+        LOGGER.info("myPlayerId=" + myPlayerId);
+        for (int i = 0; i < players.size(); i++) {
+            Player p = players.get(i);
+            LOGGER.info("state.players[" + i + "] id=" + (p != null ? p.getId() : null)
+                    + " chips=" + (p != null ? p.getChips() : null)
+                    + " bet=" + (p != null ? p.getBet() : null)
+                    + " state=" + (p != null ? p.getState() : null));
         }
+    }
+
+    private List<Card> getMyCards(List<Player> players) {
+
+        if (myPlayerId == null || players == null) {
+            return List.of();
+        }
+
+        for (Player p : players) {
+            if (p.getId() != null && p.getId().equals(myPlayerId)) {
+                return p.getCards() != null ? p.getCards() : List.of();
+            }
+        }
+
+        return List.of();
     }
 
     /**
@@ -398,32 +444,64 @@ public class CasinoGameController {
         }
     }
 
-    /**
-     * Update the player status components with the latest player information from the game state.
-     *
-     * @param p The list of players in the current game state.
-     */
-    private void updatePlayers(List<Player> p) {
-
-        if (p == null) {
+    private void updatePlayers(List<Player> players) {
+        if (players == null || players.isEmpty()) {
+            clearOpponentSlots();
             return;
         }
 
-        if (p.size() > PLAYER_INDEX_0) {
-            player1Controller.setPlayer(p.get(PLAYER_INDEX_0));
+        java.util.List<Player> opponents = new java.util.ArrayList<>();
+        boolean meFound = false;
+
+        for (Player p : players) {
+            if (p == null) continue;
+
+            PlayerId pid = p.getId();
+            boolean isMe = myPlayerId != null && pid != null && pid.equals(myPlayerId);
+
+            if (isMe) {
+                meFound = true;
+            } else {
+                opponents.add(p);
+            }
         }
 
-        if (p.size() > PLAYER_INDEX_1) {
-            player2Controller.setPlayer(p.get(PLAYER_INDEX_1));
+        if (!meFound) {
+            opponents.clear();
+            opponents.addAll(players);
         }
 
-        if (p.size() > PLAYER_INDEX_2) {
-            player3Controller.setPlayer(p.get(PLAYER_INDEX_2));
-        }
+        LOGGER.info("updatePlayers: total=" + players.size()
+                + " myPlayerId=" + myPlayerId
+                + " meFound=" + meFound
+                + " opponents=" + opponents.size());
 
-        player1Controller.refresh();
-        player2Controller.refresh();
-        player3Controller.refresh();
+        setOpponent(player1Controller, opponents, 0);
+        setOpponent(player2Controller, opponents, 1);
+        setOpponent(player3Controller, opponents, 2);
+
+        safeRefresh(player1Controller);
+        safeRefresh(player2Controller);
+        safeRefresh(player3Controller);
+    }
+
+    private void setOpponent(PlayerStatusController slot, java.util.List<Player> list, int index) {
+        if (slot == null) return;
+        slot.setPlayer(index < list.size() ? list.get(index) : null);
+    }
+
+    private void safeRefresh(PlayerStatusController c) {
+        if (c == null) return;
+        try { c.refresh(); } catch (Exception ignored) {}
+    }
+
+    private void clearOpponentSlots() {
+        if (player1Controller != null) player1Controller.setPlayer(null);
+        if (player2Controller != null) player2Controller.setPlayer(null);
+        if (player3Controller != null) player3Controller.setPlayer(null);
+        safeRefresh(player1Controller);
+        safeRefresh(player2Controller);
+        safeRefresh(player3Controller);
     }
 
     /**
@@ -912,5 +990,9 @@ public class CasinoGameController {
         st.setDelay(javafx.util.Duration.millis(index * CHIP_STAGGER_DELAY_MULTIPLIER));
 
         st.play();
+    }
+
+    public void setMyPlayerId(PlayerId id) {
+        this.myPlayerId = id;
     }
 }

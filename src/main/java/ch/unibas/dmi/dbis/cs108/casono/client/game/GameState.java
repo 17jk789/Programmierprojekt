@@ -8,13 +8,13 @@ import java.util.List;
  * dealer position, active player, community cards, and player information.
  */
 public class GameState {
+    public List<Player> players = new ArrayList<>();
+    public List<Card> communityCards = new ArrayList<>();
+
     public String phase;
     public int pot;
     public int currentBet;
     public int dealer;
     public int activePlayer;
     public int winnerIndex = -1;
-
-    public List<Card> communityCards = new ArrayList<>();
-    public List<Player> players = new ArrayList<>();
 }

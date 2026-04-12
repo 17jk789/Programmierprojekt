@@ -107,11 +107,16 @@ public class ClientService {
 
         boolean hasStatus = false;
         boolean success = false;
+
         List<String> lines = new ArrayList<>();
+
+        int depth = 0;
+        boolean inPlayer = false;
 
         for (String rawLine : responseText.split("\\n")) {
             String line = rawLine;
             String trimmed = line.trim();
+
             if (!hasStatus) {
                 if ("+OK".equals(trimmed)) {
                     success = true;
@@ -126,12 +131,39 @@ public class ClientService {
                 continue;
             }
 
+            if (trimmed.isEmpty()) continue;
+
+            line = line.replaceFirst("^\\s+", "");
+            trimmed = line.trim();
+
+            if ("PLAYER".equals(trimmed)) {
+                inPlayer = true;
+                lines.add("PLAYER");
+                continue;
+            }
+
+            if (isContainerStart(trimmed)) {
+                depth++;
+                lines.add(trimmed);
+                continue;
+            }
+
             if ("END".equals(trimmed)) {
+                if (inPlayer) {
+                    inPlayer = false;
+                    lines.add("END");
+                    continue;
+                }
+
+                if (depth > 0) {
+                    depth--;
+                    lines.add("END");
+                    continue;
+                }
+
                 break;
             }
 
-            // remove leading indentation (tabs/spaces) so parameters match regex parsing
-            line = line.replaceFirst("^\\s+", "");
             lines.add(line);
         }
 
@@ -143,16 +175,17 @@ public class ClientService {
                 success = false;
                 hasStatus = true;
             } else {
-                // best effort: treat as success
                 success = true;
                 hasStatus = true;
             }
         }
 
+        logger.debug("Parsed response lines (rid={}, success={}, depthEnd={}, inPlayerEnd={}): {}",
+                rid, success, depth, inPlayer, lines);
+
         if (rid == 0) {
             for (Consumer<List<String>> l : eventListeners) {
                 try {
-                    logger.debug("Parsed response lines: {}", lines);
                     l.accept(List.copyOf(lines));
                 } catch (Exception e) {
                     logger.warn("Event listener threw", e);
@@ -166,6 +199,14 @@ public class ClientService {
                 logger.warn("No pending response queue for id {}", rid);
             }
         }
+    }
+
+    private boolean isContainerStart(String token) {
+        return token.equals("LOBBIES")
+                || token.equals("LOBBY")
+                || token.equals("PLAYERS")
+                || token.equals("CARDS");
+        // NOTE: PLAYER deliberately excluded
     }
 
     /**
