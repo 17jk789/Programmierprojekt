@@ -511,6 +511,16 @@ video,
     z-index: 2;
 }
 
+.team-member-link {
+    text-decoration: none;
+    color: inherit;
+    width: 100%;
+}
+
+.team-member-link:hover {
+    color: inherit;
+}
+
 .feature-card .icon {
     width: 100px;
     margin-bottom: 1.5rem;
