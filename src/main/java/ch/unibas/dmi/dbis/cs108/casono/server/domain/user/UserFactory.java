@@ -2,11 +2,14 @@ package ch.unibas.dmi.dbis.cs108.casono.server.domain.user;
 
 import ch.unibas.dmi.dbis.cs108.casono.server.network.sessions.SessionId;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /** Creates new users, resolving name conflicts automatically. */
 public class UserFactory {
     private final UserRegistry registry;
     private final AtomicInteger anonymousCounter = new AtomicInteger(1);
+    private static final Logger LOGGER = LogManager.getLogger(UserFactory.class);
 
     /**
      * Creates a new UserFactory backed by the given registry.
@@ -34,14 +37,26 @@ public class UserFactory {
                 String candidate = "player" + anonymousCounter.getAndIncrement();
                 var result = registry.registerIfAvailable(candidate, sessionId);
                 if (result.isPresent()) {
-                    return result.get();
+                    var user = result.get();
+                    LOGGER.info(
+                            "Registered user '{}' with id {} for session {}",
+                            user.getName(),
+                            user.getId().value(),
+                            sessionId == null ? "null" : sessionId.value());
+                    return user;
                 }
             }
         }
 
         var result = registry.registerIfAvailable(desiredName, sessionId);
         if (result.isPresent()) {
-            return result.get();
+            var user = result.get();
+            LOGGER.info(
+                    "Registered user '{}' with id {} for session {}",
+                    user.getName(),
+                    user.getId().value(),
+                    sessionId == null ? "null" : sessionId.value());
+            return user;
         }
 
         int suffix = 1;
@@ -49,7 +64,13 @@ public class UserFactory {
             String candidate = desiredName + "_" + String.format("%03d", suffix);
             result = registry.registerIfAvailable(candidate, sessionId);
             if (result.isPresent()) {
-                return result.get();
+                var user = result.get();
+                LOGGER.info(
+                        "Registered user '{}' with id {} for session {}",
+                        user.getName(),
+                        user.getId().value(),
+                        sessionId == null ? "null" : sessionId.value());
+                return user;
             }
             suffix++;
         }
