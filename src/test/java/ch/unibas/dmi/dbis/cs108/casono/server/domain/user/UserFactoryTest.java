@@ -1,14 +1,11 @@
 package ch.unibas.dmi.dbis.cs108.casono.server.domain.user;
 
-import ch.unibas.dmi.dbis.cs108.casono.server.network.sessions.SessionId;
 import static org.junit.jupiter.api.Assertions.*;
 
+import ch.unibas.dmi.dbis.cs108.casono.server.network.sessions.SessionId;
 import org.junit.jupiter.api.Test;
 
-/**
- * Tests for {@link UserFactory} and {@link UserRegistry} name assignment
- * behavior.
- */
+/** Tests for {@link UserFactory} and {@link UserRegistry} name assignment behavior. */
 public class UserFactoryTest {
 
     // Logger removed as per patch requirement
