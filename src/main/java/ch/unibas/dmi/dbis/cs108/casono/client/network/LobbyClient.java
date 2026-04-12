@@ -34,7 +34,7 @@ public class LobbyClient {
     public String fetchLobbyStatusString(int lobbyId) {
         List<String> lines = client.processCommand("GET_LOBBY_STATUS ID=" + lobbyId);
 
-        // Prefer an explicit STATUS parameter if provided by the server
+        // Prefer explicit STATUS parameter when available
         List<RequestParameter> params = ClientService.convertToRequestParameters(lines);
         for (RequestParameter p : params) {
             if ("STATUS".equalsIgnoreCase(p.key())) {
@@ -42,11 +42,11 @@ public class LobbyClient {
             }
         }
 
-        // Fallback: look for plain status tokens in the body
-        for (String l : lines) {
-            String t = l.trim();
-            if ("CREATED".equalsIgnoreCase(t) || "RUNNING".equalsIgnoreCase(t)) {
-                return t;
+        // Fallback: some servers may return a plain token as the first line
+        if (!lines.isEmpty()) {
+            String first = lines.get(0).trim();
+            if ("CREATED".equalsIgnoreCase(first) || "RUNNING".equalsIgnoreCase(first)) {
+                return first.toUpperCase();
             }
         }
 
@@ -86,8 +86,15 @@ public class LobbyClient {
      * @return The id of the lobby that the client is currently in, as returned by the server.
      */
     public int getLobbyId() {
-        String response = client.processCommand("GET_LOBBY_ID").getFirst();
-        return Integer.parseInt(response);
+        List<String> lines = client.processCommand("GET_LOBBY_ID");
+        if (lines.isEmpty()) {
+            throw new RuntimeException("GET_LOBBY_ID returned empty response");
+        }
+        try {
+            return Integer.parseInt(lines.get(0).trim());
+        } catch (NumberFormatException e) {
+            throw new RuntimeException("Invalid GET_LOBBY_ID response: " + lines, e);
+        }
     }
 
     /**

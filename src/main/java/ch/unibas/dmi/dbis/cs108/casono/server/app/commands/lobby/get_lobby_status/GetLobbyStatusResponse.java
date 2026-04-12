@@ -22,6 +22,7 @@ public class GetLobbyStatusResponse extends SuccessResponse {
         super(
                 context,
                 ResponseBody.builder()
+                        .param("STATUS", lobby.getGameController() != null ? "RUNNING" : "CREATED")
                         .block(
                                 "LOBBY",
                                 lb -> {

@@ -7,11 +7,17 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.logging.log4j.LogManager;
@@ -30,9 +36,16 @@ public class ClientService {
     private final ExecutorService executor;
     private final boolean offlineMode;
 
-    public static ArrayList<String> response;
     private final AtomicInteger idGenerator;
     private Logger logger;
+
+    private final Map<Integer, ArrayBlockingQueue<ParsedResponse>> pendingResponses =
+            new ConcurrentHashMap<>();
+    private final CopyOnWriteArrayList<Consumer<List<String>>> eventListeners =
+            new CopyOnWriteArrayList<>();
+    private Thread readerThread = null;
+    private final AtomicBoolean running = new AtomicBoolean(false);
+    private static final int READER_JOIN_TIMEOUT_MS = 500;
 
     /**
      * Constructs a ClientService with the given server IP and port. It establishes a socket
@@ -43,7 +56,6 @@ public class ClientService {
      * @param port The port number of the server to connect to.
      */
     public ClientService(String ip, int port) {
-
         this.idGenerator = new AtomicInteger(0);
 
         this.logger = LogManager.getLogger(ClientService.class);
@@ -59,6 +71,100 @@ public class ClientService {
         }
 
         executor = Executors.newSingleThreadExecutor();
+
+        startReaderThread();
+    }
+
+    private void startReaderThread() {
+        running.set(true);
+        readerThread =
+                new Thread(
+                        () -> {
+                            while (running.get()) {
+                                try {
+                                    RawPacket rp = clienttcptransport.read();
+                                    processRawPacket(rp);
+                                } catch (IOException e) {
+                                    if (running.get()) {
+                                        logger.warn("IO error on transport reader", e);
+                                    }
+                                    break;
+                                } catch (InterruptedException e) {
+                                    Thread.currentThread().interrupt();
+                                    break;
+                                }
+                            }
+                        },
+                        "casono-client-reader");
+        readerThread.setDaemon(true);
+        readerThread.start();
+    }
+
+    private void processRawPacket(RawPacket rp) throws InterruptedException, IOException {
+        int rid = rp.requestId();
+        String responseText = rp.payload();
+        logger.info("Raw message '{}'", responseText);
+
+        boolean hasStatus = false;
+        boolean success = false;
+        List<String> lines = new ArrayList<>();
+
+        for (String rawLine : responseText.split("\\n")) {
+            String line = rawLine;
+            if (!hasStatus) {
+                if ("+OK".equals(line)) {
+                    success = true;
+                    hasStatus = true;
+                    continue;
+                }
+                if (line.startsWith("-ERR") || line.startsWith("-ERROR")) {
+                    success = false;
+                    hasStatus = true;
+                    continue;
+                }
+                continue;
+            }
+
+            if ("END".equals(line)) {
+                break;
+            }
+
+            if (line.startsWith("\t")) {
+                line = line.substring(1);
+            }
+            lines.add(line);
+        }
+
+        if (!hasStatus) {
+            if (responseText.contains("+OK")) {
+                success = true;
+                hasStatus = true;
+            } else if (responseText.contains("-ERR") || responseText.contains("-ERROR")) {
+                success = false;
+                hasStatus = true;
+            } else {
+                // best effort: treat as success
+                success = true;
+                hasStatus = true;
+            }
+        }
+
+        if (rid == 0) {
+            for (Consumer<List<String>> l : eventListeners) {
+                try {
+                    l.accept(List.copyOf(lines));
+                } catch (Exception e) {
+                    logger.warn("Event listener threw", e);
+                }
+            }
+        } else {
+            ArrayBlockingQueue<ParsedResponse> q = pendingResponses.get(rid);
+            if (q != null) {
+                q.put(new ParsedResponse(success, lines));
+            } else {
+                logger.warn("No pending response queue for id {}", rid);
+            }
+        }
     }
 
     /**
@@ -124,6 +230,19 @@ public class ClientService {
                 .toList();
     }
 
+    private static record ParsedResponse(boolean success, List<String> lines) {}
+
+    /**
+     * Register an event listener that receives unsolicited event payload lines (no status prefix).
+     */
+    public void addEventListener(Consumer<List<String>> listener) {
+        eventListeners.add(listener);
+    }
+
+    public void removeEventListener(Consumer<List<String>> listener) {
+        eventListeners.remove(listener);
+    }
+
     /**
      * Sends a command to the server and processes the multi-line response. It handles the protocol
      * handshake (expecting +OK), strips leading tabs from response lines, and collects them until
@@ -135,74 +254,51 @@ public class ClientService {
      *     occurs.
      */
     protected List<String> processCommand(String message) {
-        List<String> response = new ArrayList<>();
-        sendRequest(
-                () -> {
-                    try {
-                        writeToTransport(message);
-                        String responseText = clienttcptransport.read().payload();
-                        logger.info("Raw message '{}'", responseText);
+        if (offlineMode) {
+            throw new RuntimeException("ClientService is offline");
+        }
 
-                        boolean hasStatus = false;
-                        boolean success = false;
-                        for (String rawLine : responseText.split("\n")) {
-                            String line = rawLine;
-                            if (!hasStatus) {
-                                if ("+OK".equals(line)) {
-                                    success = true;
-                                    hasStatus = true;
-                                    continue;
-                                }
-                                if (line.startsWith("-ERR") || line.startsWith("-ERROR")) {
-                                    success = false;
-                                    hasStatus = true;
-                                    continue;
-                                }
-                                // ignore any lines before the status indicator
-                                continue;
+        int reqId = idGenerator.incrementAndGet();
+        ArrayBlockingQueue<ParsedResponse> q = new ArrayBlockingQueue<>(1);
+        pendingResponses.put(reqId, q);
+
+        Future<?> writeFuture =
+                executor.submit(
+                        () -> {
+                            try {
+                                clienttcptransport.write(new RawPacket(reqId, message));
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
                             }
+                        });
 
-                            if ("END".equals(line)) {
-                                break;
-                            }
+        try {
+            writeFuture.get();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            pendingResponses.remove(reqId);
+            throw new RuntimeException(e);
+        } catch (ExecutionException e) {
+            pendingResponses.remove(reqId);
+            throw getRuntimeException(e);
+        }
 
-                            // strip a single leading tab if present (protocol formatting)
-                            if (line.startsWith("\t")) {
-                                line = line.substring(1);
-                            }
-                            response.add(line);
-                        }
+        ParsedResponse pr;
+        try {
+            pr = q.take();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            pendingResponses.remove(reqId);
+            throw new RuntimeException(e);
+        } finally {
+            pendingResponses.remove(reqId);
+        }
 
-                        if (!hasStatus) {
-                            // Fallback for servers that do not place the status on a
-                            // dedicated line: try to detect status markers anywhere
-                            // in the payload to remain compatible with older servers.
-                            if (responseText.contains("+OK")) {
-                                success = true;
-                                hasStatus = true;
-                            } else if (responseText.contains("-ERR")
-                                    || responseText.contains("-ERROR")) {
-                                success = false;
-                                hasStatus = true;
-                            } else {
-                                throw new RuntimeException(
-                                        "No status line in response for '"
-                                                + message
-                                                + "': "
-                                                + responseText);
-                            }
-                        }
+        if (pr.success) {
+            return pr.lines;
+        }
 
-                        if (success) {
-                            return;
-                        }
-
-                        throw new RuntimeException("Error in " + message + ": " + response);
-                    } catch (Exception e) {
-                        throw getRuntimeException(e);
-                    }
-                });
-        return response;
+        throw new RuntimeException("Error in " + message + ": " + pr.lines);
     }
 
     /**
@@ -250,7 +346,17 @@ public class ClientService {
      */
     public void closeSocket() {
         try {
-            executor.shutdown();
+            running.set(false);
+            if (readerThread != null) {
+                readerThread.interrupt();
+                try {
+                    readerThread.join(READER_JOIN_TIMEOUT_MS);
+                } catch (InterruptedException ignored) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+
+            executor.shutdownNow();
             clienttcptransport.close();
             socket.close();
             logger.info("Socket closed");
@@ -259,16 +365,9 @@ public class ClientService {
         }
     }
 
-    /**
-     * Method to write with the tcp transport to the server
-     *
-     * @param s - Message to be sent
-     * @throws IOException
-     */
-    private void writeToTransport(String s) throws IOException {
-        int id = this.idGenerator.incrementAndGet();
-        this.clienttcptransport.write(new RawPacket(id, s));
-    }
+    // removed unused helper writeToTransport; write is done via processCommand()
+    // which
+    // manages request ids and response matching
 
     public void ping() {
         processCommand("PING");
