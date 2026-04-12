@@ -37,6 +37,7 @@ public class TaskbarController {
 
     private GameService gameService;
     private PlayerId myPlayerId;
+    private GameState lastState;
     private double xOffset = 0;
     private double yOffset = 0;
     private static final double TASKBAR_SCALE = 0.95;
@@ -225,6 +226,8 @@ public class TaskbarController {
             return;
         }
 
+        this.lastState = state;
+
         Player me =
                 state.players.stream()
                         .filter(p -> myPlayerId.equals(p.getId()))
@@ -341,22 +344,33 @@ public class TaskbarController {
     @FXML
     private void onInputPlayerRaise() {
 
-        String input = taskbarInput.getText();
-
-        try {
-            int amount = Integer.parseInt(input.trim());
-
-            gameService.raise(amount);
-
-            LOGGER.info("Player RAISE {}", amount);
-
-            taskbarInput.clear();
-
-            refreshGame();
-
-        } catch (NumberFormatException e) {
-            LOGGER.error("Invalid raise amount");
+        if (gameService == null) {
+            LOGGER.error("GameService not initialized");
+            return;
         }
+
+        GameState state = lastState;
+        if (state == null) {
+            try {
+                state = gameService.refresh();
+                lastState = state;
+            } catch (Exception e) {
+                LOGGER.error("Failed to refresh game state for raise: {}", e.getMessage());
+                return;
+            }
+        }
+
+        if (state == null || state.currentBet <= 0) {
+            LOGGER.warn("Raise not possible: current bet is {}", state != null ? state.currentBet : null);
+            return;
+        }
+
+        int raiseAmount = state.currentBet;
+        gameService.raise(raiseAmount);
+        LOGGER.info("Player RAISE by {} (target: double table bet)", raiseAmount);
+
+        taskbarInput.clear();
+        refreshGame();
     }
 
     /**
