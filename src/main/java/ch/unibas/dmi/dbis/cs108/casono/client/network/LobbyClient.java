@@ -32,7 +32,25 @@ public class LobbyClient {
      * @return A string representing the current status of the lobby, as returned by the server.
      */
     public String fetchLobbyStatusString(int lobbyId) {
-        return client.processCommand("GET_LOBBY_STATUS ID=" + lobbyId).getFirst();
+        List<String> lines = client.processCommand("GET_LOBBY_STATUS ID=" + lobbyId);
+
+        // Prefer an explicit STATUS parameter if provided by the server
+        List<RequestParameter> params = ClientService.convertToRequestParameters(lines);
+        for (RequestParameter p : params) {
+            if ("STATUS".equalsIgnoreCase(p.key())) {
+                return p.value();
+            }
+        }
+
+        // Fallback: look for plain status tokens in the body
+        for (String l : lines) {
+            String t = l.trim();
+            if ("CREATED".equalsIgnoreCase(t) || "RUNNING".equalsIgnoreCase(t)) {
+                return t;
+            }
+        }
+
+        return null;
     }
 
     /**
