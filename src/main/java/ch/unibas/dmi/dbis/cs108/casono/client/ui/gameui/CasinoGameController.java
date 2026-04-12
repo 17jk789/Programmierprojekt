@@ -1,19 +1,27 @@
 package ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui;
 
+import ch.unibas.dmi.dbis.cs108.casono.client.chat.ChatController;
 import ch.unibas.dmi.dbis.cs108.casono.client.game.Card;
 import ch.unibas.dmi.dbis.cs108.casono.client.game.GameService;
 import ch.unibas.dmi.dbis.cs108.casono.client.game.GameState;
 import ch.unibas.dmi.dbis.cs108.casono.client.game.Player;
 import ch.unibas.dmi.dbis.cs108.casono.client.game.PlayerId;
+import ch.unibas.dmi.dbis.cs108.casono.client.network.ClientService;
 import ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui.gameuicomponents.PlayerStatusController;
 import ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui.gameuicomponents.TaskbarController;
+import java.io.IOException;
+import java.net.URL;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Logger;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
@@ -44,6 +52,7 @@ public class CasinoGameController {
     @FXML private VBox player2;
     @FXML private VBox player3;
     @FXML private ImageView myDealerIcon;
+    @FXML private AnchorPane chatContainer;
 
     private GameService gameService;
     private PlayerId myPlayerId;
@@ -125,6 +134,12 @@ public class CasinoGameController {
     private static final long CHIP_DROP_DURATION_MS = 250;
     private static final long CHIP_STAGGER_DELAY_MULTIPLIER = 35L;
 
+    private ChatController chatController;
+    private String chatUsername;
+    private ClientService chatClientService;
+    private int chatLobbyId = -1;
+    private boolean chatInitialized;
+
     /** Standard constructor. Used by FXML. */
     public CasinoGameController() {
         // default constructor for FXML
@@ -203,6 +218,38 @@ public class CasinoGameController {
         // empty display only (optional)
         renderCommunityCards(List.of());
         renderPlayerCards(List.of());
+        initializeChatIfPossible();
+    }
+
+    public void setChatContext(String username, ClientService clientService, int lobbyId) {
+        this.chatUsername = username;
+        this.chatClientService = clientService;
+        this.chatLobbyId = lobbyId;
+        initializeChatIfPossible();
+    }
+
+    private void initializeChatIfPossible() {
+        if (chatInitialized || chatContainer == null || chatClientService == null || chatUsername == null) {
+            return;
+        }
+        try {
+            chatController = new ChatController(chatUsername, chatClientService);
+            URL resource = getClass().getResource("/ui-structure/components/chatui/chatbox.fxml");
+            FXMLLoader loader = new FXMLLoader(resource);
+            loader.setController(chatController.getChatBoxController());
+            javafx.scene.Node chatNode = loader.load();
+            chatContainer.getChildren().setAll(chatNode);
+            AnchorPane.setTopAnchor(chatNode, 0.0);
+            AnchorPane.setBottomAnchor(chatNode, 0.0);
+            AnchorPane.setLeftAnchor(chatNode, 0.0);
+            AnchorPane.setRightAnchor(chatNode, 0.0);
+            if (chatLobbyId >= 0) {
+                chatController.setLobbyChat(chatLobbyId);
+            }
+            chatInitialized = true;
+        } catch (IOException e) {
+            LOGGER.warning("Could not initialize game chat UI: " + e.getMessage());
+        }
     }
 
     // Test method to demonstrate the UI functionality with sample data.
@@ -329,6 +376,9 @@ public class CasinoGameController {
         if (timeline != null) {
             timeline.stop();
         }
+        if (chatController != null) {
+            chatController.shutdown();
+        }
     }
 
     /**
@@ -405,6 +455,7 @@ public class CasinoGameController {
         }
 
         updatePlayers(players);
+        syncWhisperTargetsFromPlayers(players);
         updateGameInfo(s);
         highlightDealer(s);
         updateTaskbar(s);
@@ -416,6 +467,22 @@ public class CasinoGameController {
                     + " chips=" + (p != null ? p.getChips() : null)
                     + " bet=" + (p != null ? p.getBet() : null)
                     + " state=" + (p != null ? p.getState() : null));
+        }
+    }
+
+    private void syncWhisperTargetsFromPlayers(List<Player> players) {
+        if (chatController == null || players == null || players.isEmpty()) {
+            return;
+        }
+        Set<String> seen = new HashSet<>();
+        for (Player player : players) {
+            if (player == null) {
+                continue;
+            }
+            String name = player.getName();
+            if (name != null && !name.isBlank() && seen.add(name)) {
+                chatController.addWhisperUser(name);
+            }
         }
     }
 

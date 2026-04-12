@@ -554,6 +554,7 @@ public class LobbyButtonGridManager {
                         var cs = lobbyClient.getClientService();
 
                         ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui.CasinoGameUI.setClientService(cs);
+                        ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui.CasinoGameUI.setLobbyId(lobbyId);
 
                         String username = ch.unibas.dmi.dbis.cs108.casono.client.ClientApp.getSharedUsername();
                         if (username == null || username.isBlank()) {

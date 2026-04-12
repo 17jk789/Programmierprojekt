@@ -26,6 +26,7 @@ public class CasinoGameUI extends Application {
     private static ClientService clientService;
 
     private static String username;
+    private static int lobbyId = -1;
 
     private static final int DEFAULT_WIDTH = 1200;
     private static final int DEFAULT_HEIGHT = 800;
@@ -40,6 +41,10 @@ public class CasinoGameUI extends Application {
 
     public static void setUsername(String username) {
         CasinoGameUI.username = username;
+    }
+
+    public static void setLobbyId(int lobbyId) {
+        CasinoGameUI.lobbyId = lobbyId;
     }
 
     @Override
@@ -81,6 +86,7 @@ public class CasinoGameUI extends Application {
         controller.setGameService(gameService);
 
         controller.setMyPlayerId(PlayerId.of(effectiveUsername));
+        controller.setChatContext(effectiveUsername, clientService, lobbyId);
 
         Scene scene = new Scene(root, DEFAULT_WIDTH, DEFAULT_HEIGHT);
         stage.setTitle("Casono");
@@ -90,6 +96,7 @@ public class CasinoGameUI extends Application {
 
         stage.setScene(scene);
         stage.setFullScreen(true);
+        stage.setOnHidden(e -> controller.stop());
         stage.show();
 
         controller.start();

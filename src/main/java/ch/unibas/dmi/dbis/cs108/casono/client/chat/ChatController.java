@@ -63,13 +63,17 @@ public class ChatController {
         localUserList = new ArrayList<>();
         this.chatBoxController = new ChatBoxController(username, this);
         this.logger = LogManager.getLogger(ChatController.class);
-        this.timer = new Timer();
+        this.timer = new Timer(true);
         timer.schedule(
                 new TimerTask() {
                     @Override
                     public void run() {
-                        receiveMessage();
-                        checkWhisperUsers();
+                        try {
+                            receiveMessage();
+                            checkWhisperUsers();
+                        } catch (RuntimeException e) {
+                            logger.warn("Chat refresh failed: {}", e.getMessage());
+                        }
                     }
                 },
                 0,
@@ -84,8 +88,12 @@ public class ChatController {
      */
     public void setLobbyChat(int lobbyId) {
         this.lobbyId = lobbyId;
+        ChatKey key = new ChatKey(ChatType.LOBBY);
+        if (chatModelMap.containsKey(key)) {
+            return;
+        }
         ChatModel lobbyChatModel = new ChatModel(ChatType.LOBBY, username, lobbyId, null);
-        chatModelMap.put(new ChatKey(ChatType.LOBBY), lobbyChatModel);
+        chatModelMap.put(key, lobbyChatModel);
         this.chatBoxController.addChatTab("Lobby", lobbyChatModel);
     }
 
@@ -162,13 +170,30 @@ public class ChatController {
             for (String user : users) {
                 String value = user.split("\\=")[1];
                 logger.info(value);
-                if (!(localUserList.contains(value) || value.equals(username))) {
-                    localUserList.add(value);
-                    logger.info("adding new whisper user");
-                    chatBoxController.addWhisperUser(value);
-                }
+                addWhisperUser(value);
             }
         }
+    }
+
+    /**
+     * Registers a whisper target locally and updates the UI if it is a new user.
+     *
+     * @param user target username
+     */
+    public synchronized void addWhisperUser(String user) {
+        if (user == null || user.isBlank()) {
+            return;
+        }
+        if (!(localUserList.contains(user) || user.equals(username))) {
+            localUserList.add(user);
+            logger.info("adding new whisper user");
+            chatBoxController.addWhisperUser(user);
+        }
+    }
+
+    /** Stops polling background tasks for this chat controller instance. */
+    public void shutdown() {
+        timer.cancel();
     }
 
     /**
