@@ -1,6 +1,7 @@
 package ch.unibas.dmi.dbis.cs108.casono.client.network;
 
 import ch.unibas.dmi.dbis.cs108.casono.server.network.command.parsing.RequestParameter;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -128,5 +129,81 @@ public class LobbyClient {
             }
         }
         return new LoginResult(assigned, id);
+    }
+
+    /**
+     * Request the server for the list of available lobbies.
+     *
+     * @return list of LobbyInfo objects representing current lobbies
+     */
+    public List<LobbyInfo> getLobbyList() {
+        List<String> lines = client.processCommand("GET_LOBBY_LIST");
+
+        List<RequestParameter> params = ClientService.convertToRequestParameters(lines);
+
+        List<LobbyInfo> result = new ArrayList<>();
+
+        Integer currentId = null;
+        String currentName = null;
+        Integer currentPlayerCount = null;
+
+        for (RequestParameter p : params) {
+            String key = p.key().toUpperCase();
+            String val = p.value();
+            switch (key) {
+                case "ID":
+                    // If we were collecting a lobby, flush it
+                    if (currentId != null) {
+                        result.add(
+                                new LobbyInfo(
+                                        currentId,
+                                        currentName,
+                                        currentPlayerCount == null ? 0 : currentPlayerCount));
+                        currentName = null;
+                        currentPlayerCount = null;
+                    }
+                    try {
+                        currentId = Integer.parseInt(val);
+                    } catch (NumberFormatException e) {
+                        currentId = null;
+                    }
+                    break;
+                case "NAME":
+                    currentName = val;
+                    break;
+                case "PLAYER_COUNT":
+                    try {
+                        currentPlayerCount = Integer.parseInt(val);
+                    } catch (NumberFormatException e) {
+                        currentPlayerCount = 0;
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        if (currentId != null) {
+            result.add(
+                    new LobbyInfo(
+                            currentId,
+                            currentName,
+                            currentPlayerCount == null ? 0 : currentPlayerCount));
+        }
+
+        return result;
+    }
+
+    /** Simple data holder for lobby metadata returned by the server. */
+    public static final class LobbyInfo {
+        public final int id;
+        public final String name;
+        public final int playerCount;
+
+        public LobbyInfo(int id, String name, int playerCount) {
+            this.id = id;
+            this.name = name;
+            this.playerCount = playerCount;
+        }
     }
 }

@@ -75,6 +75,24 @@ public class CasinomainuiController {
         // LobbyClient will use the provided ClientService; in offline mode calls will
         // fail with RuntimeException
         lobbyClient = new LobbyClient(clientService);
+        // Fetch existing lobbies from server on startup so newly-created lobbies
+        // by other clients are immediately visible.
+        try {
+            if (!lobbyClient.getClientService().isOffline()) {
+                var lobbies = lobbyClient.getLobbyList();
+                int bid = nextButtonId;
+                for (var li : lobbies) {
+                    try {
+                        translationManager.addLobbyButton(bid++, li.id);
+                    } catch (Exception e) {
+                        LOGGER.warn("Could not add lobby button: {}", e.getMessage());
+                    }
+                }
+                nextButtonId = bid;
+            }
+        } catch (RuntimeException e) {
+            LOGGER.warn("Failed to fetch lobby list at startup: {}", e.getMessage());
+        }
         casinoTable.getChildren().clear();
         casinoTable.getChildren().add(gridManager.getGridPane());
         gridManager.renderLobbyButtons();
