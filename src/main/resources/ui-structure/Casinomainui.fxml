@@ -12,9 +12,9 @@
 
     <GridPane prefWidth="1200" prefHeight="800" AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
         <columnConstraints>
-            <!-- Tisch bekommt 75% vom Fenster -->
+            <!-- The table takes up 70% of the window -->
             <ColumnConstraints percentWidth="70.0" hgrow="ALWAYS" />
-            <!-- Info-Box bekommt 25% vom Fenster inkl. 5 prozent buffer -->
+            <!-- The info box takes up 25% of the window, including a 5% buffer -->
             <ColumnConstraints percentWidth="5.0" hgrow="ALWAYS" />
             <ColumnConstraints percentWidth="25.0" hgrow="ALWAYS" />
         </columnConstraints>
@@ -24,7 +24,7 @@
         </rowConstraints>
 
         <children>
-            <!-- LINKER BEREICH (Tisch) -->
+            <!-- LEFT SIDE (Table) -->
             <GridPane GridPane.columnIndex="0" style="-fx-background-color: transparent;" alignment="CENTER">
                 <rowConstraints>
                     <RowConstraints percentHeight="25.0" vgrow="ALWAYS" />
@@ -68,7 +68,7 @@
                             <Insets top="20" left="20" />
                         </GridPane.margin>
                     </Button>
-                    <Button text="Lobby erstellen"
+                    <Button text="CREATE A LOBBY"
                         styleClass="button-create-lobby"
                         fx:id="createLobbyButton"
                         onAction="#handleCreateLobbyButton"
@@ -88,7 +88,7 @@
                                                             GridPane.halignment="LEFT"
                                                             GridPane.valignment="TOP">
                                                         <GridPane.margin>
-                                                                <!-- place below the 'Lobby erstellen' button -->
+                                                                <!-- place below the 'CREATE A LOBBY' button -->
                                                                 <Insets top="100" left="20" />
                                                         </GridPane.margin>
                                                         <TextField fx:id="usernameField"
@@ -122,10 +122,10 @@
                   alignment="CENTER"
                   minWidth="100"
                   minHeight="100">
-                <!-- Bleibt leer -->
+                <!-- Remains empty -->
             </VBox>
 
-            <!-- RECHTER BEREICH (Info-Box) -->
+            <!-- RIGHT SIDE (Chat Box) -->
             <fx:include source="components/chatui/chatbox.fxml" GridPane.columnIndex="2"/>
         </children>
     </GridPane>
