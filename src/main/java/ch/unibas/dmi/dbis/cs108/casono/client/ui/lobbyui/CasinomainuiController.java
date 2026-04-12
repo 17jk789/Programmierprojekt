@@ -1,5 +1,6 @@
 package ch.unibas.dmi.dbis.cs108.casono.client.ui.lobbyui;
 
+import ch.unibas.dmi.dbis.cs108.casono.client.ClientApp;
 import ch.unibas.dmi.dbis.cs108.casono.client.network.ClientService;
 import ch.unibas.dmi.dbis.cs108.casono.client.network.LobbyClient;
 import javafx.application.Platform;
@@ -36,12 +37,16 @@ public class CasinomainuiController {
     private int nextButtonId = 1;
     private LobbyClient lobbyClient;
 
-    /** Default constructor for dependency injection by FXMLLoader. */
+    /** Default constructor used by FXMLLoader. */
     public CasinomainuiController() {
         // Default constructor
     }
 
-    /** Initializes the UI components and sets default values. */
+    /**
+     * Initializes the UI components and sets default values. If a shared {@link
+     * ch.unibas.dmi.dbis.cs108.casono.client.network.ClientService} exists (created at application
+     * start), the controller reuses it so the connection remains open and already-logged-in.
+     */
     @FXML
     public void initialize() {
         titleLabel.setText("Casono");
@@ -51,16 +56,18 @@ public class CasinomainuiController {
         translationManager = LobbyButtonTranslationManager.getInstance();
         String host = System.getProperty("casono.server.host");
         int port = Integer.parseInt(System.getProperty("casono.server.port"));
-        ClientService clientService;
-        try {
-            clientService = new ClientService(host, port);
-        } catch (RuntimeException e) {
-            LOGGER.warn(
-                    "Could not connect to server {}:{} — starting in offline mode: {}",
-                    host,
-                    port,
-                    e.getMessage());
-            clientService = new ClientService(true); // offline mode
+        ClientService clientService = ClientApp.getSharedClientService();
+        if (clientService == null) {
+            try {
+                clientService = new ClientService(host, port);
+            } catch (RuntimeException e) {
+                LOGGER.warn(
+                        "Could not connect to server {}:{} — starting in offline mode: {}",
+                        host,
+                        port,
+                        e.getMessage());
+                clientService = new ClientService(true); // offline mode
+            }
         }
         gridManager =
                 new LobbyButtonGridManager(
@@ -117,7 +124,11 @@ public class CasinomainuiController {
         Platform.exit();
     }
 
-    /** Handles creation of a new lobby button. */
+    /**
+     * Handles creation of a new lobby button. Attempts to create a lobby on the server via the
+     * {@link LobbyButtonGridManager} and registers the new button in the local translation manager.
+     * Errors are logged and displayed as an informational alert.
+     */
     @FXML
     public void handleCreateLobbyButton() {
         if (translationManager.isFull()) {
