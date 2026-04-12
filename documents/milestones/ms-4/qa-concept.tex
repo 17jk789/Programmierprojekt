@@ -24,16 +24,16 @@
 \section{Einleitung}
 Dieses Dokument beschreibt die Software-Qualitätssicherung für unser Mehrspieler-Spiel \textit{Casono}. Es wird als Teil der Programmierprojekt-Vorlesung (ehemals bekannt als cs108) an der Universität Basel von uns entwickelt.\\
 
-Dieses Konzept basiert auf der \textit{ISO 9126} Norm und ist daher in folgende Themenbereiche unterteilt:
+Dieses Konzept basiert auf der \textit{DIN ISO 9126} und ist demzufolge in folgende Themenbereiche unterteilt:
 \begin{itemize}
   \item \textbf{Konstruktives Qualitätsmanagement} - Maßnahmen, die \emph{während} der Entwicklung ergriffen werden, um die Qualität von Anfang an sicherzustellen.
-  Einschließlich technischer Standards, Werkzeuge und der internen Organisation.
-  \item \textbf{Analytisches Qualitätsmanagement} - Maßnahmen zur \emph{Kontrolle und Untersuchung} des bestehenden Produkts, darunter automatisierte Analysen, Metrik-Schwellenwerte und Unit-Tests.
+  Einschließlich technischer Standards, Werkzeuge und internen Organisation.
+  \item \textbf{Analytisches Qualitätsmanagement} - Maßnahmen zur \emph{Kontrolle und Untersuchung} des bestehenden Produkts, durch Anwendung automatisierte Analysen, Metrik-Schwellenwerte und Unit-Tests.
 \end{itemize}
 
 
 \section{Konstruktives Qualitätsmanagement}
-Ein konstruktives Qualitätsmanagement umfasst alle Maßnahmen, die proaktiv Mängel verhindern, indem gemeinsame Standards, Prozesse und Werkzeuge festgelegt werden, die jedes Teammitglied während der Entwicklung anwendet.
+Ein konstruktives Qualitätsmanagement umfasst alle Maßnahmen, die proaktiv Mängel verhindern, indem gemeinsame Standards, Prozesse und Werkzeuge festgelegt werden, die jedes Teammitglied während der Entwicklung einhält.
 
 \subsection{Technische Maßnahmen}
 
@@ -42,10 +42,10 @@ Alle öffentlichen Klassen, Interfaces, Records und Methoden müssen durch JavaD
 Als Teil der GitLab-Build-Pipeline wird JavaDoc auf Richtigkeit überprüft. Werden strukturelle Fehler wie ungültige Referenzen erkannt, wird der Merge verhindert.\\
 Unsere aktuelle Grundlage sind daher 0 Fehler. Für den kommenden Meilenstein ist aber unser Ziel, die Regelungen weiter zu verschärfen, sodass auch Warnungen einen Merge verhindern.\\
 
-Unsere aktuelle implizite Form für JavaDoc-Kommentare ist wie folgt:
+Unsere implizite Form für JavaDoc-Kommentare ist wie folgt:
 \begin{itemize}
   \item Eine prägnante Zusammenfassung in einem Satz in der ersten Zeile
-  \item Zusätzliche Informationen oder Beispiele als weitere Absätze.
+  \item Zusätzliche Informationen oder Beispiele in weiteren Absätzen.
   \item Dokumentation aller Parameter (\texttt{@param}), Rückgabewerte (\texttt{@return}) und Fehler (\texttt{@throws}).
 \end{itemize}
 Beginnend mit dem fünften Meilenstein soll diese Form ebenfalls durch einen Job in der CI-Pipeline überprüft werden.
@@ -58,7 +58,7 @@ Das Format der Ausgabe ist durch eine Konfigurationsdatei vereinheitlicht.\\
 Die Protokollstufen werden wie folgt einheitlich verwendet:
 \begin{itemize}
   \item \texttt{DEBUG} für interne Zustandsänderungen
-  \item \texttt{INFO} für Lebenszyklusereignisse wie Serverstart, Verbindungsaufbau/Trennung des Clients
+  \item \texttt{INFO} für Lebenszyklusereignisse wie Serverstart, Verbindungsaufbau/-trennung des Clients
   \item \texttt{WARN} für behebbare Anomalien
   \item \texttt{ERROR} für nicht behebbare Fehler
 \end{itemize}
@@ -72,18 +72,18 @@ Das Stammverzeichnis des GitLab-Repositories enthält eine Datei namens \texttt{
   \item Merge-Richtlinie - CI muss bestanden werden. Keine ausdrückliche Genehmigung durch Kollegen erforderlich \footnote{Diese Regelung wird sich voraussichtlich ändern. Siehe dazu den Abschnitt zur \texttt{CODEOWNERS}-Datei.}
   \item Namenskonventionen für Branches und Commits
   \item Code-Stil - Google-Java-Format, AOSP-Variante, Einrückung mit vier Leerzeichen
-  \item Jede Änderung beginnt mit einem Issue oder Task im GitLab, bevor mit der Umsetzung begonnen wird.
-  \item Branch-Namen folgen dem Muster \texttt{<type>/<kurzbeschreibung>} gemäß \href{https://conventional-branch.github.io/}{Conventional Branch} Standard
+  \item Jede Änderung beginnt mit einem Issue oder Task in GitLab, bevor mit der Umsetzung begonnen wird
+  \item Branch-Namen folgen dem Muster \texttt{<typ>/<kurzbeschreibung>} gemäß \href{https://conventional-branch.github.io/}{Conventional Branch} Standard
   \item Commit-Messages folgen dem \href{https://www.conventionalcommits.org/en/v1.0.0/}{Conventional Commits} Standard
   \item Code-Style wird durch Linter (Checkstyle) und Formatter (Spotless, Google/AOSP Java Style) automatisiert überprüft
-  \item Merge Requests müssen eine Beschreibung enthalten und auf das zugehörige Issue verweisen
+  \item Merge Anfragen müssen eine Beschreibung enthalten und auf das zugehörige Issue oder den Task verweisen
   \item Zusammenarbeit und Kommunikation erfolgen bevorzugt über Issue-Kommentare, nicht über private Nachrichten
 \end{itemize}
 
 \subsubsection{GitLab-Task- und Issue-Vorlagen für Fortschrittsverfolgung}
-GitLab-Vorlagen für Tasks und Issues werden für alle geplanten Arbeitselemente verwendet. Die Aufgabenvorlage sorgt für eine einheitliche Struktur, die die Fortschrittsverfolgung erleichtert und das Risiko vager oder unvollständiger Arbeitselemente verringert.
+GitLab-Vorlagen für Tasks und Issues werden für alle geplanten Arbeitselemente verwendet. Die Aufgabenvorlage sorgt für eine einheitliche Struktur, die die Fortschrittsverfolgung erleichtert und das Risiko vager oder unvollständiger Arbeitselemente reduziert.
 
-Durch Labels kann Tasks und Issues weiterer Kontext gegeben werden.
+Durch die Vergabe von Labels kann Tasks und Issues weiterer Kontext gegeben werden.
 
 
 \newpage
@@ -92,24 +92,24 @@ Durch Labels kann Tasks und Issues weiterer Kontext gegeben werden.
 
 \subsubsection{Eigentumsrechte an Programmcode über GitLab \texttt{CODEOWNERS}}
 Beginnend mit dem fünften Meilenstein soll eine \texttt{CODEOWNERS}-Datei erstellt werden, welche Teammitgliedern die Eigentumsrechte an bestimmten Teilen des Programmcodes zuspricht.
-Wollen andere Änderungen an diesen Teilen vorgenommen werden, muss der Eigentümer sie freigeben.\\
+Wollen andere Teammitglieder Änderungen an diesen Teilen vornehmen, muss der Eigentümer sie freigeben.\\
 Aktuell ist jedoch noch unklar, ob diese Funktion genutzt werden kann, da die Instanz mindestens die \textit{Premium}-Stufe haben muss.
 
 \subsubsection{Automatisiertes CI-Linting und Build-Verifizierung}
 Jeder Push und jede Merge-Anfrage löst die CI-Pipeline aus.
 
-Für Pushes und Merge-Requests setzt sich die Pipeline aus folgenden Phasen zusammen:
+Für Pushes und Merge-Anfrage setzt sich die Pipeline aus folgenden Phasen zusammen:
 \begin{enumerate}
   \item \textbf{Linting-Phase} \textcolor{blue}{[Push, MR]} - Checkstyle und Spotless überprüfen, ob der Programmcode dem vereinbarten Stil entspricht.
   \item \textbf{Build-Phase} \textcolor{blue}{[Push, MR]} - \texttt{./gradlew assemble} prüft, ob das gesamte Projekt fehlerfrei kompiliert werden kann.
-  \item \textbf{Checkstyle-Report} \textcolor{blue}{[MR]} - Ein zusätzlicher Checkstyle-Report wird für Merge-Requests erzeugt und als Code-Quality-Report bereitgestellt.
+  \item \textbf{Checkstyle-Report} \textcolor{blue}{[MR]} - Ein zusätzlicher Checkstyle-Report wird für Merge-Anfragen erzeugt und als Code-Quality-Report bereitgestellt.
   \item \textbf{Javadoc-Prüfung} \textcolor{blue}{[MR]} - JavaDoc wird auf Korrektheit geprüft.
   \item \textbf{Test-Phase} \textcolor{blue}{[Push, MR]} - Automatisierte Tests werden ausgeführt und ein Testreport erzeugt.
 \end{enumerate}
 Fehlschlagende Jobs verhindern einen Push nicht, jedoch wird ein Merge so lange verhindert, bis alle Jobs fehlerfrei abgeschlossen werden können.
 
 \subsection{Testverfahren}
-Unit-Tests werden mit \textit{JUnit 5} geschrieben und in der Testphase der CI-Pipeline ausgeführt. Ein fehlgeschlagener Test blockiert den Merge-Request.
+Unit-Tests werden mit \textit{JUnit 5} geschrieben und in der Testphase der CI-Pipeline ausgeführt. Ein fehlgeschlagener Test blockiert die Merge-Anfrage.
 
 Als weiteres Werkzeug verwenden wir \textit{JaCoCo} für die Ermittlung der Testabdeckung. \\
 Die aktuelle Testabdeckung ist wie folgt:
@@ -139,6 +139,6 @@ Die aktuelle Testabdeckung ist wie folgt:
 \end{table}
 
 Unser Ziel ist es, realistische Anforderungen an unsere Testabdeckung zu stellen.
-Bis zum fünften Meilenstein wollen wir daher für wichtige Bereiche, wie die Game-Engine und interne Komponenten des Netzwerks, eine möglichst hohe Abdeckung von mindestens 50\% zu erzielen. 
+Bis zum fünften Meilenstein wollen wir daher für wichtige Bereiche, wie die Game-Engine und interne Komponenten des Netzwerks, eine möglichst hohe Abdeckung von mindestens 50\% erzielen. 
 
 \end{document}
