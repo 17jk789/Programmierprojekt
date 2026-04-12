@@ -174,7 +174,8 @@ public class ServerApp {
 
         parserDispatcher.register("SEND_MESSAGE", new SendMessageParser());
         commandRouter.register(
-                SendMessageRequest.class, new SendMessageHandler(responseDispatcher, userRegistry));
+                SendMessageRequest.class,
+                new SendMessageHandler(responseDispatcher, userRegistry, context.lobbyManager()));
 
         parserDispatcher.register("GET_MESSAGE_COUNT", new GetMessageCountParser());
         commandRouter.register(

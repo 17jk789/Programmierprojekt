@@ -195,6 +195,8 @@ public class ClientService {
                 || token.equals("LOBBY")
                 || token.equals("PLAYERS")
                 || token.equals("PLAYER")
+                || token.equals("USERS")
+                || token.equals("USER")
                 || token.equals("CARDS")
                 || token.equals("CARD");
     }

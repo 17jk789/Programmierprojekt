@@ -89,7 +89,9 @@ public class ChatController {
     public void setLobbyChat(int lobbyId) {
         this.lobbyId = lobbyId;
         ChatKey key = new ChatKey(ChatType.LOBBY);
-        if (chatModelMap.containsKey(key)) {
+        ChatModel existingModel = chatModelMap.get(key);
+        if (existingModel != null) {
+            existingModel.lobbyId = lobbyId;
             return;
         }
         ChatModel lobbyChatModel = new ChatModel(ChatType.LOBBY, username, lobbyId, null);
@@ -115,7 +117,7 @@ public class ChatController {
                         chatModelMap.get(new ChatKey(ChatType.GLOBAL)).addMessage(msg);
                         break;
                     case ChatType.LOBBY:
-                        if (msg.lobbyId == lobbyId) {
+                        if (msg.lobbyId == getActiveLobbyChatId()) {
                             chatModelMap
                                     .computeIfAbsent(
                                             new ChatKey(ChatType.LOBBY),
@@ -153,6 +155,14 @@ public class ChatController {
                 }
             }
         }
+    }
+
+    private int getActiveLobbyChatId() {
+        ChatModel lobbyModel = chatModelMap.get(new ChatKey(ChatType.LOBBY));
+        if (lobbyModel != null) {
+            return lobbyModel.lobbyId;
+        }
+        return lobbyId;
     }
 
     /**
