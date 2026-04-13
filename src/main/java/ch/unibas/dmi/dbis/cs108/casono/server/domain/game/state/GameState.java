@@ -11,15 +11,19 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The GameState class encapsulates the entire state of a poker game at any given moment.
+ * The GameState class encapsulates the entire state of a poker game at any
+ * given moment.
  *
- * <p>Important invariants this implementation maintains:
+ * <p>
+ * Important invariants this implementation maintains:
  *
  * <ul>
- *   <li>{@code playerOrder} defines the stable seating/turn order.
- *   <li>{@code currentBets} always contains an entry for every player in {@code playerOrder}.
- *   <li>{@code holeCards} maps every player to a mutable list; if not present, it is created on
- *       demand.
+ * <li>{@code playerOrder} defines the stable seating/turn order.
+ * <li>{@code currentBets} always contains an entry for every player in
+ * {@code playerOrder}.
+ * <li>{@code holeCards} maps every player to a mutable list; if not present, it
+ * is created on
+ * demand.
  * </ul>
  */
 public class GameState {
@@ -184,7 +188,8 @@ public class GameState {
     }
 
     /**
-     * Reset bets to 0 for ALL players (do not clear the map). Also resets table current bet to 0.
+     * Reset bets to 0 for ALL players (do not clear the map). Also resets table
+     * current bet to 0.
      */
     public void resetBets() {
         for (PlayerId id : playerOrder) {
@@ -227,7 +232,8 @@ public class GameState {
     // Cards
 
     /**
-     * Gives (overwrites) the two hole cards for the given player. Ensures stable list identity
+     * Gives (overwrites) the two hole cards for the given player. Ensures stable
+     * list identity
      * (important if other code holds references).
      */
     public void giveHoleCards(PlayerId playerId, Card c1, Card c2) {
@@ -287,13 +293,14 @@ public class GameState {
     /**
      * Starts a new hand by resetting the game state for the next round of poker.
      *
-     * <p>This:
+     * <p>
+     * This:
      *
      * <ul>
-     *   <li>sets {@code phase=PREFLOP}
-     *   <li>resets pot/bets/commitments
-     *   <li>clears community + hole cards
-     *   <li>creates & shuffles a new deck
+     * <li>sets {@code phase=PREFLOP}
+     * <li>resets pot/bets/commitments
+     * <li>clears community + hole cards
+     * <li>creates &amp; shuffles a new deck
      * </ul>
      */
     public void startNewHand() {
