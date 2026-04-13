@@ -31,22 +31,49 @@ public class CasinoGameUI extends Application {
     private static final int DEFAULT_WIDTH = 1200;
     private static final int DEFAULT_HEIGHT = 800;
 
+    /**
+     * Default constructor for the CasinoGameUI application.
+     */
     public CasinoGameUI() {
         // default no-arg constructor
     }
 
+    /**
+     * Sets the ClientService instance to be used by the application.
+     *
+     * @param clientService the ClientService instance to set
+     */
     public static void setClientService(ClientService clientService) {
         CasinoGameUI.clientService = clientService;
     }
 
+    /**
+     * Sets the username to be used by the application.
+     *
+     * @param username the username to set
+     */
     public static void setUsername(String username) {
         CasinoGameUI.username = username;
     }
 
+    /**
+     * Sets the lobby ID to be used by the application.
+     *
+     * @param lobbyId the lobby ID to set
+     */
     public static void setLobbyId(int lobbyId) {
         CasinoGameUI.lobbyId = lobbyId;
     }
 
+    /**
+     * The main entry point for the JavaFX application. This method is called after the application is
+     *
+     * @param stage the primary stage for this application, onto which
+     * the application scene can be set.
+     * Applications may create other stages, if needed, but they will not be
+     * primary stages.
+     * @throws IOException
+     */
     @Override
     public void start(Stage stage) throws IOException {
 
@@ -102,12 +129,23 @@ public class CasinoGameUI extends Application {
         controller.start();
     }
 
+    /**
+     * Normalizes a string by trimming whitespace and converting blank strings to null.
+     *
+     * @param s the string to normalize
+     * @return the normalized string, or null if the input is null or blank
+     */
     private static String normalize(String s) {
         if (s == null) return null;
         String t = s.trim();
         return t.isBlank() ? null : t;
     }
 
+    /**
+     * The main method serves as the entry point for the application. It launches the JavaFX application.
+     *
+     * @param args command line arguments (not used)
+     */
     public static void main(String[] args) {
         launch();
     }

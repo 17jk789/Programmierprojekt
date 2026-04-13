@@ -107,6 +107,11 @@ public class CasinomainuiController {
         initializeChat(clientService);
     }
 
+    /**
+     * Initializes the chat UI if a valid ClientService is available. If the client is offline or the
+     *
+     * @param clientService
+     */
     private void initializeChat(ClientService clientService) {
         if (clientService == null || clientService.isOffline() || chatContainer == null) {
             return;
@@ -128,6 +133,11 @@ public class CasinomainuiController {
         }
     }
 
+    /**
+     * Resolves the username to be used in the chat. It first checks for a shared username set at the
+     *
+     * @return The resolved username, or "Guest" if no valid username is found.
+     */
     private String resolveChatUsername() {
         String shared = ClientApp.getSharedUsername();
         if (shared != null && !shared.isBlank()) {
