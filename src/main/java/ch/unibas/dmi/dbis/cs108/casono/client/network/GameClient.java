@@ -13,20 +13,13 @@ import java.util.logging.Logger;
 /**
  * Fetches and parses game state from server.
  *
- * <p>
- * Protocol notes (based on your current server implementation): - Success
- * replies contain:
- * PHASE, POT, CURRENT_BET, DEALER, ACTIVE_PLAYER, then blocks: - CARD ... END
- * (community cards on
- * root level) - PLAYER ... (NAME/CHIPS/BET/STATE + optional CARD blocks for
- * requesting player) ...
+ * <p>Protocol notes (based on your current server implementation): - Success replies contain:
+ * PHASE, POT, CURRENT_BET, DEALER, ACTIVE_PLAYER, then blocks: - CARD ... END (community cards on
+ * root level) - PLAYER ... (NAME/CHIPS/BET/STATE + optional CARD blocks for requesting player) ...
  * END - Error replies contain: -ERR then CODE=..., MSG=..., END
  *
- * <p>
- * Important: - The server does NOT wrap cards in a "CARDS" container. - CARD
- * blocks appear
- * either: - at root level -> community cards - inside PLAYER -> hole cards for
- * that player (usually
+ * <p>Important: - The server does NOT wrap cards in a "CARDS" container. - CARD blocks appear
+ * either: - at root level -> community cards - inside PLAYER -> hole cards for that player (usually
  * only for the requesting user)
  */
 public class GameClient {
@@ -37,8 +30,10 @@ public class GameClient {
     private final int gameId;
 
     public GameClient(ClientService client, int gameId) {
-        if (client == null)
+        if (client == null) {
             throw new IllegalArgumentException("ClientService must not be null");
+        }
+
         this.client = client;
         this.gameId = gameId;
         LOG.info(() -> "GameClient initialized for gameId=" + gameId);
@@ -78,16 +73,17 @@ public class GameClient {
         try {
             GameState state = parseGameState(joined);
             LOG.info(
-                    () -> "Parsed state: phase="
-                            + state.phase
-                            + " pot="
-                            + state.pot
-                            + " players="
-                            + (state.players != null ? state.players.size() : 0)
-                            + " community="
-                            + (state.communityCards != null
-                                    ? state.communityCards.size()
-                                    : 0));
+                    () ->
+                            "Parsed state: phase="
+                                    + state.phase
+                                    + " pot="
+                                    + state.pot
+                                    + " players="
+                                    + (state.players != null ? state.players.size() : 0)
+                                    + " community="
+                                    + (state.communityCards != null
+                                            ? state.communityCards.size()
+                                            : 0));
             return state;
         } catch (Exception e) {
             LOG.log(Level.SEVERE, "Failed parsing game state. Payload=\n" + joined, e);
@@ -119,8 +115,9 @@ public class GameClient {
         ParseState state = new ParseState();
         for (String raw : input.split("\n")) {
             String line = raw.trim();
-            if (line.isEmpty() || line.startsWith("+OK"))
+            if (line.isEmpty() || line.startsWith("+OK")) {
                 continue;
+            }
 
             if (!parseGlobalField(s, line)
                     && !parsePlayerStructure(s, state, line)
@@ -170,8 +167,11 @@ public class GameClient {
             state.insidePlayer = true;
             return true;
         }
-        if (line.equals("CARDS"))
+
+        if (line.equals("CARDS")) {
             return true;
+        }
+
         if (line.equals("CARD")) {
             state.currentCard = new Card("", "");
             if (state.insidePlayer && state.currentPlayer != null) {
@@ -181,6 +181,7 @@ public class GameClient {
             }
             return true;
         }
+
         if (line.equals("END")) {
             if (state.currentCard != null) {
                 state.currentCard = null;
@@ -194,8 +195,10 @@ public class GameClient {
     }
 
     private boolean parseCardData(ParseState state, String line) {
-        if (state.currentCard == null)
+        if (state.currentCard == null) {
             return false;
+        }
+
         if (line.startsWith("VALUE=")) {
             state.currentCard.setValue(value(line));
             return true;
@@ -208,24 +211,30 @@ public class GameClient {
     }
 
     private boolean parsePlayerData(ParseState state, String line) {
-        if (state.currentPlayer == null)
+        if (state.currentPlayer == null) {
             return false;
+        }
+
         if (line.startsWith("USERNAME=") || line.startsWith("NAME=")) {
             state.currentPlayer.setId(PlayerId.of(value(line)));
             return true;
         }
+
         if (line.startsWith("CHIPS=")) {
             state.currentPlayer.setChips(intVal(line));
             return true;
         }
+
         if (line.startsWith("BET=")) {
             state.currentPlayer.setBet(intVal(line));
             return true;
         }
+
         if (line.startsWith("STATE=")) {
             state.currentPlayer.setState(parseState(value(line)));
             return true;
         }
+
         return false;
     }
 
@@ -244,8 +253,10 @@ public class GameClient {
     }
 
     private static PlayerState parseState(String s) {
-        if (s == null)
+        if (s == null) {
             return PlayerState.ACTIVE;
+        }
+
         return switch (s.trim().toUpperCase()) {
             case "ACTIVE" -> PlayerState.ACTIVE;
             case "FOLDED" -> PlayerState.FOLDED;
@@ -255,8 +266,10 @@ public class GameClient {
     }
 
     private static String extractValue(String joined, String key) {
-        if (joined == null)
+        if (joined == null) {
             return null;
+        }
+
         for (String raw : joined.split("\n")) {
             String line = raw.trim();
             if (line.startsWith(key + "=")) {

@@ -11,13 +11,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * RoundManager manages hand lifecycle and phase progression (PREFLOP -> FLOP -> TURN -> RIVER -> SHOWDOWN).
+ * RoundManager manages hand lifecycle and phase progression (PREFLOP -> FLOP -> TURN -> RIVER ->
+ * SHOWDOWN).
  *
  * <p>This implementation:
+ *
  * <ul>
- *   <li>starts a new hand (reset + hole cards + blinds)</li>
- *   <li>progresses phases once betting round is finished</li>
- *   <li>deals community cards (3/1/1)</li>
+ *   <li>starts a new hand (reset + hole cards + blinds)
+ *   <li>progresses phases once betting round is finished
+ *   <li>deals community cards (3/1/1)
  * </ul>
  */
 public class RoundManager {
@@ -56,10 +58,14 @@ public class RoundManager {
         int target = state.getTableState().getCurrentBet();
 
         for (Player p : state.getPlayers()) {
-            if (p == null) continue;
+            if (p == null) {
+                continue;
+            }
 
             // be tolerant if codebase mixes status + boolean flags
-            if (p.getStatus() == PlayerStatus.FOLDED || p.isFolded()) continue;
+            if (p.getStatus() == PlayerStatus.FOLDED || p.isFolded()) {
+                continue;
+            }
 
             int bet = state.getCurrentBet(p.getId());
             if (bet < target && !p.isAllIn()) {
@@ -75,7 +81,9 @@ public class RoundManager {
             case FLOP -> dealTurn(state);
             case TURN -> dealRiver(state);
             case RIVER -> showdown(state);
-            case SHOWDOWN -> { /* nothing */ }
+            case SHOWDOWN -> {
+                /* nothing */
+            }
         }
     }
 
@@ -92,7 +100,9 @@ public class RoundManager {
         Deck deck = state.getDeck();
 
         for (Player p : state.getPlayers()) {
-            if (p == null) continue;
+            if (p == null) {
+                continue;
+            }
 
             PlayerId pid = p.getId();
             Card c1 = deck.draw();
@@ -103,20 +113,28 @@ public class RoundManager {
     }
 
     /**
-     * NOTE: Blind assignment here is intentionally minimal because GameState does not expose seating order.
-     * If you want correct dealer-relative blinds, add helpers in GameState (e.g. getPlayerIdAt(int)).
+     * NOTE: Blind assignment here is intentionally minimal because GameState does not expose
+     * seating order. If you want correct dealer-relative blinds, add helpers in GameState (e.g.
+     * getPlayerIdAt(int)).
      */
     private void postBlinds(GameState state) {
         List<Player> playerList = new ArrayList<>(state.getPlayers());
-        if (playerList.size() < 2) return;
+        if (playerList.size() < 2) {
+            return;
+        }
 
         // pick first two non-folded players as SB/BB
         Player sb = null;
         Player bb = null;
 
         for (Player p : playerList) {
-            if (p == null) continue;
-            if (p.isFolded()) continue;
+            if (p == null) {
+                continue;
+            }
+
+            if (p.isFolded()) {
+                continue;
+            }
 
             if (sb == null) {
                 sb = p;
@@ -126,7 +144,9 @@ public class RoundManager {
             }
         }
 
-        if (sb == null || bb == null) return;
+        if (sb == null || bb == null) {
+            return;
+        }
 
         sb.removeChips(SMALL_BLIND);
         bb.removeChips(BIG_BLIND);

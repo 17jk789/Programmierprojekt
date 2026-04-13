@@ -158,8 +158,8 @@ public class ChatController {
     }
 
     /**
-     * Method to get the lobbyId of the currently active lobby chat, to check if incoming lobby messages
-     * belong to the same lobby.
+     * Method to get the lobbyId of the currently active lobby chat, to check if incoming lobby
+     * messages belong to the same lobby.
      *
      * @return the lobbyId of the currently active lobby chat.
      */
