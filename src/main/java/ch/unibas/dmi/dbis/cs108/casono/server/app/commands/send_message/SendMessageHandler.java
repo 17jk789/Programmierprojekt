@@ -1,7 +1,8 @@
 package ch.unibas.dmi.dbis.cs108.casono.server.app.commands.send_message;
 
-import ch.unibas.dmi.dbis.cs108.casono.client.chat.Message;
 import ch.unibas.dmi.dbis.cs108.casono.client.chat.ChatType;
+import ch.unibas.dmi.dbis.cs108.casono.client.chat.Message;
+import ch.unibas.dmi.dbis.cs108.casono.server.domain.lobby.Lobby;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.lobby.LobbyId;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.lobby.LobbyManager;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.user.UserRegistry;
@@ -38,7 +39,7 @@ public class SendMessageHandler extends CommandHandler<SendMessageRequest> {
     @Override
     public void execute(SendMessageRequest request) {
         Message message = request.getMessage();
-        broadcast(message);
+        broadcast(request, message);
         OkResponse response = new OkResponse(request.getContext());
         responseDispatcher.dispatch(response);
     }
@@ -49,20 +50,35 @@ public class SendMessageHandler extends CommandHandler<SendMessageRequest> {
      *
      * @param message The {@link Message} object to be broadcast.
      */
-    public void broadcast(Message message) {
-        if (message != null
-                && message.getMessageType() == ChatType.LOBBY
-                && message.lobbyId >= 0
-                && lobbyManager != null) {
-            lobbyManager.broadcast(
-                    LobbyId.of(message.lobbyId),
-                    username ->
-                            userRegistry
-                                    .getByUsername(username)
-                                    .ifPresent(user -> user.enqueueMessage(message)));
-            return;
+    public void broadcast(SendMessageRequest request, Message message) {
+        if (message != null && message.getMessageType() == ChatType.LOBBY && lobbyManager != null) {
+            LobbyId targetLobbyId = resolveLobbyIdForMessage(request, message);
+            if (targetLobbyId != null) {
+                lobbyManager.broadcast(
+                        targetLobbyId,
+                        username ->
+                                userRegistry
+                                        .getByUsername(username)
+                                        .ifPresent(user -> user.enqueueMessage(message)));
+                return;
+            }
         }
 
         userRegistry.getAllUsers().forEach(user -> user.enqueueMessage(message));
+    }
+
+    private LobbyId resolveLobbyIdForMessage(SendMessageRequest request, Message message) {
+        if (message.lobbyId >= 0) {
+            LobbyId idFromMessage = LobbyId.of(message.lobbyId);
+            if (lobbyManager.getLobby(idFromMessage) != null) {
+                return idFromMessage;
+            }
+        }
+
+        return userRegistry
+                .getBySessionId(request.getContext().sessionId())
+                .map(user -> lobbyManager.getLobbyByUsername(user.getName()))
+                .map(Lobby::getId)
+                .orElse(null);
     }
 }

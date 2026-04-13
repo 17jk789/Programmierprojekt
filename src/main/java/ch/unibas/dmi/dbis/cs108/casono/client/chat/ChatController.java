@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.WeakHashMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jspecify.annotations.Nullable;
@@ -19,7 +20,13 @@ import org.jspecify.annotations.Nullable;
  */
 public class ChatController {
 
+    /** Ensures one active message poller per physical ClientService connection. */
+    private static final Map<ClientService, ChatController> ACTIVE_CONTROLLERS =
+            new WeakHashMap<>();
+
     private final String username;
+
+    private final ClientService clientService;
 
     private final ChatClient chatClient;
 
@@ -58,11 +65,15 @@ public class ChatController {
      */
     public ChatController(String username, ClientService clientService) {
         this.username = username;
+        this.clientService = clientService;
         chatClient = new ChatClient(clientService);
         chatModelMap = new LinkedHashMap<>();
         localUserList = new ArrayList<>();
         this.chatBoxController = new ChatBoxController(username, this);
         this.logger = LogManager.getLogger(ChatController.class);
+
+        registerAsActiveController(clientService);
+
         this.timer = new Timer(true);
         timer.schedule(
                 new TimerTask() {
@@ -78,6 +89,17 @@ public class ChatController {
                 },
                 0,
                 REFRESH_TIME);
+    }
+
+    private void registerAsActiveController(ClientService clientService) {
+        synchronized (ACTIVE_CONTROLLERS) {
+            ChatController oldController = ACTIVE_CONTROLLERS.get(clientService);
+            if (oldController != null && oldController != this) {
+                oldController.shutdown();
+                logger.info("Replaced previous ChatController poller for shared ClientService");
+            }
+            ACTIVE_CONTROLLERS.put(clientService, this);
+        }
     }
 
     /**
@@ -158,8 +180,8 @@ public class ChatController {
     }
 
     /**
-     * Method to get the lobbyId of the currently active lobby chat, to check if incoming lobby messages
-     * belong to the same lobby.
+     * Method to get the lobbyId of the currently active lobby chat, to check if incoming lobby
+     * messages belong to the same lobby.
      *
      * @return the lobbyId of the currently active lobby chat.
      */
@@ -210,6 +232,11 @@ public class ChatController {
     /** Stops polling background tasks for this chat controller instance. */
     public void shutdown() {
         timer.cancel();
+        synchronized (ACTIVE_CONTROLLERS) {
+            if (ACTIVE_CONTROLLERS.get(clientService) == this) {
+                ACTIVE_CONTROLLERS.remove(clientService);
+            }
+        }
     }
 
     /**
