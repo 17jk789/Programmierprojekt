@@ -136,6 +136,8 @@ public class CasinoGameController {
     private static final long CHIP_SCALE_DURATION_MS = 220;
     private static final long CHIP_DROP_DURATION_MS = 250;
     private static final long CHIP_STAGGER_DELAY_MULTIPLIER = 35L;
+    private static final double CHAT_WIDTH = 400;
+    private static final double CHAT_HEIGHT = 600;
 
     private ChatController chatController;
     private String chatUsername;
@@ -155,7 +157,10 @@ public class CasinoGameController {
      * @return A string key representing the card, formatted as "suit:value".
      */
     private String cardKey(Card c) {
-        if (c == null) return "null";
+        if (c == null) {
+            return "null";
+        }
+
         String suit = (c.getSuit() == null) ? "" : c.getSuit().toLowerCase();
         String value = (c.getValue() == null) ? "" : c.getValue().toLowerCase();
         return suit + ":" + value;
@@ -238,11 +243,15 @@ public class CasinoGameController {
     }
 
     /**
-     * Set the context for the chat functionality by providing the username, ClientService, and lobby ID.
+     * Set the context for the chat functionality by providing the username, ClientService, and
+     * lobby ID.
      *
-     * @param username The username of the player, used for chat identification. Must not be null or blank.
-     * @param clientService The ClientService instance used for communicating with the server. Must not be null.
-     * @param lobbyId The ID of the lobby associated with the chat, used to determine the chat context. Must be a non-negative integer.
+     * @param username The username of the player, used for chat identification. Must not be null or
+     *     blank.
+     * @param clientService The ClientService instance used for communicating with the server. Must
+     *     not be null.
+     * @param lobbyId The ID of the lobby associated with the chat, used to determine the chat
+     *     context. Must be a non-negative integer.
      */
     public void setChatContext(String username, ClientService clientService, int lobbyId) {
         this.chatUsername = username;
@@ -252,7 +261,8 @@ public class CasinoGameController {
     }
 
     /**
-     * Initialize the chat UI if all necessary information (username, ClientService, and lobby ID) is available and the chat has not already been initialized.
+     * Initialize the chat UI if all necessary information (username, ClientService, and lobby ID)
+     * is available and the chat has not already been initialized.
      */
     private void initializeChatIfPossible() {
         if (chatInitialized || chatClientService == null || chatUsername == null) {
@@ -278,8 +288,8 @@ public class CasinoGameController {
             Scene scene = new Scene(root);
             chatStage.setScene(scene);
 
-            chatStage.setWidth(400);
-            chatStage.setHeight(600);
+            chatStage.setWidth(CHAT_WIDTH);
+            chatStage.setHeight(CHAT_HEIGHT);
 
             chatStage.setOnCloseRequest(event -> chatInitialized = false);
 
@@ -435,32 +445,34 @@ public class CasinoGameController {
             return;
         }
 
-        CompletableFuture
-                .supplyAsync(() -> {
-                    try {
-                        return gameService.refresh();
-                    } catch (Exception e) {
-                        LOGGER.severe("refresh failed: " + e.getMessage());
-                        e.printStackTrace();
-                        return null;
-                    }
-                })
-                .thenAccept(state -> {
+        CompletableFuture.supplyAsync(
+                        () -> {
+                            try {
+                                return gameService.refresh();
+                            } catch (Exception e) {
+                                LOGGER.severe("refresh failed: " + e.getMessage());
+                                e.printStackTrace();
+                                return null;
+                            }
+                        })
+                .thenAccept(
+                        state -> {
+                            if (state == null) {
+                                LOGGER.info("No state received yet.");
+                                return;
+                            }
 
-                    if (state == null) {
-                        LOGGER.info("No state received yet.");
-                        return;
-                    }
-
-                    javafx.application.Platform.runLater(() -> {
-                        applyState(state);
-                    });
-                })
-                .exceptionally(ex -> {
-                    LOGGER.severe("UI update Error: " + ex.getMessage());
-                    ex.printStackTrace();
-                    return null;
-                });
+                            javafx.application.Platform.runLater(
+                                    () -> {
+                                        applyState(state);
+                                    });
+                        })
+                .exceptionally(
+                        ex -> {
+                            LOGGER.severe("UI update Error: " + ex.getMessage());
+                            ex.printStackTrace();
+                            return null;
+                        });
     }
 
     /**
@@ -471,11 +483,17 @@ public class CasinoGameController {
      */
     private void applyState(GameState s) {
 
-        if (s == null) return;
+        if (s == null) {
+            return;
+        }
 
-        LOGGER.info("applyState -> phase=" + s.phase +
-                " pot=" + s.pot +
-                " players=" + (s.players != null ? s.players.size() : 0));
+        LOGGER.info(
+                "applyState -> phase="
+                        + s.phase
+                        + " pot="
+                        + s.pot
+                        + " players="
+                        + (s.players != null ? s.players.size() : 0));
 
         List<Player> players = (s.players != null) ? s.players : List.of();
         List<Card> community = (s.communityCards != null) ? s.communityCards : List.of();
@@ -507,17 +525,25 @@ public class CasinoGameController {
         LOGGER.info("myPlayerId=" + myPlayerId);
         for (int i = 0; i < players.size(); i++) {
             Player p = players.get(i);
-            LOGGER.info("state.players[" + i + "] id=" + (p != null ? p.getId() : null)
-                    + " chips=" + (p != null ? p.getChips() : null)
-                    + " bet=" + (p != null ? p.getBet() : null)
-                    + " state=" + (p != null ? p.getState() : null));
+            LOGGER.info(
+                    "state.players["
+                            + i
+                            + "] id="
+                            + (p != null ? p.getId() : null)
+                            + " chips="
+                            + (p != null ? p.getChips() : null)
+                            + " bet="
+                            + (p != null ? p.getBet() : null)
+                            + " state="
+                            + (p != null ? p.getState() : null));
         }
     }
 
     /**
      * Synchronize the whisper chat targets with the current list of players.
      *
-     * @param players The list of players currently in the game, used to update the whisper chat targets in the chat controller.
+     * @param players The list of players currently in the game, used to update the whisper chat
+     *     targets in the chat controller.
      */
     private void syncWhisperTargetsFromPlayers(List<Player> players) {
         if (chatController == null || players == null || players.isEmpty()) {
@@ -536,10 +562,13 @@ public class CasinoGameController {
     }
 
     /**
-     * Retrieve the hole cards of the current player based on their PlayerId and the list of players in the game state.
+     * Retrieve the hole cards of the current player based on their PlayerId and the list of players
+     * in the game state.
      *
-     * @param players The list of players currently in the game, used to find the player matching myPlayerId and retrieve their hole cards.
-     * @return A list of Card objects representing the current player's hole cards, or an empty list if the player is not found or has no cards.
+     * @param players The list of players currently in the game, used to find the player matching
+     *     myPlayerId and retrieve their hole cards.
+     * @return A list of Card objects representing the current player's hole cards, or an empty list
+     *     if the player is not found or has no cards.
      */
     private List<Card> getMyCards(List<Player> players) {
 
@@ -613,9 +642,13 @@ public class CasinoGameController {
     }
 
     /**
-     * Update the opponent player slots based on the list of players in the game state. This method identifies the opponents by comparing their PlayerIds with myPlayerId and updates the corresponding PlayerStatusControllers for each opponent slot.
+     * Update the opponent player slots based on the list of players in the game state. This method
+     * identifies the opponents by comparing their PlayerIds with myPlayerId and updates the
+     * corresponding PlayerStatusControllers for each opponent slot.
      *
-     * @param players The list of players currently in the game, used to determine which players are opponents and update their display in the UI accordingly. If the list is null or empty, all opponent slots will be cleared.
+     * @param players The list of players currently in the game, used to determine which players are
+     *     opponents and update their display in the UI accordingly. If the list is null or empty,
+     *     all opponent slots will be cleared.
      */
     private void updatePlayers(List<Player> players) {
         if (players == null || players.isEmpty()) {
@@ -626,10 +659,15 @@ public class CasinoGameController {
         java.util.List<Player> opponents = buildOpponents(players);
         boolean meFound = opponents.size() != players.size();
 
-        LOGGER.info("updatePlayers: total=" + players.size()
-                + " myPlayerId=" + myPlayerId
-                + " meFound=" + meFound
-                + " opponents=" + opponents.size());
+        LOGGER.info(
+                "updatePlayers: total="
+                        + players.size()
+                        + " myPlayerId="
+                        + myPlayerId
+                        + " meFound="
+                        + meFound
+                        + " opponents="
+                        + opponents.size());
 
         setOpponent(player1Controller, opponents, 0);
         setOpponent(player2Controller, opponents, 1);
@@ -641,19 +679,25 @@ public class CasinoGameController {
     }
 
     /**
-     * Build a list of opponent players by filtering out the current player (identified by myPlayerId) from the provided list of players. If the current player is not found in the list, it assumes all players are opponents and returns the original list.
+     * Build a list of opponent players by filtering out the current player (identified by
+     * myPlayerId) from the provided list of players. If the current player is not found in the
+     * list, it assumes all players are opponents and returns the original list.
      *
-     * @param players The list of players to filter, which may include the current player and their opponents.
-     *                This list is typically obtained from the game state and may be null or empty, in which case an empty list of opponents will be returned.
-     * @return A list of Player objects representing the opponents, excluding the current player if found.
-     *         If the current player is not found, the original list of players is returned as opponents.
+     * @param players The list of players to filter, which may include the current player and their
+     *     opponents. This list is typically obtained from the game state and may be null or empty,
+     *     in which case an empty list of opponents will be returned.
+     * @return A list of Player objects representing the opponents, excluding the current player if
+     *     found. If the current player is not found, the original list of players is returned as
+     *     opponents.
      */
     private java.util.List<Player> buildOpponents(List<Player> players) {
         java.util.List<Player> opponents = new java.util.ArrayList<>();
         boolean meFound = false;
 
         for (Player p : players) {
-            if (p == null) continue;
+            if (p == null) {
+                continue;
+            }
 
             PlayerId pid = p.getId();
             boolean isMe = myPlayerId != null && pid != null && pid.equals(myPlayerId);
@@ -674,34 +718,57 @@ public class CasinoGameController {
     }
 
     /**
-     * Set the opponent player information in the specified PlayerStatusController based on the provided list of opponents and the index of the opponent to display.
+     * Set the opponent player information in the specified PlayerStatusController based on the
+     * provided list of opponents and the index of the opponent to display.
      *
-     * @param slot The PlayerStatusController instance representing the opponent slot in the UI, which will be updated with the player information if available.
-     * @param list The list of opponent players to choose from, which is typically built by filtering the game state's player list to exclude the current player.
+     * @param slot The PlayerStatusController instance representing the opponent slot in the UI,
+     *     which will be updated with the player information if available.
+     * @param list The list of opponent players to choose from, which is typically built by
+     *     filtering the game state's player list to exclude the current player.
      * @param index The index of the opponent in the list to display in the specified slot.
      */
     private void setOpponent(PlayerStatusController slot, java.util.List<Player> list, int index) {
-        if (slot == null) return;
+        if (slot == null) {
+            return;
+        }
+
         slot.setPlayer(index < list.size() ? list.get(index) : null);
     }
 
     /**
-     * Safely refresh the PlayerStatusController by calling its refresh method, while catching and ignoring any exceptions that may occur during the refresh process.
+     * Safely refresh the PlayerStatusController by calling its refresh method, while catching and
+     * ignoring any exceptions that may occur during the refresh process.
      *
      * @param c The PlayerStatusController instance to refresh, which may be null.
      */
     private void safeRefresh(PlayerStatusController c) {
-        if (c == null) return;
-        try { c.refresh(); } catch (Exception ignored) {}
+        if (c == null) {
+            return;
+        }
+
+        try {
+            c.refresh();
+        } catch (Exception ignored) {
+        }
     }
 
     /**
-     * Clear all opponent slots in the UI by setting their player information to null and refreshing their display.
+     * Clear all opponent slots in the UI by setting their player information to null and refreshing
+     * their display.
      */
     private void clearOpponentSlots() {
-        if (player1Controller != null) player1Controller.setPlayer(null);
-        if (player2Controller != null) player2Controller.setPlayer(null);
-        if (player3Controller != null) player3Controller.setPlayer(null);
+        if (player1Controller != null) {
+            player1Controller.setPlayer(null);
+        }
+
+        if (player2Controller != null) {
+            player2Controller.setPlayer(null);
+        }
+
+        if (player3Controller != null) {
+            player3Controller.setPlayer(null);
+        }
+
         safeRefresh(player1Controller);
         safeRefresh(player2Controller);
         safeRefresh(player3Controller);
@@ -713,9 +780,17 @@ public class CasinoGameController {
      * @param s The current game state containing the dealer index.
      */
     private void highlightDealer(GameState s) {
-        if (player1Controller != null) player1Controller.setDealer(false);
-        if (player2Controller != null) player2Controller.setDealer(false);
-        if (player3Controller != null) player3Controller.setDealer(false);
+        if (player1Controller != null) {
+            player1Controller.setDealer(false);
+        }
+
+        if (player2Controller != null) {
+            player2Controller.setDealer(false);
+        }
+
+        if (player3Controller != null) {
+            player3Controller.setDealer(false);
+        }
 
         myDealerIcon.setVisible(false);
 
@@ -737,23 +812,31 @@ public class CasinoGameController {
         }
 
         java.util.List<Player> opponents = buildOpponents(s.players);
-        if (opponents.size() > 0 && samePlayer(opponents.get(0), dealerPlayer) && player1Controller != null) {
+        if (opponents.size() > 0
+                && samePlayer(opponents.get(0), dealerPlayer)
+                && player1Controller != null) {
             player1Controller.setDealer(true);
         }
-        if (opponents.size() > 1 && samePlayer(opponents.get(1), dealerPlayer) && player2Controller != null) {
+        if (opponents.size() > 1
+                && samePlayer(opponents.get(1), dealerPlayer)
+                && player2Controller != null) {
             player2Controller.setDealer(true);
         }
-        if (opponents.size() > 2 && samePlayer(opponents.get(2), dealerPlayer) && player3Controller != null) {
+        if (opponents.size() > 2
+                && samePlayer(opponents.get(2), dealerPlayer)
+                && player3Controller != null) {
             player3Controller.setDealer(true);
         }
     }
 
     /**
-     * Compare two Player objects to determine if they represent the same player based on their PlayerIds. This method checks for null values and compares the IDs for equality.
+     * Compare two Player objects to determine if they represent the same player based on their
+     * PlayerIds. This method checks for null values and compares the IDs for equality.
      *
      * @param a The first Player object to compare, which may be null.
      * @param b The second Player object to compare, which may be null.
-     * @return true if both Player objects are non-null and have the same non-null PlayerId, false otherwise.
+     * @return true if both Player objects are non-null and have the same non-null PlayerId, false
+     *     otherwise.
      */
     private boolean samePlayer(Player a, Player b) {
         if (a == null || b == null || a.getId() == null || b.getId() == null) {
@@ -1225,9 +1308,11 @@ public class CasinoGameController {
     }
 
     /**
-     * Set the PlayerId of the current player, which is used to identify the player's hole cards and update the taskbar with the correct player information.
+     * Set the PlayerId of the current player, which is used to identify the player's hole cards and
+     * update the taskbar with the correct player information.
      *
-     * @param id The PlayerId of the current player, which should match the PlayerId in the game state for the player's own information to be displayed correctly.
+     * @param id The PlayerId of the current player, which should match the PlayerId in the game
+     *     state for the player's own information to be displayed correctly.
      */
     public void setMyPlayerId(PlayerId id) {
         this.myPlayerId = id;
@@ -1238,9 +1323,11 @@ public class CasinoGameController {
     }
 
     /**
-     * Resolve the TaskbarController instance to be used for updating the taskbar with game information.
+     * Resolve the TaskbarController instance to be used for updating the taskbar with game
+     * information.
      *
-     * @return The TaskbarController instance to use for taskbar updates, which may be the directly injected taskbarController or the one obtained from the taskbarIncludeController.
+     * @return The TaskbarController instance to use for taskbar updates, which may be the directly
+     *     injected taskbarController or the one obtained from the taskbarIncludeController.
      */
     private TaskbarController resolveTaskbarController() {
         if (taskbarController != null) {

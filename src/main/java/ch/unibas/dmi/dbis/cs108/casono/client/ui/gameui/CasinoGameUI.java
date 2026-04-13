@@ -30,10 +30,9 @@ public class CasinoGameUI extends Application {
 
     private static final int DEFAULT_WIDTH = 1200;
     private static final int DEFAULT_HEIGHT = 800;
+    private static final int GUEST_ID_LENGTH = 8;
 
-    /**
-     * Default constructor for the CasinoGameUI application.
-     */
+    /** Default constructor for the CasinoGameUI application. */
     public CasinoGameUI() {
         // default no-arg constructor
     }
@@ -66,24 +65,26 @@ public class CasinoGameUI extends Application {
     }
 
     /**
-     * The main entry point for the JavaFX application. This method is called after the application is
+     * The main entry point for the JavaFX application. This method is called after the application
+     * is
      *
-     * @param stage the primary stage for this application, onto which
-     * the application scene can be set.
-     * Applications may create other stages, if needed, but they will not be
-     * primary stages.
+     * @param stage the primary stage for this application, onto which the application scene can be
+     *     set. Applications may create other stages, if needed, but they will not be primary
+     *     stages.
      * @throws IOException
      */
     @Override
     public void start(Stage stage) throws IOException {
 
         if (clientService == null) {
-            clientService = ch.unibas.dmi.dbis.cs108.casono.client.ClientApp.getSharedClientService();
+            clientService =
+                    ch.unibas.dmi.dbis.cs108.casono.client.ClientApp.getSharedClientService();
         }
         if (clientService == null) {
             throw new IllegalStateException(
                     "CasinoGameUI: clientService is null. "
-                            + "Call CasinoGameUI.setClientService(...) or start via ClientApp with a shared connection.");
+                            + "Call CasinoGameUI.setClientService(...)"
+                            + " or start via ClientApp with a shared connection.");
         }
 
         String effectiveUsername = normalize(username);
@@ -94,13 +95,19 @@ public class CasinoGameUI extends Application {
         }
 
         if (effectiveUsername == null) {
-            effectiveUsername = "Guest-" + UUID.randomUUID().toString().substring(0, 8);
+            effectiveUsername =
+                    "Guest-" + UUID.randomUUID().toString().substring(0, GUEST_ID_LENGTH);
         }
 
-        LOG.info("CasinoGameUI starting: effectiveUsername='" + effectiveUsername
-                + "', injectedUsername='" + username
-                + "', sharedUsername='" + ch.unibas.dmi.dbis.cs108.casono.client.ClientApp.getSharedUsername()
-                + "', hasClientService=" + (clientService != null));
+        LOG.info(
+                "CasinoGameUI starting: effectiveUsername='"
+                        + effectiveUsername
+                        + "', injectedUsername='"
+                        + username
+                        + "', sharedUsername='"
+                        + ch.unibas.dmi.dbis.cs108.casono.client.ClientApp.getSharedUsername()
+                        + "', hasClientService="
+                        + (clientService != null));
 
         FXMLLoader fxmlLoader =
                 new FXMLLoader(CasinoGameUI.class.getResource("/ui-structure/Casinogameui.fxml"));
@@ -136,13 +143,17 @@ public class CasinoGameUI extends Application {
      * @return the normalized string, or null if the input is null or blank
      */
     private static String normalize(String s) {
-        if (s == null) return null;
+        if (s == null) {
+            return null;
+        }
+
         String t = s.trim();
         return t.isBlank() ? null : t;
     }
 
     /**
-     * The main method serves as the entry point for the application. It launches the JavaFX application.
+     * The main method serves as the entry point for the application. It launches the JavaFX
+     * application.
      *
      * @param args command line arguments (not used)
      */

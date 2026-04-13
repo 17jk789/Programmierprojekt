@@ -18,7 +18,10 @@ public class GameService {
      * @param client The GameClient used to communicate with the server. Must not be null.
      */
     public GameService(GameClient client) {
-        if (client == null) throw new IllegalArgumentException("GameClient must not be null");
+        if (client == null) {
+            throw new IllegalArgumentException("GameClient must not be null");
+        }
+
         this.client = client;
         LOG.info("GameService created");
     }
@@ -47,10 +50,16 @@ public class GameService {
 
         this.state = newState;
 
-        LOG.info(() -> "State updated: phase=" + state.phase
-                + " pot=" + state.pot
-                + " players=" + (state.players != null ? state.players.size() : 0)
-                + " community=" + (state.communityCards != null ? state.communityCards.size() : 0));
+        LOG.info(
+                () ->
+                        "State updated: phase="
+                                + state.phase
+                                + " pot="
+                                + state.pot
+                                + " players="
+                                + (state.players != null ? state.players.size() : 0)
+                                + " community="
+                                + (state.communityCards != null ? state.communityCards.size() : 0));
 
         return state;
     }
@@ -78,7 +87,8 @@ public class GameService {
     /**
      * Retrieves the list of players currently in the game.
      *
-     * @return A list of Player objects representing the players in the game. A list of Player objects representing the players in the game.
+     * @return A list of Player objects representing the players in the game. A list of Player
+     *     objects representing the players in the game.
      */
     public List<Player> getPlayers() {
         ensureState();
@@ -92,22 +102,20 @@ public class GameService {
      */
     public Player getWinner() {
         ensureState();
-        if (state.winnerIndex < 0 || state.players == null || state.winnerIndex >= state.players.size()) {
+        if (state.winnerIndex < 0
+                || state.players == null
+                || state.winnerIndex >= state.players.size()) {
             return null;
         }
         return state.players.get(state.winnerIndex);
     }
 
-    /**
-     * Retrieves the current phase of the game.
-     */
+    /** Retrieves the current phase of the game. */
     public void call() {
         client.sendCall();
     }
 
-    /**
-     * Retrieves the current phase of the game.
-     */
+    /** Retrieves the current phase of the game. */
     public void fold() {
         client.sendFold();
     }
@@ -130,9 +138,7 @@ public class GameService {
         client.sendRaise(amount);
     }
 
-    /**
-     * Ensures that the game state has been initialized before accessing it.
-     */
+    /** Ensures that the game state has been initialized before accessing it. */
     private void ensureState() {
         if (state == null) {
             throw new IllegalStateException("GameService used before any successful refresh()");

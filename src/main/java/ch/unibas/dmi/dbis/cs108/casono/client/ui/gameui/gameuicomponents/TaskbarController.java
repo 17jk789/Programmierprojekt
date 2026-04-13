@@ -361,7 +361,9 @@ public class TaskbarController {
         }
 
         if (state == null || state.currentBet <= 0) {
-            LOGGER.warn("Raise not possible: current bet is {}", state != null ? state.currentBet : null);
+            LOGGER.warn(
+                    "Raise not possible: current bet is {}",
+                    state != null ? state.currentBet : null);
             return;
         }
 

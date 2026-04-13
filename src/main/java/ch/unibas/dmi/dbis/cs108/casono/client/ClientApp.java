@@ -10,11 +10,8 @@ import org.apache.logging.log4j.Logger;
 /**
  * Entry point and bootstrap helper for the Casono client application.
  *
- * <p>
- * Responsibilities: - Parse CLI args (host:port, optional username) - Store
- * username centrally
- * so UI can reuse it - Create a shared ClientService and do startup LOGIN
- * (optional)
+ * <p>Responsibilities: - Parse CLI args (host:port, optional username) - Store username centrally
+ * so UI can reuse it - Create a shared ClientService and do startup LOGIN (optional)
  */
 public class ClientApp {
 
@@ -81,13 +78,14 @@ public class ClientApp {
             ClientService clientService = new ClientService(host, port);
             setSharedClientService(clientService);
 
-            java.util.concurrent.ExecutorService bg = java.util.concurrent.Executors.newSingleThreadExecutor(
-                    r -> {
-                        Thread t = new Thread(r);
-                        t.setDaemon(true);
-                        t.setName("casono-startup-login");
-                        return t;
-                    });
+            java.util.concurrent.ExecutorService bg =
+                    java.util.concurrent.Executors.newSingleThreadExecutor(
+                            r -> {
+                                Thread t = new Thread(r);
+                                t.setDaemon(true);
+                                t.setName("casono-startup-login");
+                                return t;
+                            });
 
             bg.submit(
                     () -> {
@@ -115,16 +113,15 @@ public class ClientApp {
                     });
         } catch (RuntimeException e) {
             LOGGER.warn(
-                    "Could not establish initial connection for startup login: {}",
-                    e.getMessage());
+                    "Could not establish initial connection for startup login: {}", e.getMessage());
         }
     }
 
     private static void launchUI(String arg, String username) {
         if (username != null && !username.isBlank()) {
-            Launcher.main(new String[] { arg, username });
+            Launcher.main(new String[] {arg, username});
         } else {
-            Launcher.main(new String[] { arg });
+            Launcher.main(new String[] {arg});
         }
     }
 

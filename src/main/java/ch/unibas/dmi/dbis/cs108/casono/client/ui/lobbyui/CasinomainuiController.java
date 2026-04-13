@@ -9,6 +9,7 @@ import java.net.URL;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
@@ -17,7 +18,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.Node;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
 import org.apache.logging.log4j.LogManager;
@@ -108,7 +108,8 @@ public class CasinomainuiController {
     }
 
     /**
-     * Initializes the chat UI if a valid ClientService is available. If the client is offline or the
+     * Initializes the chat UI if a valid ClientService is available. If the client is offline or
+     * the
      *
      * @param clientService
      */
@@ -134,7 +135,8 @@ public class CasinomainuiController {
     }
 
     /**
-     * Resolves the username to be used in the chat. It first checks for a shared username set at the
+     * Resolves the username to be used in the chat. It first checks for a shared username set at
+     * the
      *
      * @return The resolved username, or "Guest" if no valid username is found.
      */
@@ -143,7 +145,9 @@ public class CasinomainuiController {
         if (shared != null && !shared.isBlank()) {
             return shared.trim();
         }
-        if (usernameField != null && usernameField.getText() != null && !usernameField.getText().isBlank()) {
+        if (usernameField != null
+                && usernameField.getText() != null
+                && !usernameField.getText().isBlank()) {
             return usernameField.getText().trim();
         }
         return "Guest";

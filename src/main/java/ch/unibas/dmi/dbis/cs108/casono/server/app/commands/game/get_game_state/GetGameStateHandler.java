@@ -78,7 +78,8 @@ public class GetGameStateHandler extends CommandHandler<GetGameStateRequest> {
             return username.trim();
         }
 
-        return userRegistry.getBySessionId(request.getSessionId())
+        return userRegistry
+                .getBySessionId(request.getSessionId())
                 .map(User::getName)
                 .map(String::trim)
                 .filter(name -> !name.isEmpty())

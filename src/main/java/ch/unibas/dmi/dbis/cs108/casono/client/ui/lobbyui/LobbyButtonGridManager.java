@@ -2,7 +2,6 @@ package ch.unibas.dmi.dbis.cs108.casono.client.ui.lobbyui;
 
 import ch.unibas.dmi.dbis.cs108.casono.client.network.ClientService;
 import ch.unibas.dmi.dbis.cs108.casono.client.network.LobbyClient;
-import ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui.CasinoGameUI;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.command.parsing.RequestParameter;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,6 +29,7 @@ public class LobbyButtonGridManager {
     private static final int INITIAL_DELAY_SECONDS = 5;
     private static final int COLS = 4;
     private static final int MAX_BUTTONS = 8;
+    private static final int GUEST_ID_LENGTH = 8;
 
     private static final Logger LOGGER = LogManager.getLogger(LobbyButtonGridManager.class);
 
@@ -553,16 +553,28 @@ public class LobbyButtonGridManager {
                     try {
                         var cs = lobbyClient.getClientService();
 
-                        ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui.CasinoGameUI.setClientService(cs);
-                        ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui.CasinoGameUI.setLobbyId(lobbyId);
+                        ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui.CasinoGameUI
+                                .setClientService(cs);
+                        ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui.CasinoGameUI.setLobbyId(
+                                lobbyId);
 
-                        String username = ch.unibas.dmi.dbis.cs108.casono.client.ClientApp.getSharedUsername();
+                        String username =
+                                ch.unibas.dmi.dbis.cs108.casono.client.ClientApp
+                                        .getSharedUsername();
                         if (username == null || username.isBlank()) {
-                            username = "Guest-" + java.util.UUID.randomUUID().toString().substring(0, 8);
+                            username =
+                                    "Guest-"
+                                            + java.util
+                                                    .UUID
+                                                    .randomUUID()
+                                                    .toString()
+                                                    .substring(0, GUEST_ID_LENGTH);
                         }
-                        ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui.CasinoGameUI.setUsername(username);
+                        ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui.CasinoGameUI.setUsername(
+                                username);
 
-                        new ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui.CasinoGameUI().start(gameStage);
+                        new ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui.CasinoGameUI()
+                                .start(gameStage);
 
                     } catch (Exception e) {
                         LOGGER.error("Game UI failed: {}", e.getMessage());

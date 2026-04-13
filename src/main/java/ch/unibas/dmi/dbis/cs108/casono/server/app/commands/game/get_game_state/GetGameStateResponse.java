@@ -17,38 +17,24 @@ import java.util.Objects;
 /**
  * Response carrying a snapshot of the current game state using the project's wire format.
  *
- * Wire format (relevant parts):
+ * <p>Wire format (relevant parts):
  *
- * +OK
- *   PHASE=...
- *   POT=...
- *   CURRENT_BET=...
- *   DEALER=...
- *   ACTIVE_PLAYER=...
- *   CARD
- *     VALUE=...
- *     SUIT=...
- *   END
- *   PLAYER
- *     NAME=...
- *     CHIPS=...
- *     BET=...
- *     STATE=...
- *     CARD           (only for requesting user)
- *       VALUE=...
- *       SUIT=...
- *     END
- *   END
- * END
+ * <p>+OK PHASE=... POT=... CURRENT_BET=... DEALER=... ACTIVE_PLAYER=... CARD VALUE=... SUIT=... END
+ * PLAYER NAME=... CHIPS=... BET=... STATE=... CARD (only for requesting user) VALUE=... SUIT=...
+ * END END END
  *
- * Notes:
- * - Community cards are always emitted at top-level (0..5). If none exist (e.g. PREFLOP), none are emitted.
- * - Hole cards are only emitted for the requesting player (privacy).
+ * <p>Notes: - Community cards are always emitted at top-level (0..5). If none exist (e.g. PREFLOP),
+ * none are emitted. - Hole cards are only emitted for the requesting player (privacy).
  */
 public class GetGameStateResponse extends SuccessResponse {
 
-    public GetGameStateResponse(RequestContext context, GameController game, String requestingUsername) {
-        super(context, buildBody(Objects.requireNonNull(game, "game must not be null").getState(), requestingUsername));
+    public GetGameStateResponse(
+            RequestContext context, GameController game, String requestingUsername) {
+        super(
+                context,
+                buildBody(
+                        Objects.requireNonNull(game, "game must not be null").getState(),
+                        requestingUsername));
     }
 
     private static ResponseBody buildBody(GameState state, String requestingUsername) {
@@ -72,9 +58,14 @@ public class GetGameStateResponse extends SuccessResponse {
     private static int computeGlobalCurrentBet(GameState state) {
         int globalCurrentBet = 0;
         for (Player p : state.getPlayers()) {
-            if (p == null) continue;
+            if (p == null) {
+                continue;
+            }
+
             int b = state.getCurrentBet(p.getId());
-            if (b > globalCurrentBet) globalCurrentBet = b;
+            if (b > globalCurrentBet) {
+                globalCurrentBet = b;
+            }
         }
         return globalCurrentBet;
     }
@@ -87,48 +78,66 @@ public class GetGameStateResponse extends SuccessResponse {
         }
 
         for (Card c : community) {
-            if (c == null) continue;
-            builder.block("CARD", card -> {
-                card.param("VALUE", rankToWire(c.getRank()));
-                card.param("SUIT", suitToWire(c.getSuit()));
-            });
+            if (c == null) {
+                continue;
+            }
+
+            builder.block(
+                    "CARD",
+                    card -> {
+                        card.param("VALUE", rankToWire(c.getRank()));
+                        card.param("SUIT", suitToWire(c.getSuit()));
+                    });
         }
     }
 
-    private static void appendPlayers(ResponseBodyBuilder builder, GameState state, String requestingUsername) {
+    private static void appendPlayers(
+            ResponseBodyBuilder builder, GameState state, String requestingUsername) {
         String req = (requestingUsername == null) ? null : requestingUsername.trim();
 
         for (Player p : state.getPlayers()) {
-            if (p == null) continue;
+            if (p == null) {
+                continue;
+            }
 
             PlayerId pid = p.getId();
             String name = (pid == null || pid.value() == null) ? "" : pid.value().trim();
 
-            builder.block("PLAYER", pblock -> {
-                pblock.param("NAME", name);
-                pblock.param("CHIPS", p.getChips());
-                pblock.param("BET", pid == null ? 0 : state.getCurrentBet(pid));
-                pblock.param("STATE", p.isFolded() ? "FOLDED" : "ACTIVE");
+            builder.block(
+                    "PLAYER",
+                    pblock -> {
+                        pblock.param("NAME", name);
+                        pblock.param("CHIPS", p.getChips());
+                        pblock.param("BET", pid == null ? 0 : state.getCurrentBet(pid));
+                        pblock.param("STATE", p.isFolded() ? "FOLDED" : "ACTIVE");
 
-                if (req != null && pid != null && req.equals(name)) {
-                    List<Card> hole = state.getHoleCards(pid);
+                        if (req != null && pid != null && req.equals(name)) {
+                            List<Card> hole = state.getHoleCards(pid);
 
-                    if (hole != null) {
-                        for (Card hc : hole) {
-                            if (hc == null) continue;
-                            pblock.block("CARD", cblock -> {
-                                cblock.param("VALUE", rankToWire(hc.getRank()));
-                                cblock.param("SUIT", suitToWire(hc.getSuit()));
-                            });
+                            if (hole != null) {
+                                for (Card hc : hole) {
+                                    if (hc == null) {
+                                        continue;
+                                    }
+
+                                    pblock.block(
+                                            "CARD",
+                                            cblock -> {
+                                                cblock.param("VALUE", rankToWire(hc.getRank()));
+                                                cblock.param("SUIT", suitToWire(hc.getSuit()));
+                                            });
+                                }
+                            }
                         }
-                    }
-                }
-            });
+                    });
         }
     }
 
     private static String rankToWire(Rank r) {
-        if (r == null) return "";
+        if (r == null) {
+            return "";
+        }
+
         return switch (r) {
             case TWO -> "2";
             case THREE -> "3";
@@ -147,7 +156,10 @@ public class GetGameStateResponse extends SuccessResponse {
     }
 
     private static String suitToWire(Suit s) {
-        if (s == null) return "";
+        if (s == null) {
+            return "";
+        }
+
         return switch (s) {
             case HEARTS -> "H";
             case DIAMONDS -> "D";
