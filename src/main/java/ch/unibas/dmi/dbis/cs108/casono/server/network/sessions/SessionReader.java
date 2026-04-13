@@ -21,6 +21,7 @@ import ch.unibas.dmi.dbis.cs108.casono.server.network.transport.RawPacket;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.transport.TransportLayer;
 import java.io.EOFException;
 import java.io.IOException;
+import java.net.SocketException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -50,26 +51,18 @@ public class SessionReader implements Runnable {
             RawRequest rawRequest = null;
             RequestContext requestContext = null;
             try {
-                // Step 1: Read from transport
                 rawPacket = transport.read();
                 session.updateLastInboundActivity();
                 logger.debug("Recieved: {}", rawPacket);
-                requestContext = new RequestContext(session.getId(), rawPacket.requestId());
-
-                // Step 2: Syntax validation and conversion into transport object
-                rawRequest = ProtocolParser.parse(rawPacket.payload());
-                logger.debug("Parsed request to {}", rawRequest);
-
-                PrimitiveRequest primitiveRequest =
-                        new PrimitiveRequest(
-                                requestContext, rawRequest.command(), rawRequest.parameters());
-                logger.debug("Converted to {}", primitiveRequest);
-
-                // Step 3: Parse into Request and execute Request
-                Request request = dispatcher.parse(primitiveRequest);
-                router.execute(request);
+                processRawPacket(rawPacket);
             } catch (EOFException e) {
                 logger.info("Client disconnected");
+                eventBus.publish(new DisconnectEvent(session.getId()));
+                break;
+
+            } catch (SocketException e) {
+                // Connection reset or other socket-level error — treat as client disconnect
+                logger.info("Client socket error / connection reset: {}", e.getMessage());
                 eventBus.publish(new DisconnectEvent(session.getId()));
                 break;
 
@@ -115,6 +108,26 @@ public class SessionReader implements Runnable {
                                 "Unexpected internal server error occured."));
             }
         }
+    }
+
+    private void processRawPacket(RawPacket rawPacket)
+            throws TokenizerException,
+                    ProtocolParserException,
+                    UnknownCommandException,
+                    ResponseDispatchException,
+                    MissingParameterException,
+                    IOException {
+        RawRequest rawRequest = ProtocolParser.parse(rawPacket.payload());
+        logger.debug("Parsed request to {}", rawRequest);
+
+        RequestContext requestContext = new RequestContext(session.getId(), rawPacket.requestId());
+
+        PrimitiveRequest primitiveRequest =
+                new PrimitiveRequest(requestContext, rawRequest.command(), rawRequest.parameters());
+        logger.debug("Converted to {}", primitiveRequest);
+
+        Request request = dispatcher.parse(primitiveRequest);
+        router.execute(request);
     }
 
     /**

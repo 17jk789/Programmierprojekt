@@ -1,133 +1,209 @@
 package ch.unibas.dmi.dbis.cs108.casono.server.domain.game.engine;
 
+import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.deck.Card;
+import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.deck.Deck;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.player.Player;
+import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.player.PlayerId;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.player.PlayerStatus;
+import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.state.GamePhase;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.state.GameState;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * RoundManager is responsible for managing the flow of a poker game round. It handles the
- * progression of the game through its various phases (pre-flop, flop, turn, river) and manages
- * player actions such as posting blinds and dealing cards. The RoundManager ensures that the game
- * state is updated correctly based on player actions and the current phase of the game.
+ * RoundManager manages hand lifecycle and phase progression (PREFLOP -> FLOP -> TURN -> RIVER ->
+ * SHOWDOWN).
+ *
+ * <p>This implementation:
+ *
+ * <ul>
+ *   <li>starts a new hand (reset + hole cards + blinds)
+ *   <li>progresses phases once betting round is finished
+ *   <li>deals community cards (3/1/1)
+ * </ul>
  */
 public class RoundManager {
 
     public static final int SMALL_BLIND = 100;
     public static final int BIG_BLIND = 200;
 
-    /**
-     * Starts a new hand by initializing the game state, dealing cards to players, and posting
-     * blinds. This method sets the hand as active and resets any necessary state variables to
-     * prepare for a new round of play.
-     *
-     * @param state The game state to be used for starting the new hand.
-     */
     public void startNewHand(GameState state) {
-        state.setHandActive(true);
-        state.resetBets();
+        // Use GameState's canonical reset
+        state.startNewHand();
 
-        dealCards(state);
+        // Ensure deck exists
+        ensureDeck(state);
 
+        // Deal hole cards
+        dealHoleCards(state);
+
+        // Post blinds
         postBlinds(state);
+
+        // Preflop always starts left of BB (or dealer in heads-up).
+        state.setCurrentPlayerToPreflopFirstToAct();
     }
 
-    /**
-     * Checks if the betting round is finished and advances the game phase if necessary. This method
-     * evaluates the current bets of all active players and determines if the betting round can be
-     * concluded. If all players have met the current bet or are all-in, the game phase is advanced
-     * to the next stage.
-     *
-     * @param state The current game state to be evaluated for betting round progression.
-     */
     public void progressIfNeeded(GameState state) {
+        if (state.getPhase() == null) {
+            state.setPhase(GamePhase.PREFLOP);
+        }
 
         if (isBettingRoundFinished(state)) {
             advancePhase(state);
         }
     }
 
-    /**
-     * Determines if the betting round is finished by checking if all active players have met the
-     * current bet or are all-in. This method iterates through all players in the game state and
-     * evaluates their bets against the current bet on the table.
-     *
-     * @param state The current game state to be evaluated for betting round completion.
-     * @return true if the betting round is finished, false otherwise.
-     */
     private boolean isBettingRoundFinished(GameState state) {
-
         int target = state.getTableState().getCurrentBet();
 
         for (Player p : state.getPlayers()) {
+            if (p == null) {
+                continue;
+            }
 
-            if (p.getStatus() == PlayerStatus.FOLDED) {
+            // be tolerant if codebase mixes status + boolean flags
+            if (p.getStatus() == PlayerStatus.FOLDED || p.isFolded()) {
                 continue;
             }
 
             int bet = state.getCurrentBet(p.getId());
-
-            // The player must have placed at least one bet
             if (bet < target && !p.isAllIn()) {
                 return false;
             }
         }
-
         return true;
     }
 
-    /**
-     * Advances the game phase to the next stage (flop, turn, river, or showdown) based on the
-     * current phase of the game. This method is called when the betting round is finished and
-     * updates the game state accordingly to reflect the new phase of play.
-     *
-     * @param state The current game state to be updated with the new phase.
-     */
     private void advancePhase(GameState state) {
-
         switch (state.getPhase()) {
             case PREFLOP -> dealFlop(state);
             case FLOP -> dealTurn(state);
             case TURN -> dealRiver(state);
             case RIVER -> showdown(state);
+            case SHOWDOWN -> {
+                /* nothing */
+            }
+        }
+    }
+
+    private void ensureDeck(GameState state) {
+        Deck deck = state.getDeck();
+        if (deck == null) {
+            deck = new Deck();
+            deck.shuffle();
+            state.setDeck(deck);
+        }
+    }
+
+    private void dealHoleCards(GameState state) {
+        Deck deck = state.getDeck();
+
+        for (Player p : state.getPlayers()) {
+            if (p == null) {
+                continue;
+            }
+
+            PlayerId pid = p.getId();
+            Card c1 = deck.draw();
+            Card c2 = deck.draw();
+
+            state.giveHoleCards(pid, c1, c2);
         }
     }
 
     /**
-     * Handles the posting of blinds at the start of a new hand. This method identifies the players
-     * responsible for posting the small and big blinds, updates their chip counts, adds the blind
-     * amounts to the pot, and updates the current bets for those players in the game state.
-     *
-     * @param state The current game state to be updated with the posted blinds.
+     * NOTE: Blind assignment here is intentionally minimal because GameState does not expose
+     * seating order. If you want correct dealer-relative blinds, add helpers in GameState (e.g.
+     * getPlayerIdAt(int)).
      */
     private void postBlinds(GameState state) {
         List<Player> playerList = new ArrayList<>(state.getPlayers());
+        if (playerList.size() < 2) {
+            return;
+        }
 
-        Player sb = playerList.get(0);
-        Player bb = playerList.get(1);
+        // pick first two non-folded players as SB/BB
+        Player sb = null;
+        Player bb = null;
 
-        int smallBlind = SMALL_BLIND;
-        int bigBlind = BIG_BLIND;
+        for (Player p : playerList) {
+            if (p == null) {
+                continue;
+            }
 
-        sb.removeChips(smallBlind);
-        bb.removeChips(bigBlind);
+            if (p.isFolded()) {
+                continue;
+            }
 
-        state.addToPot(smallBlind + bigBlind);
+            if (sb == null) {
+                sb = p;
+            } else {
+                bb = p;
+                break;
+            }
+        }
 
-        state.setCurrentBet(sb.getId(), smallBlind);
-        state.setCurrentBet(bb.getId(), bigBlind);
+        if (sb == null || bb == null) {
+            return;
+        }
 
-        state.getTableState().setCurrentBet(bigBlind);
+        sb.removeChips(SMALL_BLIND);
+        bb.removeChips(BIG_BLIND);
+
+        state.addToPot(SMALL_BLIND + BIG_BLIND);
+
+        state.setCurrentBet(sb.getId(), SMALL_BLIND);
+        state.setCurrentBet(bb.getId(), BIG_BLIND);
+
+        state.getTableState().setCurrentBet(BIG_BLIND);
     }
 
-    private void dealCards(GameState state) {}
+    private void dealFlop(GameState state) {
+        ensureDeck(state);
+        Deck deck = state.getDeck();
 
-    private void dealFlop(GameState state) {}
+        state.addCommunityCard(deck.draw());
+        state.addCommunityCard(deck.draw());
+        state.addCommunityCard(deck.draw());
 
-    private void dealTurn(GameState state) {}
+        state.setPhase(GamePhase.FLOP);
 
-    private void dealRiver(GameState state) {}
+        // new betting round
+        state.resetBets();
+        state.setCurrentPlayerToPostflopFirstToAct();
+    }
 
-    private void showdown(GameState state) {}
+    private void dealTurn(GameState state) {
+        ensureDeck(state);
+        Deck deck = state.getDeck();
+
+        state.addCommunityCard(deck.draw());
+
+        state.setPhase(GamePhase.TURN);
+
+        // new betting round
+        state.resetBets();
+        state.setCurrentPlayerToPostflopFirstToAct();
+    }
+
+    private void dealRiver(GameState state) {
+        ensureDeck(state);
+        Deck deck = state.getDeck();
+
+        state.addCommunityCard(deck.draw());
+
+        state.setPhase(GamePhase.RIVER);
+
+        // new betting round
+        state.resetBets();
+        state.setCurrentPlayerToPostflopFirstToAct();
+    }
+
+    private void showdown(GameState state) {
+        state.setPhase(GamePhase.SHOWDOWN);
+
+        // winner evaluation is elsewhere (rules/controller)
+        // do NOT reset cards here; clients still need board visible during showdown
+    }
 }

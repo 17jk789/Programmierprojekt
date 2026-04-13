@@ -82,24 +82,24 @@
                     </Button>
 
                         <!-- Username input and login button -->
-                                                <HBox alignment="CENTER_LEFT" spacing="10"
-                                                            GridPane.rowIndex="0"
-                                                            GridPane.columnIndex="0"
-                                                            GridPane.halignment="LEFT"
-                                                            GridPane.valignment="TOP">
-                                                        <GridPane.margin>
-                                                                <!-- place below the 'CREATE A LOBBY' button -->
-                                                                <Insets top="100" left="20" />
-                                                        </GridPane.margin>
-                                                        <TextField fx:id="usernameField"
-                                                                   promptText="Username"
-                                                                   styleClass="gray-input-field"
-                                                                   maxWidth="180" />
-                                                        <Button text="Login"
-                                                                        fx:id="loginButton"
-                                                                        onAction="#handleLoginButton"
-                                                                        styleClass="button-create-lobby" />
-                                                </HBox>
+                            <!-- <HBox alignment="CENTER_LEFT" spacing="10"-->
+                            <!--             GridPane.rowIndex="0"-->
+                            <!--             GridPane.columnIndex="0"-->
+                            <!--             GridPane.halignment="LEFT"-->
+                            <!--             GridPane.valignment="TOP">-->
+                            <!--         <GridPane.margin>-->
+                            <!--                 &lt;!&ndash; place below the 'CREATE A LOBBY' button &ndash;&gt;-->
+                            <!--                 <Insets top="100" left="20" />-->
+                            <!--         </GridPane.margin>-->
+                            <!--         <TextField fx:id="usernameField"-->
+                            <!--                    promptText="Username"-->
+                            <!--                    styleClass="gray-input-field"-->
+                            <!--                    maxWidth="180" />-->
+                            <!--         <Button text="Login"-->
+                            <!--                         fx:id="loginButton"-->
+                            <!--                         onAction="#handleLoginButton"-->
+                            <!--                         styleClass="button-create-lobby" />-->
+                            <!-- </HBox>-->
 
                     <VBox fx:id="casinoTable"
                           alignment="CENTER"
@@ -126,7 +126,7 @@
             </VBox>
 
             <!-- RIGHT SIDE (Chat Box) -->
-            <fx:include source="components/chatui/chatbox.fxml" GridPane.columnIndex="2"/>
+            <AnchorPane fx:id="chatContainer" GridPane.columnIndex="2" />
         </children>
     </GridPane>
 </AnchorPane>

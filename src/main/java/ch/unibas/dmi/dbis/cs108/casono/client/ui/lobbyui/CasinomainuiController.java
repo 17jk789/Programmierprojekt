@@ -1,10 +1,15 @@
 package ch.unibas.dmi.dbis.cs108.casono.client.ui.lobbyui;
 
 import ch.unibas.dmi.dbis.cs108.casono.client.ClientApp;
+import ch.unibas.dmi.dbis.cs108.casono.client.chat.ChatController;
 import ch.unibas.dmi.dbis.cs108.casono.client.network.ClientService;
 import ch.unibas.dmi.dbis.cs108.casono.client.network.LobbyClient;
+import java.io.IOException;
+import java.net.URL;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
@@ -31,11 +36,13 @@ public class CasinomainuiController {
     @FXML private VBox casinoTable;
     @FXML private TextField usernameField;
     @FXML private Button loginButton;
+    @FXML private AnchorPane chatContainer;
 
     private LobbyButtonTranslationManager translationManager;
     private LobbyButtonGridManager gridManager;
     private int nextButtonId = 1;
     private LobbyClient lobbyClient;
+    private ChatController chatController;
 
     /** Default constructor used by FXMLLoader. */
     public CasinomainuiController() {
@@ -75,9 +82,75 @@ public class CasinomainuiController {
         // LobbyClient will use the provided ClientService; in offline mode calls will
         // fail with RuntimeException
         lobbyClient = new LobbyClient(clientService);
+        // Fetch existing lobbies from server on startup so newly-created lobbies
+        // by other clients are immediately visible.
+        try {
+            if (!lobbyClient.getClientService().isOffline()) {
+                var lobbies = lobbyClient.getLobbyList();
+                int bid = nextButtonId;
+                for (var li : lobbies) {
+                    try {
+                        translationManager.addLobbyButton(bid++, li.id);
+                    } catch (Exception e) {
+                        LOGGER.warn("Could not add lobby button: {}", e.getMessage());
+                    }
+                }
+                nextButtonId = bid;
+            }
+        } catch (RuntimeException e) {
+            LOGGER.warn("Failed to fetch lobby list at startup: {}", e.getMessage());
+        }
         casinoTable.getChildren().clear();
         casinoTable.getChildren().add(gridManager.getGridPane());
         gridManager.renderLobbyButtons();
+
+        initializeChat(clientService);
+    }
+
+    /**
+     * Initializes the chat UI if a valid ClientService is available. If the client is offline or
+     * the
+     *
+     * @param clientService
+     */
+    private void initializeChat(ClientService clientService) {
+        if (clientService == null || clientService.isOffline() || chatContainer == null) {
+            return;
+        }
+        try {
+            String username = resolveChatUsername();
+            chatController = new ChatController(username, clientService);
+            URL resource = getClass().getResource("/ui-structure/components/chatui/chatbox.fxml");
+            FXMLLoader loader = new FXMLLoader(resource);
+            loader.setController(chatController.getChatBoxController());
+            Node chatNode = loader.load();
+            chatContainer.getChildren().setAll(chatNode);
+            AnchorPane.setTopAnchor(chatNode, 0.0);
+            AnchorPane.setBottomAnchor(chatNode, 0.0);
+            AnchorPane.setLeftAnchor(chatNode, 0.0);
+            AnchorPane.setRightAnchor(chatNode, 0.0);
+        } catch (IOException e) {
+            LOGGER.warn("Could not initialize lobby chat UI: {}", e.getMessage());
+        }
+    }
+
+    /**
+     * Resolves the username to be used in the chat. It first checks for a shared username set at
+     * the
+     *
+     * @return The resolved username, or "Guest" if no valid username is found.
+     */
+    private String resolveChatUsername() {
+        String shared = ClientApp.getSharedUsername();
+        if (shared != null && !shared.isBlank()) {
+            return shared.trim();
+        }
+        if (usernameField != null
+                && usernameField.getText() != null
+                && !usernameField.getText().isBlank()) {
+            return usernameField.getText().trim();
+        }
+        return "Guest";
     }
 
     /** Handles the login button action. Validates input and calls LobbyClient.login(). */
@@ -121,6 +194,9 @@ public class CasinomainuiController {
     /** Handles the exit button action to close the application. */
     @FXML
     public void handleexitbutton() {
+        if (chatController != null) {
+            chatController.shutdown();
+        }
         Platform.exit();
     }
 

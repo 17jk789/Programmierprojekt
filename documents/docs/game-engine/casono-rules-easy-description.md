@@ -16,7 +16,7 @@
 
 <!-- vim-markdown-toc -->
 
-Der Pokertisch ist ein unglaublich faszinierender Erlebnisraum, in dem man sehr viel lernen kann: über sich selbst, über andere Menschen und über Fragen wie: wie treffe ich eigentlich Entscheidungen, wie gehe ich mit Stress und Unsicherheit um und wie gut ich darin bin, mich in andere hineinzuversetzen und Situationen richtig einzuschätzen.
+Der Pokertisch ist ein unglaublich faszinierender Erlebnisraum, in dem man sehr viel lernen kann: über sich selbst, über andere Menschen und über Fragen wie: Wie treffe ich eigentlich Entscheidungen, wie gehe ich mit Stress und Unsicherheit um und wie gut ich darin bin, mich in andere hineinzuversetzen und Situationen richtig einzuschätzen.
 
 Damit Du in diesem Erlebnisraum starten kannst, ist es – wie bei jedem Spiel – notwendig, zuerst die Grundregeln und den Spielablauf zu verstehen.
 
@@ -61,7 +61,7 @@ Regel: *50 Acting in Turn 🟢*
 
 ## Beispiel Preflop
 
-Julian schaut seine Karten an und entscheidet sich direkt für einen Call von **600 Chips**.
+Julian schaut seine Karten an und entscheidet sich direkt für einen Raise von **600 Chips**.
 
 ![3. image](./images/3-1.svg)
 
@@ -107,7 +107,7 @@ Wieder beginnt eine neue Setzrunde.
 
 Jona setzt diesmal **3000 Chips**. Lars bezahlt erneut (Call), weil seine Hand weiterhin gut spielbar ist.
 
-![9. image](./images/9-1.svg)
+![9. image](./images/9-1.png)
 
 Regel: *53 Action Out of Turn 🟡*
 
@@ -119,7 +119,7 @@ Dies ist die letzte Entscheidung im Spiel.
 
 Jona setzt **5000 Chips**.
 
-![10. image](./images/10-1.svg)
+![10. image](./images/10-1.png)
 
 Lars muss jetzt entscheiden: Fold, Call oder Raise auf 10000 Chips.
 
@@ -131,7 +131,7 @@ Wenn nach der letzten Setzrunde noch zwei Spieler übrig sind, kommt es zum Show
 
 Beide Spieler zeigen ihre Karten offen. Gewonnen hat die **beste 5-Karten-Kombination aus Handkarten und Gemeinschaftskarten**.
 
-![11. image](./images/11-1.svg)
+![11. image](./images/11-1.png)
 
 Regel: *12 Cards Speak at Showdown 🟢*
 Regel: *16 Face Up for All-Ins 🟢*
@@ -149,11 +149,11 @@ Je höher die Kombination, desto stärker die Hand und desto wahrscheinlicher de
 
 Jona: 2. Paar: 
 
-![13. image](./images/13-1.svg)
+![13. image](./images/13-1.png)
 
 Lars: 1. Paar:
 
-![14. image](./images/14-1.svg)
+![14. image](./images/14-1.png)
 
 Da zwei Paare in der Rangfolge über einem einzelnen Paar stehen, gewinnt Jona diese Runde.
 

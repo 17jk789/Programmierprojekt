@@ -25,8 +25,8 @@
         <!-- Eingabebereich -->
         <HBox fx:id="controlBar" spacing="10">
             <!-- TODO: Größe des TextFields dynamisch anpassen -->
-            <TextField fx:id="inputField" promptText="Nachricht eingeben..." styleClass="gray-input-field" HBox.hgrow="ALWAYS" />
-            <Button fx:id="sendButton" styleClass="yellow-button" text="SENDEN" />
+            <TextField fx:id="inputField" promptText="Enter your message..." styleClass="gray-input-field" HBox.hgrow="ALWAYS" />
+            <Button fx:id="sendButton" styleClass="yellow-button" text="SEND" />
         </HBox>
     </children>
 

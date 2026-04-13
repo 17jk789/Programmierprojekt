@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.WeakHashMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jspecify.annotations.Nullable;
@@ -19,7 +20,13 @@ import org.jspecify.annotations.Nullable;
  */
 public class ChatController {
 
+    /** Ensures one active message poller per physical ClientService connection. */
+    private static final Map<ClientService, ChatController> ACTIVE_CONTROLLERS =
+            new WeakHashMap<>();
+
     private final String username;
+
+    private final ClientService clientService;
 
     private final ChatClient chatClient;
 
@@ -58,22 +65,41 @@ public class ChatController {
      */
     public ChatController(String username, ClientService clientService) {
         this.username = username;
+        this.clientService = clientService;
         chatClient = new ChatClient(clientService);
         chatModelMap = new LinkedHashMap<>();
         localUserList = new ArrayList<>();
         this.chatBoxController = new ChatBoxController(username, this);
         this.logger = LogManager.getLogger(ChatController.class);
-        this.timer = new Timer();
+
+        registerAsActiveController(clientService);
+
+        this.timer = new Timer(true);
         timer.schedule(
                 new TimerTask() {
                     @Override
                     public void run() {
-                        receiveMessage();
-                        checkWhisperUsers();
+                        try {
+                            receiveMessage();
+                            checkWhisperUsers();
+                        } catch (RuntimeException e) {
+                            logger.warn("Chat refresh failed: {}", e.getMessage());
+                        }
                     }
                 },
                 0,
                 REFRESH_TIME);
+    }
+
+    private void registerAsActiveController(ClientService clientService) {
+        synchronized (ACTIVE_CONTROLLERS) {
+            ChatController oldController = ACTIVE_CONTROLLERS.get(clientService);
+            if (oldController != null && oldController != this) {
+                oldController.shutdown();
+                logger.info("Replaced previous ChatController poller for shared ClientService");
+            }
+            ACTIVE_CONTROLLERS.put(clientService, this);
+        }
     }
 
     /**
@@ -84,8 +110,14 @@ public class ChatController {
      */
     public void setLobbyChat(int lobbyId) {
         this.lobbyId = lobbyId;
+        ChatKey key = new ChatKey(ChatType.LOBBY);
+        ChatModel existingModel = chatModelMap.get(key);
+        if (existingModel != null) {
+            existingModel.lobbyId = lobbyId;
+            return;
+        }
         ChatModel lobbyChatModel = new ChatModel(ChatType.LOBBY, username, lobbyId, null);
-        chatModelMap.put(new ChatKey(ChatType.LOBBY), lobbyChatModel);
+        chatModelMap.put(key, lobbyChatModel);
         this.chatBoxController.addChatTab("Lobby", lobbyChatModel);
     }
 
@@ -107,7 +139,7 @@ public class ChatController {
                         chatModelMap.get(new ChatKey(ChatType.GLOBAL)).addMessage(msg);
                         break;
                     case ChatType.LOBBY:
-                        if (msg.lobbyId == lobbyId) {
+                        if (msg.lobbyId == getActiveLobbyChatId()) {
                             chatModelMap
                                     .computeIfAbsent(
                                             new ChatKey(ChatType.LOBBY),
@@ -148,6 +180,20 @@ public class ChatController {
     }
 
     /**
+     * Method to get the lobbyId of the currently active lobby chat, to check if incoming lobby
+     * messages belong to the same lobby.
+     *
+     * @return the lobbyId of the currently active lobby chat.
+     */
+    private int getActiveLobbyChatId() {
+        ChatModel lobbyModel = chatModelMap.get(new ChatKey(ChatType.LOBBY));
+        if (lobbyModel != null) {
+            return lobbyModel.lobbyId;
+        }
+        return lobbyId;
+    }
+
+    /**
      * Method to process the usernames of other users connected to the server, after they got polled
      * by the {@link ChatClient}.
      *
@@ -162,11 +208,33 @@ public class ChatController {
             for (String user : users) {
                 String value = user.split("\\=")[1];
                 logger.info(value);
-                if (!(localUserList.contains(value) || value.equals(username))) {
-                    localUserList.add(value);
-                    logger.info("adding new whisper user");
-                    chatBoxController.addWhisperUser(value);
-                }
+                addWhisperUser(value);
+            }
+        }
+    }
+
+    /**
+     * Registers a whisper target locally and updates the UI if it is a new user.
+     *
+     * @param user target username
+     */
+    public synchronized void addWhisperUser(String user) {
+        if (user == null || user.isBlank()) {
+            return;
+        }
+        if (!(localUserList.contains(user) || user.equals(username))) {
+            localUserList.add(user);
+            logger.info("adding new whisper user");
+            chatBoxController.addWhisperUser(user);
+        }
+    }
+
+    /** Stops polling background tasks for this chat controller instance. */
+    public void shutdown() {
+        timer.cancel();
+        synchronized (ACTIVE_CONTROLLERS) {
+            if (ACTIVE_CONTROLLERS.get(clientService) == this) {
+                ACTIVE_CONTROLLERS.remove(clientService);
             }
         }
     }

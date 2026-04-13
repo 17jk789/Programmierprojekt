@@ -2,41 +2,72 @@ package ch.unibas.dmi.dbis.cs108.casono.client.game;
 
 import ch.unibas.dmi.dbis.cs108.casono.client.network.GameClient;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-/**
- * Service class responsible for managing the game state and providing methods to interact with the
- * game.
- */
 public class GameService {
+
+    private static final Logger LOG = Logger.getLogger(GameService.class.getName());
 
     private final GameClient client;
     private GameState state;
 
     /**
-     * Constructs a GameService with the given GameClient for communication with the server.
+     * Constructs a GameService with the specified GameClient.
      *
-     * @param client The GameClient instance used to send commands and receive responses from the
-     *     server.
+     * @param client The GameClient used to communicate with the server. Must not be null.
      */
     public GameService(GameClient client) {
+        if (client == null) {
+            throw new IllegalArgumentException("GameClient must not be null");
+        }
+
         this.client = client;
+        LOG.info("GameService created");
     }
 
     /**
-     * Refresh the game state by fetching the latest state from the server using the GameClient.
+     * Refreshes the game state by fetching the latest state from the server using the GameClient.
      *
-     * @return The updated GameState object representing the current state of the game after
-     *     refreshing.
+     * @return The updated GameState after refreshing.
      */
     public GameState refresh() {
-        state = client.fetchGameState();
+        LOG.fine("Refreshing game state...");
+
+        GameState newState;
+        try {
+            newState = client.fetchGameState();
+        } catch (Exception e) {
+            // Shouldn't happen with the new GameClient, but keep service stable.
+            LOG.log(Level.WARNING, "refresh() failed: " + e.getMessage(), e);
+            return state;
+        }
+
+        if (newState == null) {
+            LOG.fine("No new state (null) -> keeping previous state");
+            return state;
+        }
+
+        this.state = newState;
+
+        LOG.info(
+                () ->
+                        "State updated: phase="
+                                + state.phase
+                                + " pot="
+                                + state.pot
+                                + " players="
+                                + (state.players != null ? state.players.size() : 0)
+                                + " community="
+                                + (state.communityCards != null ? state.communityCards.size() : 0));
+
         return state;
     }
 
     /**
-     * Get the current game state.
+     * Retrieves the current phase of the game.
      *
-     * @return The current GameState object representing the state of the game.
+     * @return The current game phase as a string (e.g., "Pre-Flop", "Flop", "Turn", "River").
      */
     public int getPot() {
         ensureState();
@@ -44,76 +75,82 @@ public class GameService {
     }
 
     /**
-     * Get the current game state.
+     * Retrieves the current phase of the game.
      *
-     * @return The current GameState object representing the state of the game.
+     * @return The current game phase as a string (e.g., "Pre-Flop", "Flop", "Turn", "River").
      */
     public List<Card> getCommunityCards() {
         ensureState();
-        return state.communityCards;
+        return state.communityCards != null ? state.communityCards : List.of();
     }
 
     /**
-     * Get the list of players in the current game state.
+     * Retrieves the list of players currently in the game.
      *
-     * @return A list of Player objects representing the players in the current game state.
+     * @return A list of Player objects representing the players in the game. A list of Player
+     *     objects representing the players in the game.
      */
     public List<Player> getPlayers() {
         ensureState();
-        return state.players;
+        return state.players != null ? state.players : List.of();
     }
 
-    /** Send a CALL command to the server to indicate that the player wants to call. */
+    /**
+     * Retrieves the index of the current player whose turn it is.
+     *
+     * @return The index of the current player in the players list, or -1 if not available.
+     */
+    public Player getWinner() {
+        ensureState();
+        if (state.winnerIndex < 0
+                || state.players == null
+                || state.winnerIndex >= state.players.size()) {
+            return null;
+        }
+        return state.players.get(state.winnerIndex);
+    }
+
+    /** Retrieves the current phase of the game. */
     public void call() {
         client.sendCall();
     }
 
-    /** Send a FOLD command to the server to indicate that the player wants to fold. */
+    /** Retrieves the current phase of the game. */
     public void fold() {
         client.sendFold();
     }
 
     /**
-     * Send a BET command to the server to indicate that the player wants to bet with the specified
-     * amount.
+     * Retrieves the current phase of the game.
      *
-     * @param amount The amount the player wants to bet.
+     * @param amount The amount to bet. Must be a positive integer.
      */
     public void bet(int amount) {
         client.sendBet(amount);
     }
 
     /**
-     * Send a RAISE command to the server to indicate that the player wants to raise to the
-     * specified amount.
+     * Retrieves the current phase of the game.
      *
-     * @param amount The amount the player wants to raise to.
+     * @param amount The amount to raise. Must be a positive integer.
      */
     public void raise(int amount) {
         client.sendRaise(amount);
     }
 
-    /**
-     * Get the winner of the game if there is one. If the game is still ongoing or if there is no
-     * winner, this method returns null.
-     *
-     * @return The Player object representing the winner of the game, or null if there is no winner
-     *     yet.
-     */
-    public Player getWinner() {
-        ensureState();
-
-        if (state.winnerIndex < 0) {
-            return null;
-        }
-
-        return state.players.get(state.winnerIndex);
-    }
-
-    /** Ensure that the game state has been initialized before accessing it. */
+    /** Ensures that the game state has been initialized before accessing it. */
     private void ensureState() {
         if (state == null) {
-            throw new IllegalStateException("Call refresh() first");
+            throw new IllegalStateException("GameService used before any successful refresh()");
         }
+    }
+
+    /**
+     * Returns the current GameState without refreshing from the server.
+     *
+     * @return The current GameState, or null if it has not been initialized yet.
+     */
+    public GameState peekStateOrNull() {
+        return state;
     }
 }

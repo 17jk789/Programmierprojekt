@@ -45,6 +45,14 @@ public class ChatBoxController {
 
     private String ressource = "/ui-structure/components/chatui/chattab.fxml";
 
+    /**
+     * Constructor for the ChatBoxController, initializes the necessary fields and data structures
+     * for managing chat tabs and whisper chats.
+     *
+     * @param username The username of the current user.
+     * @param chatController The ChatController instance responsible for handling chat logic and
+     *     communication with the server.
+     */
     public ChatBoxController(String username, ChatController chatController) {
         this.username = username;
         this.chatController = chatController;

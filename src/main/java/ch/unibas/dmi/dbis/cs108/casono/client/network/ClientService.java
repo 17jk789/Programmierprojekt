@@ -5,7 +5,9 @@ import ch.unibas.dmi.dbis.cs108.casono.server.network.transport.RawPacket;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.transport.TcpTransport;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -105,50 +107,91 @@ public class ClientService {
         String responseText = rp.payload();
         logger.info("Raw message '{}'", responseText);
 
+        ParsedPacket parsed = parsePacketContent(responseText);
+
+        logger.debug(
+                "Parsed response lines (rid={}, success={}, openBlocks={}): {}",
+                rid,
+                parsed.success,
+                parsed.blockStack.size(),
+                parsed.lines);
+
+        handleParsedResponse(rid, parsed.success, parsed.lines);
+    }
+
+    private ParsedPacket parsePacketContent(String responseText) {
         boolean hasStatus = false;
         boolean success = false;
         List<String> lines = new ArrayList<>();
+        Deque<String> blockStack = new ArrayDeque<>();
 
         for (String rawLine : responseText.split("\\n")) {
             String line = rawLine;
+            String trimmed = line.trim();
+
             if (!hasStatus) {
-                if ("+OK".equals(line)) {
-                    success = true;
+                StatusCheckResult status = checkStatus(trimmed);
+                if (status != null) {
+                    success = status.success;
                     hasStatus = true;
-                    continue;
-                }
-                if (line.startsWith("-ERR") || line.startsWith("-ERROR")) {
-                    success = false;
-                    hasStatus = true;
-                    continue;
                 }
                 continue;
             }
 
-            if ("END".equals(line)) {
+            if (trimmed.isEmpty()) {
+                continue;
+            }
+
+            line = line.replaceFirst("^\\s+", "");
+            trimmed = line.trim();
+
+            if (isContainerStart(trimmed)) {
+                blockStack.push(trimmed);
+                lines.add(trimmed);
+                continue;
+            }
+
+            if ("END".equals(trimmed)) {
+                if (!blockStack.isEmpty()) {
+                    blockStack.pop();
+                    lines.add("END");
+                    continue;
+                }
                 break;
             }
 
-            if (line.startsWith("\t")) {
-                line = line.substring(1);
-            }
             lines.add(line);
         }
 
         if (!hasStatus) {
-            if (responseText.contains("+OK")) {
-                success = true;
-                hasStatus = true;
-            } else if (responseText.contains("-ERR") || responseText.contains("-ERROR")) {
-                success = false;
-                hasStatus = true;
-            } else {
-                // best effort: treat as success
-                success = true;
-                hasStatus = true;
-            }
+            success = inferStatus(responseText);
         }
 
+        return new ParsedPacket(success, lines, blockStack);
+    }
+
+    private StatusCheckResult checkStatus(String trimmed) {
+        if ("+OK".equals(trimmed)) {
+            return new StatusCheckResult(true);
+        }
+        if (trimmed.startsWith("-ERR") || trimmed.startsWith("-ERROR")) {
+            return new StatusCheckResult(false);
+        }
+        return null;
+    }
+
+    private boolean inferStatus(String responseText) {
+        if (responseText.contains("+OK")) {
+            return true;
+        }
+        if (responseText.contains("-ERR") || responseText.contains("-ERROR")) {
+            return false;
+        }
+        return true;
+    }
+
+    private void handleParsedResponse(int rid, boolean success, List<String> lines)
+            throws InterruptedException {
         if (rid == 0) {
             for (Consumer<List<String>> l : eventListeners) {
                 try {
@@ -165,6 +208,21 @@ public class ClientService {
                 logger.warn("No pending response queue for id {}", rid);
             }
         }
+    }
+
+    private record ParsedPacket(boolean success, List<String> lines, Deque<String> blockStack) {}
+
+    private record StatusCheckResult(boolean success) {}
+
+    private boolean isContainerStart(String token) {
+        return token.equals("LOBBIES")
+                || token.equals("LOBBY")
+                || token.equals("PLAYERS")
+                || token.equals("PLAYER")
+                || token.equals("USERS")
+                || token.equals("USER")
+                || token.equals("CARDS")
+                || token.equals("CARD");
     }
 
     /**

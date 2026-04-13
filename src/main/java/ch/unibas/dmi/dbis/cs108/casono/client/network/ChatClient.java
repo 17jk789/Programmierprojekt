@@ -79,21 +79,11 @@ public class ChatClient {
     public List<String> getUsers() {
         logger.info("Asking server for list of users");
         List<String> users = clientService.processCommand("LIST_USERS");
-        List<String> parameters = new ArrayList<String>();
-        for (int i = 0; i < users.size(); i++) {
-            String line = users.get(i);
-            if (line.equals("USERS")) {
-                continue;
-            } else if (line.equals("END")) {
-                break;
-            }
-            line = line.replaceFirst("^\t", "");
-
-            if (line.equals("USER")) {
-                String username = users.get(i + 1);
-                username = username.replaceFirst("^\t", "");
-                username = username.replaceFirst("^\t", "");
-                parameters.add(username);
+        List<String> parameters = new ArrayList<>();
+        for (String line : users) {
+            String trimmed = line == null ? "" : line.trim();
+            if (trimmed.startsWith("USERNAME=")) {
+                parameters.add(trimmed);
             }
         }
         return parameters;

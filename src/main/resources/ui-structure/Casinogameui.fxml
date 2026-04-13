@@ -113,7 +113,8 @@
                 <!-- Leave blank -->
             </VBox>
 
-            <fx:include source="components/chatui/chatbox.fxml" GridPane.columnIndex="2"/>
+            <!-- RIGHT SIDE (Chat Box) -->
+            <AnchorPane fx:id="chatContainer" GridPane.columnIndex="2" />
 
         </children>
     </GridPane>
