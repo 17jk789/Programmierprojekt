@@ -6,6 +6,7 @@ import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.deck.Rank;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.deck.Suit;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.player.Player;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.player.PlayerId;
+import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.state.GamePhase;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.state.GameState;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.request.RequestContext;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.SuccessResponse;
@@ -33,11 +34,13 @@ public class GetGameStateResponse extends SuccessResponse {
         super(
                 context,
                 buildBody(
+                        game,
                         Objects.requireNonNull(game, "game must not be null").getState(),
                         requestingUsername));
     }
 
-    private static ResponseBody buildBody(GameState state, String requestingUsername) {
+    private static ResponseBody buildBody(
+            GameController game, GameState state, String requestingUsername) {
         Objects.requireNonNull(state, "state must not be null");
 
         ResponseBodyBuilder builder = ResponseBody.builder();
@@ -47,12 +50,35 @@ public class GetGameStateResponse extends SuccessResponse {
         builder.param("CURRENT_BET", computeGlobalCurrentBet(state));
         builder.param("DEALER", state.getDealerIndex());
         builder.param("ACTIVE_PLAYER", state.getCurrentPlayerIndex());
+        builder.param("WINNER", computeWinnerIndex(state, game));
 
         appendCommunityCards(builder, state);
 
         appendPlayers(builder, state, requestingUsername);
 
         return builder.build();
+    }
+
+    private static int computeWinnerIndex(GameState state, GameController game) {
+        GamePhase phase = state.getPhase();
+        if (phase != GamePhase.SHOWDOWN && phase != GamePhase.FINISHED) {
+            return -1;
+        }
+
+        PlayerId winnerId = game.determineWinner();
+        if (winnerId == null) {
+            return -1;
+        }
+
+        int index = 0;
+        for (Player p : state.getPlayers()) {
+            if (p != null && winnerId.equals(p.getId())) {
+                return index;
+            }
+            index++;
+        }
+
+        return -1;
     }
 
     private static int computeGlobalCurrentBet(GameState state) {
