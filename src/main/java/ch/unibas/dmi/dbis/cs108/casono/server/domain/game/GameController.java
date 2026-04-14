@@ -254,4 +254,12 @@ public class GameController {
 
         return bestPlayer;
     }
+
+    /**
+     * Ends the current game by setting the phase to FINISHED. This should be called when the
+     * showdown is complete and a winner has been determined.
+     */
+    public void endGame() {
+        engine.getState().setPhase(GamePhase.FINISHED);
+    }
 }

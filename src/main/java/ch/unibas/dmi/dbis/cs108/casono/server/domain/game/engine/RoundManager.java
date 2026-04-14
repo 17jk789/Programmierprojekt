@@ -49,6 +49,11 @@ public class RoundManager {
             state.setPhase(GamePhase.PREFLOP);
         }
 
+        if (state.countNonFoldedPlayers() == 1) {
+            state.setPhase(GamePhase.FINISHED);
+            return;
+        }
+
         if (isBettingRoundFinished(state)) {
             advancePhase(state);
         }
@@ -81,8 +86,9 @@ public class RoundManager {
             case FLOP -> dealTurn(state);
             case TURN -> dealRiver(state);
             case RIVER -> showdown(state);
-            case SHOWDOWN -> {
-                /* nothing */
+            case SHOWDOWN -> state.setPhase(GamePhase.FINISHED);
+            case FINISHED -> {
+                /* game is over */
             }
         }
     }
