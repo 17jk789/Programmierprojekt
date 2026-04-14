@@ -114,8 +114,11 @@ public class CasinoGameUI extends Application {
         Parent root = fxmlLoader.load();
         CasinoGameController controller = fxmlLoader.getController();
 
-        int gameId = 1; // TODO echte gameId einsetzen
-        GameClient gameClient = new GameClient(clientService, gameId);
+        if (lobbyId <= 0) {
+            throw new IllegalStateException("CasinoGameUI: lobbyId must be set before start()");
+        }
+
+        GameClient gameClient = new GameClient(clientService, lobbyId);
         GameService gameService = new GameService(gameClient);
         controller.setGameService(gameService);
 
