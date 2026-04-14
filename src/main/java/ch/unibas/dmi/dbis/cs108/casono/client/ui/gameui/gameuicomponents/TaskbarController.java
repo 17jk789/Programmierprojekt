@@ -243,8 +243,9 @@ public class TaskbarController {
 
         boolean isMyTurn = state.activePlayer == myIndex;
         boolean isOut = me.getState() == PlayerState.FOLDED;
+        boolean isGameFinished = state.phase != null && state.phase.equalsIgnoreCase("FINISHED");
 
-        updateBasicButtons(isMyTurn, isOut);
+        updateBasicButtons(isMyTurn, isOut || isGameFinished);
         setMoney(me.getChips());
     }
 
