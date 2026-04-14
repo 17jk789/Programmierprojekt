@@ -1,6 +1,7 @@
 package ch.unibas.dmi.dbis.cs108.casono.server.app.commands.game.get_game_state;
 
 import ch.unibas.dmi.dbis.cs108.casono.server.app.checks.UserLoggedInCheck;
+import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.state.GamePhase;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.lobby.Lobby;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.lobby.LobbyId;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.lobby.LobbyManager;
@@ -31,8 +32,10 @@ public class GetGameStateHandler extends CommandHandler<GetGameStateRequest> {
         String username = resolveUsername(request);
 
         Lobby lobby;
+        LobbyId lobbyId;
         if (gameId != null) {
-            lobby = lobbyManager.getLobby(LobbyId.of(gameId));
+            lobbyId = LobbyId.of(gameId);
+            lobby = lobbyManager.getLobby(lobbyId);
             if (lobby == null) {
                 responseDispatcher.dispatch(
                         new ErrorResponse(
@@ -59,6 +62,7 @@ public class GetGameStateHandler extends CommandHandler<GetGameStateRequest> {
                                 request.getContext(), "NOT_IN_LOBBY", "User not in a lobby"));
                 return;
             }
+            lobbyId = lobby.getId();
         }
 
         var game = lobby.getGameController();
@@ -69,7 +73,28 @@ public class GetGameStateHandler extends CommandHandler<GetGameStateRequest> {
             return;
         }
 
+        if (game.getState().getPhase() == GamePhase.FINISHED) {
+            cleanupLobby(lobby, lobbyId);
+        }
+
         responseDispatcher.dispatch(new GetGameStateResponse(request.getContext(), game, username));
+    }
+
+    /**
+     * Cleans up a lobby by removing all players and resetting the game controller. This is called
+     * when the game reaches FINISHED phase.
+     */
+    private void cleanupLobby(Lobby lobby, LobbyId lobbyId) {
+        try {
+            // Remove all players from the lobby
+            for (String playerName : lobby.getPlayerNames()) {
+                lobbyManager.removePlayer(playerName);
+            }
+            // Reset the game controller so the lobby returns to CREATED state
+            lobby.initGame(null);
+        } catch (RuntimeException e) {
+            // Log silently to avoid disrupting game state response
+        }
     }
 
     private String resolveUsername(GetGameStateRequest request) {
