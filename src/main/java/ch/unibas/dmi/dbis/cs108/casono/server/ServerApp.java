@@ -1,5 +1,8 @@
 package ch.unibas.dmi.dbis.cs108.casono.server;
 
+import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.change_username.ChangeUsernameHandler;
+import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.change_username.ChangeUsernameParser;
+import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.change_username.ChangeUsernameRequest;
 import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.check_nick.CheckUsernameHandler;
 import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.check_nick.CheckUsernameParser;
 import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.check_nick.CheckUsernameRequest;
@@ -167,6 +170,15 @@ public class ServerApp {
         parserDispatcher.register("LOGIN", new LoginParser());
         commandRouter.register(
                 LoginRequest.class, new LoginHandler(responseDispatcher, userRegistry));
+
+        parserDispatcher.register("CHANGE_USERNAME", new ChangeUsernameParser());
+        commandRouter.register(
+                ChangeUsernameRequest.class,
+                new ChangeUsernameHandler(
+                        responseDispatcher,
+                        userRegistry,
+                        context.lobbyManager(),
+                        context.sessionManager()));
 
         parserDispatcher.register("LOGOUT", new LogoutParser());
         commandRouter.register(
