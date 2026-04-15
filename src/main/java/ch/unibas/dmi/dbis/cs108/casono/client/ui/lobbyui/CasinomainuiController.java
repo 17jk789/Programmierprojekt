@@ -104,6 +104,13 @@ public class CasinomainuiController {
         casinoTable.getChildren().add(gridManager.getGridPane());
         gridManager.renderLobbyButtons();
 
+        String sharedUsername = ClientApp.getSharedUsername();
+        updateUsernameFieldPresentation(sharedUsername);
+        if (loginButton != null) {
+            loginButton.setText(
+                    sharedUsername != null && !sharedUsername.isBlank() ? "Change Name" : "Login");
+        }
+
         initializeChat(clientService);
     }
 
@@ -156,7 +163,7 @@ public class CasinomainuiController {
     /** Handles the login button action. Validates input and calls LobbyClient.login(). */
     @FXML
     public void handleLoginButton() {
-        String username = usernameField.getText();
+        String username = usernameField == null ? null : usernameField.getText();
         if (username == null || username.isBlank()) {
             showAlert("Please enter a username.");
             return;
@@ -170,12 +177,63 @@ public class CasinomainuiController {
             showAlert("Offline mode: cannot send login to server.");
             return;
         }
+
+        String trimmed = username.trim();
         try {
-            lobbyClient.login(username);
-            showAlert("Login sent: " + username);
+            var result = lobbyClient.login(trimmed);
+            String assigned = result != null ? result.getUsername() : trimmed;
+            ClientApp.updateSharedUsername(assigned);
+            if (chatController != null) {
+                chatController.updateUsername(assigned);
+            }
+            updateUsernameFieldPresentation(assigned);
+            if (loginButton != null) {
+                loginButton.setText("Change Name");
+            }
+            return;
+        } catch (RuntimeException loginError) {
+            if (!containsProtocolError(loginError, "ALREADY_LOGGED_IN")) {
+                LOGGER.error("Login failed: {}", loginError.getMessage());
+                showAlert("Login failed: " + loginError.getMessage());
+                return;
+            }
+            LOGGER.info("Session already logged in, trying username change");
+        }
+
+        try {
+            var result = lobbyClient.changeUsername(trimmed);
+            String assigned = result != null ? result.getUsername() : trimmed;
+            ClientApp.updateSharedUsername(assigned);
+            if (chatController != null) {
+                chatController.updateUsername(assigned);
+            }
+            updateUsernameFieldPresentation(assigned);
+            if (loginButton != null) {
+                loginButton.setText("Change Name");
+            }
         } catch (RuntimeException e) {
-            LOGGER.error("Login failed: {}", e.getMessage());
-            showAlert("Login failed: " + e.getMessage());
+            LOGGER.error("Change username failed: {}", e.getMessage());
+            showAlert("Change username failed: " + e.getMessage());
+        }
+    }
+
+    private boolean containsProtocolError(RuntimeException error, String code) {
+        String msg = error.getMessage();
+        return msg != null && msg.contains(code);
+    }
+
+    private void updateUsernameFieldPresentation(String username) {
+        if (usernameField == null) {
+            return;
+        }
+
+        if (username != null && !username.isBlank()) {
+            usernameField.setText(username.trim());
+            usernameField.positionCaret(usernameField.getText().length());
+            usernameField.setPromptText("Username");
+        } else {
+            usernameField.clear();
+            usernameField.setPromptText("Username");
         }
     }
 

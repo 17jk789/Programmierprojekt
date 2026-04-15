@@ -132,6 +132,29 @@ public class LobbyClient {
     }
 
     /**
+     * Changes the username for the currently logged-in session.
+     *
+     * @param newUsername desired new username
+     * @return a {@link LoginResult} containing assigned username and id as returned by the server
+     */
+    public LoginResult changeUsername(String newUsername) {
+        List<String> lines = client.processCommand("CHANGE_USERNAME USERNAME=" + newUsername);
+
+        List<RequestParameter> params = ClientService.convertToRequestParameters(lines);
+
+        String assigned = newUsername;
+        String id = null;
+        for (RequestParameter p : params) {
+            if ("USERNAME".equalsIgnoreCase(p.key())) {
+                assigned = p.value();
+            } else if ("ID".equalsIgnoreCase(p.key())) {
+                id = p.value();
+            }
+        }
+        return new LoginResult(assigned, id);
+    }
+
+    /**
      * Request the server for the list of available lobbies.
      *
      * @return list of LobbyInfo objects representing current lobbies

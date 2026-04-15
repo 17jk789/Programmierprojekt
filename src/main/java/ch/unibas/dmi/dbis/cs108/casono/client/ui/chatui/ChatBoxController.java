@@ -60,6 +60,12 @@ public class ChatBoxController {
         usernameTabMap = new HashMap<>();
     }
 
+    public void setUsername(String username) {
+        if (username != null && !username.isBlank()) {
+            this.username = username.trim();
+        }
+    }
+
     /**
      * Initializes the chat interface by creating the global chat model and adding the corresponding
      * "GLOBAL" tab to the interface. It also registers the global chat in the {@link
@@ -84,6 +90,11 @@ public class ChatBoxController {
     public void addWhisperUser(String targetUserName) {
         Platform.runLater(
                 () -> {
+                    for (MenuItem existing : addWhisperChatButton.getItems()) {
+                        if (targetUserName.equals(existing.getText())) {
+                            return;
+                        }
+                    }
                     MenuItem menuItem = new MenuItem(targetUserName);
                     addWhisperChatButton.getItems().add(menuItem);
                     menuItem.setOnAction(
@@ -95,6 +106,54 @@ public class ChatBoxController {
                                                     username,
                                                     -1,
                                                     targetUserName)));
+                });
+    }
+
+    public void removeWhisperUser(String targetUserName) {
+        Platform.runLater(
+                () ->
+                        addWhisperChatButton
+                                .getItems()
+                                .removeIf(item -> targetUserName.equals(item.getText())));
+    }
+
+    public void renameWhisperUser(String oldUsername, String newUsername) {
+        if (oldUsername == null
+                || newUsername == null
+                || oldUsername.isBlank()
+                || newUsername.isBlank()
+                || oldUsername.equals(newUsername)) {
+            return;
+        }
+
+        Platform.runLater(
+                () -> {
+                    for (MenuItem item : addWhisperChatButton.getItems()) {
+                        if (oldUsername.equals(item.getText())) {
+                            item.setText(newUsername);
+                            item.setOnAction(
+                                    event ->
+                                            addWhisperChat(
+                                                    newUsername,
+                                                    new ChatModel(
+                                                            ChatType.WHISPER,
+                                                            username,
+                                                            -1,
+                                                            newUsername)));
+                            break;
+                        }
+                    }
+
+                    Tab tab = usernameTabMap.remove(oldUsername);
+                    if (tab != null) {
+                        tab.setText(newUsername);
+                        usernameTabMap.put(newUsername, tab);
+                    }
+
+                    int idx = activeWhisperChats.indexOf(oldUsername);
+                    if (idx >= 0) {
+                        activeWhisperChats.set(idx, newUsername);
+                    }
                 });
     }
 

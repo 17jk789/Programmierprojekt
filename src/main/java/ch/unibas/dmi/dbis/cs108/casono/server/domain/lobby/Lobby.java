@@ -70,6 +70,30 @@ public class Lobby {
         return playerNames.remove(playerName);
     }
 
+    /**
+     * Renames a player in this lobby's player list.
+     *
+     * @param oldName old username
+     * @param newName new username
+     * @return true if renamed successfully
+     */
+    public boolean renamePlayer(String oldName, String newName) {
+        if (oldName == null || newName == null) {
+            return false;
+        }
+        synchronized (playerNames) {
+            if (oldName.equals(newName)) {
+                return playerNames.contains(oldName);
+            }
+            int idx = playerNames.indexOf(oldName);
+            if (idx < 0 || playerNames.contains(newName)) {
+                return false;
+            }
+            playerNames.set(idx, newName);
+            return true;
+        }
+    }
+
     public void initGame(GameController controller) {
         this.gameController = controller;
     }
