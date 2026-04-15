@@ -22,7 +22,7 @@ public class ChatModel {
     public final String username;
 
     /** The person to send the message to If the chat is a whisper chat */
-    private final String target;
+    private String target;
 
     private final IntegerProperty count;
 
@@ -81,5 +81,9 @@ public class ChatModel {
      */
     public String getTarget() {
         return target;
+    }
+
+    public void setTarget(String target) {
+        this.target = target;
     }
 }
