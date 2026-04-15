@@ -1,5 +1,6 @@
 package ch.unibas.dmi.dbis.cs108.casono.server.domain.lobby;
 
+import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.player.PlayerId;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.lobby.Lobby.AddResult;
 import java.time.Duration;
 import java.time.Instant;
@@ -168,6 +169,56 @@ public class LobbyManager {
         for (String username : removed.getPlayerNames()) {
             playerToLobby.remove(username);
         }
+    }
+
+    /**
+     * Renames a player across lobby mapping, lobby player list and running game ids.
+     *
+     * @param oldUsername old username
+     * @param newUsername new username
+     * @return true if rename was applied
+     */
+    public synchronized boolean renamePlayer(String oldUsername, String newUsername) {
+        if (oldUsername == null || newUsername == null) {
+            return false;
+        }
+        if (oldUsername.equals(newUsername)) {
+            return true;
+        }
+
+        LobbyId lobbyId = playerToLobby.get(oldUsername);
+        if (lobbyId == null) {
+            return true;
+        }
+        if (playerToLobby.containsKey(newUsername)) {
+            return false;
+        }
+
+        Lobby lobby = activeLobbies.get(lobbyId);
+        if (lobby == null) {
+            playerToLobby.remove(oldUsername);
+            return true;
+        }
+
+        boolean lobbyRenamed = lobby.renamePlayer(oldUsername, newUsername);
+        if (!lobbyRenamed) {
+            return false;
+        }
+
+        if (lobby.getGameController() != null) {
+            boolean gameRenamed =
+                    lobby.getGameController()
+                            .renamePlayer(PlayerId.of(oldUsername), PlayerId.of(newUsername));
+            if (!gameRenamed) {
+                // Best-effort rollback to keep structures consistent.
+                lobby.renamePlayer(newUsername, oldUsername);
+                return false;
+            }
+        }
+
+        playerToLobby.remove(oldUsername);
+        playerToLobby.put(newUsername, lobbyId);
+        return true;
     }
 
     /**

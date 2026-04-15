@@ -9,6 +9,7 @@ import ch.unibas.dmi.dbis.cs108.casono.server.domain.user.UserRegistry;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.command.execution.CommandHandler;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.OkResponse;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.dispatcher.ResponseDispatcher;
+import java.util.Optional;
 
 public class SendMessageHandler extends CommandHandler<SendMessageRequest> {
     private final UserRegistry userRegistry;
@@ -39,6 +40,11 @@ public class SendMessageHandler extends CommandHandler<SendMessageRequest> {
     @Override
     public void execute(SendMessageRequest request) {
         Message message = request.getMessage();
+        Optional<ch.unibas.dmi.dbis.cs108.casono.server.domain.user.User> senderUser =
+                userRegistry.getBySessionId(request.getSessionId());
+        if (senderUser.isPresent()) {
+            message.sender = senderUser.get().getName();
+        }
         broadcast(request, message);
         OkResponse response = new OkResponse(request.getContext());
         responseDispatcher.dispatch(response);

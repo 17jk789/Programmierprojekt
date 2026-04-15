@@ -174,6 +174,51 @@ public class GameState {
         holeCards.computeIfAbsent(id, k -> new ArrayList<>());
     }
 
+    /**
+     * Renames a player id across all game-state structures.
+     *
+     * @param oldId existing player id
+     * @param newId new player id
+     * @return true if the rename was applied, false otherwise
+     */
+    public synchronized boolean renamePlayerId(PlayerId oldId, PlayerId newId) {
+        if (oldId == null || newId == null) {
+            return false;
+        }
+        if (!players.containsKey(oldId)) {
+            return false;
+        }
+        if (oldId.equals(newId)) {
+            return true;
+        }
+        if (players.containsKey(newId)) {
+            return false;
+        }
+
+        Player player = players.remove(oldId);
+        if (player == null) {
+            return false;
+        }
+        player.setId(newId);
+        players.put(newId, player);
+
+        int idx = playerOrder.indexOf(oldId);
+        if (idx >= 0) {
+            playerOrder.set(idx, newId);
+        }
+
+        moveMapEntry(currentBets, oldId, newId, 0);
+        moveMapEntry(playerBetCommitments, oldId, newId, 0);
+        moveMapEntry(holeCards, oldId, newId, new ArrayList<>());
+        return true;
+    }
+
+    private <T> void moveMapEntry(
+            Map<PlayerId, T> map, PlayerId oldId, PlayerId newId, T fallback) {
+        T value = map.remove(oldId);
+        map.put(newId, value != null ? value : fallback);
+    }
+
     // Betting
     public int getCurrentBet(PlayerId playerId) {
         return currentBets.getOrDefault(playerId, 0);

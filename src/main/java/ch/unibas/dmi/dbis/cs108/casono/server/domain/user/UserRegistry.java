@@ -200,6 +200,10 @@ public class UserRegistry {
             return false;
         }
 
+        if (user.getName().equals(newName)) {
+            return true;
+        }
+
         if (byName.containsKey(newName)) {
             return false;
         }
