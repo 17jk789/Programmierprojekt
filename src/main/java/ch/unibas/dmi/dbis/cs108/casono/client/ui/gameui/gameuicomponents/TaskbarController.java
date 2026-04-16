@@ -7,6 +7,7 @@ import ch.unibas.dmi.dbis.cs108.casono.client.game.PlayerId;
 import ch.unibas.dmi.dbis.cs108.casono.client.game.PlayerState;
 import ch.unibas.dmi.dbis.cs108.casono.client.ui.lobbyui.Casinomainui;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -44,6 +45,10 @@ public class TaskbarController {
     private static final int MIN_CREDITS = 5;
     private static final int MAX_CREDITS = 100000;
     private static final int CREDIT_STEP = 5;
+    private static final double PREFLOP_WARN_RATIO = 0.30;
+    private static final double PREFLOP_BLOCK_RATIO = 0.60;
+    private static final double POSTFLOP_WARN_RATIO = 0.50;
+    private static final double POSTFLOP_BLOCK_RATIO = 0.80;
     private static final String STYLE_YELLOW_BUTTON = "yellow-button";
     private static final String STYLE_GRAY_BUTTON = "gray-button";
     private static final String STYLE_RED_BUTTON = "red-button";
@@ -246,7 +251,175 @@ public class TaskbarController {
         boolean isGameFinished = state.phase != null && state.phase.equalsIgnoreCase("FINISHED");
 
         updateBasicButtons(isMyTurn, isOut || isGameFinished);
+        applyActionAvailability(state, me, isMyTurn, isOut || isGameFinished);
         setMoney(me.getChips());
+    }
+
+    private void applyActionAvailability(
+            GameState state, Player me, boolean isMyTurn, boolean isOutOrFinished) {
+        if (!isMyTurn || isOutOrFinished || state == null || me == null) {
+            return;
+        }
+
+        int chips = Math.max(0, me.getChips());
+        int toCall = getToCall(state, me);
+        int minBetAmount = getMinimumBetAmount(state);
+
+        boolean canBet = chips >= minBetAmount;
+        boolean canCall = chips > 0 && (toCall == 0 || chips >= toCall);
+        int raiseAmount = Math.max(0, state.currentBet);
+        boolean canRaise = chips > 0 && raiseAmount > 0 && chips >= toCall + raiseAmount;
+
+        if (!canBet && !canCall && !canRaise) {
+            setActionEnabled(betButton, false);
+            setActionEnabled(callButton, false);
+            setActionEnabled(raiseButton, false);
+            setActionEnabled(foldButton, true);
+            deactivateInputField(taskbarInput);
+            return;
+        }
+
+        if (isOnlyBlindsInPot(state)) {
+            setActionEnabled(betButton, canBet);
+            setActionEnabled(callButton, false);
+            setActionEnabled(foldButton, false);
+            setActionEnabled(raiseButton, false);
+            if (canBet) {
+                activateInputField(taskbarInput);
+            } else {
+                deactivateInputField(taskbarInput);
+            }
+            return;
+        }
+
+        setActionEnabled(betButton, canBet);
+        setActionEnabled(callButton, canCall);
+        setActionEnabled(raiseButton, canRaise);
+        setActionEnabled(foldButton, true);
+
+        if (canBet) {
+            activateInputField(taskbarInput);
+        } else {
+            deactivateInputField(taskbarInput);
+        }
+    }
+
+    private void setActionEnabled(Button button, boolean enabled) {
+        if (enabled) {
+            activateButton(button);
+        } else {
+            deactivateButton(button);
+        }
+    }
+
+    private int getToCall(GameState state, Player me) {
+        int current = Math.max(0, state.currentBet);
+        int alreadyInvested = Math.max(0, me.getBet());
+        return Math.max(0, current - alreadyInvested);
+    }
+
+    private int getMinimumBetAmount(GameState state) {
+        int bigBlind = estimateBigBlind(state);
+        return Math.max(MIN_CREDITS, Math.max(state.currentBet, bigBlind));
+    }
+
+    private int estimateBigBlind(GameState state) {
+        if (state == null) {
+            return MIN_CREDITS * 2;
+        }
+
+        if (isPreflop(state.phase) && state.currentBet > 0) {
+            return state.currentBet;
+        }
+
+        int maxCommitted = 0;
+        for (Player player : state.players) {
+            if (player != null) {
+                maxCommitted = Math.max(maxCommitted, player.getBet());
+            }
+        }
+
+        return maxCommitted > 0 ? maxCommitted : MIN_CREDITS * 2;
+    }
+
+    private boolean isOnlyBlindsInPot(GameState state) {
+        if (state == null || !isPreflop(state.phase) || state.players == null || state.players.isEmpty()) {
+            return false;
+        }
+
+        int nonZeroBets = 0;
+        int maxBetCount = 0;
+        int lowerBlindCount = 0;
+        int maxBet = Math.max(0, state.currentBet);
+        int totalCommitted = 0;
+
+        for (Player player : state.players) {
+            if (player == null) {
+                continue;
+            }
+
+            int bet = Math.max(0, player.getBet());
+            totalCommitted += bet;
+
+            if (bet > 0) {
+                nonZeroBets++;
+                if (bet == maxBet) {
+                    maxBetCount++;
+                } else if (bet < maxBet) {
+                    lowerBlindCount++;
+                }
+            }
+        }
+
+        return maxBet > 0
+                && nonZeroBets == 2
+                && maxBetCount == 1
+                && lowerBlindCount == 1
+                && totalCommitted == state.pot;
+    }
+
+    private boolean isPreflop(String phase) {
+        return "PREFLOP".equalsIgnoreCase(phase);
+    }
+
+    private enum BetRisk {
+        ALLOWED,
+        WARNING,
+        BLOCKED
+    }
+
+    private BetRisk evaluateBetRisk(GameState state, int amount, int chips) {
+        if (chips <= 0 || amount <= 0) {
+            return BetRisk.BLOCKED;
+        }
+
+        double ratio = (double) amount / chips;
+
+        if (isPreflop(state != null ? state.phase : null)) {
+            if (ratio > PREFLOP_BLOCK_RATIO) {
+                return BetRisk.BLOCKED;
+            }
+            if (ratio > PREFLOP_WARN_RATIO) {
+                return BetRisk.WARNING;
+            }
+            return BetRisk.ALLOWED;
+        }
+
+        if (ratio > POSTFLOP_BLOCK_RATIO) {
+            return BetRisk.BLOCKED;
+        }
+        if (ratio > POSTFLOP_WARN_RATIO) {
+            return BetRisk.WARNING;
+        }
+        return BetRisk.ALLOWED;
+    }
+
+    private void showWarningDialog(String title, String content) {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        alert.showAndWait();
     }
 
     /**
@@ -320,6 +493,23 @@ public class TaskbarController {
             return;
         }
 
+        GameState state = ensureLatestStateForAction("call");
+        if (state == null) {
+            return;
+        }
+
+        Player me = findCurrentPlayer(state);
+        if (me == null) {
+            LOGGER.error("Cannot CALL: player missing in state");
+            return;
+        }
+
+        int toCall = getToCall(state, me);
+        if (me.getChips() <= 0 || (toCall > 0 && me.getChips() < toCall)) {
+            LOGGER.warn("CALL not possible: insufficient chips (chips={}, toCall={})", me.getChips(), toCall);
+            return;
+        }
+
         gameService.call();
         LOGGER.info("Player CALL");
 
@@ -350,25 +540,32 @@ public class TaskbarController {
             return;
         }
 
-        GameState state = lastState;
+        GameState state = ensureLatestStateForAction("raise");
         if (state == null) {
-            try {
-                state = gameService.refresh();
-                lastState = state;
-            } catch (Exception e) {
-                LOGGER.error("Failed to refresh game state for raise: {}", e.getMessage());
-                return;
-            }
-        }
-
-        if (state == null || state.currentBet <= 0) {
-            LOGGER.warn(
-                    "Raise not possible: current bet is {}",
-                    state != null ? state.currentBet : null);
             return;
         }
 
+        Player me = findCurrentPlayer(state);
+        if (me == null) {
+            LOGGER.error("Cannot RAISE: player missing in state");
+            return;
+        }
+
+        if (state.currentBet <= 0) {
+            LOGGER.warn("Raise not possible: current bet is {}", state.currentBet);
+            return;
+        }
+
+        int toCall = getToCall(state, me);
         int raiseAmount = state.currentBet;
+        if (me.getChips() <= 0 || me.getChips() < toCall + raiseAmount) {
+            LOGGER.warn(
+                    "Raise not possible: insufficient chips (chips={}, required={})",
+                    me.getChips(),
+                    toCall + raiseAmount);
+            return;
+        }
+
         gameService.raise(raiseAmount);
         LOGGER.info("Player RAISE by {} (target: double table bet)", raiseAmount);
 
@@ -446,7 +643,58 @@ public class TaskbarController {
 
             int credits = Integer.parseInt(input.trim());
 
+            GameState state = ensureLatestStateForAction("bet");
+            if (state == null) {
+                return;
+            }
+
+            Player me = findCurrentPlayer(state);
+            if (me == null) {
+                LOGGER.error("Cannot BET: player missing in state");
+                return;
+            }
+
+            int minBetAmount = getMinimumBetAmount(state);
+
             if (credits >= MIN_CREDITS && credits <= MAX_CREDITS && credits % CREDIT_STEP == 0) {
+
+                if (credits < minBetAmount) {
+                    LOGGER.error(
+                            "Error: Bet must be at least {} (current table minimum)", minBetAmount);
+                    return;
+                }
+
+                if (credits > me.getChips()) {
+                    LOGGER.error(
+                            "Error: Bet {} exceeds available chips {}", credits, me.getChips());
+                    return;
+                }
+
+                BetRisk risk = evaluateBetRisk(state, credits, me.getChips());
+                if (risk == BetRisk.BLOCKED) {
+                    if (isPreflop(state.phase)) {
+                        showWarningDialog(
+                                "Bet blocked",
+                                "In the preflop, bets exceeding 60% of your stack are blocked.");
+                    } else {
+                        showWarningDialog(
+                                "Bet blocked",
+                                "After the flop, bets exceeding 80% of your stack are blocked.");
+                    }
+                    return;
+                }
+
+                if (risk == BetRisk.WARNING) {
+                    if (isPreflop(state.phase)) {
+                        showWarningDialog(
+                                "High preflop bet",
+                                "Warning: You're betting more than 30% of your stack preflop.");
+                    } else {
+                        showWarningDialog(
+                                "High stakes",
+                                "Warning: You are betting more than 50% of your stack in this betting round.");
+                    }
+                }
 
                 gameService.bet(credits);
 
@@ -463,6 +711,36 @@ public class TaskbarController {
         } catch (NumberFormatException e) {
             LOGGER.error("Error: Invalid number entered");
         }
+    }
+
+    private Player findCurrentPlayer(GameState state) {
+        if (state == null || state.players == null || myPlayerId == null) {
+            return null;
+        }
+
+        return state.players.stream()
+                .filter(player -> player != null && myPlayerId.equals(player.getId()))
+                .findFirst()
+                .orElse(null);
+    }
+
+    private GameState ensureLatestStateForAction(String actionName) {
+        GameState state = lastState;
+
+        if (state == null) {
+            try {
+                state = gameService.refresh();
+                lastState = state;
+            } catch (Exception e) {
+                LOGGER.error(
+                        "Failed to refresh game state for {}: {}",
+                        actionName,
+                        e.getMessage());
+                return null;
+            }
+        }
+
+        return state;
     }
 
     /**
