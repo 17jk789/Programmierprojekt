@@ -1,8 +1,9 @@
 # Protocol Document
+
 This document describes the protocol for client-server communication in our application. It defines the structure of requests and responses, the supported commands along with their request parameters, response formats, and possible errors.
 
-
 # Table of Contents
+
 - [Protocol Document](#protocol-document)
 - [Table of Contents](#table-of-contents)
 - [General structure of requests](#general-structure-of-requests)
@@ -36,20 +37,27 @@ This document describes the protocol for client-server communication in our appl
     - [Error Response](#error-response-4)
     - [Example Request](#example-request-2)
     - [Example Response](#example-response-2)
-  - [LOGOUT command](#logout-command)
+  - [CHANGE\_USERNAME command](#change_username-command)
     - [Required pre-execution checks](#required-pre-execution-checks-3)
     - [Request Parameters](#request-parameters-3)
     - [Success Response](#success-response-3)
     - [Error Response](#error-response-5)
     - [Example Request](#example-request-3)
     - [Example Response](#example-response-3)
-  - [LIST\_USERS command](#list_users-command)
+  - [LOGOUT command](#logout-command)
     - [Required pre-execution checks](#required-pre-execution-checks-4)
     - [Request Parameters](#request-parameters-4)
     - [Success Response](#success-response-4)
     - [Error Response](#error-response-6)
     - [Example Request](#example-request-4)
     - [Example Response](#example-response-4)
+  - [LIST\_USERS command](#list_users-command)
+    - [Required pre-execution checks](#required-pre-execution-checks-5)
+    - [Request Parameters](#request-parameters-5)
+    - [Success Response](#success-response-5)
+    - [Error Response](#error-response-7)
+    - [Example Request](#example-request-5)
+    - [Example Response](#example-response-5)
   - [GET_LOBBY_LIST command](#get_lobby_list-command)
     - [Required pre-execution checks](#required-pre-execution-checks)
     - [Request Parameters](#request-parameters)
@@ -91,50 +99,53 @@ This document describes the protocol for client-server communication in our appl
 <!-- Please see the comments for copy ‚ n' paste ready examples -->
 
 # General structure of requests
-As mentioned before, our protocol is based on POP3. 
+
+As mentioned before, our protocol is based on POP3.
 Each command is represented as a single line of text, starting with the command name followed by parameters. The server responds with a status line indicating success or failure, followed by the body.
 
 Requests can have parameters that provide additional information for the command. Parameters are key-value pairs separated by an equal sign (`=`).
 
-Responses are collections of key-value pairs, containing either a value or another collection, allowing for nested structures. 
+Responses are collections of key-value pairs, containing either a value or another collection, allowing for nested structures.
 Each collection is ended with the `END` keyword.
 
-
-
 # Preconditions
+
 The serverside pipeline to process incoming requests consists of multiple stages.
 Each of these stages can yield an error response if the request does not meet the requirements of that stage.
 
 ## Parsing
+
 One of these stages is the parsing. It is responsible for parsing the raw request into a structured format that can be easily processed by the command handlers. It validates the syntax of the request as well.
 
 ### Error Response
+
 | Code            | Description                                                                                     |
 | :-------------- | :---------------------------------------------------------------------------------------------- |
 | `PARSING_ERROR` | The body of the request contains syntax errors (see message field of response for more details) |
 
-
 ## Command dispatching
+
 After the request has been successfully parsed, the next stage is to dispatch the `PrimitiveRequest` to the appropriate `CommandParser`. This is done by the `CommandDispatcherDispatcher`, which uses the command name to determine which parser to use.
 
 ### Error Response
+
 | Code              | Description                                                       |
 | :---------------- | :---------------------------------------------------------------- |
 | `UNKNOWN_COMMAND` | The command is unknown to this server. No parser has been defined |
 
-
 ## Command parsing
+
 Once the `PrimitiveRequest` has been dispatched to the appropriate `CommandParser`, the parser is responsible for parsing the parameters of the request and creating a `Request` that can be executed by the responsible `CommandHandler`.
 
 ### Error Response
+
 | Code                | Description                                                                                       |
 | :------------------ | :------------------------------------------------------------------------------------------------ |
 | `MISSING_PARAMETER` | A required parameter is missing from the request (see message field of response for more details) |
 
-
-
 # Pre-execution checks
-Pre-execution checks are reusable validation steps that can be registered on command handlers. 
+
+Pre-execution checks are reusable validation steps that can be registered on command handlers.
 They are implemented as `HandlerCheck` instances and are executed by the `CommandHandlerExecutor` before the handler's main logic is invoked.
 
 <!--
@@ -148,16 +159,17 @@ Description of the check, what it does and when it should be used.
 -->
 
 ## UserLoggedInCheck
+
 The `UserLoggedInCheck` is a common pre-execution check that verifies whether the user is logged in (i.e. has a user associated with his session).
 
 ### Error Response
+
 | Code                 | Description               |
 | :------------------- | :------------------------ |
 | `USER_NOT_LOGGED_IN` | The user is not logged in |
 
-
-
 # Commands
+
 Commands are the core of our protocol, representing the various actions that clients can request from the server. Each command has a unique name and may require specific parameters in addition to pre-execution checks.
 The server processes these commands and responds accordingly.
 
@@ -212,41 +224,50 @@ END
 -->
 
 ## PING command
+
 The `PING` command is a simple command that can be used to check if the server is responsive.
 
 ### Required pre-execution checks
+
 None.
 
 ### Request Parameters
+
 No parameters.
 
 ### Success Response
+
 No response fields.
 
 ### Example Request
+
 ```
 PING
-``` 
+```
 
 ### Example Response
+
 ```
 +OK
 END
 ```
 
-
 ## CHECK_USERNAME command
+
 The `CHECK_USERNAME` command is used to check if a username is already taken by another user. Additional users can still log in with the same username, but their name will be substituted with a suffix.
 
 ### Required pre-execution checks
+
 None.
 
 ### Request Parameters
+
 | Parameter Name | Type     | Optional | Description                            |
 | :------------- | :------- | :------- | :------------------------------------- |
 | `USERNAME`     | `String` | no       | The username to check for availability |
 
 ### Success Response
+
 | Field    | Type                         | Description                                                             |
 | :------- | :--------------------------- | :---------------------------------------------------------------------- |
 | `STATUS` | `Enum<UsernameAvailability>` | Member of enum indicating if the username is available or already taken |
@@ -257,11 +278,13 @@ None.
 | `TAKEN`                           | Username is already in use |
 
 ### Example Request
+
 ```
 CHECK_USERNAME USERNAME='Lars'
 ```
 
 ### Example Response
+
 ```
 +OK 
   STATUS=FREE
@@ -269,33 +292,40 @@ END
 ```
 
 ## LOGIN command
+
 The `LOGIN` command is used to log in a user with a specified username. If the username is already taken by another user, the server will append a suffix to the username to make it unique.
 
 ### Required pre-execution checks
+
 None.
 
 ### Request Parameters
+
 | Parameter Name | Type     | Optional | Description                          |
 | :------------- | :------- | :------- | :----------------------------------- |
 | `USERNAME`     | `String` | no       | The username to create the user with |
 
 ### Success Response
+
 | Field      | Type                                                                    | Description                                                           |
 | :--------- | :---------------------------------------------------------------------- | :-------------------------------------------------------------------- |
 | `USERNAME` | `String`                                                                | Username of the newly created user, can differ from the requested one |
 | `ID`       | [`UUID`](https://docs.oracle.com/javase/8/docs/api/java/util/UUID.html) | The ID of the created user                                            |
 
 ### Error Response
+
 | Code                | Description                                                                    |
 | :------------------ | :----------------------------------------------------------------------------- |
 | `ALREADY_LOGGED_IN` | The session is already associated with a user, logging in again is prohibited. |
 
 ### Example Request
+
 ```
 LOGIN USERNAME='Lars'
 ```
 
 ### Example Response
+
 ```
 +OK
   USERNAME='Lars_1234'
@@ -303,45 +333,100 @@ LOGIN USERNAME='Lars'
 END
 ```
 
+## CHANGE_USERNAME command
 
-## LOGOUT command
-Description of the command, what it does, and when it should be used.
+The `CHANGE_USERNAME` command is used to change the username of an already logged-in user. The request is tied to the current session and updates all affected server-side mappings.
 
 ### Required pre-execution checks
+
 None.
 
 ### Request Parameters
+
+| Parameter Name | Type     | Optional | Description                           |
+| :------------- | :------- | :------- | :------------------------------------ |
+| `USERNAME`     | `String` | no       | The new username for the active user  |
+
+### Success Response
+
+| Field      | Type                                                                    | Description                             |
+| :--------- | :---------------------------------------------------------------------- | :-------------------------------------- |
+| `USERNAME` | `String`                                                                | Effective username after rename         |
+| `ID`       | [`UUID`](https://docs.oracle.com/javase/8/docs/api/java/util/UUID.html) | The ID of the renamed user              |
+
+### Error Response
+
+| Code                 | Description                                                           |
+| :------------------- | :-------------------------------------------------------------------- |
+| `USER_NOT_LOGGED_IN` | No active user is associated with this session.                       |
+| `INVALID_USERNAME`   | Username contains disallowed characters or is empty.                  |
+| `USERNAME_TAKEN`     | Requested username is already used by another user.                   |
+| `RENAME_CONFLICT`    | Rename could not be propagated to all current lobby/game structures.  |
+
+### Example Request
+
+```
+CHANGE_USERNAME USERNAME='Lars_New'
+```
+
+### Example Response
+
+```
++OK
+  USERNAME='Lars_New'
+  ID=e47a671e-2b2a-42df-bb82-953fe2ebd307
+END
+```
+
+## LOGOUT command
+
+Description of the command, what it does, and when it should be used.
+
+### Required pre-execution checks
+
+None.
+
+### Request Parameters
+
 No parameters.
 
 ### Success Response
+
 No response fields.
 
 ### Error Response
+
 | Code                 | Description                                                      |
 | :------------------- | :--------------------------------------------------------------- |
 | `NO_USER_ASSOCIATED` | The session has no user associated, logging out is not possible. |
 
 ### Example Request
+
 ```
 LOGOUT
 ```
 
 ### Example Response
+
 ```
 +OK
 END
 ```
 
 ## LIST_USERS command
+
 The `LIST_USERS` command is used to retrieve a list of all currently logged-in users.
 
 ### Required pre-execution checks
+
 None.
 
 ### Request Parameters
+
 No parameters.
 
 ### Success Response
+
 | Field   | Type               | Description                              |
 | :------ | :----------------- | :--------------------------------------- |
 | `USERS` | `Collection<User>` | Collection of all users currently online |
@@ -351,16 +436,18 @@ No parameters.
 | `USERNAME`       | `String`                                                                | Username of the newly created user, can differ from the requested one |
 | `ID`             | [`UUID`](https://docs.oracle.com/javase/8/docs/api/java/util/UUID.html) | The ID of the created user                                            |
 
-
 ### Error Response
+
 None.
 
 ### Example Request
+
 ```
 LIST_USERS
 ```
 
 ### Example Response
+
 ```
 +OK
   USERS
@@ -381,8 +468,11 @@ END
 ```
 
 ## SEND_MESSAGE command
+
 The `SEND_MESSAGE` command is used to transfer the chat message sent by a user to the server.
+
 ### Required pre-execution checks
+
 None.
 
 ### Request Parameters
@@ -403,28 +493,36 @@ None.
 | `WHISPER`             | Message is for the whisper chat |
 
 ### Success Response
+
 No response fields.
 
 ### Error Response
+
 None.
 
 ### Example Request
+
 ```
 SEND_MESSAGE TYPE=GLOBAL GAME=1 USER=player1 TARGET=null TIME='10:30' TEXT='Hello World'
 ```
 
 ### Example Response
+
 ```
 +OK
 END
 ```
 
 ## GET_MESSAGE_COUNT command
+
 The `GET_MESSAGE_COUNT` is used to get the current number of messages that are stored in the queue for a client.
+
 ### Required pre-execution checks
+
 None.
 
 ### Request Parameters
+
 No parameters.
 
 ### Success Response
@@ -434,17 +532,19 @@ No parameters.
 | `COUNT` | `int` | The current number of messages |
 
 ### Error Response
+
 | Code                 | Description                                                                      |
 | :------------------- |:---------------------------------------------------------------------------------|
 | `NO_USER_ASSOCIATED` | The session has no user associated, there is no queue of messages for the client |
 
-
 ### Example Request
+
 ```
 GET_MESSAGE_COUNT
 ```
 
 ### Example Response
+
 ```
 +OK
 COUNT=10
@@ -452,14 +552,19 @@ END
 ```
 
 ## GET_NEXT_MESSAGE command
+
 The `GET_NEXT_MESSAGE` command is used to get the next message stored in a queue for the client.
+
 ### Required pre-execution checks
+
 None.
 
 ### Request Parameters
+
 No parameters.
 
 ### Success Response
+
 | Field    | Type            | Description                                                        |
 |:---------|:----------------|:-------------------------------------------------------------------|
 | `TYPE`   | `Enum<ChatType` | Member of Enum, indicating with chat type is used                  |
@@ -476,16 +581,19 @@ No parameters.
 | `WHISPER`             | Message is for the whisper chat |
 
 ### Error Response
+
 | Code                 | Description                                                                      |
 | :------------------- |:---------------------------------------------------------------------------------|
 | `NO_USER_ASSOCIATED` | The session has no user associated, there is no queue of messages for the client |
 
 ### Example Request
+
 ```
 GET_NEXT_MESSAGE
 ```
 
 ### Example Response
+
 ```
 +OK
 TYPE=GLOBAL GAME=-1 USER=player1 TARGET=null TIME=9:30 TEXT="Guten Tag"
@@ -613,9 +721,11 @@ END
 The `GET_LOBBY_LIST` command requests the server to return a list of currently available lobbies with basic metadata.
 
 ### Required pre-execution checks
+
 None.
 
 ### Request Parameters
+
 No parameters.
 
 ### Implementation notes
@@ -667,9 +777,11 @@ END
 The `GET_GAME_STATE` command returns a snapshot of the current game for a lobby. It includes global fields (`PHASE`, `POT`, `CURRENT_BET`, `DEALER`, `ACTIVE_PLAYER`), repeated `CARD` blocks for community cards and repeated `PLAYER` blocks for per-player information. If the requester is a player in the game, their hole cards are included inside their `PLAYER` block as nested `CARD` blocks.
 
 ### Required pre-execution checks
+
 - [`UserLoggedInCheck`](#userloggedincheck)
 
 ### Request Parameters
+
 | Parameter Name | Type   | Optional | Description |
 | :------------- | :----- | :------: | :---------- |
 | `GAME_ID`      | `int`  | yes      | Numeric id of the lobby/game to query. If omitted the server will resolve the lobby by the requesting session's associated user.
@@ -1114,9 +1226,11 @@ END
 The `GET_LOBBY_STATUS` command requests the server to return the current state of a lobby, including the list of players and their ready state.
 
 ### Required pre-execution checks
+
 None.
 
 ### Request Parameters
+
 | Parameter Name | Type | Optional | Description |
 | :------------- | :--- | :------: | :---------- |
 | `ID` | `int` | no | Numeric id of the target lobby |
@@ -1151,6 +1265,7 @@ END
 ```
 
 ### Error Response
+
 | Code | Description |
 | :--- | :---------- |
 | `LOBBY_NOT_FOUND` | The specified lobby id does not exist |

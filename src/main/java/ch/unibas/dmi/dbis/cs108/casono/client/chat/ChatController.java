@@ -1,15 +1,20 @@
 package ch.unibas.dmi.dbis.cs108.casono.client.chat;
 
+import ch.unibas.dmi.dbis.cs108.casono.client.ClientApp;
 import ch.unibas.dmi.dbis.cs108.casono.client.network.ChatClient;
 import ch.unibas.dmi.dbis.cs108.casono.client.network.ClientService;
 import ch.unibas.dmi.dbis.cs108.casono.client.ui.chatui.ChatBoxController;
+import ch.unibas.dmi.dbis.cs108.casono.server.network.command.parsing.RequestParameter;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.WeakHashMap;
+import java.util.function.Consumer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jspecify.annotations.Nullable;
@@ -24,7 +29,7 @@ public class ChatController {
     private static final Map<ClientService, ChatController> ACTIVE_CONTROLLERS =
             new WeakHashMap<>();
 
-    private final String username;
+    private volatile String username;
 
     private final ClientService clientService;
 
@@ -37,6 +42,7 @@ public class ChatController {
     private final ChatBoxController chatBoxController;
     private int lobbyId = -1;
     private final Timer timer;
+    private final Consumer<List<String>> serverEventListener;
 
     public record ChatKey(ChatType type, @Nullable String targetUser) {
         public ChatKey(ChatType type) {
@@ -71,8 +77,10 @@ public class ChatController {
         localUserList = new ArrayList<>();
         this.chatBoxController = new ChatBoxController(username, this);
         this.logger = LogManager.getLogger(ChatController.class);
+        this.serverEventListener = this::handleServerEvent;
 
         registerAsActiveController(clientService);
+        clientService.addEventListener(serverEventListener);
 
         this.timer = new Timer(true);
         timer.schedule(
@@ -131,6 +139,7 @@ public class ChatController {
      * <p>All Messages get added to a particular {@link ChatModel}, if the checks passed.
      */
     public void receiveMessage() {
+        String currentUsername = getCurrentUsername();
         List<Message> newMessages = chatClient.getMessages();
         if (!newMessages.isEmpty()) {
             for (Message msg : newMessages) {
@@ -146,16 +155,17 @@ public class ChatController {
                                             (_key) ->
                                                     new ChatModel(
                                                             ChatType.LOBBY,
-                                                            username,
+                                                            currentUsername,
                                                             msg.lobbyId,
                                                             null))
                                     .addMessage(msg);
                         }
                         break;
                     case ChatType.WHISPER:
-                        if (msg.target.equals(username) || msg.sender.equals(username)) {
+                        if (msg.target.equals(currentUsername)
+                                || msg.sender.equals(currentUsername)) {
                             ChatKey key;
-                            if (msg.target.equals(username)) {
+                            if (msg.target.equals(currentUsername)) {
                                 key = new ChatKey(ChatType.WHISPER, msg.sender);
                             } else {
                                 key = new ChatKey(ChatType.WHISPER, msg.target);
@@ -166,7 +176,7 @@ public class ChatController {
                                 ChatModel chatModel =
                                         new ChatModel(
                                                 ChatType.WHISPER,
-                                                username,
+                                                currentUsername,
                                                 lobbyId,
                                                 key.targetUser());
                                 chatBoxController.addWhisperChat(key.targetUser(), chatModel);
@@ -203,13 +213,29 @@ public class ChatController {
      */
     public synchronized void checkWhisperUsers() {
         List<String> users = chatClient.getUsers();
-        logger.info(users);
-        if (!users.isEmpty()) {
-            for (String user : users) {
-                String value = user.split("\\=")[1];
-                logger.info(value);
-                addWhisperUser(value);
+        Set<String> remoteUsers = new HashSet<>();
+        String currentUsername = getCurrentUsername();
+
+        for (String user : users) {
+            if (user == null || !user.contains("=")) {
+                continue;
             }
+            String value = user.split("\\=", 2)[1].trim();
+            if (value.isBlank() || value.equals(currentUsername)) {
+                continue;
+            }
+            remoteUsers.add(value);
+        }
+
+        for (String known : new ArrayList<>(localUserList)) {
+            if (!remoteUsers.contains(known)) {
+                localUserList.remove(known);
+                chatBoxController.removeWhisperUser(known);
+            }
+        }
+
+        for (String remote : remoteUsers) {
+            addWhisperUser(remote);
         }
     }
 
@@ -222,16 +248,110 @@ public class ChatController {
         if (user == null || user.isBlank()) {
             return;
         }
-        if (!(localUserList.contains(user) || user.equals(username))) {
+        if (!(localUserList.contains(user) || user.equals(getCurrentUsername()))) {
             localUserList.add(user);
             logger.info("adding new whisper user");
             chatBoxController.addWhisperUser(user);
         }
     }
 
+    public synchronized void updateUsername(String newUsername) {
+        if (newUsername == null || newUsername.isBlank()) {
+            return;
+        }
+        String oldUsername = this.username;
+        this.username = newUsername.trim();
+        chatBoxController.setUsername(this.username);
+
+        if (oldUsername != null && !oldUsername.equals(this.username)) {
+            localUserList.remove(oldUsername);
+            chatBoxController.removeWhisperUser(oldUsername);
+        }
+    }
+
+    private void handleServerEvent(List<String> lines) {
+        if (lines == null || lines.isEmpty()) {
+            return;
+        }
+
+        List<RequestParameter> params;
+        try {
+            params = ClientService.convertToRequestParameters(lines);
+        } catch (RuntimeException e) {
+            return;
+        }
+        String event = null;
+        String oldUsername = null;
+        String newUsername = null;
+
+        for (RequestParameter p : params) {
+            if ("EVENT".equalsIgnoreCase(p.key())) {
+                event = p.value();
+            } else if ("OLD_USERNAME".equalsIgnoreCase(p.key())) {
+                oldUsername = p.value();
+            } else if ("NEW_USERNAME".equalsIgnoreCase(p.key())) {
+                newUsername = p.value();
+            }
+        }
+
+        if (!"USERNAME_CHANGED".equalsIgnoreCase(event)) {
+            return;
+        }
+
+        applyUsernameMigration(oldUsername, newUsername);
+    }
+
+    private synchronized void applyUsernameMigration(String oldUsername, String newUsername) {
+        if (oldUsername == null
+                || newUsername == null
+                || oldUsername.isBlank()
+                || newUsername.isBlank()
+                || oldUsername.equals(newUsername)) {
+            return;
+        }
+
+        String currentUsername = getCurrentUsername();
+        if (oldUsername.equals(currentUsername)) {
+            updateUsername(newUsername);
+        }
+
+        ChatKey oldKey = new ChatKey(ChatType.WHISPER, oldUsername);
+        ChatKey newKey = new ChatKey(ChatType.WHISPER, newUsername);
+
+        ChatModel oldModel = chatModelMap.remove(oldKey);
+        ChatModel existingNewModel = chatModelMap.get(newKey);
+        if (oldModel != null) {
+            oldModel.setTarget(newUsername);
+            if (existingNewModel == null) {
+                chatModelMap.put(newKey, oldModel);
+            } else {
+                // Merge possible parallel history into the already existing new-key model.
+                for (Message msg : oldModel.messages) {
+                    existingNewModel.addMessage(msg);
+                }
+            }
+            chatBoxController.renameWhisperUser(oldUsername, newUsername);
+        }
+
+        localUserList.remove(oldUsername);
+        chatBoxController.removeWhisperUser(oldUsername);
+        if (!newUsername.equals(getCurrentUsername())) {
+            addWhisperUser(newUsername);
+        }
+    }
+
+    public String getCurrentUsername() {
+        String shared = ClientApp.getSharedUsername();
+        if (shared != null && !shared.isBlank()) {
+            return shared.trim();
+        }
+        return username;
+    }
+
     /** Stops polling background tasks for this chat controller instance. */
     public void shutdown() {
         timer.cancel();
+        clientService.removeEventListener(serverEventListener);
         synchronized (ACTIVE_CONTROLLERS) {
             if (ACTIVE_CONTROLLERS.get(clientService) == this) {
                 ACTIVE_CONTROLLERS.remove(clientService);

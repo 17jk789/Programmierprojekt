@@ -68,11 +68,12 @@ public class ChatViewController implements Initializable {
         String message = inputField.getText().trim();
         if (!message.isEmpty()) {
             inputField.clear();
+            String currentUsername = controller.getCurrentUsername();
             Message msg =
                     new Message(
                             chatModel.getChattype(),
                             chatModel.lobbyId,
-                            username,
+                            currentUsername,
                             chatModel.getTarget(),
                             message);
             controller.onSendToNetwork(msg);

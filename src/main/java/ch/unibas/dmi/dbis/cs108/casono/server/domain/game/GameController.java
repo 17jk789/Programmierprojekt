@@ -62,6 +62,35 @@ public class GameController {
     }
 
     /**
+     * Renames a player id in the controller list and underlying game state.
+     *
+     * @param oldId old player id
+     * @param newId new player id
+     * @return true if rename succeeded
+     */
+    public boolean renamePlayer(PlayerId oldId, PlayerId newId) {
+        if (oldId == null || newId == null) {
+            return false;
+        }
+        if (oldId.equals(newId)) {
+            return true;
+        }
+
+        int idx = players.indexOf(oldId);
+        if (idx < 0 || players.contains(newId)) {
+            return false;
+        }
+
+        boolean stateRenamed = engine.getState().renamePlayerId(oldId, newId);
+        if (!stateRenamed) {
+            return false;
+        }
+
+        players.set(idx, newId);
+        return true;
+    }
+
+    /**
      * Initializes a new hand by preparing the deck, setting the phase to PREFLOP, rotating the
      * dealer, dealing hole cards, posting blinds, and setting the first active player.
      */

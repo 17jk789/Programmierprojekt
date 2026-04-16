@@ -50,6 +50,16 @@ public class Player {
     }
 
     /**
+     * Updates the player's id. This is used when a username change is propagated into an already
+     * running game.
+     *
+     * @param id new player id
+     */
+    public void setId(PlayerId id) {
+        this.id = id;
+    }
+
+    /**
      * Returns the display name of the player. Currently identical to the player ID.
      *
      * @return The player's name.

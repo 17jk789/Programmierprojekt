@@ -39,6 +39,10 @@ public class ClientApp {
         return sharedUsername;
     }
 
+    public static void updateSharedUsername(String username) {
+        setSharedUsername(username != null && !username.isBlank() ? username.trim() : null);
+    }
+
     private static void setSharedUsername(String username) {
         sharedUsername = username;
         LOGGER.info("sharedUsername set to '{}'", getSharedUsername());
