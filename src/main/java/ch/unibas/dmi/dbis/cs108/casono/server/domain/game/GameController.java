@@ -10,12 +10,15 @@ import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.deck.Deck;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.engine.GameEngine;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.evaluator.HandEvaluator;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.evaluator.HandRank;
+import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.player.Player;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.player.PlayerId;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.state.GamePhase;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.state.GameState;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import static com.sun.media.jfxmedia.MediaManager.getPlayer;
 
 /**
  * GameController is responsible for managing the flow of the poker game. It interacts with the
@@ -183,9 +186,22 @@ public class GameController {
      *
      * @param playerId The ID of the player who is folding.
      */
-    public void playerFold(PlayerId playerId) {
-        // engine.processAction(new FoldAction(PlayerId.of(playerId)));
+    public PlayerId playerFold(PlayerId playerId) {
+
         engine.processAction(new FoldAction(playerId));
+
+        GameState state = engine.getState();
+
+        if (state.countNonFoldedPlayers() == 1) {
+
+            for (Player p : state.getPlayers()) {
+                if (!p.isFolded()) {
+                    return p.getId();
+                }
+            }
+        }
+
+        return null;
     }
 
     /**
