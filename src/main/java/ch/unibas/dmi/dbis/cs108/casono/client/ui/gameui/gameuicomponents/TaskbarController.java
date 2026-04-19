@@ -262,7 +262,7 @@ public class TaskbarController {
 
         boolean isMyTurn = state.activePlayer == myIndex;
         boolean isOut = me.getState() == PlayerState.FOLDED;
-        boolean isGameFinished = state.phase != null && state.phase.equalsIgnoreCase("FINISHED");
+        boolean isGameFinished = isHandFinished(state);
 
         updateBasicButtons(isMyTurn, isOut || isGameFinished);
         applyActionAvailability(state, me, isMyTurn, isOut || isGameFinished);
@@ -536,6 +536,28 @@ public class TaskbarController {
     }
 
     /**
+     * Checks if the hand is finished based on the current game state.
+     *
+     * @param state The current GameState object representing the state of the game, which includes information
+     * @return A boolean value indicating whether the hand is finished, which can be determined by
+     *         checking if the phase is "FINISHED" or "SHOWDOWN",
+     */
+    private boolean isHandFinished(GameState state) {
+        if (state == null) {
+            return false;
+        }
+
+        if ("FINISHED".equalsIgnoreCase(state.phase)
+                || "SHOWDOWN".equalsIgnoreCase(state.phase)) {
+            return true;
+        }
+
+        return state.players != null
+                && state.winnerIndex >= 0
+                && state.winnerIndex < state.players.size();
+    }
+
+    /**
      * Evaluates the risk level of a proposed bet based on the current game state, the amount of
      * the bet and the player's available chips.
      */
@@ -596,6 +618,12 @@ public class TaskbarController {
 
         GameState state = ensureLatestStateForAction(actionType.name().toLowerCase());
         if (state == null) {
+            return;
+        }
+
+        if (isHandFinished(state)) {
+            LOGGER.info("Action {} ignored: hand is already finished", actionType);
+            update(state, myPlayerId);
             return;
         }
 
@@ -911,6 +939,13 @@ public class TaskbarController {
 
         if (gameService == null) {
             LOGGER.error("GameService not initialized");
+            return;
+        }
+
+        GameState state = ensureLatestStateForAction("fold");
+        if (isHandFinished(state)) {
+            LOGGER.info("Fold ignored: hand is already finished");
+            update(state, myPlayerId);
             return;
         }
 
