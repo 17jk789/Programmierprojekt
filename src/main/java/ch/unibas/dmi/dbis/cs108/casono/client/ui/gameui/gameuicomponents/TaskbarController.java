@@ -26,7 +26,7 @@ import org.apache.logging.log4j.Logger;
  */
 public class TaskbarController {
 
-    private static final Logger LOGGER = LogManager.getLogger(CasinoBrowserController.class);
+    private static final Logger LOGGER = LogManager.getLogger(TaskbarController.class);
 
     @FXML private HBox taskbar;
     @FXML private TextField taskbarInput;
@@ -42,13 +42,13 @@ public class TaskbarController {
     private double xOffset = 0;
     private double yOffset = 0;
     private static final double TASKBAR_SCALE = 0.95;
-    private static final int MIN_CREDITS = 5;
-    private static final int MAX_CREDITS = 100000;
-    private static final int CREDIT_STEP = 5;
-    private static final double PREFLOP_WARN_RATIO = 0.30;
-    private static final double PREFLOP_BLOCK_RATIO = 0.60;
-    private static final double POSTFLOP_WARN_RATIO = 0.50;
-    private static final double POSTFLOP_BLOCK_RATIO = 0.80;
+    private static final double PREFLOP_BLOCK_RATIO = 0.50;
+    private static final double FLOP_WARN_RATIO = 0.50;
+    private static final double FLOP_BLOCK_RATIO = 0.80;
+    private static final double TURN_RIVER_WARN_RATIO = 0.80;
+    private static final double TURN_RIVER_BLOCK_RATIO = 1.00;
+    private static final int SMALL_BLIND = 100;
+    private static final int BIG_BLIND = 200;
     private static final String STYLE_YELLOW_BUTTON = "yellow-button";
     private static final String STYLE_GRAY_BUTTON = "gray-button";
     private static final String STYLE_RED_BUTTON = "red-button";
@@ -56,6 +56,8 @@ public class TaskbarController {
     private static final String STYLE_GRAY_INPUT = "gray-input-field";
     private static final String STYLE_RED_INPUT = "red-input-field";
     private static final double SCALE_NORMAL = 1.0;
+    private boolean inputActionAllowed;
+    private int lastReferenceBet = BIG_BLIND;
 
     /** Standard constructor. Used by FXML. */
     public TaskbarController() {
@@ -63,7 +65,7 @@ public class TaskbarController {
     }
 
     /**
-     * Updates the state of the basic action buttons (Bet, Call, Fold, Raise) and the input field
+     * Updates the state of the basic action buttons (Bet, Call, Fold, Raise) and the input field.
      *
      * @param isMyTurn Indicates whether it is currently the player's turn.
      * @param isOut Indicates whether the player is currently out of the game (folded or all-in).
@@ -95,9 +97,9 @@ public class TaskbarController {
     }
 
     /**
-     * Sets the given button to a disabled state with red styling, indicating that the player is out
+     * Sets the given button to a disabled state with red styling, indicating that the player is out.
      *
-     * @param b The button to be styled as red and disabled
+     * @param b The button to be styled as red and disabled.
      */
     private void setRedButton(Button b) {
         b.setDisable(true);
@@ -112,9 +114,9 @@ public class TaskbarController {
 
     /**
      * Sets the given input field to a disabled state with red styling, indicating that the player
-     * is out
+     * is out.
      *
-     * @param t The text field to be styled as red and disabled
+     * @param t The text field to be styled as red and disabled.
      */
     private void setRedInputField(TextField t) {
         t.setDisable(true);
@@ -129,9 +131,9 @@ public class TaskbarController {
 
     /**
      * Activates the given button by enabling it and applying yellow styling, indicating that it is
-     * the player's turn
+     * the player's turn.
      *
-     * @param b The button to be activated and styled for the player's turn
+     * @param b The button to be activated and styled for the player's turn.
      */
     private void activateButton(Button b) {
         b.setDisable(false);
@@ -145,9 +147,9 @@ public class TaskbarController {
 
     /**
      * Activates the given input field by enabling it and applying yellow styling, indicating that
-     * it is the player's turn
+     * it is the player's turn.
      *
-     * @param t The text field to be activated and styled for the player's turn
+     * @param t The text field to be activated and styled for the player's turn.
      */
     private void activateInputField(TextField t) {
         t.setDisable(false);
@@ -161,9 +163,9 @@ public class TaskbarController {
 
     /**
      * Deactivates the given button by disabling it and applying gray styling, indicating that it is
-     * not the player's turn
+     * not the player's turn.
      *
-     * @param b The button to be deactivated and styled for non-active state
+     * @param b The button to be deactivated and styled for non-active state.
      */
     private void deactivateButton(Button b) {
         b.setDisable(true);
@@ -178,9 +180,9 @@ public class TaskbarController {
 
     /**
      * Deactivates the given input field by disabling it and applying gray styling, indicating that
-     * it is not the player's turn
+     * it is not the player's turn.
      *
-     * @param t The text field to be deactivated and styled for non-active state
+     * @param t The text field to be deactivated and styled for non-active state.
      */
     private void deactivateInputField(TextField t) {
         t.setDisable(true);
@@ -214,15 +216,24 @@ public class TaskbarController {
     @FXML
     public void initialize() {
         updateBasicButtons(false, false);
+        if (taskbarInput != null) {
+            taskbarInput.textProperty().addListener((obs, oldValue, newValue)
+                    -> refreshBetInputUi());
+        }
+
+        setBetButtonVisible(false);
     }
 
     /**
-     * Updates the taskbar based on the current game state and the player's status. It checks if
-     * it's the player's turn and whether they are out of the game (folded or all-in) to adjust the
-     * button states and displayed money accordingly.
+     * Updates the taskbar based on the current game state and the player's status.
      *
-     * @param state
-     * @param myPlayerId
+     * @param state The current GameState object representing the state of the game, which includes
+     *              information about the players, their bets, the current phase and other relevant
+     *              details needed to update the taskbar UI accurately based on the player's status
+     *              and the game context.
+     * @param myPlayerId The PlayerId object representing the current player, used to identify the
+     *                   player's status and update the taskbar UI accordingly based on whether
+     *                   it is their turn and whether they are out of the game.
      */
     public void update(GameState state, PlayerId myPlayerId) {
 
@@ -232,6 +243,9 @@ public class TaskbarController {
         }
 
         this.lastState = state;
+        if (state.currentBet > 0) {
+            lastReferenceBet = state.currentBet;
+        }
 
         Player me =
                 state.players.stream()
@@ -253,57 +267,132 @@ public class TaskbarController {
         updateBasicButtons(isMyTurn, isOut || isGameFinished);
         applyActionAvailability(state, me, isMyTurn, isOut || isGameFinished);
         setMoney(me.getChips());
+        refreshBetInputUi();
     }
 
+    /**
+     * Applies the availability of actions (Bet, Call, Raise, Fold) based on the current game state.
+     *
+     * @param state The current game state to evaluate action availability.
+     * @param me The player object representing the current player, used to determine their chips
+     *           and bet status.
+     * @param isMyTurn Indicates whether it is currently the player's turn, which affects whether
+     *                 actions can be taken.
+     * @param isOutOrFinished Indicates whether the player is out of the game (folded or all-in)
+     *                        or if the game is finished, which disables actions.
+     */
     private void applyActionAvailability(
             GameState state, Player me, boolean isMyTurn, boolean isOutOrFinished) {
+        inputActionAllowed = false;
         if (!isMyTurn || isOutOrFinished || state == null || me == null) {
+            setBetButtonVisible(false);
             return;
         }
 
         int chips = Math.max(0, me.getChips());
         int toCall = getToCall(state, me);
-        int minBetAmount = getMinimumBetAmount(state);
 
-        boolean canBet = chips >= minBetAmount;
-        boolean canCall = chips > 0 && (toCall == 0 || chips >= toCall);
-        int raiseAmount = Math.max(0, state.currentBet);
-        boolean canRaise = chips > 0 && raiseAmount > 0 && chips >= toCall + raiseAmount;
-
-        if (!canBet && !canCall && !canRaise) {
+        boolean forcedFoldOnly = chips <= 0 || toCall > chips;
+        if (forcedFoldOnly) {
             setActionEnabled(betButton, false);
             setActionEnabled(callButton, false);
             setActionEnabled(raiseButton, false);
             setActionEnabled(foldButton, true);
             deactivateInputField(taskbarInput);
+            setBetButtonVisible(false);
             return;
         }
 
-        if (isOnlyBlindsInPot(state)) {
-            setActionEnabled(betButton, canBet);
+        if (isFirstPreflopPlayerInputOnly(state, me)) {
+            setActionEnabled(betButton, true);
             setActionEnabled(callButton, false);
             setActionEnabled(foldButton, false);
             setActionEnabled(raiseButton, false);
-            if (canBet) {
-                activateInputField(taskbarInput);
-            } else {
-                deactivateInputField(taskbarInput);
-            }
+            activateInputField(taskbarInput);
+            inputActionAllowed = true;
             return;
         }
 
-        setActionEnabled(betButton, canBet);
+        int callTarget = effectiveCallTarget(state);
+        int raiseTarget = safeDouble(callTarget);
+        ValidationResult callValidation = validateTarget(state, me, callTarget);
+        ValidationResult raiseValidation = validateTarget(state, me, raiseTarget);
+        boolean canCall = callValidation.valid;
+        boolean canRaise = raiseValidation.valid;
+        boolean canInput = canCall || canRaise;
+
+        setActionEnabled(betButton, canInput);
         setActionEnabled(callButton, canCall);
         setActionEnabled(raiseButton, canRaise);
         setActionEnabled(foldButton, true);
 
-        if (canBet) {
+        if (canInput) {
             activateInputField(taskbarInput);
+            inputActionAllowed = true;
         } else {
             deactivateInputField(taskbarInput);
         }
     }
 
+    /**
+     * Safely doubles the given value while preventing integer overflow.
+     *
+     * @param value The integer value to be safely doubled.
+     * @return The safely doubled value, or 0 if the input is non-positive, or Integer.MAX_VALUE
+     *         if doubling would overflow.
+     */
+    private int safeDouble(int value) {
+        if (value <= 0) {
+            return 0;
+        }
+        if (value > Integer.MAX_VALUE / 2) {
+            return Integer.MAX_VALUE;
+        }
+        return value * 2;
+    }
+
+    /**
+     * Sets the visibility of the Bet button in the taskbar.
+     *
+     * @param visible A boolean indicating whether the Bet button should be visible (true)
+     *                or hidden (false).
+     */
+    private void setBetButtonVisible(boolean visible) {
+        if (betButton == null) {
+            return;
+        }
+        betButton.setVisible(visible);
+        betButton.setManaged(visible);
+    }
+
+    /**
+     * Refreshes the user interface of the bet input field and the Bet button based on
+     * the current game state and the validity of the input.
+     */
+    private void refreshBetInputUi() {
+        if (!inputActionAllowed || taskbarInput == null || taskbarInput.isDisabled()) {
+            setBetButtonVisible(false);
+            return;
+        }
+
+        ValidationResult validation = validateTypedAmount(lastState, taskbarInput.getText());
+        boolean valid = validation.valid;
+        setBetButtonVisible(valid);
+
+        if (valid) {
+            activateButton(betButton);
+        } else {
+            deactivateButton(betButton);
+        }
+    }
+
+    /**
+     * Enables or disables the given button based on the provided boolean value.
+     *
+     * @param button The Button object to be enabled or disabled based on the provided boolean value.
+     * @param enabled A boolean value indicating whether the button should be enabled (true)
+     *                or disabled (false).
+     */
     private void setActionEnabled(Button button, boolean enabled) {
         if (enabled) {
             activateButton(button);
@@ -312,46 +401,84 @@ public class TaskbarController {
         }
     }
 
+    /**
+     * Calculates the amount needed to call the current bet in the game.
+     *
+     * @param state The current GameState object representing the state of the game, which
+     *              includes information about the current bet and the player's bet status.
+     * @param me The Player object representing the current player, used to determine how much
+     *           they have already invested in the current bet.
+     * @return An integer representing the amount needed for the player to call the current bet.
+     */
     private int getToCall(GameState state, Player me) {
-        int current = Math.max(0, state.currentBet);
+        int current = effectiveCallTarget(state);
         int alreadyInvested = Math.max(0, me.getBet());
         return Math.max(0, current - alreadyInvested);
     }
 
-    private int getMinimumBetAmount(GameState state) {
-        int bigBlind = estimateBigBlind(state);
-        return Math.max(MIN_CREDITS, Math.max(state.currentBet, bigBlind));
-    }
-
-    private int estimateBigBlind(GameState state) {
-        if (state == null) {
-            return MIN_CREDITS * 2;
-        }
-
-        if (isPreflop(state.phase) && state.currentBet > 0) {
+    /**
+     * Determines the effective call target for the current game state. If there is an active current
+     * bet, it returns that as the call target.
+     *
+     * @param state The current GameState object representing the state of the game, which
+     *              includes information about the current bet and the last reference bet.
+     * @return An integer representing the effective call target for the current game state.
+     */
+    private int effectiveCallTarget(GameState state) {
+        if (state != null && state.currentBet > 0) {
             return state.currentBet;
         }
-
-        int maxCommitted = 0;
-        for (Player player : state.players) {
-            if (player != null) {
-                maxCommitted = Math.max(maxCommitted, player.getBet());
-            }
-        }
-
-        return maxCommitted > 0 ? maxCommitted : MIN_CREDITS * 2;
+        return Math.max(0, lastReferenceBet);
     }
 
-    private boolean isOnlyBlindsInPot(GameState state) {
-        if (state == null || !isPreflop(state.phase) || state.players == null || state.players.isEmpty()) {
+    /**
+     * Checks if the current player is the first to act in the pre-flop phase
+     * and if the initial blind layout is still in place.
+     *
+     * @param state The current GameState object representing the state of the game,
+     *              which includes information about the phase of the game, the players,
+     *              the dealer position, and the active player.
+     * @param me The Player object representing the current player, used to determine
+     *           their position in the player list and whether they are the active player.
+     * @return A boolean value indicating whether the current player is the first to act
+     *         in the pre-flop phase with only the initial blind layout in place.
+     */
+    private boolean isFirstPreflopPlayerInputOnly(GameState state, Player me) {
+        if (state == null || me == null || !isPreflop(state.phase) || state.players == null) {
             return false;
         }
 
-        int nonZeroBets = 0;
-        int maxBetCount = 0;
-        int lowerBlindCount = 0;
-        int maxBet = Math.max(0, state.currentBet);
-        int totalCommitted = 0;
+        int size = state.players.size();
+        if (size < 2) {
+            return false;
+        }
+
+        int myIndex = state.players.indexOf(me);
+        if (myIndex < 0) {
+            return false;
+        }
+
+        int dealer = state.dealer;
+        int firstIndex = (size == 2) ? dealer : (dealer + 3) % size;
+        if (state.activePlayer != firstIndex || myIndex != firstIndex) {
+            return false;
+        }
+
+        return isInitialPreflopBlindLayout(state);
+    }
+
+    /**
+     * Checks if the initial blind layout is still in place during the pre-flop phase.
+     *
+     * @param state The current GameState object representing the state of the game,
+     *              which includes information about the players and their bets.
+     * @return A boolean value indicating whether the initial blind layout is still in
+     *        place during the pre-flop phase.
+     */
+    private boolean isInitialPreflopBlindLayout(GameState state) {
+        int sbCount = 0;
+        int bbCount = 0;
+        int zeroCount = 0;
 
         for (Player player : state.players) {
             if (player == null) {
@@ -359,61 +486,343 @@ public class TaskbarController {
             }
 
             int bet = Math.max(0, player.getBet());
-            totalCommitted += bet;
-
-            if (bet > 0) {
-                nonZeroBets++;
-                if (bet == maxBet) {
-                    maxBetCount++;
-                } else if (bet < maxBet) {
-                    lowerBlindCount++;
-                }
+            if (bet == SMALL_BLIND) {
+                sbCount++;
+            } else if (bet == BIG_BLIND) {
+                bbCount++;
+            } else if (bet == 0) {
+                zeroCount++;
             }
         }
 
-        return maxBet > 0
-                && nonZeroBets == 2
-                && maxBetCount == 1
-                && lowerBlindCount == 1
-                && totalCommitted == state.pot;
+        int playerCount = state.players.size();
+        return playerCount >= 2 && sbCount == 1 && bbCount == 1 && zeroCount == playerCount - 2;
     }
 
+    /**
+     * Checks if the given phase string corresponds to the pre-flop phase of the game.
+     *
+     * @param phase The string representing the current phase of the game, which is expected
+     *              to be compared against "PREFLOP" to determine if it is the pre-flop phase.
+     * @return A boolean value indicating whether the given phase string corresponds to the
+     *         pre-flop phase.
+     */
     private boolean isPreflop(String phase) {
         return "PREFLOP".equalsIgnoreCase(phase);
     }
 
+    /**
+     * Checks if the given phase string corresponds to the flop phase of the game.
+     *
+     * @param phase The string representing the current phase of the game, which is
+     *              expected to be compared against "FLOP" to determine if it is the flop phase.
+     * @return A boolean value indicating whether the given phase string corresponds to the flop phase.
+     */
+    private boolean isFlop(String phase) {
+        return "FLOP".equalsIgnoreCase(phase);
+    }
+
+    /**
+     * Checks if the given phase string corresponds to either the turn or river phase of the game.
+     *
+     * @param phase The string representing the current phase of the game, which is expected to
+     *              be compared against "TURN" and "RIVER" to determine if it is either the turn
+     *              or river phase.
+     * @return A boolean value indicating whether the given phase string corresponds to either
+     *         the turn or river phase.
+     */
+    private boolean isTurnOrRiver(String phase) {
+        return "TURN".equalsIgnoreCase(phase) || "RIVER".equalsIgnoreCase(phase);
+    }
+
+    /**
+     * Evaluates the risk level of a proposed bet based on the current game state, the amount of
+     * the bet and the player's available chips.
+     */
     private enum BetRisk {
         ALLOWED,
         WARNING,
         BLOCKED
     }
 
+    /**
+     * Enum representing the types of actions that can be submitted from the taskbar.
+     */
+    private enum ActionType {
+        INPUT,
+        CALL_BUTTON,
+        RAISE_BUTTON
+    }
+
+    /**
+     * Class representing the result of validating a proposed bet or action.
+     */
+    private static final class ValidationResult {
+        private final boolean valid;
+        private final boolean warning;
+        private final String message;
+
+        private ValidationResult(boolean valid, boolean warning, String message) {
+            this.valid = valid;
+            this.warning = warning;
+            this.message = message;
+        }
+
+        private static ValidationResult ok() {
+            return new ValidationResult(true, false, null);
+        }
+
+        private static ValidationResult warning(String message) {
+            return new ValidationResult(true, true, message);
+        }
+
+        private static ValidationResult blocked(String message) {
+            return new ValidationResult(false, false, message);
+        }
+    }
+
+    /**
+     * Submits a player action based on the specified ActionType.
+     *
+     * @param actionType The type of action being submitted, which can be an input-based action
+     *                   (where the player types an amount) or a specific button action for
+     *                   calling or raising.
+     */
+    private void submitAction(ActionType actionType) {
+        if (gameService == null) {
+            LOGGER.error("GameService not initialized");
+            return;
+        }
+
+        GameState state = ensureLatestStateForAction(actionType.name().toLowerCase());
+        if (state == null) {
+            return;
+        }
+
+        Player me = findCurrentPlayer(state);
+        if (me == null) {
+            LOGGER.error("Action {} blocked: player missing in state", actionType);
+            return;
+        }
+
+        int callTarget = effectiveCallTarget(state);
+        int targetBet;
+        if (actionType == ActionType.CALL_BUTTON) {
+            targetBet = callTarget;
+        } else if (actionType == ActionType.RAISE_BUTTON) {
+            targetBet = safeDouble(callTarget);
+        } else {
+            Integer fromInput = parseInputTarget(taskbarInput.getText());
+            if (fromInput == null) {
+                return;
+            }
+            targetBet = fromInput;
+        }
+
+        ValidationResult validation = validateTarget(state, me, targetBet);
+        if (!validation.valid) {
+            refreshBetInputUi();
+            return;
+        }
+
+        if (validation.warning) {
+            showWarningDialog("WARNING", validation.message);
+        }
+
+        if (state.currentBet <= 0) {
+            gameService.bet(targetBet);
+            LOGGER.info("Player BET (target={})", targetBet);
+        } else if (targetBet == callTarget) {
+            gameService.call();
+            LOGGER.info("Player CALL (target={})", targetBet);
+        } else {
+            int raiseBy = Math.max(0, targetBet - state.currentBet);
+            gameService.raise(raiseBy);
+            LOGGER.info("Player RAISE by {} (target={})", raiseBy, targetBet);
+        }
+
+        if (targetBet > 0) {
+            lastReferenceBet = targetBet;
+        }
+
+        taskbarInput.clear();
+        refreshGame();
+    }
+
+    /**
+     * Ensures that the latest game state is available for processing a player action.
+     * If the last known state is null, it attempts to fetch the current state from the GameService.
+     *
+     * @param text The text associated with the action being processed, used for logging purposes
+     *             to indicate which action is being attempted when the state is not available.
+     * @return The latest GameState object if available, or null if the state cannot be retrieved,
+     *         indicating that the action cannot be processed.
+     */
+    private Integer parseInputTarget(String text) {
+        if (text == null || text.trim().isEmpty()) {
+            return null;
+        }
+        try {
+            return Integer.parseInt(text.trim());
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
+    /**
+     * Finds the current player in the given game state based on the player's ID.
+     *
+     * @param state The current GameState object representing the state of the game,
+     *              which includes a list of players.
+     * @param text The text associated with the action being processed, used for logging
+     *             purposes to indicate which action is being attempted when the player
+     *             cannot be found in the state.
+     * @return The Player object representing the current player if found in the game state,
+     *         or null if no matching player is found, indicating that the player cannot be identified
+     *         in the current game state.
+     */
+    private ValidationResult validateTypedAmount(GameState state, String text) {
+        Integer target = parseInputTarget(text);
+        if (target == null || state == null) {
+            return ValidationResult.blocked("Invalid input");
+        }
+        Player me = findCurrentPlayer(state);
+        if (me == null) {
+            return ValidationResult.blocked("Player not found");
+        }
+        return validateTarget(state, me, target);
+    }
+
+    /**
+     * Validates a proposed target bet against the current game state and the player's status.
+     * It checks if the target bet is either a valid call or a valid raise
+     * (specifically, exactly double the call target).
+     *
+     * @param state The current GameState object representing the state of the game,
+     *              which includes information about the current bet, the phase of the game,
+     *              and the players.
+     * @param me The Player object representing the current player, used to determine their
+     *           current bet, available chips, and to evaluate whether the proposed target
+     *           bet is valid for this player based on their status in the game.
+     * @param targetBet The integer value representing the proposed target bet that the
+     *                  player intends to make.
+     * @return A ValidationResult object indicating whether the proposed target bet is valid,
+     *         if it triggers a warning, or if it is blocked due to being invalid or too risky.
+     */
+    private ValidationResult validateTarget(GameState state, Player me, int targetBet) {
+        if (state == null || me == null) {
+            return ValidationResult.blocked("Invalid game state");
+        }
+
+        int callTarget = effectiveCallTarget(state);
+        int raiseTarget = safeDouble(callTarget);
+        if (targetBet != callTarget && targetBet != raiseTarget) {
+            return ValidationResult.blocked("Only calls or exactly two raises allowed");
+        }
+
+        int alreadyInvested = Math.max(0, me.getBet());
+        int required = Math.max(0, targetBet - alreadyInvested);
+        int chips = Math.max(0, me.getChips());
+
+        if (targetBet == callTarget && required == 0) {
+            return ValidationResult.ok();
+        }
+
+        if (required <= 0) {
+            return ValidationResult.blocked("Invalid bet");
+        }
+
+        if (required > chips) {
+            return ValidationResult.blocked("Not enough chips for the next bet");
+        }
+
+        BetRisk risk = evaluateBetRisk(state, required, chips);
+        if (risk == BetRisk.BLOCKED) {
+            return ValidationResult.blocked("Assignment for this phase is blocked");
+        }
+        if (risk == BetRisk.WARNING) {
+            return ValidationResult.warning(warningTextForPhase(state));
+        }
+        return ValidationResult.ok();
+    }
+
+    /**
+     * Generates a warning message based on the current phase of the game.
+     *
+     * @param state The current GameState object representing the state of the game,
+     *              which includes information about the phase of the game.
+     * @return A string containing the warning message appropriate for the current phase
+     *        of the game when a player's bet triggers a warning due to being at least
+     *        50% of their stack.
+     */
+    private String warningTextForPhase(GameState state) {
+        String phase = state != null ? state.phase : null;
+        if (isFlop(phase)) {
+            return "WARNING: On the flop, you're betting at least 50% of your stack.";
+        }
+        if (isTurnOrRiver(phase)) {
+            return "WARNING: On the flop, you're betting at least 50% of your stack.";
+        }
+        return "WARNING: High stakes.";
+    }
+
+    /**
+     * Evaluates the risk level of a proposed bet based on the current game state,
+     * the amount of the bet, and the player's available chips.
+     *
+     * @param state The current GameState object representing the state of the game,
+     *              which includes information about the phase of the game.
+     * @param amount The integer value representing the amount of the proposed bet
+     *               that the player intends to make.
+     * @param chips The integer value representing the player's available chips.
+     * @return A BetRisk enum value indicating the risk level of the proposed bet.
+     */
     private BetRisk evaluateBetRisk(GameState state, int amount, int chips) {
         if (chips <= 0 || amount <= 0) {
             return BetRisk.BLOCKED;
         }
 
         double ratio = (double) amount / chips;
+        String phase = state != null ? state.phase : null;
 
-        if (isPreflop(state != null ? state.phase : null)) {
+        if (isPreflop(phase)) {
             if (ratio > PREFLOP_BLOCK_RATIO) {
                 return BetRisk.BLOCKED;
             }
-            if (ratio > PREFLOP_WARN_RATIO) {
+            return BetRisk.ALLOWED;
+        }
+
+        if (isFlop(phase)) {
+            if (ratio > FLOP_BLOCK_RATIO) {
+                return BetRisk.BLOCKED;
+            }
+            if (ratio >= FLOP_WARN_RATIO) {
                 return BetRisk.WARNING;
             }
             return BetRisk.ALLOWED;
         }
 
-        if (ratio > POSTFLOP_BLOCK_RATIO) {
-            return BetRisk.BLOCKED;
+        if (isTurnOrRiver(phase)) {
+            if (ratio >= TURN_RIVER_BLOCK_RATIO) {
+                return BetRisk.BLOCKED;
+            }
+            if (ratio > TURN_RIVER_WARN_RATIO) {
+                return BetRisk.WARNING;
+            }
+            return BetRisk.ALLOWED;
         }
-        if (ratio > POSTFLOP_WARN_RATIO) {
-            return BetRisk.WARNING;
-        }
+
         return BetRisk.ALLOWED;
     }
 
+    /**
+     * Displays a warning dialog with the specified title and content.
+     *
+     * @param title The string representing the title of the warning dialog, which is displayed
+     *              in the title bar of the dialog window.
+     * @param content The string representing the content of the warning message, which is displayed
+     *                in the body of the dialog.
+     */
     private void showWarningDialog(String title, String content) {
         Alert alert = new Alert(Alert.AlertType.WARNING);
         alert.setTitle(title);
@@ -471,6 +880,12 @@ public class TaskbarController {
     @FXML
     private void onInputSubmitted(KeyEvent event) {
         if (event.getCode() == KeyCode.ENTER) {
+            ValidationResult validation = validateTypedAmount(lastState, taskbarInput.getText());
+            if (!validation.valid) {
+                event.consume();
+                setBetButtonVisible(false);
+                return;
+            }
             processBet();
         }
     }
@@ -487,33 +902,7 @@ public class TaskbarController {
     /** Called when the Call button is clicked. */
     @FXML
     private void onInputPlayerCall() {
-
-        if (gameService == null) {
-            LOGGER.error("GameService not initialized");
-            return;
-        }
-
-        GameState state = ensureLatestStateForAction("call");
-        if (state == null) {
-            return;
-        }
-
-        Player me = findCurrentPlayer(state);
-        if (me == null) {
-            LOGGER.error("Cannot CALL: player missing in state");
-            return;
-        }
-
-        int toCall = getToCall(state, me);
-        if (me.getChips() <= 0 || (toCall > 0 && me.getChips() < toCall)) {
-            LOGGER.warn("CALL not possible: insufficient chips (chips={}, toCall={})", me.getChips(), toCall);
-            return;
-        }
-
-        gameService.call();
-        LOGGER.info("Player CALL");
-
-        refreshGame();
+        submitPresetInputAndProcess("call");
     }
 
     /** Called when the Fold button is clicked. */
@@ -534,43 +923,25 @@ public class TaskbarController {
     /** Called when the Raise button is clicked. */
     @FXML
     private void onInputPlayerRaise() {
+        submitPresetInputAndProcess("raise");
+    }
 
-        if (gameService == null) {
-            LOGGER.error("GameService not initialized");
+    /**
+     * Submits a preset input for either calling or raising based on the specified mode.
+     *
+     * @param mode A string indicating the mode of the action, which can be "call"
+     *             for calling the current bet or "raise" for raising to double the current bet.
+     */
+    private void submitPresetInputAndProcess(String mode) {
+        GameState state = ensureLatestStateForAction(mode);
+        if (state == null || taskbarInput == null) {
             return;
         }
 
-        GameState state = ensureLatestStateForAction("raise");
-        if (state == null) {
-            return;
-        }
-
-        Player me = findCurrentPlayer(state);
-        if (me == null) {
-            LOGGER.error("Cannot RAISE: player missing in state");
-            return;
-        }
-
-        if (state.currentBet <= 0) {
-            LOGGER.warn("Raise not possible: current bet is {}", state.currentBet);
-            return;
-        }
-
-        int toCall = getToCall(state, me);
-        int raiseAmount = state.currentBet;
-        if (me.getChips() <= 0 || me.getChips() < toCall + raiseAmount) {
-            LOGGER.warn(
-                    "Raise not possible: insufficient chips (chips={}, required={})",
-                    me.getChips(),
-                    toCall + raiseAmount);
-            return;
-        }
-
-        gameService.raise(raiseAmount);
-        LOGGER.info("Player RAISE by {} (target: double table bet)", raiseAmount);
-
-        taskbarInput.clear();
-        refreshGame();
+        int callTarget = effectiveCallTarget(state);
+        int target = "raise".equals(mode) ? safeDouble(callTarget) : callTarget;
+        taskbarInput.setText(String.valueOf(target));
+        processBet();
     }
 
     /**
@@ -631,86 +1002,7 @@ public class TaskbarController {
      * displayed on the console.
      */
     private void processBet() {
-
-        if (gameService == null) {
-            LOGGER.error("Error: GameService not initialized");
-            return;
-        }
-
-        String input = taskbarInput.getText();
-
-        try {
-
-            int credits = Integer.parseInt(input.trim());
-
-            GameState state = ensureLatestStateForAction("bet");
-            if (state == null) {
-                return;
-            }
-
-            Player me = findCurrentPlayer(state);
-            if (me == null) {
-                LOGGER.error("Cannot BET: player missing in state");
-                return;
-            }
-
-            int minBetAmount = getMinimumBetAmount(state);
-
-            if (credits >= MIN_CREDITS && credits <= MAX_CREDITS && credits % CREDIT_STEP == 0) {
-
-                if (credits < minBetAmount) {
-                    LOGGER.error(
-                            "Error: Bet must be at least {} (current table minimum)", minBetAmount);
-                    return;
-                }
-
-                if (credits > me.getChips()) {
-                    LOGGER.error(
-                            "Error: Bet {} exceeds available chips {}", credits, me.getChips());
-                    return;
-                }
-
-                BetRisk risk = evaluateBetRisk(state, credits, me.getChips());
-                if (risk == BetRisk.BLOCKED) {
-                    if (isPreflop(state.phase)) {
-                        showWarningDialog(
-                                "Bet blocked",
-                                "In the preflop, bets exceeding 60% of your stack are blocked.");
-                    } else {
-                        showWarningDialog(
-                                "Bet blocked",
-                                "After the flop, bets exceeding 80% of your stack are blocked.");
-                    }
-                    return;
-                }
-
-                if (risk == BetRisk.WARNING) {
-                    if (isPreflop(state.phase)) {
-                        showWarningDialog(
-                                "High preflop bet",
-                                "Warning: You're betting more than 30% of your stack preflop.");
-                    } else {
-                        showWarningDialog(
-                                "High stakes",
-                                "Warning: You are betting more than 50% of your stack in this betting round.");
-                    }
-                }
-
-                gameService.bet(credits);
-
-                LOGGER.info("Bet placed: {}", credits);
-
-                taskbarInput.clear();
-
-                refreshGame();
-
-            } else {
-                LOGGER.error("Error: Bet must be between 5 and 100000 and multiple of 5");
-            }
-
-        } catch (NumberFormatException e) {
-            LOGGER.error("Error: Invalid number entered");
-        }
+        submitAction(ActionType.INPUT);
     }
 
     private Player findCurrentPlayer(GameState state) {
@@ -724,23 +1016,26 @@ public class TaskbarController {
                 .orElse(null);
     }
 
+    /**
+     * Ensures that the latest game state is available for processing a player action.
+     *
+     * @param actionName The name of the action being processed, used for logging purposes to indicate
+     *                   which action is being attempted when the state is not available.
+     * @return The latest GameState object if available, or null if the state cannot be retrieved,
+     *         indicating that the action cannot be processed due to the lack of a valid game state.
+     */
     private GameState ensureLatestStateForAction(String actionName) {
-        GameState state = lastState;
-
-        if (state == null) {
-            try {
-                state = gameService.refresh();
-                lastState = state;
-            } catch (Exception e) {
-                LOGGER.error(
-                        "Failed to refresh game state for {}: {}",
-                        actionName,
-                        e.getMessage());
-                return null;
+        try {
+            GameState refreshed = gameService.refresh();
+            if (refreshed != null) {
+                lastState = refreshed;
+                return refreshed;
             }
+        } catch (Exception e) {
+            LOGGER.error("Failed to refresh game state for {}: {}", actionName, e.getMessage());
         }
 
-        return state;
+        return lastState;
     }
 
     /**
