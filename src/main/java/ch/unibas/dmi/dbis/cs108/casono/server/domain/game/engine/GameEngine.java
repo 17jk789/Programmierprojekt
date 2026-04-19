@@ -1,6 +1,9 @@
 package ch.unibas.dmi.dbis.cs108.casono.server.domain.game.engine;
 
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.action.Action;
+import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.action.ActionType;
+import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.player.Player;
+import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.player.PlayerId;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.rules.RuleEngine;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.state.GameState;
 
@@ -80,11 +83,37 @@ public class GameEngine {
      */
     public void handleAction(GameState state, Action action) {
 
+        if (action.getType() != ActionType.BLIND) {
+
+            Player currentPlayer = state.getCurrentPlayer();
+            PlayerId actingPlayerId = action.getPlayerId();
+
+            if (currentPlayer == null || actingPlayerId == null) {
+                throw new RuntimeException("Invalid turn state");
+            }
+
+            if (!state.isAllowOutOfTurn() && !currentPlayer.getId().equals(actingPlayerId)) {
+                throw new RuntimeException("Not your turn");
+            }
+
+            Player actingPlayer = state.getPlayer(actingPlayerId);
+            if (actingPlayer.isFolded()) {
+                throw new RuntimeException("Player already folded");
+            }
+            if (actingPlayer.isAllIn()) {
+                throw new RuntimeException("Player is all-in");
+            }
+        }
+
         // 1.Check the rules
         ruleEngine.validate(state, action);
 
         // 2. Perform action
         action.execute(state);
+
+        if (action.getType() != ActionType.BLIND) {
+            state.markActedThisRound(action.getPlayerId());
+        }
 
         // 3. Next turn
         turnManager.nextPlayer(state);
