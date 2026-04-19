@@ -4,7 +4,6 @@ import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.deck.Card;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.deck.Deck;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.player.Player;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.player.PlayerId;
-import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.player.PlayerStatus;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.state.GamePhase;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.state.GameState;
 import java.util.ArrayList;
@@ -83,42 +82,8 @@ public class RoundManager {
      *         next phase, false otherwise.
      */
     private boolean isBettingRoundFinished(GameState state) {
-        int target = state.getTableState().getCurrentBet();
-
-        if (target == 0 && isPostflopStreet(state.getPhase()) && !allActivePlayersActedThisRound(state)) {
-            return false;
-        }
-
-        if (isPendingBigBlindOption(state, target)) {
-            return false;
-        }
-
-        for (Player p : state.getPlayers()) {
-            if (p == null) {
-                continue;
-            }
-
-            // be tolerant if codebase mixes status + boolean flags
-            if (p.getStatus() == PlayerStatus.FOLDED || p.isFolded()) {
-                continue;
-            }
-
-            int bet = state.getCurrentBet(p.getId());
-            if (bet < target && !p.isAllIn()) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
-     * Helper method to determine if the current game phase is a postflop street (FLOP, TURN, RIVER).
-     *
-     * @param phase The GamePhase to check, which is used to determine if the current street is postflop.
-     * @return true if the phase is FLOP, TURN, or RIVER, indicating a postflop street, false otherwise.
-     */
-    private boolean isPostflopStreet(GamePhase phase) {
-        return phase == GamePhase.FLOP || phase == GamePhase.TURN || phase == GamePhase.RIVER;
+        // A betting round only ends after every active player had at least one chance to act.
+        return allActivePlayersActedThisRound(state);
     }
 
     /**
@@ -144,38 +109,6 @@ public class RoundManager {
         return true;
     }
 
-    /**
-     * Helper method to determine if the current player has a pending big blind option
-     * in the preflop betting round.
-     *
-     * @param state The GameState object representing the current state of the game,
-     *              which is used to determine if the big blind has a pending option
-     *              in the preflop round.
-     * @param target The current target bet that players need to meet, which is used to
-     *               check if the big blind has a pending option when the target is
-     *               equal to the big blind amount.
-     * @return true if the big blind has a pending option to act in the preflop round,
-     *         false otherwise.
-     */
-    private boolean isPendingBigBlindOption(GameState state, int target) {
-        if (state == null || state.getPhase() != GamePhase.PREFLOP) {
-            return false;
-        }
-
-        if (target != BIG_BLIND) {
-            return false;
-        }
-
-        int size = state.getPlayerCount();
-        if (size < 2) {
-            return false;
-        }
-
-        int dealer = state.getDealerIndex();
-        int bigBlindIndex = (size == 2) ? (dealer + 1) % size : (dealer + 2) % size;
-
-        return state.getCurrentPlayerIndex() == bigBlindIndex;
-    }
 
     /**
      * Advances the game phase to the next stage (FLOP, TURN, RIVER, SHOWDOWN) based on the current phase.
