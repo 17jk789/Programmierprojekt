@@ -38,6 +38,125 @@ public class GameControllerTest {
     private static final Logger LOGGER = Logger.getLogger(GameControllerTest.class.getName());
 
     /**
+     * Helper method to retrieve the current player's ID from the game state.
+     *
+     * @param game The GameController instance from which to retrieve the current player's ID.
+     * @return The PlayerId of the current player in the game.
+     */
+    private static PlayerId currentPlayerId(GameController game) {
+        return game.getState().getCurrentPlayer().getId();
+    }
+
+    /**
+     * Helper method to simulate a call action for the current player in the game.
+     *
+     * @param game The GameController instance on which to perform the call action for the current player.
+     */
+    private static void callCurrent(GameController game) {
+        game.playerCall(currentPlayerId(game));
+    }
+
+    /**
+     * Helper method to simulate a fold action for the current player in the game.
+     *
+     * @param game The GameController instance on which to perform the fold action for the current player.
+     */
+    private static void foldCurrent(GameController game) {
+        game.playerFold(currentPlayerId(game));
+    }
+
+    /**
+     * Verifies that the preflop phase ends once all active (non-folded) players
+     * have completed their required actions for the current betting round.
+     */
+    @Test
+    public void testPreflopEndsAfterOneActionPerActivePlayer() {
+
+        GameState state = new GameState();
+        GameEngine engine =
+                new GameEngine(
+                        state,
+                        new RuleEngine(new ArrayList<>()),
+                        new RoundManager(),
+                        new TurnManager());
+
+        GameController game = new GameController(engine);
+        game.addPlayer(PlayerId.of("P1"), 10000);
+        game.addPlayer(PlayerId.of("P2"), 10000);
+        game.addPlayer(PlayerId.of("P3"), 10000);
+        game.addPlayer(PlayerId.of("P4"), 10000);
+
+        game.startGame();
+
+        assertEquals(GamePhase.PREFLOP, game.getState().getPhase());
+        assertEquals(0, game.getCommunityCards().size());
+
+        callCurrent(game);
+        callCurrent(game);
+        callCurrent(game);
+
+        assertEquals(GamePhase.PREFLOP, game.getState().getPhase());
+        assertEquals(0, game.getCommunityCards().size());
+
+        callCurrent(game);
+
+        assertEquals(GamePhase.FLOP, game.getState().getPhase());
+        assertEquals(3, game.getCommunityCards().size());
+
+        callCurrent(game);
+        callCurrent(game);
+        callCurrent(game);
+        callCurrent(game);
+
+        assertEquals(GamePhase.TURN, game.getState().getPhase());
+        assertEquals(4, game.getCommunityCards().size());
+
+        callCurrent(game);
+        callCurrent(game);
+        callCurrent(game);
+        callCurrent(game);
+
+        assertEquals(GamePhase.RIVER, game.getState().getPhase());
+        assertEquals(5, game.getCommunityCards().size());
+    }
+
+    /**
+     * Ensures that during the preflop phase, folded players are excluded
+     * from progression checks and do not block phase advancement.
+     */
+    @Test
+    public void testPreflopCountsOnlyNonFoldedPlayersForProgress() {
+
+        GameState state = new GameState();
+        GameEngine engine =
+                new GameEngine(
+                        state,
+                        new RuleEngine(new ArrayList<>()),
+                        new RoundManager(),
+                        new TurnManager());
+
+        GameController game = new GameController(engine);
+        game.addPlayer(PlayerId.of("A"), 10000);
+        game.addPlayer(PlayerId.of("B"), 10000);
+        game.addPlayer(PlayerId.of("C"), 10000);
+        game.addPlayer(PlayerId.of("D"), 10000);
+
+        game.startGame();
+        assertEquals(GamePhase.PREFLOP, game.getState().getPhase());
+
+        callCurrent(game);
+        foldCurrent(game);
+        callCurrent(game);
+
+        assertEquals(GamePhase.PREFLOP, game.getState().getPhase());
+
+        callCurrent(game);
+
+        assertEquals(GamePhase.FLOP, game.getState().getPhase());
+        assertEquals(3, game.getCommunityCards().size());
+    }
+
+    /**
      * This test simulates a specific game scenario where Julian is expected to win with a Two Pair
      * hand. It sets up a fixed deck to ensure that the desired cards are dealt to the players and
      * verifies that the hand evaluation correctly identifies Julian as the winner.
@@ -83,10 +202,13 @@ public class GameControllerTest {
             }
         }
 
-        game.playerCall(PlayerId.of("Julian"));
+        callCurrent(game);
         game.playerFold(PlayerId.of("Mathis"));
-        game.playerCall(PlayerId.of("Jona"));
+        callCurrent(game);
         game.playerRaise(PlayerId.of("Lars"), 1200);
+
+        // New street model: once all non-folded players acted, preflop is complete.
+        assertEquals(GamePhase.FLOP, game.getState().getPhase());
 
         List<Card> board = game.getCommunityCards();
         assertTrue(board.size() >= 3 && board.size() <= 5);
@@ -170,10 +292,10 @@ public class GameControllerTest {
 
         int potBefore = game.getState().getPot().getAmount();
 
-        game.playerRaise(PlayerId.of("Lars"), 1200);
-        game.playerCall(PlayerId.of("Julian"));
-        game.playerFold(PlayerId.of("Mathis"));
-        game.playerCall(PlayerId.of("Jona"));
+        game.playerRaise(currentPlayerId(game), 1200);
+        callCurrent(game);
+        foldCurrent(game);
+        callCurrent(game);
 
         System.out.println("Pot after actions: " + game.getState().getPot().getAmount());
 
@@ -183,11 +305,15 @@ public class GameControllerTest {
 
         assertEquals(3, game.getCommunityCards().size(), "The flop must have 3 cards");
 
-        game.playerCall(PlayerId.of("Julian"));
+        for (int i = 0; i < 10 && game.getCommunityCards().size() < 4; i++) {
+            callCurrent(game);
+        }
 
         assertEquals(4, game.getCommunityCards().size(), "A turn must result in 4 cards");
 
-        game.playerCall(PlayerId.of("Jona"));
+        for (int i = 0; i < 10 && game.getCommunityCards().size() < 5; i++) {
+            callCurrent(game);
+        }
 
         assertEquals(5, game.getCommunityCards().size(), "The river must consist of 5 cards");
 
@@ -278,13 +404,12 @@ public class GameControllerTest {
         game.playerCall(PlayerId.of("Jona"));
         game.playerRaise(PlayerId.of("Lars"), 1200);
 
-        game.playerCall(PlayerId.of("Julian"));
-        game.playerCall(PlayerId.of("Jona"));
+        assertEquals(GamePhase.FLOP, game.getState().getPhase());
 
         assertTrue(game.getCommunityCards().size() >= 3);
 
         for (int i = 0; i < 10 && game.getCommunityCards().size() < 5; i++) {
-            game.playerCall(PlayerId.of("Julian"));
+            callCurrent(game);
         }
 
         assertEquals(5, game.getCommunityCards().size());
@@ -367,10 +492,14 @@ public class GameControllerTest {
 
         assertEquals(3, game.getCommunityCards().size());
 
-        game.playerCall(PlayerId.of("Julian"));
+        for (int i = 0; i < 10 && game.getCommunityCards().size() < 4; i++) {
+            callCurrent(game);
+        }
         assertEquals(4, game.getCommunityCards().size());
 
-        game.playerCall(PlayerId.of("Mathis"));
+        for (int i = 0; i < 10 && game.getCommunityCards().size() < 5; i++) {
+            callCurrent(game);
+        }
         assertEquals(5, game.getCommunityCards().size());
 
         Set<String> boardSeen = new HashSet<>();
@@ -424,10 +553,10 @@ public class GameControllerTest {
 
         game.startGame();
 
-        game.playerRaise(PlayerId.of("BigStack"), 1000);
-        game.playerCall(PlayerId.of("Caller"));
-        game.playerCall(PlayerId.of("MidStack"));
-        game.playerCall(PlayerId.of("ShortStack"));
+        game.playerRaise(currentPlayerId(game), 1000);
+        callCurrent(game);
+        callCurrent(game);
+        callCurrent(game);
 
         for (Player p : game.getState().getPlayers()) {
             assertTrue(p.getChips() >= 0, "Negative chips detected for " + p.getId());
@@ -435,13 +564,13 @@ public class GameControllerTest {
 
         assertTrue(game.getState().getPot().getAmount() > 0);
 
-        game.playerRaise(PlayerId.of("BigStack"), 100);
+        game.playerRaise(currentPlayerId(game), 100);
 
         int pot = game.getState().getPot().getAmount();
         assertTrue(pot > 0, "Pot must remain valid after re-raises");
 
-        game.playerFold(PlayerId.of("Caller"));
-        game.playerFold(PlayerId.of("MidStack"));
+        foldCurrent(game);
+        foldCurrent(game);
 
         long activePlayers =
                 game.getState().getPlayers().stream().filter(p -> p.getChips() > 0).count();
@@ -451,7 +580,7 @@ public class GameControllerTest {
         assertTrue(game.getCommunityCards().size() >= 3);
 
         for (int i = 0; i < 10 && game.getCommunityCards().size() < 5; i++) {
-            game.playerCall(PlayerId.of("BigStack"));
+            callCurrent(game);
         }
 
         assertEquals(5, game.getCommunityCards().size());
