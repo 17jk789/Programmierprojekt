@@ -7,8 +7,10 @@ import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.player.PlayerId;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * The GameState class encapsulates the entire state of a poker game at any given moment.
@@ -38,6 +40,7 @@ public class GameState {
 
     private final Map<PlayerId, Integer> currentBets = new HashMap<>();
     private final Map<PlayerId, Integer> playerBetCommitments = new HashMap<>();
+    private final Set<PlayerId> actedThisRound = new HashSet<>();
 
     private final Map<PlayerId, List<Card>> holeCards = new HashMap<>();
     private final List<Card> communityCards = new ArrayList<>();
@@ -46,7 +49,11 @@ public class GameState {
 
     private static final int DEALER_OFFSET = 3;
 
-    // Getters
+    /**
+     * Returns the players in seating/turn order.
+     *
+     * @return a collection of players in the order they are seated/act.
+     */
     public Collection<Player> getPlayers() {
         List<Player> ordered = new ArrayList<>(playerOrder.size());
         for (PlayerId id : playerOrder) {
@@ -58,57 +65,124 @@ public class GameState {
         return ordered;
     }
 
+    /**
+     * Returns the current player whose turn it is to act.
+     *
+     * @return the current player, or null if there are no players or the index is out of bounds.
+     */
     public Player getCurrentPlayer() {
         PlayerId id = playerOrder.get(currentPlayerIndex);
         return players.get(id);
     }
 
+    /**
+     * Returns the index of the current player in the player order list.
+     *
+     * @return the index of the current player, or 0 if there are no players.
+     */
     public int getCurrentPlayerIndex() {
         return currentPlayerIndex;
     }
 
+    /**
+     * Returns whether a hand is currently active (i.e., in progress).
+     *
+     * @return true if a hand is active, false otherwise.
+     */
     public boolean isHandActive() {
         return handActive;
     }
 
+    /**
+     * Returns the current phase of the game (e.g., PREFLOP, FLOP, TURN, RIVER).
+     *
+     * @return the current game phase.
+     */
     public GamePhase getPhase() {
         return phase;
     }
 
+    /**
+     * Returns the current state of the table, including information such as the current bet
+     * and pot size.
+     *
+     * @return the current table state.
+     */
     public TableState getTableState() {
         return tableState;
     }
 
+    /**
+     * Returns the current pot, which includes the total amount of chips in the pot
+     * and the contributions from each player.
+     *
+     * @return the current pot.
+     */
     public Pot getPot() {
         return pot;
     }
 
+    /**
+     * Returns the current deck of cards being used in the game.
+     *
+     * @return the current deck of cards.
+     */
     public Deck getDeck() {
         return deck;
     }
 
+    /**
+     * Returns the list of community cards currently on the table.
+     *
+     * @return a list of community cards, which may be empty if no cards have been dealt yet.
+     */
     public List<Card> getCommunityCards() {
         return communityCards;
     }
 
-    /** Always returns a mutable list (never null). */
+    /**
+     * Returns the hole cards for the specified player. If the player does not have
+     * hole cards yet, an empty list is returned and stored in the map for future reference.
+     *
+     * @param playerId the ID of the player whose hole cards are being requested.
+     * @return a list of hole cards for the specified player, which may be empty if
+     * the player has not been dealt cards yet.
+     */
     public List<Card> getHoleCards(PlayerId playerId) {
         return holeCards.computeIfAbsent(playerId, k -> new ArrayList<>());
     }
 
+    /**
+     * Returns the index of the dealer in the player order list.
+     *
+     * @return the index of the dealer, or 0 if there are no players.
+     */
     public int getDealerIndex() {
         return dealerIndex;
     }
 
+    /**
+     * Returns a map of player IDs to their respective hole cards. Each player's
+     * hole cards are represented as a list of Card objects. If a player does not
+     * have hole cards yet, they will be associated with an empty list.
+     *
+     * @return a map where the key is the player's ID and the value is a list of
+     * their hole cards.
+     */
     public Map<PlayerId, List<Card>> getPlayerCards() {
         return holeCards;
     }
 
+    /**
+     * Returns the number of players currently in the game, based on the size of the
+     * player order list.
+     *
+     * @return the number of players in the game.
+     */
     public int getPlayerCount() {
         return players.size();
     }
 
-    // Setters / Mutators
     public void setCurrentPlayerIndex(int index) {
         if (playerOrder.isEmpty()) {
             this.currentPlayerIndex = 0;
@@ -117,6 +191,10 @@ public class GameState {
         this.currentPlayerIndex = index;
     }
 
+    /**
+     * Sets the current player index to the first player who should act preflop,
+     * which is determined based on the dealer index and the number of players.
+     */
     public void setCurrentPlayerToPreflopFirstToAct() {
         int size = playerOrder.size();
         if (size == 0) {
@@ -127,11 +205,16 @@ public class GameState {
         // Heads-up: dealer (small blind) acts first preflop.
         int first = (size == 2) ? dealerIndex : (dealerIndex + DEALER_OFFSET) % size;
         currentPlayerIndex = first;
+        resetRoundActions();
         if (!canPlayerAct(currentPlayerIndex)) {
             nextPlayer();
         }
     }
 
+    /**
+     * Sets the current player index to the first player who should act postflop,
+     * which is the player immediately to the left of the dealer (i.e., dealerIndex + 1).
+     */
     public void setCurrentPlayerToPostflopFirstToAct() {
         int size = playerOrder.size();
         if (size == 0) {
@@ -141,27 +224,87 @@ public class GameState {
 
         int first = (dealerIndex + 1) % size;
         currentPlayerIndex = first;
+        resetRoundActions();
         if (!canPlayerAct(currentPlayerIndex)) {
             nextPlayer();
         }
     }
 
+    /**
+     * Marks the specified player as having acted in the current round.
+     *
+     * @param playerId the ID of the player to mark as having acted this round.
+     */
+    public void markActedThisRound(PlayerId playerId) {
+        if (playerId != null) {
+            actedThisRound.add(playerId);
+        }
+    }
+
+    /**
+     * Checks if the specified player has already acted in the current round by checking
+     * if their ID is present in the set of players who have acted this round.
+     *
+     * @param playerId the ID of the player to check for having acted this round.
+     * @return true if the player has acted this round, false otherwise.
+     */
+    public boolean hasActedThisRound(PlayerId playerId) {
+        return playerId != null && actedThisRound.contains(playerId);
+    }
+
+    /**
+     * Resets the tracking of which players have acted this round by clearing the set of player IDs.
+     */
+    public void resetRoundActions() {
+        actedThisRound.clear();
+    }
+
+    /**
+     * Sets whether a hand is currently active (i.e., in progress).
+     *
+     * @param handActive a boolean value indicating whether a hand is active (true) or not (false).
+     */
     public void setHandActive(boolean handActive) {
         this.handActive = handActive;
     }
 
+    /**
+     * Sets the current phase of the game (e.g., PREFLOP, FLOP, TURN, RIVER).
+     *
+     * @param phase the GamePhase to set as the current phase of the game.
+     */
     public void setPhase(GamePhase phase) {
         this.phase = phase;
     }
 
+    /**
+     * Sets the index of the dealer in the player order list.
+     *
+     * @param dealerIndex the index to set as the dealer index, which should
+     *                    be within the bounds of the player order list if it is not empty.
+     */
     public void setDealerIndex(int dealerIndex) {
         this.dealerIndex = dealerIndex;
     }
 
+    /**
+     * Sets the current deck of cards being used in the game.
+     *
+     * @param deck the Deck object to set as the current deck of cards for the game.
+     *             This should be a valid Deck instance that can be used for dealing
+     *             cards during the game.
+     */
     public void setDeck(Deck deck) {
         this.deck = deck;
     }
 
+    /**
+     * Adds a new player to the game with the specified ID and initial chip count.
+     *
+     * @param id the PlayerId of the new player to add to the game.
+     * @param chips the initial number of chips the player has, which can be used
+     *              for betting during the game.
+     */
     public void addPlayer(PlayerId id, int chips) {
         Player player = new Player(id, chips);
 
@@ -213,23 +356,49 @@ public class GameState {
         return true;
     }
 
+    /**
+     * Helper method to move an entry in a map from an old key to a new key,
+     * with a fallback value if the old key is not present.
+     *
+     * @param map the map in which to move the entry, where the key is a PlayerId
+     *            and the value is of type T.
+     * @param oldId the existing PlayerId key that is being renamed.
+     * @param newId the new PlayerId key to which the entry should be moved.
+     * @param fallback the value to use if the oldId is not present in the map.
+     * @param <T> the type of the values in the map, which can be any type that is
+     *           used for player-related data in the game state.
+     */
     private <T> void moveMapEntry(
             Map<PlayerId, T> map, PlayerId oldId, PlayerId newId, T fallback) {
         T value = map.remove(oldId);
         map.put(newId, value != null ? value : fallback);
     }
 
-    // Betting
+    // BETTING
+
+    /**
+     * Returns the current bet amount for the specified player.
+     *
+     * @param playerId the ID of the player whose current bet is being requested.
+     * @return the current bet amount for the specified player,
+     *         or 0 if the player does not have a current bet.
+     */
     public int getCurrentBet(PlayerId playerId) {
         return currentBets.getOrDefault(playerId, 0);
     }
 
+    /**
+     * Sets the current bet amount for the specified player.
+     *
+     * @param playerId the ID of the player whose current bet is being set.
+     * @param amount the new bet amount to set for the specified player.
+     */
     public void setCurrentBet(PlayerId playerId, int amount) {
         currentBets.put(playerId, amount);
     }
 
     /**
-     * Reset bets to 0 for ALL players (do not clear the map). Also resets table current bet to 0.
+     * Reset bets to 0 for ALL players (do not clear the map).
      */
     public void resetBets() {
         for (PlayerId id : playerOrder) {
@@ -238,10 +407,20 @@ public class GameState {
         tableState.setCurrentBet(0);
     }
 
+    /**
+     * Adds the specified amount to the pot.
+     *
+     * @param amount the amount to add to the pot.
+     */
     public void addToPot(int amount) {
         pot.add(amount);
     }
 
+    /**
+     * Returns whether out-of-turn actions are allowed in the current game state.
+     *
+     * @return true if out-of-turn actions are allowed, false otherwise.
+     */
     public boolean isAllowOutOfTurn() {
         return allowOutOfTurn;
     }
@@ -250,7 +429,13 @@ public class GameState {
         this.allowOutOfTurn = allowOutOfTurn;
     }
 
-    // Player helpers
+    /**
+     * Retrieves the Player object associated with the given PlayerId.
+     *
+     * @param id the PlayerId of the player to retrieve.
+     * @return the Player object associated with the specified PlayerId, or a RuntimeException
+     *         if the player is not found.
+     */
     public Player getPlayer(PlayerId id) {
         Player player = players.get(id);
         if (player == null) {
@@ -260,7 +445,14 @@ public class GameState {
         return player;
     }
 
-    // Bet commitments
+    /**
+     * Retrieves the current bet commitment for the specified player.
+     *
+     * @param playerId the ID of the player whose current bet commitment
+     *                 is being requested.
+     * @return the current bet commitment for the specified player,
+     *         or 0 if the player does not have a bet commitment.
+     */
     public int getCurrentBetCommitment(PlayerId playerId) {
         return playerBetCommitments.getOrDefault(playerId, 0);
     }
@@ -269,7 +461,7 @@ public class GameState {
         playerBetCommitments.put(playerId, amount);
     }
 
-    // Cards
+    // CARDS
 
     /**
      * Gives (overwrites) the two hole cards for the given player. Ensures stable list identity
@@ -282,15 +474,25 @@ public class GameState {
         cards.add(c2);
     }
 
+    /**
+     * Adds a community card to the list of community cards on the table.
+     *
+     * @param card the Card object representing the community card to be added to the table.
+     */
     public void addCommunityCard(Card card) {
         communityCards.add(card);
     }
 
+    /**
+     * Resets the community cards by clearing the list of community cards on the table.
+     */
     public void resetCommunityCards() {
         communityCards.clear();
     }
 
-    // Turn / dealer management
+    /**
+     * Advances the current player index to the next player who can act.
+     */
     public void nextPlayer() {
         if (playerOrder.isEmpty()) {
             currentPlayerIndex = 0;
@@ -308,6 +510,13 @@ public class GameState {
         } while (currentPlayerIndex != start);
     }
 
+    /**
+     * Checks if the player at the specified index in the player order list is able to take an action.
+     *
+     * @param index the index of the player in the player order list to check for actionability.
+     * @return true if the player at the specified index can act (i.e., is not folded and not all-in),
+     *         false otherwise.
+     */
     private boolean canPlayerAct(int index) {
         if (index < 0 || index >= playerOrder.size()) {
             return false;
@@ -322,12 +531,19 @@ public class GameState {
         dealerIndex = (dealerIndex + 1) % playerOrder.size();
     }
 
+    /**
+     * Returns the Player object representing the current dealer based on the dealer index in
+     * the player order list.
+     *
+     * @return the Player object representing the current dealer,
+     *         or null if there are no players or the dealer index is out of bounds.
+     */
     public Player getDealer() {
         PlayerId id = playerOrder.get(dealerIndex);
         return players.get(id);
     }
 
-    // Hand reset / lifecycle
+    // HAND RESET / LIFECYCLE
 
     /**
      * Starts a new hand by resetting the game state for the next round of poker.
@@ -371,6 +587,13 @@ public class GameState {
         getPlayer(playerId).setFolded(true);
     }
 
+    /**
+     * Checks if the specified player has folded by retrieving their Player object
+     * and checking their folded status.
+     *
+     * @param playerId the ID of the player to check for folded status.
+     * @return true if the player has folded, false otherwise.
+     */
     public boolean isFolded(PlayerId playerId) {
         return getPlayer(playerId).isFolded();
     }
