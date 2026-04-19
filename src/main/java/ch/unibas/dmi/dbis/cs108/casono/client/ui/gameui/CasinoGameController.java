@@ -633,12 +633,13 @@ public class CasinoGameController {
      */
     private void updateTaskbar(GameState s) {
         TaskbarController controller = resolveTaskbarController();
-        if (controller != null) {
-            if (gameService != null && myPlayerId != null) {
-                controller.setGameService(gameService, myPlayerId);
-            }
-            controller.update(s, myPlayerId);
+        if (controller == null || myPlayerId == null) {
+            return;
         }
+        if (gameService != null) {
+            controller.setGameService(gameService, myPlayerId);
+        }
+        controller.update(s, myPlayerId);
     }
 
     /**
