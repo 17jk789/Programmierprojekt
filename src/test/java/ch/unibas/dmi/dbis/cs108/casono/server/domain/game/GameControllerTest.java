@@ -50,7 +50,8 @@ public class GameControllerTest {
     /**
      * Helper method to simulate a call action for the current player in the game.
      *
-     * @param game The GameController instance on which to perform the call action for the current player.
+     * @param game The GameController instance on which to perform the call action for the current
+     *     player.
      */
     private static void callCurrent(GameController game) {
         game.playerCall(currentPlayerId(game));
@@ -59,15 +60,16 @@ public class GameControllerTest {
     /**
      * Helper method to simulate a fold action for the current player in the game.
      *
-     * @param game The GameController instance on which to perform the fold action for the current player.
+     * @param game The GameController instance on which to perform the fold action for the current
+     *     player.
      */
     private static void foldCurrent(GameController game) {
         game.playerFold(currentPlayerId(game));
     }
 
     /**
-     * Verifies that the preflop phase ends once all active (non-folded) players
-     * have completed their required actions for the current betting round.
+     * Verifies that the preflop phase ends once all active (non-folded) players have completed
+     * their required actions for the current betting round.
      */
     @Test
     public void testPreflopEndsAfterOneActionPerActivePlayer() {
@@ -121,8 +123,8 @@ public class GameControllerTest {
     }
 
     /**
-     * Ensures that during the preflop phase, folded players are excluded
-     * from progression checks and do not block phase advancement.
+     * Ensures that during the preflop phase, folded players are excluded from progression checks
+     * and do not block phase advancement.
      */
     @Test
     public void testPreflopCountsOnlyNonFoldedPlayersForProgress() {

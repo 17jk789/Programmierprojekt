@@ -56,6 +56,7 @@ public class TaskbarController {
     private static final String STYLE_GRAY_INPUT = "gray-input-field";
     private static final String STYLE_RED_INPUT = "red-input-field";
     private static final double SCALE_NORMAL = 1.0;
+    private static final int DEALER_OFFSET = 3;
     private boolean inputActionAllowed;
     private int lastReferenceBet = BIG_BLIND;
 
@@ -97,7 +98,8 @@ public class TaskbarController {
     }
 
     /**
-     * Sets the given button to a disabled state with red styling, indicating that the player is out.
+     * Sets the given button to a disabled state with red styling, indicating that the player is
+     * out.
      *
      * @param b The button to be styled as red and disabled.
      */
@@ -217,8 +219,9 @@ public class TaskbarController {
     public void initialize() {
         updateBasicButtons(false, false);
         if (taskbarInput != null) {
-            taskbarInput.textProperty().addListener((obs, oldValue, newValue)
-                    -> refreshBetInputUi());
+            taskbarInput
+                    .textProperty()
+                    .addListener((obs, oldValue, newValue) -> refreshBetInputUi());
         }
 
         setBetButtonVisible(false);
@@ -228,12 +231,12 @@ public class TaskbarController {
      * Updates the taskbar based on the current game state and the player's status.
      *
      * @param state The current GameState object representing the state of the game, which includes
-     *              information about the players, their bets, the current phase and other relevant
-     *              details needed to update the taskbar UI accurately based on the player's status
-     *              and the game context.
+     *     information about the players, their bets, the current phase and other relevant details
+     *     needed to update the taskbar UI accurately based on the player's status and the game
+     *     context.
      * @param myPlayerId The PlayerId object representing the current player, used to identify the
-     *                   player's status and update the taskbar UI accordingly based on whether
-     *                   it is their turn and whether they are out of the game.
+     *     player's status and update the taskbar UI accordingly based on whether it is their turn
+     *     and whether they are out of the game.
      */
     public void update(GameState state, PlayerId myPlayerId) {
 
@@ -275,11 +278,11 @@ public class TaskbarController {
      *
      * @param state The current game state to evaluate action availability.
      * @param me The player object representing the current player, used to determine their chips
-     *           and bet status.
+     *     and bet status.
      * @param isMyTurn Indicates whether it is currently the player's turn, which affects whether
-     *                 actions can be taken.
-     * @param isOutOrFinished Indicates whether the player is out of the game (folded or all-in)
-     *                        or if the game is finished, which disables actions.
+     *     actions can be taken.
+     * @param isOutOrFinished Indicates whether the player is out of the game (folded or all-in) or
+     *     if the game is finished, which disables actions.
      */
     private void applyActionAvailability(
             GameState state, Player me, boolean isMyTurn, boolean isOutOrFinished) {
@@ -338,8 +341,8 @@ public class TaskbarController {
      * Safely doubles the given value while preventing integer overflow.
      *
      * @param value The integer value to be safely doubled.
-     * @return The safely doubled value, or 0 if the input is non-positive, or Integer.MAX_VALUE
-     *         if doubling would overflow.
+     * @return The safely doubled value, or 0 if the input is non-positive, or Integer.MAX_VALUE if
+     *     doubling would overflow.
      */
     private int safeDouble(int value) {
         if (value <= 0) {
@@ -354,8 +357,8 @@ public class TaskbarController {
     /**
      * Sets the visibility of the Bet button in the taskbar.
      *
-     * @param visible A boolean indicating whether the Bet button should be visible (true)
-     *                or hidden (false).
+     * @param visible A boolean indicating whether the Bet button should be visible (true) or hidden
+     *     (false).
      */
     private void setBetButtonVisible(boolean visible) {
         if (betButton == null) {
@@ -366,8 +369,8 @@ public class TaskbarController {
     }
 
     /**
-     * Refreshes the user interface of the bet input field and the Bet button based on
-     * the current game state and the validity of the input.
+     * Refreshes the user interface of the bet input field and the Bet button based on the current
+     * game state and the validity of the input.
      */
     private void refreshBetInputUi() {
         if (!inputActionAllowed || taskbarInput == null || taskbarInput.isDisabled()) {
@@ -389,9 +392,10 @@ public class TaskbarController {
     /**
      * Enables or disables the given button based on the provided boolean value.
      *
-     * @param button The Button object to be enabled or disabled based on the provided boolean value.
-     * @param enabled A boolean value indicating whether the button should be enabled (true)
-     *                or disabled (false).
+     * @param button The Button object to be enabled or disabled based on the provided boolean
+     *     value.
+     * @param enabled A boolean value indicating whether the button should be enabled (true) or
+     *     disabled (false).
      */
     private void setActionEnabled(Button button, boolean enabled) {
         if (enabled) {
@@ -404,10 +408,10 @@ public class TaskbarController {
     /**
      * Calculates the amount needed to call the current bet in the game.
      *
-     * @param state The current GameState object representing the state of the game, which
-     *              includes information about the current bet and the player's bet status.
-     * @param me The Player object representing the current player, used to determine how much
-     *           they have already invested in the current bet.
+     * @param state The current GameState object representing the state of the game, which includes
+     *     information about the current bet and the player's bet status.
+     * @param me The Player object representing the current player, used to determine how much they
+     *     have already invested in the current bet.
      * @return An integer representing the amount needed for the player to call the current bet.
      */
     private int getToCall(GameState state, Player me) {
@@ -417,11 +421,11 @@ public class TaskbarController {
     }
 
     /**
-     * Determines the effective call target for the current game state. If there is an active current
-     * bet, it returns that as the call target.
+     * Determines the effective call target for the current game state. If there is an active
+     * current bet, it returns that as the call target.
      *
-     * @param state The current GameState object representing the state of the game, which
-     *              includes information about the current bet and the last reference bet.
+     * @param state The current GameState object representing the state of the game, which includes
+     *     information about the current bet and the last reference bet.
      * @return An integer representing the effective call target for the current game state.
      */
     private int effectiveCallTarget(GameState state) {
@@ -432,16 +436,16 @@ public class TaskbarController {
     }
 
     /**
-     * Checks if the current player is the first to act in the pre-flop phase
-     * and if the initial blind layout is still in place.
+     * Checks if the current player is the first to act in the pre-flop phase and if the initial
+     * blind layout is still in place.
      *
-     * @param state The current GameState object representing the state of the game,
-     *              which includes information about the phase of the game, the players,
-     *              the dealer position, and the active player.
-     * @param me The Player object representing the current player, used to determine
-     *           their position in the player list and whether they are the active player.
-     * @return A boolean value indicating whether the current player is the first to act
-     *         in the pre-flop phase with only the initial blind layout in place.
+     * @param state The current GameState object representing the state of the game, which includes
+     *     information about the phase of the game, the players, the dealer position, and the active
+     *     player.
+     * @param me The Player object representing the current player, used to determine their position
+     *     in the player list and whether they are the active player.
+     * @return A boolean value indicating whether the current player is the first to act in the
+     *     pre-flop phase with only the initial blind layout in place.
      */
     private boolean isFirstPreflopPlayerInputOnly(GameState state, Player me) {
         if (state == null || me == null || !isPreflop(state.phase) || state.players == null) {
@@ -459,7 +463,7 @@ public class TaskbarController {
         }
 
         int dealer = state.dealer;
-        int firstIndex = (size == 2) ? dealer : (dealer + 3) % size;
+        int firstIndex = (size == 2) ? dealer : (dealer + DEALER_OFFSET) % size;
         if (state.activePlayer != firstIndex || myIndex != firstIndex) {
             return false;
         }
@@ -470,10 +474,10 @@ public class TaskbarController {
     /**
      * Checks if the initial blind layout is still in place during the pre-flop phase.
      *
-     * @param state The current GameState object representing the state of the game,
-     *              which includes information about the players and their bets.
-     * @return A boolean value indicating whether the initial blind layout is still in
-     *        place during the pre-flop phase.
+     * @param state The current GameState object representing the state of the game, which includes
+     *     information about the players and their bets.
+     * @return A boolean value indicating whether the initial blind layout is still in place during
+     *     the pre-flop phase.
      */
     private boolean isInitialPreflopBlindLayout(GameState state) {
         int sbCount = 0;
@@ -502,10 +506,10 @@ public class TaskbarController {
     /**
      * Checks if the given phase string corresponds to the pre-flop phase of the game.
      *
-     * @param phase The string representing the current phase of the game, which is expected
-     *              to be compared against "PREFLOP" to determine if it is the pre-flop phase.
-     * @return A boolean value indicating whether the given phase string corresponds to the
-     *         pre-flop phase.
+     * @param phase The string representing the current phase of the game, which is expected to be
+     *     compared against "PREFLOP" to determine if it is the pre-flop phase.
+     * @return A boolean value indicating whether the given phase string corresponds to the pre-flop
+     *     phase.
      */
     private boolean isPreflop(String phase) {
         return "PREFLOP".equalsIgnoreCase(phase);
@@ -514,9 +518,10 @@ public class TaskbarController {
     /**
      * Checks if the given phase string corresponds to the flop phase of the game.
      *
-     * @param phase The string representing the current phase of the game, which is
-     *              expected to be compared against "FLOP" to determine if it is the flop phase.
-     * @return A boolean value indicating whether the given phase string corresponds to the flop phase.
+     * @param phase The string representing the current phase of the game, which is expected to be
+     *     compared against "FLOP" to determine if it is the flop phase.
+     * @return A boolean value indicating whether the given phase string corresponds to the flop
+     *     phase.
      */
     private boolean isFlop(String phase) {
         return "FLOP".equalsIgnoreCase(phase);
@@ -525,11 +530,10 @@ public class TaskbarController {
     /**
      * Checks if the given phase string corresponds to either the turn or river phase of the game.
      *
-     * @param phase The string representing the current phase of the game, which is expected to
-     *              be compared against "TURN" and "RIVER" to determine if it is either the turn
-     *              or river phase.
-     * @return A boolean value indicating whether the given phase string corresponds to either
-     *         the turn or river phase.
+     * @param phase The string representing the current phase of the game, which is expected to be
+     *     compared against "TURN" and "RIVER" to determine if it is either the turn or river phase.
+     * @return A boolean value indicating whether the given phase string corresponds to either the
+     *     turn or river phase.
      */
     private boolean isTurnOrRiver(String phase) {
         return "TURN".equalsIgnoreCase(phase) || "RIVER".equalsIgnoreCase(phase);
@@ -538,17 +542,17 @@ public class TaskbarController {
     /**
      * Checks if the hand is finished based on the current game state.
      *
-     * @param state The current GameState object representing the state of the game, which includes information
+     * @param state The current GameState object representing the state of the game, which includes
+     *     information
      * @return A boolean value indicating whether the hand is finished, which can be determined by
-     *         checking if the phase is "FINISHED" or "SHOWDOWN",
+     *     checking if the phase is "FINISHED" or "SHOWDOWN",
      */
     private boolean isHandFinished(GameState state) {
         if (state == null) {
             return false;
         }
 
-        if ("FINISHED".equalsIgnoreCase(state.phase)
-                || "SHOWDOWN".equalsIgnoreCase(state.phase)) {
+        if ("FINISHED".equalsIgnoreCase(state.phase) || "SHOWDOWN".equalsIgnoreCase(state.phase)) {
             return true;
         }
 
@@ -558,8 +562,8 @@ public class TaskbarController {
     }
 
     /**
-     * Evaluates the risk level of a proposed bet based on the current game state, the amount of
-     * the bet and the player's available chips.
+     * Evaluates the risk level of a proposed bet based on the current game state, the amount of the
+     * bet and the player's available chips.
      */
     private enum BetRisk {
         ALLOWED,
@@ -567,18 +571,14 @@ public class TaskbarController {
         BLOCKED
     }
 
-    /**
-     * Enum representing the types of actions that can be submitted from the taskbar.
-     */
+    /** Enum representing the types of actions that can be submitted from the taskbar. */
     private enum ActionType {
         INPUT,
         CALL_BUTTON,
         RAISE_BUTTON
     }
 
-    /**
-     * Class representing the result of validating a proposed bet or action.
-     */
+    /** Class representing the result of validating a proposed bet or action. */
     private static final class ValidationResult {
         private final boolean valid;
         private final boolean warning;
@@ -607,8 +607,7 @@ public class TaskbarController {
      * Submits a player action based on the specified ActionType.
      *
      * @param actionType The type of action being submitted, which can be an input-based action
-     *                   (where the player types an amount) or a specific button action for
-     *                   calling or raising.
+     *     (where the player types an amount) or a specific button action for calling or raising.
      */
     private void submitAction(ActionType actionType) {
         if (gameService == null) {
@@ -678,13 +677,13 @@ public class TaskbarController {
     }
 
     /**
-     * Ensures that the latest game state is available for processing a player action.
-     * If the last known state is null, it attempts to fetch the current state from the GameService.
+     * Ensures that the latest game state is available for processing a player action. If the last
+     * known state is null, it attempts to fetch the current state from the GameService.
      *
-     * @param text The text associated with the action being processed, used for logging purposes
-     *             to indicate which action is being attempted when the state is not available.
+     * @param text The text associated with the action being processed, used for logging purposes to
+     *     indicate which action is being attempted when the state is not available.
      * @return The latest GameState object if available, or null if the state cannot be retrieved,
-     *         indicating that the action cannot be processed.
+     *     indicating that the action cannot be processed.
      */
     private Integer parseInputTarget(String text) {
         if (text == null || text.trim().isEmpty()) {
@@ -700,14 +699,13 @@ public class TaskbarController {
     /**
      * Finds the current player in the given game state based on the player's ID.
      *
-     * @param state The current GameState object representing the state of the game,
-     *              which includes a list of players.
-     * @param text The text associated with the action being processed, used for logging
-     *             purposes to indicate which action is being attempted when the player
-     *             cannot be found in the state.
-     * @return The Player object representing the current player if found in the game state,
-     *         or null if no matching player is found, indicating that the player cannot be identified
-     *         in the current game state.
+     * @param state The current GameState object representing the state of the game, which includes
+     *     a list of players.
+     * @param text The text associated with the action being processed, used for logging purposes to
+     *     indicate which action is being attempted when the player cannot be found in the state.
+     * @return The Player object representing the current player if found in the game state, or null
+     *     if no matching player is found, indicating that the player cannot be identified in the
+     *     current game state.
      */
     private ValidationResult validateTypedAmount(GameState state, String text) {
         Integer target = parseInputTarget(text);
@@ -722,20 +720,19 @@ public class TaskbarController {
     }
 
     /**
-     * Validates a proposed target bet against the current game state and the player's status.
-     * It checks if the target bet is either a valid call or a valid raise
-     * (specifically, exactly double the call target).
+     * Validates a proposed target bet against the current game state and the player's status. It
+     * checks if the target bet is either a valid call or a valid raise (specifically, exactly
+     * double the call target).
      *
-     * @param state The current GameState object representing the state of the game,
-     *              which includes information about the current bet, the phase of the game,
-     *              and the players.
-     * @param me The Player object representing the current player, used to determine their
-     *           current bet, available chips, and to evaluate whether the proposed target
-     *           bet is valid for this player based on their status in the game.
-     * @param targetBet The integer value representing the proposed target bet that the
-     *                  player intends to make.
-     * @return A ValidationResult object indicating whether the proposed target bet is valid,
-     *         if it triggers a warning, or if it is blocked due to being invalid or too risky.
+     * @param state The current GameState object representing the state of the game, which includes
+     *     information about the current bet, the phase of the game, and the players.
+     * @param me The Player object representing the current player, used to determine their current
+     *     bet, available chips, and to evaluate whether the proposed target bet is valid for this
+     *     player based on their status in the game.
+     * @param targetBet The integer value representing the proposed target bet that the player
+     *     intends to make.
+     * @return A ValidationResult object indicating whether the proposed target bet is valid, if it
+     *     triggers a warning, or if it is blocked due to being invalid or too risky.
      */
     private ValidationResult validateTarget(GameState state, Player me, int targetBet) {
         if (state == null || me == null) {
@@ -777,11 +774,10 @@ public class TaskbarController {
     /**
      * Generates a warning message based on the current phase of the game.
      *
-     * @param state The current GameState object representing the state of the game,
-     *              which includes information about the phase of the game.
-     * @return A string containing the warning message appropriate for the current phase
-     *        of the game when a player's bet triggers a warning due to being at least
-     *        50% of their stack.
+     * @param state The current GameState object representing the state of the game, which includes
+     *     information about the phase of the game.
+     * @return A string containing the warning message appropriate for the current phase of the game
+     *     when a player's bet triggers a warning due to being at least 50% of their stack.
      */
     private String warningTextForPhase(GameState state) {
         String phase = state != null ? state.phase : null;
@@ -795,13 +791,13 @@ public class TaskbarController {
     }
 
     /**
-     * Evaluates the risk level of a proposed bet based on the current game state,
-     * the amount of the bet, and the player's available chips.
+     * Evaluates the risk level of a proposed bet based on the current game state, the amount of the
+     * bet, and the player's available chips.
      *
-     * @param state The current GameState object representing the state of the game,
-     *              which includes information about the phase of the game.
-     * @param amount The integer value representing the amount of the proposed bet
-     *               that the player intends to make.
+     * @param state The current GameState object representing the state of the game, which includes
+     *     information about the phase of the game.
+     * @param amount The integer value representing the amount of the proposed bet that the player
+     *     intends to make.
      * @param chips The integer value representing the player's available chips.
      * @return A BetRisk enum value indicating the risk level of the proposed bet.
      */
@@ -846,10 +842,10 @@ public class TaskbarController {
     /**
      * Displays a warning dialog with the specified title and content.
      *
-     * @param title The string representing the title of the warning dialog, which is displayed
-     *              in the title bar of the dialog window.
+     * @param title The string representing the title of the warning dialog, which is displayed in
+     *     the title bar of the dialog window.
      * @param content The string representing the content of the warning message, which is displayed
-     *                in the body of the dialog.
+     *     in the body of the dialog.
      */
     private void showWarningDialog(String title, String content) {
         Alert alert = new Alert(Alert.AlertType.WARNING);
@@ -964,8 +960,8 @@ public class TaskbarController {
     /**
      * Submits a preset input for either calling or raising based on the specified mode.
      *
-     * @param mode A string indicating the mode of the action, which can be "call"
-     *             for calling the current bet or "raise" for raising to double the current bet.
+     * @param mode A string indicating the mode of the action, which can be "call" for calling the
+     *     current bet or "raise" for raising to double the current bet.
      */
     private void submitPresetInputAndProcess(String mode) {
         GameState state = ensureLatestStateForAction(mode);
@@ -1054,10 +1050,10 @@ public class TaskbarController {
     /**
      * Ensures that the latest game state is available for processing a player action.
      *
-     * @param actionName The name of the action being processed, used for logging purposes to indicate
-     *                   which action is being attempted when the state is not available.
+     * @param actionName The name of the action being processed, used for logging purposes to
+     *     indicate which action is being attempted when the state is not available.
      * @return The latest GameState object if available, or null if the state cannot be retrieved,
-     *         indicating that the action cannot be processed due to the lack of a valid game state.
+     *     indicating that the action cannot be processed due to the lack of a valid game state.
      */
     private GameState ensureLatestStateForAction(String actionName) {
         try {

@@ -18,8 +18,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static com.sun.media.jfxmedia.MediaManager.getPlayer;
-
 /**
  * GameController is responsible for managing the flow of the poker game. It interacts with the
  * GameEngine to process player actions and update the game state accordingly.
