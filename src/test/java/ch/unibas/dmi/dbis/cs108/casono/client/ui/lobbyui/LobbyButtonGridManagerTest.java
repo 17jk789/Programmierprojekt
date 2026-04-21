@@ -1,7 +1,5 @@
 package ch.unibas.dmi.dbis.cs108.casono.client.ui.lobbyui;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import ch.unibas.dmi.dbis.cs108.casono.client.network.ClientService;
 import javafx.scene.layout.GridPane;
 import org.junit.jupiter.api.*;
