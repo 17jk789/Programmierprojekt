@@ -3,13 +3,14 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
+<?import javafx.scene.control.skin.TabPaneSkin.TabContentRegion?>
 <VBox xmlns="http://javafx.com/javafx/21"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:id="chatBox"
       VBox.vgrow="ALWAYS"
       stylesheets="@chatui.css"
       styleClass="chat-box"
-      spacing="10"
+      spacing="20"
       maxWidth="Infinity">
 
     <HBox spacing="10"
@@ -17,14 +18,14 @@
 
         <Label text="== CHAT ==" styleClass="chat-header" alignment="CENTER" maxWidth="Infinity"/>
         <Region HBox.hgrow="ALWAYS"/>
-        <MenuButton fx:id="addWhisperChatButton" styleClass="yellow-button" text="WHISPER CHAT"
+        <MenuButton fx:id="addWhisperChatButton" styleClass="menu-button" text="WHISPER CHAT"
                     alignment="CENTER_RIGHT">
         </MenuButton>
     </HBox>
 
     <TabPane fx:id="chatTabPane"
              VBox.vgrow="ALWAYS"
-             styleClass="tab-header-area">
+             styleClass="tab-pane">
 
     </TabPane>
 
