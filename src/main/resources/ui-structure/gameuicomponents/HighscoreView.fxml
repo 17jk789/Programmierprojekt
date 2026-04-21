@@ -7,11 +7,14 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox xmlns="http://javafx.com/javafx/21"
+<VBox fx:id="highscoreRoot"
+    xmlns="http://javafx.com/javafx/21"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui.gameuicomponents.HighscoreViewController"
       spacing="12"
       styleClass="highscore-root"
+    onMousePressed="#onPopupPressed"
+    onMouseDragged="#onPopupDragged"
       stylesheets="@HighscoreView.css">
 
     <padding>

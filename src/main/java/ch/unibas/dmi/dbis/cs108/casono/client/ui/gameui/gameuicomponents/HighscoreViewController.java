@@ -3,8 +3,10 @@ package ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui.gameuicomponents;
 import ch.unibas.dmi.dbis.cs108.casono.client.network.LobbyClient;
 import java.util.List;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -16,11 +18,47 @@ public class HighscoreViewController {
 
     @FXML private ListView<String> highscoreList;
     @FXML private Label statusLabel;
+    @FXML private Node highscoreRoot;
 
     private LobbyClient lobbyClient;
+    private double dragOffsetX;
+    private double dragOffsetY;
 
     public void setLobbyClient(LobbyClient lobbyClient) {
         this.lobbyClient = lobbyClient;
+    }
+
+    /** Starts dragging the window from anywhere in the popup. */
+    @FXML
+    public void onPopupPressed(MouseEvent event) {
+        Stage stage = getStage();
+        if (stage == null) {
+            return;
+        }
+
+        dragOffsetX = stage.getX() - event.getScreenX();
+        dragOffsetY = stage.getY() - event.getScreenY();
+    }
+
+    /** Moves the popup window while the mouse is dragged anywhere on the popup. */
+    @FXML
+    public void onPopupDragged(MouseEvent event) {
+        Stage stage = getStage();
+        if (stage == null) {
+            return;
+        }
+
+        stage.setX(event.getScreenX() + dragOffsetX);
+        stage.setY(event.getScreenY() + dragOffsetY);
+    }
+
+    /** Returns the popup stage if the root is already attached to a scene. */
+    private Stage getStage() {
+        if (highscoreRoot == null || highscoreRoot.getScene() == null) {
+            return null;
+        }
+
+        return (Stage) highscoreRoot.getScene().getWindow();
     }
 
     /** Loads current highscores from the server and refreshes the list. */

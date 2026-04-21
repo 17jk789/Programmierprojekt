@@ -1108,12 +1108,15 @@ public class TaskbarController {
             controller.refreshHighscores();
 
             javafx.stage.Stage stage = new javafx.stage.Stage();
+            stage.initStyle(javafx.stage.StageStyle.TRANSPARENT);
             stage.setTitle("Casono Highscores");
             javafx.scene.image.Image icon =
                     new javafx.scene.image.Image(
                             getClass().getResource("/images/logoinverted.png").toExternalForm());
             stage.getIcons().add(icon);
-            stage.setScene(new javafx.scene.Scene(root));
+            javafx.scene.Scene scene = new javafx.scene.Scene(root);
+            scene.setFill(javafx.scene.paint.Color.TRANSPARENT);
+            stage.setScene(scene);
             stage.show();
             stage.setAlwaysOnTop(true);
             stage.toFront();

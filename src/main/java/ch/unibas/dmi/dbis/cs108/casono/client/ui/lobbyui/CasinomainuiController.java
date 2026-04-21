@@ -24,6 +24,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -308,10 +309,13 @@ public class CasinomainuiController {
             controller.refreshHighscores();
 
             Stage stage = new Stage();
+            stage.initStyle(StageStyle.TRANSPARENT);
             stage.setTitle("Casono Highscores");
             String iconPath = getClass().getResource("/images/logoinverted.png").toExternalForm();
             stage.getIcons().add(new Image(iconPath));
-            stage.setScene(new Scene(root));
+            Scene scene = new Scene(root);
+            scene.setFill(javafx.scene.paint.Color.TRANSPARENT);
+            stage.setScene(scene);
             stage.show();
             stage.setAlwaysOnTop(true);
             stage.toFront();
