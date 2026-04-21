@@ -27,6 +27,12 @@ import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.get_message_count.Get
 import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.get_next_message.GetNextMessageHandler;
 import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.get_next_message.GetNextMessageParser;
 import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.get_next_message.GetNextMessageRequest;
+import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.highscore.clear_highscores.ClearHighscoresHandler;
+import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.highscore.clear_highscores.ClearHighscoresParser;
+import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.highscore.clear_highscores.ClearHighscoresRequest;
+import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.highscore.get_highscores.GetHighscoresHandler;
+import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.highscore.get_highscores.GetHighscoresParser;
+import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.highscore.get_highscores.GetHighscoresRequest;
 import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.list_users.ListUsersHandler;
 import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.list_users.ListUsersParser;
 import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.list_users.ListUsersRequest;
@@ -248,6 +254,18 @@ public class ServerApp {
                 (CommandHandler<GetGameStateRequest>)
                         new GetGameStateHandler(
                                 responseDispatcher, context.lobbyManager(), userRegistry));
+
+        parserDispatcher.register("GET_HIGHSCORES", new GetHighscoresParser());
+        commandRouter.register(
+                GetHighscoresRequest.class,
+                (CommandHandler<GetHighscoresRequest>)
+                        new GetHighscoresHandler(responseDispatcher));
+
+        parserDispatcher.register("CLEAR_HIGHSCORES", new ClearHighscoresParser());
+        commandRouter.register(
+                ClearHighscoresRequest.class,
+                (CommandHandler<ClearHighscoresRequest>)
+                        new ClearHighscoresHandler(responseDispatcher));
 
         // BET registration
         parserDispatcher.register("BET", new PlayerBetParser());
