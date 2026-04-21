@@ -1,0 +1,139 @@
+.highscore-root {
+    -fx-background-color: rgba(13, 158, 59, 0.96);
+    -fx-background-radius: 16;
+    -fx-border-radius: 16;
+    -fx-border-color: #5c3d10 #3d260a #3d260a #5c3d10;
+    -fx-border-width: 3;
+}
+
+.highscore-title {
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(one-pass-box, #000000, 0, 0, 2, 2);
+}
+
+.highscore-status {
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 13px;
+}
+
+.list-view {
+    -fx-background-color: #114d26;
+    -fx-control-inner-background: #114d26;
+    -fx-background-insets: 0;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-border-color: #5c3d10 #3d260a #3d260a #5c3d10;
+    -fx-border-width: 2;
+}
+
+.list-view .list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: #ffe89a;
+    -fx-font-family: "Courier New";
+    -fx-font-size: 13px;
+}
+
+.list-view .list-cell:filled {
+    -fx-background-color: rgba(0, 0, 0, 0.14);
+}
+
+.list-view .list-cell:filled:hover {
+    -fx-background-color: rgba(0, 0, 0, 0.24);
+}
+
+.list-view .list-cell:filled:selected,
+.list-view .list-cell:filled:selected:focused {
+    -fx-background-color: rgba(0, 0, 0, 0.35);
+    -fx-text-fill: #ffffff;
+}
+
+.gray-button,
+.yellow-button,
+.red-button {
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-font-family: "Courier New";
+    -fx-font-weight: bold;
+    -fx-border-width: 2;
+    -fx-padding: 6 12;
+    -fx-cursor: hand;
+}
+
+.gray-button {
+    -fx-background-color: #333333;
+    -fx-border-color: #666666;
+    -fx-text-fill: #cccccc;
+}
+
+.yellow-button {
+    -fx-background-color: #b8860b;
+    -fx-border-color: #ffd700;
+    -fx-text-fill: #ffffff;
+}
+
+.red-button {
+    -fx-background-color: #8b0000;
+    -fx-border-color: #ff4444;
+    -fx-text-fill: #ffffff;
+}
+
+.highscore-root {
+    -fx-background-color: #0d9e3b;
+    -fx-background-radius: 16;
+    -fx-border-radius: 16;
+    -fx-border-color: #5c3d10 #3d260a #3d260a #5c3d10;
+    -fx-border-width: 3;
+}
+
+.highscore-title {
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+}
+
+.highscore-subtitle {
+    -fx-text-fill: #f2f2f2;
+    -fx-font-size: 13px;
+}
+
+.highscore-text-area {
+    -fx-control-inner-background: #1b1b1b;
+    -fx-text-fill: #ffffff;
+    -fx-font-family: "Courier New";
+    -fx-font-size: 14px;
+    -fx-border-color: #666666;
+    -fx-border-width: 2;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+}
+
+.gray-button,
+.green-button,
+.red-button {
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-font-family: "Courier New";
+    -fx-font-weight: bold;
+    -fx-border-width: 2;
+    -fx-padding: 6 14;
+}
+
+.green-button {
+    -fx-background-color: #1f7d33;
+    -fx-border-color: #35c759;
+    -fx-text-fill: #ffffff;
+}
+
+.red-button {
+    -fx-background-color: #8b0000;
+    -fx-border-color: #ff4444;
+    -fx-text-fill: #ffffff;
+}
+
+.gray-button {
+    -fx-background-color: #333333;
+    -fx-border-color: #666666;
+    -fx-text-fill: #cccccc;
+}

@@ -81,15 +81,17 @@
                         </GridPane.margin>
                     </Button>
 
-                        <!-- Username input and login/change button -->
-                        <HBox alignment="CENTER_LEFT" spacing="10"
-                              GridPane.rowIndex="0"
-                              GridPane.columnIndex="0"
-                              GridPane.halignment="LEFT"
-                              GridPane.valignment="TOP">
-                            <GridPane.margin>
-                                <Insets top="100" left="20" />
-                            </GridPane.margin>
+                    <!-- Username input + change name, with highscores directly below -->
+                    <VBox alignment="TOP_LEFT" spacing="10"
+                          GridPane.rowIndex="0"
+                          GridPane.columnIndex="0"
+                          GridPane.halignment="LEFT"
+                          GridPane.valignment="TOP">
+                        <GridPane.margin>
+                            <Insets top="140" left="20" />
+                        </GridPane.margin>
+
+                        <HBox alignment="CENTER_LEFT" spacing="10">
                             <TextField fx:id="usernameField"
                                        promptText="Username"
                                        styleClass="gray-input-field"
@@ -99,6 +101,12 @@
                                     onAction="#handleLoginButton"
                                     styleClass="button-create-lobby" />
                         </HBox>
+
+                        <Button text="HIGHSCORES"
+                                styleClass="button-create-lobby"
+                                fx:id="highscoreButton"
+                                onAction="#handleOpenHighscores" />
+                    </VBox>
 
                     <VBox fx:id="casinoTable"
                           alignment="CENTER"
