@@ -70,6 +70,18 @@ This document describes the protocol for client-server communication in our appl
     - [Success Response](#success-response)
     - [Example Request](#example-request)
     - [Example Response](#example-response)
+  - [GET_HIGHSCORES command](#get_highscores-command)
+    - [Required pre-execution checks](#required-pre-execution-checks)
+    - [Request Parameters](#request-parameters)
+    - [Success Response](#success-response)
+    - [Example Request](#example-request)
+    - [Example Response](#example-response)
+  - [CLEAR_HIGHSCORES command](#clear_highscores-command)
+    - [Required pre-execution checks](#required-pre-execution-checks)
+    - [Request Parameters](#request-parameters)
+    - [Success Response](#success-response)
+    - [Example Request](#example-request)
+    - [Example Response](#example-response)
   - [RAISE command](#raise-command)
   - [CALL command](#call-command)
   - [FOLD command](#fold-command)
@@ -1336,5 +1348,73 @@ END
 -ERR
   CODE=LOBBIES_FULL
   MESSAGE=Maximum number of 8 lobbies reached
+END
+```
+
+## GET_HIGHSCORES command
+
+The `GET_HIGHSCORES` command returns the stored highscore list. The server sends a `HIGHSCORES` block containing repeated `HIGHSCORE` fields. Each entry is already formatted as `timestamp | winner name`.
+
+### Required pre-execution checks
+
+None.
+
+### Request Parameters
+
+No parameters.
+
+### Success Response
+
+| Field        | Type                    | Description                              |
+| :----------- | :---------------------- | :--------------------------------------- |
+| `HIGHSCORES` | `Collection<Highscore>` | Collection of formatted highscore lines. |
+
+| Fields of `Highscore` | Type     | Description                                         |
+| :-------------------- | :------- | :-------------------------------------------------- |
+| `HIGHSCORE`           | `String` | One formatted entry in `yyyy-MM-dd HH:mm:ss | name` |
+
+### Example Request
+
+```
+GET_HIGHSCORES
+```
+
+### Example Response
+
+```
++OK
+  HIGHSCORES
+    HIGHSCORE='2026-04-21 15:19:23 | Jona'
+    HIGHSCORE='2026-04-21 16:02:11 | Lars'
+  END
+END
+```
+
+## CLEAR_HIGHSCORES command
+
+The `CLEAR_HIGHSCORES` command deletes all stored highscore entries on the server.
+
+### Required pre-execution checks
+
+None.
+
+### Request Parameters
+
+No parameters.
+
+### Success Response
+
+No response fields.
+
+### Example Request
+
+```
+CLEAR_HIGHSCORES
+```
+
+### Example Response
+
+```
++OK
 END
 ```
