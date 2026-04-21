@@ -8,6 +8,7 @@ import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.player.Player;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.player.PlayerId;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.state.GamePhase;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.state.GameState;
+import ch.unibas.dmi.dbis.cs108.casono.server.domain.highscore.HighscoreService;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.request.RequestContext;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.SuccessResponse;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.builder.ResponseBody;
@@ -50,13 +51,47 @@ public class GetGameStateResponse extends SuccessResponse {
         builder.param("CURRENT_BET", computeGlobalCurrentBet(state));
         builder.param("DEALER", state.getDealerIndex());
         builder.param("ACTIVE_PLAYER", state.getCurrentPlayerIndex());
-        builder.param("WINNER", computeWinnerIndex(state, game));
+        int winnerIndex = computeWinnerIndex(state, game);
+        builder.param("WINNER", winnerIndex);
+
+        appendWinnerToHighscoresIfFinished(state, winnerIndex);
+        appendHighscoreEntries(builder);
 
         appendCommunityCards(builder, state);
 
         appendPlayers(builder, state, requestingUsername);
 
         return builder.build();
+    }
+
+    private static void appendWinnerToHighscoresIfFinished(GameState state, int winnerIndex) {
+        if (winnerIndex < 0 || state.getPhase() != GamePhase.FINISHED) {
+            return;
+        }
+
+        Player winner = findPlayerByIndex(state, winnerIndex);
+        if (winner == null || winner.getId() == null || winner.getId().value() == null) {
+            return;
+        }
+
+        HighscoreService.getInstance().appendWinner(winner.getId().value());
+    }
+
+    private static Player findPlayerByIndex(GameState state, int winnerIndex) {
+        int currentIndex = 0;
+        for (Player player : state.getPlayers()) {
+            if (currentIndex == winnerIndex) {
+                return player;
+            }
+            currentIndex++;
+        }
+        return null;
+    }
+
+    private static void appendHighscoreEntries(ResponseBodyBuilder builder) {
+        for (String entry : HighscoreService.getInstance().readFormattedEntries()) {
+            builder.param("HIGHSCORE", entry);
+        }
     }
 
     private static int computeWinnerIndex(GameState state, GameController game) {

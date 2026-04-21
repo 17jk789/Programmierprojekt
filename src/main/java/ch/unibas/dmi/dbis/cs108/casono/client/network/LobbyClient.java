@@ -82,6 +82,30 @@ public class LobbyClient {
     }
 
     /**
+     * Fetches the global highscores from the server.
+     *
+     * @return list of formatted highscore entries, newest entries at the end
+     */
+    public List<String> getHighscores() {
+        List<String> lines = client.processCommand("GET_HIGHSCORES");
+        List<RequestParameter> params = ClientService.convertToRequestParameters(lines);
+
+        List<String> entries = new ArrayList<>();
+        for (RequestParameter p : params) {
+            if ("HIGHSCORE".equalsIgnoreCase(p.key())) {
+                entries.add(p.value());
+            }
+        }
+
+        return entries;
+    }
+
+    /** Clears all global highscores on the server. */
+    public void clearHighscores() {
+        client.processCommand("CLEAR_HIGHSCORES");
+    }
+
+    /**
      * Request the server to return the id of the lobby that the client is currently in.
      *
      * @return The id of the lobby that the client is currently in, as returned by the server.

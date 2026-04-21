@@ -155,6 +155,10 @@ public class GameClient {
                 s.winnerIndex = intVal(l);
                 yield true;
             }
+            case String l when l.startsWith("HIGHSCORE=") -> {
+                s.highscoreEntries.add(value(l));
+                yield true;
+            }
             default -> false;
         };
     }

@@ -10,6 +10,7 @@ import java.util.List;
 public class GameState {
     public List<Player> players = new ArrayList<>();
     public List<Card> communityCards = new ArrayList<>();
+    public List<String> highscoreEntries = new ArrayList<>();
 
     public String phase;
     public int pot;
