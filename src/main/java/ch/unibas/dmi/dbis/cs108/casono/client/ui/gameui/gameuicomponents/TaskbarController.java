@@ -1,10 +1,12 @@
 package ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui.gameuicomponents;
 
+import ch.unibas.dmi.dbis.cs108.casono.client.ClientApp;
 import ch.unibas.dmi.dbis.cs108.casono.client.game.GameService;
 import ch.unibas.dmi.dbis.cs108.casono.client.game.GameState;
 import ch.unibas.dmi.dbis.cs108.casono.client.game.Player;
 import ch.unibas.dmi.dbis.cs108.casono.client.game.PlayerId;
 import ch.unibas.dmi.dbis.cs108.casono.client.game.PlayerState;
+import ch.unibas.dmi.dbis.cs108.casono.client.network.LobbyClient;
 import ch.unibas.dmi.dbis.cs108.casono.client.ui.lobbyui.Casinomainui;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -1078,5 +1080,45 @@ public class TaskbarController {
     @FXML
     private void onBrowserButtonClick() {
         CasinoBrowserController.open("wikipedia.org");
+    }
+
+    /** Opens the highscore popup window from the taskbar. */
+    @FXML
+    private void onHighscoreButtonClick() {
+        try {
+            var shared = ClientApp.getSharedClientService();
+            if (shared == null || shared.isOffline()) {
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Info");
+                alert.setHeaderText(null);
+                alert.setContentText("No active server connection for highscores.");
+                alert.showAndWait();
+                return;
+            }
+
+            javafx.fxml.FXMLLoader loader =
+                    new javafx.fxml.FXMLLoader(
+                            getClass()
+                                    .getResource(
+                                            "/ui-structure/gameuicomponents/HighscoreView.fxml"));
+            javafx.scene.Parent root = loader.load();
+
+            HighscoreViewController controller = loader.getController();
+            controller.setLobbyClient(new LobbyClient(shared));
+            controller.refreshHighscores();
+
+            javafx.stage.Stage stage = new javafx.stage.Stage();
+            stage.setTitle("Casono Highscores");
+            javafx.scene.image.Image icon =
+                    new javafx.scene.image.Image(
+                            getClass().getResource("/images/logoinverted.png").toExternalForm());
+            stage.getIcons().add(icon);
+            stage.setScene(new javafx.scene.Scene(root));
+            stage.show();
+            stage.setAlwaysOnTop(true);
+            stage.toFront();
+        } catch (Exception e) {
+            LOGGER.error("Could not open highscore window from taskbar: {}", e.getMessage());
+        }
     }
 }

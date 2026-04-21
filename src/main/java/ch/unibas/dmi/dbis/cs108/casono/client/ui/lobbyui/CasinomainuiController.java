@@ -4,12 +4,15 @@ import ch.unibas.dmi.dbis.cs108.casono.client.ClientApp;
 import ch.unibas.dmi.dbis.cs108.casono.client.chat.ChatController;
 import ch.unibas.dmi.dbis.cs108.casono.client.network.ClientService;
 import ch.unibas.dmi.dbis.cs108.casono.client.network.LobbyClient;
+import ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui.gameuicomponents.HighscoreViewController;
 import java.io.IOException;
 import java.net.URL;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
@@ -20,6 +23,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
+import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -285,6 +289,35 @@ public class CasinomainuiController {
             gridManager.renderLobbyButtons();
         } catch (Exception e) {
             LOGGER.error("Failed to create or add lobby: {}", e.getMessage());
+        }
+    }
+
+    /** Opens the highscore popup from the lobby UI. */
+    @FXML
+    public void handleOpenHighscores() {
+        try {
+            FXMLLoader loader =
+                    new FXMLLoader(
+                            getClass()
+                                    .getResource(
+                                            "/ui-structure/gameuicomponents/HighscoreView.fxml"));
+            Parent root = loader.load();
+
+            HighscoreViewController controller = loader.getController();
+            controller.setLobbyClient(lobbyClient);
+            controller.refreshHighscores();
+
+            Stage stage = new Stage();
+            stage.setTitle("Casono Highscores");
+            String iconPath = getClass().getResource("/images/logoinverted.png").toExternalForm();
+            stage.getIcons().add(new Image(iconPath));
+            stage.setScene(new Scene(root));
+            stage.show();
+            stage.setAlwaysOnTop(true);
+            stage.toFront();
+        } catch (IOException e) {
+            LOGGER.warn("Could not open highscore window: {}", e.getMessage());
+            showAlert("Could not open highscore window.");
         }
     }
 }

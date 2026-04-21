@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui.gameuicomponents.HighscoreViewController"
+      spacing="12"
+      styleClass="highscore-root"
+      stylesheets="@HighscoreView.css">
+
+    <padding>
+        <Insets top="14" right="14" bottom="14" left="14"/>
+    </padding>
+
+    <Label text="Highscores" styleClass="highscore-title"/>
+
+    <ListView fx:id="highscoreList" prefHeight="320" VBox.vgrow="ALWAYS"/>
+
+    <Label fx:id="statusLabel" text="Ready." styleClass="highscore-status"/>
+
+    <HBox spacing="10">
+        <Button text="Refresh" onAction="#refreshHighscores" styleClass="gray-button" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+        <Button text="Clear" onAction="#clearHighscores" styleClass="yellow-button" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+        <Button text="Close" onAction="#closeWindow" styleClass="red-button" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+    </HBox>
+
+</VBox>

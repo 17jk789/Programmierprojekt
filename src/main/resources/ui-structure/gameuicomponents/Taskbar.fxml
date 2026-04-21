@@ -19,7 +19,7 @@
 
     <!-- Placeholder buttons -->
     <Button text="SETTINGS" styleClass="gray-button" />
-    <Button text="INFO" styleClass="gray-button" />
+        <Button text="HIGHSCORE" onAction="#onHighscoreButtonClick" styleClass="gray-button" />
     <!-- Buten for the Casono Browser -->
     <Button text="HELP" onAction="#onBrowserButtonClick" styleClass="gray-button" />
 
