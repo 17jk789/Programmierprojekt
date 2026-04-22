@@ -1,5 +1,6 @@
 package ch.unibas.dmi.dbis.cs108.casono.client.ui.lobbyui;
 
+import ch.unibas.dmi.dbis.cs108.casono.client.chat.ChatController;
 import ch.unibas.dmi.dbis.cs108.casono.client.ClientApp;
 import ch.unibas.dmi.dbis.cs108.casono.client.network.ClientService;
 import ch.unibas.dmi.dbis.cs108.casono.client.network.LobbyClient;
@@ -42,6 +43,8 @@ public class LobbyButtonGridManager {
     private final GridPane gridPane;
     private final LobbyButtonTranslationManager translationManager;
     private final LobbyClient lobbyClient;
+
+    private ChatController chatController;
 
     private final ConcurrentHashMap<String, Image> imageCache = new ConcurrentHashMap<>();
 
@@ -557,6 +560,7 @@ public class LobbyButtonGridManager {
 
                         CasinoGameUI.setClientService(cs);
                         CasinoGameUI.setLobbyId(lobbyId);
+                        CasinoGameUI.setChatController(chatController);
 
                         String username = ClientApp.getSharedUsername();
                         if (username == null || username.isBlank()) {
@@ -586,4 +590,6 @@ public class LobbyButtonGridManager {
     public LobbyClient getLobbyClient() {
         return lobbyClient;
     }
+
+    public void setChatController(ChatController chatController) { this.chatController = chatController; }
 }
