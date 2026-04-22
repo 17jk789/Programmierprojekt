@@ -3,10 +3,11 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
+<?import ch.unibas.dmi.dbis.cs108.casono.client.ui.lobbyui.CasinomainuiController?>
 
 <AnchorPane xmlns="http://javafx.com"
             xmlns:fx="http://javafx.com"
-            fx:controller="ch.unibas.dmi.dbis.cs108.casono.client.ui.lobbyui.CasinomainuiController"
+            fx:controller="CasinomainuiController"
             styleClass="anchor-pane-bg"
             stylesheets="@Casinomainui.css">
 
