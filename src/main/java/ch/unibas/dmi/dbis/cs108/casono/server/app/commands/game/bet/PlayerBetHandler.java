@@ -4,7 +4,6 @@ import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.GameController;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.player.PlayerId;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.lobby.LobbyId;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.lobby.LobbyManager;
-import ch.unibas.dmi.dbis.cs108.casono.server.domain.user.User;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.user.UserRegistry;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.command.execution.CommandHandler;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.ErrorResponse;
@@ -59,7 +58,8 @@ public class PlayerBetHandler extends CommandHandler<PlayerBetRequest> {
             return;
         }
 
-        Optional<User> opt = userRegistry.getBySessionId(request.getSessionId());
+        Optional<ch.unibas.dmi.dbis.cs108.casono.server.domain.user.User> opt =
+                userRegistry.getBySessionId(request.getSessionId());
         if (opt.isEmpty()) {
             responseDispatcher.dispatch(
                     new ErrorResponse(request.getContext(), "NOT_LOGGED_IN", "User not logged in"));
