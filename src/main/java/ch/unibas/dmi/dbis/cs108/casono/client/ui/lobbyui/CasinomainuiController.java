@@ -55,9 +55,9 @@ public class CasinomainuiController {
     }
 
     /**
-     * Initializes the UI components and sets default values. If a shared {@link ClientService}
-     * exists (created at application start), the controller reuses it so the connection remains
-     * open and already-logged-in.
+     * Initializes the UI components and sets default values. If a shared {@link
+     * ch.unibas.dmi.dbis.cs108.casono.client.network.ClientService} exists (created at application
+     * start), the controller reuses it so the connection remains open and already-logged-in.
      */
     @FXML
     public void initialize() {

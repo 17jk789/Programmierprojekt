@@ -5,7 +5,6 @@ import ch.unibas.dmi.dbis.cs108.casono.client.chat.Message;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.lobby.Lobby;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.lobby.LobbyId;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.lobby.LobbyManager;
-import ch.unibas.dmi.dbis.cs108.casono.server.domain.user.User;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.user.UserRegistry;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.command.execution.CommandHandler;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.OkResponse;
@@ -41,7 +40,8 @@ public class SendMessageHandler extends CommandHandler<SendMessageRequest> {
     @Override
     public void execute(SendMessageRequest request) {
         Message message = request.getMessage();
-        Optional<User> senderUser = userRegistry.getBySessionId(request.getSessionId());
+        Optional<ch.unibas.dmi.dbis.cs108.casono.server.domain.user.User> senderUser =
+                userRegistry.getBySessionId(request.getSessionId());
         if (senderUser.isPresent()) {
             message.sender = senderUser.get().getName();
         }
