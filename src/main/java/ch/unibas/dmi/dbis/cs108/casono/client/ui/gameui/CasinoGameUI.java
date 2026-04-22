@@ -1,5 +1,6 @@
 package ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui;
 
+import ch.unibas.dmi.dbis.cs108.casono.client.chat.ChatController;
 import ch.unibas.dmi.dbis.cs108.casono.client.ClientApp;
 import ch.unibas.dmi.dbis.cs108.casono.client.game.GameService;
 import ch.unibas.dmi.dbis.cs108.casono.client.game.PlayerId;
@@ -25,6 +26,7 @@ public class CasinoGameUI extends Application {
     private static final Logger LOG = Logger.getLogger(CasinoGameUI.class.getName());
 
     private static ClientService clientService;
+    private static ChatController chatController;
 
     private static String username;
     private static int lobbyId = -1;
@@ -63,6 +65,10 @@ public class CasinoGameUI extends Application {
      */
     public static void setLobbyId(int lobbyId) {
         CasinoGameUI.lobbyId = lobbyId;
+    }
+
+    public static void setChatController(ChatController chatController) {
+        CasinoGameUI.chatController = chatController;
     }
 
     /**
@@ -112,6 +118,8 @@ public class CasinoGameUI extends Application {
                 new FXMLLoader(CasinoGameUI.class.getResource("/ui-structure/Casinogameui.fxml"));
         Parent root = fxmlLoader.load();
         CasinoGameController controller = fxmlLoader.getController();
+
+        controller.startChat(chatController);
 
         if (lobbyId <= 0) {
             throw new IllegalStateException("CasinoGameUI: lobbyId must be set before start()");

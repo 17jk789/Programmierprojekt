@@ -7,6 +7,7 @@ import ch.unibas.dmi.dbis.cs108.casono.client.game.GameState;
 import ch.unibas.dmi.dbis.cs108.casono.client.game.Player;
 import ch.unibas.dmi.dbis.cs108.casono.client.game.PlayerId;
 import ch.unibas.dmi.dbis.cs108.casono.client.network.ClientService;
+import ch.unibas.dmi.dbis.cs108.casono.client.ui.chatui.ChatBoxController;
 import ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui.gameuicomponents.PlayerStatusController;
 import ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui.gameuicomponents.TaskbarController;
 import java.io.IOException;
@@ -18,6 +19,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.logging.Logger;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
@@ -239,7 +241,6 @@ public class CasinoGameController {
         // empty display only (optional)
         renderCommunityCards(List.of());
         renderPlayerCards(List.of());
-        initializeChatIfPossible();
     }
 
     /**
@@ -257,7 +258,7 @@ public class CasinoGameController {
         this.chatUsername = username;
         this.chatClientService = clientService;
         this.chatLobbyId = lobbyId;
-        initializeChatIfPossible();
+        //initializeChatIfPossible();
     }
 
     /**
@@ -270,16 +271,14 @@ public class CasinoGameController {
         }
 
         try {
-            chatController = new ChatController(chatUsername, chatClientService);
-
+            ChatBoxController chatBoxController = new ChatBoxController(chatUsername, chatController);
             URL resource = getClass().getResource("/ui-structure/components/chatui/chatbox.fxml");
             FXMLLoader loader = new FXMLLoader(resource);
-            loader.setController(chatController.getChatBoxController());
+            loader.setController(chatBoxController);
 
-            Parent root = loader.load();
+            chatContainer.getChildren().add(loader.load());
 
-            Stage chatStage = new Stage();
-
+            /*
             chatStage.setTitle("Casono");
 
             String iconPath = getClass().getResource("/images/logoinverted.png").toExternalForm();
@@ -294,7 +293,7 @@ public class CasinoGameController {
             chatStage.setOnCloseRequest(event -> chatInitialized = false);
 
             chatStage.show();
-
+            */
             if (chatLobbyId >= 0) {
                 chatController.setLobbyChat(chatLobbyId);
             }
@@ -1339,5 +1338,10 @@ public class CasinoGameController {
             return taskbarController;
         }
         return null;
+    }
+
+    public void startChat(ChatController chatController) {
+        this.chatController = chatController;
+        initializeChatIfPossible();
     }
 }
