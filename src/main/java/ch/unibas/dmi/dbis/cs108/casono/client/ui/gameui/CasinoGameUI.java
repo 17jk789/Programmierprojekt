@@ -1,5 +1,6 @@
 package ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui;
 
+import ch.unibas.dmi.dbis.cs108.casono.client.chat.ChatController;
 import ch.unibas.dmi.dbis.cs108.casono.client.ClientApp;
 import ch.unibas.dmi.dbis.cs108.casono.client.chat.ChatController;
 import ch.unibas.dmi.dbis.cs108.casono.client.game.GameService;
@@ -71,6 +72,10 @@ public class CasinoGameUI extends Application {
         CasinoGameUI.lobbyId = lobbyId;
     }
 
+    public static void setChatController(ChatController chatController) {
+        CasinoGameUI.chatController = chatController;
+    }
+
     /**
      * The main entry point for the JavaFX application. This method is called after the application
      * is
@@ -118,6 +123,8 @@ public class CasinoGameUI extends Application {
                 new FXMLLoader(CasinoGameUI.class.getResource("/ui-structure/Casinogameui.fxml"));
         Parent root = fxmlLoader.load();
         CasinoGameController controller = fxmlLoader.getController();
+
+        controller.startChat(chatController);
 
         if (lobbyId <= 0) {
             throw new IllegalStateException("CasinoGameUI: lobbyId must be set before start()");
