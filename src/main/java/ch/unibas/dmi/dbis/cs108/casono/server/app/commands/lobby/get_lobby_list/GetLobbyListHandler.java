@@ -1,5 +1,6 @@
 package ch.unibas.dmi.dbis.cs108.casono.server.app.commands.lobby.get_lobby_list;
 
+import ch.unibas.dmi.dbis.cs108.casono.server.domain.lobby.Lobby;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.lobby.LobbyManager;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.command.execution.CommandHandler;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.dispatcher.ResponseDispatcher;
@@ -21,8 +22,7 @@ public class GetLobbyListHandler extends CommandHandler<GetLobbyListRequest> {
 
     @Override
     public void execute(GetLobbyListRequest request) {
-        Collection<ch.unibas.dmi.dbis.cs108.casono.server.domain.lobby.Lobby> l =
-                lobbyManager.getAllLobbies();
+        Collection<Lobby> l = lobbyManager.getAllLobbies();
         responseDispatcher.dispatch(new GetLobbyListResponse(request.getContext(), l));
     }
 }

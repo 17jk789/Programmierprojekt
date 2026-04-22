@@ -4,6 +4,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.geometry.Insets?>
+<?import ch.unibas.dmi.dbis.cs108.casono.client.ui.gameuicomponents.PlayerStatusController?>
 
 <!--
 TODO: Main placeholder for player status & input.
@@ -16,7 +17,7 @@ and status displays will be dynamically populated with real-time data from the s
 <VBox fx:id="playerStatusBox"
       xmlns="http://javafx.com/javafx/21"
       xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui.gameuicomponents.PlayerStatusController"
+      fx:controller="PlayerStatusController"
       styleClass="player-status-pane"
       prefWidth="200"
       spacing="5">
