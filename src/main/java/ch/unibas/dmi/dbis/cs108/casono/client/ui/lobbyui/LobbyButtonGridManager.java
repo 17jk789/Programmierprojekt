@@ -591,7 +591,5 @@ public class LobbyButtonGridManager {
         return lobbyClient;
     }
 
-    public void setChatController(ChatController chatController) {
-        this.chatController = chatController;
-    }
+    public void setChatController(ChatController chatController) { this.chatController = chatController; }
 }
