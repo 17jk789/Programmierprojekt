@@ -1,7 +1,9 @@
 package ch.unibas.dmi.dbis.cs108.casono.client.ui.lobbyui;
 
+import ch.unibas.dmi.dbis.cs108.casono.client.ClientApp;
 import ch.unibas.dmi.dbis.cs108.casono.client.network.ClientService;
 import ch.unibas.dmi.dbis.cs108.casono.client.network.LobbyClient;
+import ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui.CasinoGameUI;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.command.parsing.RequestParameter;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -553,14 +555,10 @@ public class LobbyButtonGridManager {
                     try {
                         var cs = lobbyClient.getClientService();
 
-                        ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui.CasinoGameUI
-                                .setClientService(cs);
-                        ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui.CasinoGameUI.setLobbyId(
-                                lobbyId);
+                        CasinoGameUI.setClientService(cs);
+                        CasinoGameUI.setLobbyId(lobbyId);
 
-                        String username =
-                                ch.unibas.dmi.dbis.cs108.casono.client.ClientApp
-                                        .getSharedUsername();
+                        String username = ClientApp.getSharedUsername();
                         if (username == null || username.isBlank()) {
                             username =
                                     "Guest-"
@@ -570,11 +568,9 @@ public class LobbyButtonGridManager {
                                                     .toString()
                                                     .substring(0, GUEST_ID_LENGTH);
                         }
-                        ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui.CasinoGameUI.setUsername(
-                                username);
+                        CasinoGameUI.setUsername(username);
 
-                        new ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui.CasinoGameUI()
-                                .start(gameStage);
+                        new CasinoGameUI().start(gameStage);
 
                     } catch (Exception e) {
                         LOGGER.error("Game UI failed: {}", e.getMessage());
