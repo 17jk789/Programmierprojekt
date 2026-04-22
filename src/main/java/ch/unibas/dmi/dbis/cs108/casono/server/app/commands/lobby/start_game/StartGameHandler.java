@@ -11,6 +11,7 @@ import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.state.GameState;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.lobby.Lobby;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.lobby.LobbyId;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.lobby.LobbyManager;
+import ch.unibas.dmi.dbis.cs108.casono.server.domain.user.User;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.user.UserRegistry;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.command.execution.CommandHandler;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.ErrorResponse;
@@ -38,10 +39,8 @@ public class StartGameHandler extends CommandHandler<StartGameRequest> {
 
     @Override
     public void execute(StartGameRequest request) {
-        Optional<ch.unibas.dmi.dbis.cs108.casono.server.domain.user.User> opt =
-                userRegistry.getBySessionId(request.getSessionId());
+        Optional<User> opt = userRegistry.getBySessionId(request.getSessionId());
         if (opt.isEmpty()) {
-            // Guard: UserLoggedInCheck should normally handle this
             responseDispatcher.dispatch(
                     new ErrorResponse(
                             request.getContext(), "USER_NOT_LOGGED_IN", "User not logged in"));
