@@ -1,5 +1,6 @@
 package ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui;
 
+import ch.unibas.dmi.dbis.cs108.casono.client.ClientApp;
 import ch.unibas.dmi.dbis.cs108.casono.client.game.GameService;
 import ch.unibas.dmi.dbis.cs108.casono.client.game.PlayerId;
 import ch.unibas.dmi.dbis.cs108.casono.client.network.ClientService;
@@ -77,8 +78,7 @@ public class CasinoGameUI extends Application {
     public void start(Stage stage) throws IOException {
 
         if (clientService == null) {
-            clientService =
-                    ch.unibas.dmi.dbis.cs108.casono.client.ClientApp.getSharedClientService();
+            clientService = ClientApp.getSharedClientService();
         }
         if (clientService == null) {
             throw new IllegalStateException(
@@ -90,8 +90,7 @@ public class CasinoGameUI extends Application {
         String effectiveUsername = normalize(username);
 
         if (effectiveUsername == null) {
-            effectiveUsername =
-                    normalize(ch.unibas.dmi.dbis.cs108.casono.client.ClientApp.getSharedUsername());
+            effectiveUsername = normalize(ClientApp.getSharedUsername());
         }
 
         if (effectiveUsername == null) {
@@ -105,7 +104,7 @@ public class CasinoGameUI extends Application {
                         + "', injectedUsername='"
                         + username
                         + "', sharedUsername='"
-                        + ch.unibas.dmi.dbis.cs108.casono.client.ClientApp.getSharedUsername()
+                        + ClientApp.getSharedUsername()
                         + "', hasClientService="
                         + (clientService != null));
 
