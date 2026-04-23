@@ -69,6 +69,7 @@ public class CasinoGameController {
     private java.util.List<String> lastCommunityKeys = java.util.List.of();
     private java.util.List<String> lastMyCardKeys = java.util.List.of();
     private int lastPot = Integer.MIN_VALUE;
+    private ChatController chatController;
 
     private static final int TOTAL_SLOTS = 5;
     private static final int PLAYER_SLOTS = 2;
@@ -141,7 +142,6 @@ public class CasinoGameController {
     private static final double CHAT_WIDTH = 400;
     private static final double CHAT_HEIGHT = 600;
 
-    private ChatController chatController;
     private String chatUsername;
     private ClientService chatClientService;
     private int chatLobbyId = -1;
@@ -199,6 +199,11 @@ public class CasinoGameController {
         }
     }
 
+    public void startChat(ChatController chatController) {
+        this.chatController = chatController;
+        initializeChatIfPossible();
+    }
+
     /** Set the PlayerId of the current player. */
     @FXML
     public void initialize() {
@@ -241,6 +246,8 @@ public class CasinoGameController {
         // empty display only (optional)
         renderCommunityCards(List.of());
         renderPlayerCards(List.of());
+
+        chatContainer.toFront();
     }
 
     /**
@@ -258,7 +265,7 @@ public class CasinoGameController {
         this.chatUsername = username;
         this.chatClientService = clientService;
         this.chatLobbyId = lobbyId;
-        //initializeChatIfPossible();
+        //startChat(chatController);
     }
 
     /**
@@ -272,18 +279,19 @@ public class CasinoGameController {
 
         try {
             ChatBoxController chatBoxController = new ChatBoxController(chatUsername, chatController);
+
+            chatController.setChatBoxController(chatBoxController);
+
             URL resource = getClass().getResource("/ui-structure/components/chatui/chatbox.fxml");
             FXMLLoader loader = new FXMLLoader(resource);
             loader.setController(chatBoxController);
 
-            chatContainer.getChildren().add(loader.load());
+            chatBoxController.loadChats();
 
+            Node chatBox = loader.load();
+
+            chatContainer.getChildren().add(chatBox);
             /*
-            chatStage.setTitle("Casono");
-
-            String iconPath = getClass().getResource("/images/logoinverted.png").toExternalForm();
-            chatStage.getIcons().add(new Image(iconPath));
-
             Scene scene = new Scene(root);
             chatStage.setScene(scene);
 
@@ -293,7 +301,8 @@ public class CasinoGameController {
             chatStage.setOnCloseRequest(event -> chatInitialized = false);
 
             chatStage.show();
-            */
+             */
+
             if (chatLobbyId >= 0) {
                 chatController.setLobbyChat(chatLobbyId);
             }
@@ -1340,8 +1349,4 @@ public class CasinoGameController {
         return null;
     }
 
-    public void startChat(ChatController chatController) {
-        this.chatController = chatController;
-        initializeChatIfPossible();
-    }
 }
