@@ -1,7 +1,10 @@
 package ch.unibas.dmi.dbis.cs108.casono.server.app.commands.game.fold;
 
+import ch.unibas.dmi.dbis.cs108.casono.server.app.checks.GameLobbyExistsCheck;
+import ch.unibas.dmi.dbis.cs108.casono.server.app.checks.UserLoggedInCheck;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.GameController;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.player.PlayerId;
+import ch.unibas.dmi.dbis.cs108.casono.server.domain.lobby.Lobby;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.lobby.LobbyId;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.lobby.LobbyManager;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.user.User;
@@ -37,6 +40,8 @@ public class PlayerFoldHandler extends CommandHandler<PlayerFoldRequest> {
         super(responseDispatcher);
         this.userRegistry = userRegistry;
         this.lobbyManager = lobbyManager;
+        addCheck(new UserLoggedInCheck(userRegistry));
+        addCheck(new GameLobbyExistsCheck(userRegistry, lobbyManager));
     }
 
     /**
@@ -57,22 +62,11 @@ public class PlayerFoldHandler extends CommandHandler<PlayerFoldRequest> {
         String username = opt.get().getName();
 
         Integer gameId = request.getGameId();
-        var lobby =
-                (gameId != null)
-                        ? lobbyManager.getLobby(LobbyId.of(gameId))
-                        : lobbyManager.getLobbyByUsername(username);
-
-        if (lobby == null) {
-            if (gameId != null) {
-                responseDispatcher.dispatch(
-                        new ErrorResponse(
-                                request.getContext(), "LOBBY_NOT_FOUND", "Lobby not found"));
-            } else {
-                responseDispatcher.dispatch(
-                        new ErrorResponse(
-                                request.getContext(), "NOT_IN_LOBBY", "User not in a lobby"));
-            }
-            return;
+        Lobby lobby;
+        if (gameId != null) {
+            lobby = lobbyManager.getLobby(LobbyId.of(gameId));
+        } else {
+            lobby = lobbyManager.getLobbyByUsername(username);
         }
 
         GameController game = lobby.getGameController();
