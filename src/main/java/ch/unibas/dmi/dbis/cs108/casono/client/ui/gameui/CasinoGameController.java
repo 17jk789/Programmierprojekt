@@ -143,7 +143,6 @@ public class CasinoGameController {
     private static final double CHAT_WIDTH = 400;
     private static final double CHAT_HEIGHT = 600;
 
-    private ChatController chatController;
     private String chatUsername;
     private ClientService chatClientService;
     private int chatLobbyId = -1;
