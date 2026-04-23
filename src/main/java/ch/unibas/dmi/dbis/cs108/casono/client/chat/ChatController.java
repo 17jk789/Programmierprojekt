@@ -41,9 +41,7 @@ public class ChatController {
         return chatBoxController;
     }
 
-    public void setChatBoxController(ChatBoxController chatBoxController) {
-        this.chatBoxController = chatBoxController;
-    }
+    public void setChatBoxController(ChatBoxController chatBoxController) {this.chatBoxController = chatBoxController; }
 
     private ChatBoxController chatBoxController;
     private int lobbyId = -1;

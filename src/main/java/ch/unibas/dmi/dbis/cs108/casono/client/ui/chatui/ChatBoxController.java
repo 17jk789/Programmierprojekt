@@ -3,7 +3,6 @@ package ch.unibas.dmi.dbis.cs108.casono.client.ui.chatui;
 import ch.unibas.dmi.dbis.cs108.casono.client.chat.ChatController;
 import ch.unibas.dmi.dbis.cs108.casono.client.chat.ChatModel;
 import ch.unibas.dmi.dbis.cs108.casono.client.chat.ChatType;
-import ch.unibas.dmi.dbis.cs108.casono.client.chat.Message;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -12,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
+
+import ch.unibas.dmi.dbis.cs108.casono.client.chat.Message;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -74,7 +75,9 @@ public class ChatBoxController {
     public void initialize() {
         ChatType global = ChatType.GLOBAL;
         ChatModel globalChatModel = new ChatModel(global, username, -1, null);
-        chatController.getChatModelMap().put(new ChatController.ChatKey(global), globalChatModel);
+        chatController
+                .getChatModelMap()
+                .put(new ChatController.ChatKey(global), globalChatModel);
         addChatTab("GLOBAL", globalChatModel, global);
         addWhisperChatButton.setOnAction(event -> addWhisperChatButton.show());
     }
