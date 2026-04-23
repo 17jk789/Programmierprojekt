@@ -278,37 +278,18 @@ public class CasinoGameController {
         }
 
         try {
-            ChatBoxController chatBoxController = new ChatBoxController(chatUsername, chatController);
-
-            chatController.setChatBoxController(chatBoxController);
-
+            String username = chatUsername;
+            // chatController = new ChatController(username, chatClientService);
             URL resource = getClass().getResource("/ui-structure/components/chatui/chatbox.fxml");
             FXMLLoader loader = new FXMLLoader(resource);
-            loader.setController(chatBoxController);
-
-            chatBoxController.loadChats();
-
-            Node chatBox = loader.load();
-
-            chatContainer.getChildren().add(chatBox);
-            /*
-            Scene scene = new Scene(root);
-            chatStage.setScene(scene);
-
-            chatStage.setWidth(CHAT_WIDTH);
-            chatStage.setHeight(CHAT_HEIGHT);
-
-            chatStage.setOnCloseRequest(event -> chatInitialized = false);
-
-            chatStage.show();
-             */
-
-            if (chatLobbyId >= 0) {
-                chatController.setLobbyChat(chatLobbyId);
-            }
-
-            chatInitialized = true;
-
+            loader.setController(chatController.getChatBoxController());
+            Node chatNode = loader.load();
+            chatContainer.getChildren().setAll(chatNode);
+            AnchorPane.setTopAnchor(chatNode, 6.0);
+            AnchorPane.setBottomAnchor(chatNode, 6.0);
+            AnchorPane.setLeftAnchor(chatNode, 0.0);
+            AnchorPane.setRightAnchor(chatNode, 6.0);
+            // gridManager.setChatController(chatController);
         } catch (IOException e) {
             LOGGER.warning("Could not initialize game chat UI: " + e.getMessage());
         }
