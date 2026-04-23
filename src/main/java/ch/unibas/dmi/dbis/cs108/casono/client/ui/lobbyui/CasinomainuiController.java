@@ -141,6 +141,7 @@ public class CasinomainuiController {
             AnchorPane.setBottomAnchor(chatNode, 0.0);
             AnchorPane.setLeftAnchor(chatNode, 0.0);
             AnchorPane.setRightAnchor(chatNode, 0.0);
+            gridManager.setChatController(chatController);
         } catch (IOException e) {
             LOGGER.warn("Could not initialize lobby chat UI: {}", e.getMessage());
         }
