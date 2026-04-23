@@ -59,9 +59,6 @@ public class CasinoGameUI extends Application {
         CasinoGameUI.username = username;
     }
 
-    public static void setChatController(ChatController chatController) {
-        CasinoGameUI.chatController = chatController;
-    }
 
     /**
      * Sets the lobby ID to be used by the application.
@@ -123,8 +120,6 @@ public class CasinoGameUI extends Application {
                 new FXMLLoader(CasinoGameUI.class.getResource("/ui-structure/Casinogameui.fxml"));
         Parent root = fxmlLoader.load();
         CasinoGameController controller = fxmlLoader.getController();
-
-        controller.startChat(chatController);
 
         if (lobbyId <= 0) {
             throw new IllegalStateException("CasinoGameUI: lobbyId must be set before start()");
