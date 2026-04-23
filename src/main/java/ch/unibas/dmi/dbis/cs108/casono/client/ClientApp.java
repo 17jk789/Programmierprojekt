@@ -11,7 +11,7 @@ import org.apache.logging.log4j.Logger;
  * Entry point and bootstrap helper for the Casono client application.
  *
  * <p>Responsibilities: - Parse CLI args (host:port, optional username) - Store username centrally
- * so UI can reuse it - Create a shared ClientService and do startup LOGIN (optional)
+ * so UI can reuse it - Create a shared ClientService and do startup LOGIN
  */
 public class ClientApp {
 
@@ -40,7 +40,14 @@ public class ClientApp {
     }
 
     public static void updateSharedUsername(String username) {
-        setSharedUsername(username != null && !username.isBlank() ? username.trim() : null);
+        setSharedUsername(normalizeUsername(username));
+    }
+
+    private static String normalizeUsername(String username) {
+        if (username == null || username.isBlank()) {
+            return null;
+        }
+        return username.trim();
     }
 
     private static void setSharedUsername(String username) {
@@ -52,15 +59,14 @@ public class ClientApp {
         String[] hostPort = parseHostAndPort(arg);
         String host = hostPort[0];
         int port = Integer.parseInt(hostPort[1]);
+        String normalizedUsername = normalizeUsername(username);
 
         configureServerProperties(host, port);
-        setSharedUsername(username != null && !username.isBlank() ? username.trim() : null);
+        setSharedUsername(normalizedUsername);
 
-        if (getSharedUsername() != null) {
-            performStartupLogin(host, port, username);
-        }
+        performStartupLogin(host, port, normalizedUsername);
 
-        launchUI(arg, username);
+        launchUI(arg);
     }
 
     private static String[] parseHostAndPort(String arg) {
@@ -81,52 +87,33 @@ public class ClientApp {
         try {
             ClientService clientService = new ClientService(host, port);
             setSharedClientService(clientService);
+            LobbyClient lobbyClient = new LobbyClient(clientService);
+            LoginResult res = lobbyClient.login(username);
 
-            java.util.concurrent.ExecutorService bg =
-                    java.util.concurrent.Executors.newSingleThreadExecutor(
-                            r -> {
-                                Thread t = new Thread(r);
-                                t.setDaemon(true);
-                                t.setName("casono-startup-login");
-                                return t;
-                            });
+            if (res != null && res.getUsername() != null && !res.getUsername().isBlank()) {
+                setSharedUsername(res.getUsername().trim());
+            }
 
-            bg.submit(
-                    () -> {
-                        try {
-                            LobbyClient lobbyClient = new LobbyClient(clientService);
-                            LoginResult res = lobbyClient.login(username);
-
-                            if (res != null
-                                    && res.getUsername() != null
-                                    && !res.getUsername().isBlank()) {
-                                setSharedUsername(res.getUsername().trim());
-                            }
-
-                            LOGGER.info(
-                                    "Assigned username='{}' id={}",
-                                    res != null ? res.getUsername() : null,
-                                    res != null ? res.getId() : null);
-                        } catch (RuntimeException e) {
-                            LOGGER.warn("Startup login failed: {}", e.getMessage());
-                        } catch (Exception e) {
-                            LOGGER.warn("Unexpected error during startup login", e);
-                        } finally {
-                            bg.shutdown();
-                        }
-                    });
+            String assignedUsername = null;
+            String assignedId = null;
+            if (res != null) {
+                assignedUsername = res.getUsername();
+                assignedId = res.getId();
+            }
+            LOGGER.info("Assigned username='{}' id={}", assignedUsername, assignedId);
         } catch (RuntimeException e) {
             LOGGER.warn(
                     "Could not establish initial connection for startup login: {}", e.getMessage());
         }
     }
 
-    private static void launchUI(String arg, String username) {
-        if (username != null && !username.isBlank()) {
-            Launcher.main(new String[] {arg, username});
-        } else {
+    private static void launchUI(String arg) {
+        String username = getSharedUsername();
+        if (username == null || username.isBlank()) {
             Launcher.main(new String[] {arg});
+            return;
         }
+        Launcher.main(new String[] {arg, username});
     }
 
     public static void main(String[] args) {
@@ -134,7 +121,10 @@ public class ClientApp {
             throw new IllegalArgumentException("Address argument required: <host:port>");
         }
 
-        String username = args.length > 1 && args[1] != null && !args[1].isBlank() ? args[1] : null;
+        String username = null;
+        if (args.length > 1) {
+            username = normalizeUsername(args[1]);
+        }
 
         start(args[0], username);
     }
