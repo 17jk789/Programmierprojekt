@@ -7,6 +7,7 @@ import ch.unibas.dmi.dbis.cs108.casono.client.ui.chatui.ChatBoxController;
 import ch.unibas.dmi.dbis.cs108.casono.client.ui.chatui.ChatViewController;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.command.parsing.RequestParameter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -15,7 +16,6 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.WeakHashMap;
-import java.util.HashMap;
 import java.util.function.Consumer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -41,7 +41,9 @@ public class ChatController {
         return chatBoxController;
     }
 
-    public void setChatBoxController(ChatBoxController chatBoxController) {this.chatBoxController = chatBoxController; }
+    public void setChatBoxController(ChatBoxController chatBoxController) {
+        this.chatBoxController = chatBoxController;
+    }
 
     private ChatBoxController chatBoxController;
     private int lobbyId = -1;
@@ -70,7 +72,6 @@ public class ChatController {
     }
 
     public final Map<ChatController.ChatKey, ChatViewController> activeChatControllers;
-
 
     private final Logger logger;
 

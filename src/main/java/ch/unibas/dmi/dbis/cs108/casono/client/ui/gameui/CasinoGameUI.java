@@ -1,7 +1,7 @@
 package ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui;
 
-import ch.unibas.dmi.dbis.cs108.casono.client.chat.ChatController;
 import ch.unibas.dmi.dbis.cs108.casono.client.ClientApp;
+import ch.unibas.dmi.dbis.cs108.casono.client.chat.ChatController;
 import ch.unibas.dmi.dbis.cs108.casono.client.game.GameService;
 import ch.unibas.dmi.dbis.cs108.casono.client.game.PlayerId;
 import ch.unibas.dmi.dbis.cs108.casono.client.network.ClientService;
@@ -58,7 +58,9 @@ public class CasinoGameUI extends Application {
         CasinoGameUI.username = username;
     }
 
-    public static void setChatController(ChatController chatController) {CasinoGameUI.chatController = chatController;}
+    public static void setChatController(ChatController chatController) {
+        CasinoGameUI.chatController = chatController;
+    }
 
     /**
      * Sets the lobby ID to be used by the application.

@@ -7,7 +7,6 @@ import ch.unibas.dmi.dbis.cs108.casono.client.game.GameState;
 import ch.unibas.dmi.dbis.cs108.casono.client.game.Player;
 import ch.unibas.dmi.dbis.cs108.casono.client.game.PlayerId;
 import ch.unibas.dmi.dbis.cs108.casono.client.network.ClientService;
-import ch.unibas.dmi.dbis.cs108.casono.client.ui.chatui.ChatBoxController;
 import ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui.gameuicomponents.PlayerStatusController;
 import ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui.gameuicomponents.TaskbarController;
 import java.io.IOException;
@@ -20,15 +19,12 @@ import java.util.logging.Logger;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 
 /**
  * Controller for the casino gaming area.
@@ -71,6 +67,7 @@ public class CasinoGameController {
     private int lastPot = Integer.MIN_VALUE;
     private ChatController chatController;
 
+    public static final double CHAT_CONTAINER_CONSTANT = 6.0;
     private static final int TOTAL_SLOTS = 5;
     private static final int PLAYER_SLOTS = 2;
     private int pot = 0;
@@ -288,10 +285,10 @@ public class CasinoGameController {
             loader.setController(chatController.getChatBoxController());
             Node chatNode = loader.load();
             chatContainer.getChildren().setAll(chatNode);
-            AnchorPane.setTopAnchor(chatNode, 6.0);
-            AnchorPane.setBottomAnchor(chatNode, 6.0);
+            AnchorPane.setTopAnchor(chatNode, CHAT_CONTAINER_CONSTANT);
+            AnchorPane.setBottomAnchor(chatNode, CHAT_CONTAINER_CONSTANT);
             AnchorPane.setLeftAnchor(chatNode, 0.0);
-            AnchorPane.setRightAnchor(chatNode, 6.0);
+            AnchorPane.setRightAnchor(chatNode, CHAT_CONTAINER_CONSTANT);
 
             chatController.getChatBoxController().loadChats();
             chatInitialized = true;
@@ -1338,5 +1335,4 @@ public class CasinoGameController {
         }
         return null;
     }
-
 }
