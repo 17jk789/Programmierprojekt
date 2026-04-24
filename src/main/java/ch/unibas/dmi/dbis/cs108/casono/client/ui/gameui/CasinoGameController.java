@@ -265,7 +265,7 @@ public class CasinoGameController {
         this.chatUsername = username;
         this.chatClientService = clientService;
         this.chatLobbyId = lobbyId;
-        //startChat(chatController);
+        initializeChatIfPossible();
     }
 
     /**
@@ -273,13 +273,16 @@ public class CasinoGameController {
      * is available and the chat has not already been initialized.
      */
     private void initializeChatIfPossible() {
-        if (chatInitialized || chatClientService == null || chatUsername == null) {
+        if (chatInitialized
+                || chatClientService == null
+                || chatUsername == null
+                || chatController == null) {
             return;
         }
 
         try {
-            String username = chatUsername;
-            // chatController = new ChatController(username, chatClientService);
+            chatController.updateUsername(chatUsername);
+
             URL resource = getClass().getResource("/ui-structure/components/chatui/chatbox.fxml");
             FXMLLoader loader = new FXMLLoader(resource);
             loader.setController(chatController.getChatBoxController());
@@ -289,7 +292,13 @@ public class CasinoGameController {
             AnchorPane.setBottomAnchor(chatNode, 6.0);
             AnchorPane.setLeftAnchor(chatNode, 0.0);
             AnchorPane.setRightAnchor(chatNode, 6.0);
-            // gridManager.setChatController(chatController);
+
+            chatController.getChatBoxController().loadChats();
+            chatInitialized = true;
+
+            if (chatLobbyId >= 0) {
+                chatController.setLobbyChat(chatLobbyId);
+            }
         } catch (IOException e) {
             LOGGER.warning("Could not initialize game chat UI: " + e.getMessage());
         }

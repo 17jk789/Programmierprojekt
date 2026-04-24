@@ -250,6 +250,11 @@ public class ChatBoxController {
         ChatController.ChatKey key = new ChatController.ChatKey(ChatType.GLOBAL);
         ChatModel global = chatModelMap.get(key);
         ChatViewController globalController = chatController.activeChatControllers.get(key);
+
+        for (String user : chatController.getLocalUserList()) {
+            addWhisperUser(user);
+        }
+
         for (Message msg : global.messages) {
             globalController.showMessage(msg);
         }
