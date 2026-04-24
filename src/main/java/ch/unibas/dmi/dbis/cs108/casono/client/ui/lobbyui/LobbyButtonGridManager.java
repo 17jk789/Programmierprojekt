@@ -1,7 +1,7 @@
 package ch.unibas.dmi.dbis.cs108.casono.client.ui.lobbyui;
 
-import ch.unibas.dmi.dbis.cs108.casono.client.chat.ChatController;
 import ch.unibas.dmi.dbis.cs108.casono.client.ClientApp;
+import ch.unibas.dmi.dbis.cs108.casono.client.chat.ChatController;
 import ch.unibas.dmi.dbis.cs108.casono.client.network.ClientService;
 import ch.unibas.dmi.dbis.cs108.casono.client.network.LobbyClient;
 import ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui.CasinoGameUI;
@@ -591,5 +591,7 @@ public class LobbyButtonGridManager {
         return lobbyClient;
     }
 
-    public void setChatController(ChatController chatController) { this.chatController = chatController; }
+    public void setChatController(ChatController chatController) {
+        this.chatController = chatController;
+    }
 }
