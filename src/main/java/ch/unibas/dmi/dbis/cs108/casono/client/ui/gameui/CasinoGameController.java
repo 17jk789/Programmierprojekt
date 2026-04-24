@@ -18,15 +18,13 @@ import java.util.concurrent.CompletableFuture;
 import java.util.logging.Logger;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 
 /**
  * Controller for the casino gaming area.
@@ -67,7 +65,9 @@ public class CasinoGameController {
     private java.util.List<String> lastCommunityKeys = java.util.List.of();
     private java.util.List<String> lastMyCardKeys = java.util.List.of();
     private int lastPot = Integer.MIN_VALUE;
+    private ChatController chatController;
 
+    public static final double CHAT_CONTAINER_CONSTANT = 6.0;
     private static final int TOTAL_SLOTS = 5;
     private static final int PLAYER_SLOTS = 2;
     private int pot = 0;
@@ -139,7 +139,6 @@ public class CasinoGameController {
     private static final double CHAT_WIDTH = 400;
     private static final double CHAT_HEIGHT = 600;
 
-    private ChatController chatController;
     private String chatUsername;
     private ClientService chatClientService;
     private int chatLobbyId = -1;
@@ -197,6 +196,11 @@ public class CasinoGameController {
         }
     }
 
+    public void startChat(ChatController chatController) {
+        this.chatController = chatController;
+        initializeChatIfPossible();
+    }
+
     /** Set the PlayerId of the current player. */
     @FXML
     public void initialize() {
@@ -239,7 +243,8 @@ public class CasinoGameController {
         // empty display only (optional)
         renderCommunityCards(List.of());
         renderPlayerCards(List.of());
-        initializeChatIfPossible();
+
+        chatContainer.toFront();
     }
 
     /**
@@ -257,7 +262,6 @@ public class CasinoGameController {
         this.chatUsername = username;
         this.chatClientService = clientService;
         this.chatLobbyId = lobbyId;
-        initializeChatIfPossible();
     }
 
     /**
@@ -265,42 +269,32 @@ public class CasinoGameController {
      * is available and the chat has not already been initialized.
      */
     private void initializeChatIfPossible() {
-        if (chatInitialized || chatClientService == null || chatUsername == null) {
+        if (chatInitialized
+                || chatClientService == null
+                || chatUsername == null
+                || chatController == null) {
             return;
         }
 
         try {
-            chatController = new ChatController(chatUsername, chatClientService);
+            chatController.updateUsername(chatUsername);
 
             URL resource = getClass().getResource("/ui-structure/components/chatui/chatbox.fxml");
             FXMLLoader loader = new FXMLLoader(resource);
             loader.setController(chatController.getChatBoxController());
+            Node chatNode = loader.load();
+            chatContainer.getChildren().setAll(chatNode);
+            AnchorPane.setTopAnchor(chatNode, CHAT_CONTAINER_CONSTANT);
+            AnchorPane.setBottomAnchor(chatNode, CHAT_CONTAINER_CONSTANT);
+            AnchorPane.setLeftAnchor(chatNode, 0.0);
+            AnchorPane.setRightAnchor(chatNode, CHAT_CONTAINER_CONSTANT);
 
-            Parent root = loader.load();
-
-            Stage chatStage = new Stage();
-
-            chatStage.setTitle("Casono");
-
-            String iconPath = getClass().getResource("/images/logoinverted.png").toExternalForm();
-            chatStage.getIcons().add(new Image(iconPath));
-
-            Scene scene = new Scene(root);
-            chatStage.setScene(scene);
-
-            chatStage.setWidth(CHAT_WIDTH);
-            chatStage.setHeight(CHAT_HEIGHT);
-
-            chatStage.setOnCloseRequest(event -> chatInitialized = false);
-
-            chatStage.show();
+            chatController.getChatBoxController().loadChats();
+            chatInitialized = true;
 
             if (chatLobbyId >= 0) {
                 chatController.setLobbyChat(chatLobbyId);
             }
-
-            chatInitialized = true;
-
         } catch (IOException e) {
             LOGGER.warning("Could not initialize game chat UI: " + e.getMessage());
         }

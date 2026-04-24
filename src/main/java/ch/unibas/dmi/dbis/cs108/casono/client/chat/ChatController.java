@@ -4,8 +4,10 @@ import ch.unibas.dmi.dbis.cs108.casono.client.ClientApp;
 import ch.unibas.dmi.dbis.cs108.casono.client.network.ChatClient;
 import ch.unibas.dmi.dbis.cs108.casono.client.network.ClientService;
 import ch.unibas.dmi.dbis.cs108.casono.client.ui.chatui.ChatBoxController;
+import ch.unibas.dmi.dbis.cs108.casono.client.ui.chatui.ChatViewController;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.command.parsing.RequestParameter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -39,7 +41,11 @@ public class ChatController {
         return chatBoxController;
     }
 
-    private final ChatBoxController chatBoxController;
+    public void setChatBoxController(ChatBoxController chatBoxController) {
+        this.chatBoxController = chatBoxController;
+    }
+
+    private ChatBoxController chatBoxController;
     private int lobbyId = -1;
     private final Timer timer;
     private final Consumer<List<String>> serverEventListener;
@@ -61,6 +67,12 @@ public class ChatController {
     /** List of all users connected to the server, to safe them locally on the client */
     private final List<String> localUserList;
 
+    public List<String> getLocalUserList() {
+        return this.localUserList;
+    }
+
+    public final Map<ChatController.ChatKey, ChatViewController> activeChatControllers;
+
     private final Logger logger;
 
     /**
@@ -78,6 +90,7 @@ public class ChatController {
         this.chatBoxController = new ChatBoxController(username, this);
         this.logger = LogManager.getLogger(ChatController.class);
         this.serverEventListener = this::handleServerEvent;
+        this.activeChatControllers = new HashMap<>();
 
         registerAsActiveController(clientService);
         clientService.addEventListener(serverEventListener);
@@ -126,7 +139,7 @@ public class ChatController {
         }
         ChatModel lobbyChatModel = new ChatModel(ChatType.LOBBY, username, lobbyId, null);
         chatModelMap.put(key, lobbyChatModel);
-        this.chatBoxController.addChatTab("Lobby", lobbyChatModel);
+        this.chatBoxController.addChatTab("LOBBY", lobbyChatModel, ChatType.LOBBY);
     }
 
     /**

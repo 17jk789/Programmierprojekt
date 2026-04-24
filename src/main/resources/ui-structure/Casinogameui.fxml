@@ -76,12 +76,14 @@
                         <HBox fx:id="communityCardsBox"
                               styleClass="community-cards-box"
                               alignment="CENTER"
+                              GridPane.columnIndex="2"
                               spacing="10"/>
 
                         <!-- Pot Box -->
                         <HBox fx:id="potBox"
                               alignment="CENTER"
                               spacing="4"
+                              GridPane.columnIndex="2"
                               maxWidth="Infinity"
                               maxHeight="Infinity"/>
 
@@ -99,6 +101,7 @@
                                styleClass="dealer-box"
                                fitWidth="100"
                                fitHeight="100"
+                               GridPane.columnIndex="2"
                                preserveRatio="true"
                                visible="false"/>
 
@@ -117,56 +120,48 @@
             <!-- RIGHT SIDE (Chat Box) -->
             <AnchorPane fx:id="chatContainer" GridPane.columnIndex="2" />
 
+            <HBox AnchorPane.topAnchor="45"
+                  AnchorPane.leftAnchor="0"
+                  AnchorPane.rightAnchor="0"
+                  alignment="CENTER"
+                  spacing="300">
+
+                <VBox HBox.hgrow="ALWAYS"
+                      alignment="TOP_LEFT"
+                      translateX="50"
+                      translateY="50">
+
+                    <fx:include fx:id="player1"
+                                source="gameuicomponents/Playerstatus.fxml"/>
+
+                </VBox>
+
+                <VBox HBox.hgrow="ALWAYS"
+                      alignment="TOP_CENTER"
+                      translateY="20">
+
+                    <fx:include fx:id="player2"
+                                source="gameuicomponents/Playerstatus.fxml"/>
+
+                </VBox>
+
+                <VBox HBox.hgrow="ALWAYS"
+                      alignment="TOP_RIGHT"
+                      translateX="-50"
+                      translateY="50">
+
+                    <fx:include fx:id="player3"
+                                source="gameuicomponents/Playerstatus.fxml"/>
+
+                </VBox>
+
+            </HBox>
         </children>
     </GridPane>
 
     <!-- movable taskbar -->
     <AnchorPane>
-        <fx:include fx:id="taskbarInclude" source="gameuicomponents/Taskbar.fxml"/>
+        <fx:include fx:id="taskbarInclude" source="gameuicomponents/Taskbar.fxml" GridPane.columnIndex="1"/>
     </AnchorPane>
 
-    <!-- Opponent Status 1: One of three panels displaying the opponent's icon, name, and account balance -->
-    <GridPane AnchorPane.leftAnchor="0.0"
-              AnchorPane.rightAnchor="0.0"
-              AnchorPane.topAnchor="50">
-
-        <columnConstraints>
-            <ColumnConstraints percentWidth="5"/>
-            <ColumnConstraints percentWidth="16"/>
-        </columnConstraints>
-
-        <children>
-            <fx:include fx:id="player1" source="gameuicomponents/Playerstatus.fxml" GridPane.columnIndex="1"/>
-        </children>
-    </GridPane>
-
-    <!-- Opponent Status 2: One of three panels displaying the opponent's icon, name, and account balance -->
-    <GridPane AnchorPane.leftAnchor="0.0"
-              AnchorPane.rightAnchor="0.0"
-              AnchorPane.topAnchor="20">
-
-        <columnConstraints>
-            <ColumnConstraints percentWidth="30"/>
-            <ColumnConstraints percentWidth="16"/>
-        </columnConstraints>
-
-        <children>
-            <fx:include fx:id="player2" source="gameuicomponents/Playerstatus.fxml" GridPane.columnIndex="1"/>
-        </children>
-    </GridPane>
-
-    <!-- Opponent Status 3: One of three panels that displays the opponent's icon, name, and account balance -->
-    <GridPane AnchorPane.leftAnchor="0.0"
-              AnchorPane.rightAnchor="0.0"
-              AnchorPane.topAnchor="50">
-
-        <columnConstraints>
-            <ColumnConstraints percentWidth="55"/>
-            <ColumnConstraints percentWidth="16"/>
-        </columnConstraints>
-
-        <children>
-            <fx:include fx:id="player3" source="gameuicomponents/Playerstatus.fxml" GridPane.columnIndex="1"/>
-        </children>
-    </GridPane>
 </AnchorPane>
