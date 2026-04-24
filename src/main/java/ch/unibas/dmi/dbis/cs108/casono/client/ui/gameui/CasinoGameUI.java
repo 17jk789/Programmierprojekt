@@ -58,7 +58,9 @@ public class CasinoGameUI extends Application {
         CasinoGameUI.username = username;
     }
 
-    public static void setChatController(ChatController chatController) {CasinoGameUI.chatController = chatController;}
+    public static void setChatController(ChatController chatController) {
+        CasinoGameUI.chatController = chatController;
+    }
 
     /**
      * Sets the lobby ID to be used by the application.

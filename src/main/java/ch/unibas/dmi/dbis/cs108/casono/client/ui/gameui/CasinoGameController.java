@@ -262,7 +262,6 @@ public class CasinoGameController {
         this.chatUsername = username;
         this.chatClientService = clientService;
         this.chatLobbyId = lobbyId;
-        //startChat(chatController);
     }
 
     /**
