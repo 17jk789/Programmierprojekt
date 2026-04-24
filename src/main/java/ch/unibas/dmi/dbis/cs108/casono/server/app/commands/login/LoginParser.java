@@ -16,6 +16,6 @@ public class LoginParser implements CommandParser<LoginRequest> {
     public LoginRequest parse(PrimitiveRequest primitiveRequest) {
         RequestParameterAccessor accessor =
                 new RequestParameterAccessor(primitiveRequest.parameters());
-        return new LoginRequest(primitiveRequest.context(), accessor.require("USERNAME"));
+        return new LoginRequest(primitiveRequest.context(), accessor.optional("USERNAME", null));
     }
 }

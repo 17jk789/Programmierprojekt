@@ -81,11 +81,7 @@ public class LobbyClient {
         throw new RuntimeException("No LOBBY_ID in response: " + lines);
     }
 
-    /**
-     * Fetches the global highscores from the server.
-     *
-     * @return list of formatted highscore entries, newest entries at the end
-     */
+    /** Fetches the global highscores from the server. */
     public List<String> getHighscores() {
         List<String> lines = client.processCommand("GET_HIGHSCORES");
         List<RequestParameter> params = ClientService.convertToRequestParameters(lines);
@@ -139,7 +135,8 @@ public class LobbyClient {
      *     server
      */
     public LoginResult login(String user) {
-        List<String> lines = client.processCommand("LOGIN USERNAME=" + user);
+        String command = buildLoginCommand(user);
+        List<String> lines = client.processCommand(command);
 
         List<RequestParameter> params = ClientService.convertToRequestParameters(lines);
 
@@ -153,6 +150,13 @@ public class LobbyClient {
             }
         }
         return new LoginResult(assigned, id);
+    }
+
+    private String buildLoginCommand(String username) {
+        if (username == null || username.isBlank()) {
+            return "LOGIN";
+        }
+        return "LOGIN USERNAME=" + username.trim();
     }
 
     /**
@@ -199,7 +203,6 @@ public class LobbyClient {
             String val = p.value();
             switch (key) {
                 case "ID":
-                    // If we were collecting a lobby, flush it
                     if (currentId != null) {
                         result.add(
                                 new LobbyInfo(
