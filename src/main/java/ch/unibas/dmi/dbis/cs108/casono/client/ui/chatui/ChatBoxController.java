@@ -3,6 +3,7 @@ package ch.unibas.dmi.dbis.cs108.casono.client.ui.chatui;
 import ch.unibas.dmi.dbis.cs108.casono.client.chat.ChatController;
 import ch.unibas.dmi.dbis.cs108.casono.client.chat.ChatModel;
 import ch.unibas.dmi.dbis.cs108.casono.client.chat.ChatType;
+import ch.unibas.dmi.dbis.cs108.casono.client.chat.Message;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -27,7 +28,7 @@ public class ChatBoxController {
 
     private String username;
 
-    private ChatController chatController;
+    private final ChatController chatController;
 
     @FXML private VBox chatBox;
 
@@ -42,8 +43,6 @@ public class ChatBoxController {
     private final List<String> activeWhisperChats;
 
     @FXML private final Map<String, Tab> usernameTabMap;
-
-    private String ressource = "/ui-structure/components/chatui/chattab.fxml";
 
     /**
      * Constructor for the ChatBoxController, initializes the necessary fields and data structures
@@ -73,11 +72,10 @@ public class ChatBoxController {
      */
     @FXML
     public void initialize() {
-        ChatModel globalChatModel = new ChatModel(ChatType.GLOBAL, username, -1, null);
-        chatController
-                .getChatModelMap()
-                .put(new ChatController.ChatKey(ChatType.GLOBAL), globalChatModel);
-        addChatTab("GLOBAL", globalChatModel);
+        ChatType global = ChatType.GLOBAL;
+        ChatModel globalChatModel = new ChatModel(global, username, -1, null);
+        chatController.getChatModelMap().put(new ChatController.ChatKey(global), globalChatModel);
+        addChatTab("GLOBAL", globalChatModel, global);
         addWhisperChatButton.setOnAction(event -> addWhisperChatButton.show());
     }
 
@@ -166,10 +164,11 @@ public class ChatBoxController {
     public void addWhisperChat(String target, ChatModel chatModel) {
         if (!activeWhisperChats.contains(target)) {
             activeWhisperChats.add(target);
+            ChatType whisper = ChatType.WHISPER;
             chatController
                     .getChatModelMap()
-                    .put(new ChatController.ChatKey(ChatType.WHISPER, target), chatModel);
-            addChatTab(target, chatModel);
+                    .put(new ChatController.ChatKey(whisper, target), chatModel);
+            addChatTab(target, chatModel, whisper);
         } else {
             chatTabPane.getSelectionModel().select(usernameTabMap.get(target));
         }
@@ -184,7 +183,8 @@ public class ChatBoxController {
      * @param chatModel The {@link ChatModel} containing the data and logic for this specific chat.
      * @throws RuntimeException If the FXML resource for the chat tab cannot be loaded.
      */
-    public void addChatTab(String title, ChatModel chatModel) {
+    public void addChatTab(String title, ChatModel chatModel, ChatType chatType) {
+        String ressource = "/ui-structure/components/chatui/chattab.fxml";
         URL resource = getClass().getResource(ressource);
         FXMLLoader fxmlLoader = new FXMLLoader(resource);
         runOnPlatformSynchronized(
@@ -193,6 +193,8 @@ public class ChatBoxController {
                         ChatViewController chatViewController =
                                 new ChatViewController(
                                         this.chatController, chatModel, this.username);
+                        chatController.activeChatControllers.put(
+                                new ChatController.ChatKey(chatType), chatViewController);
                         fxmlLoader.setController(chatViewController);
                         Node load = fxmlLoader.load();
                         VBox.setVgrow(load, Priority.ALWAYS);
@@ -236,6 +238,32 @@ public class ChatBoxController {
                 return futureLock.get();
             } catch (Throwable e) {
                 throw new RuntimeException(e);
+            }
+        }
+    }
+
+    public void loadChats() {
+        Map<ChatController.ChatKey, ChatModel> chatModelMap = chatController.getChatModelMap();
+        ChatController.ChatKey key = new ChatController.ChatKey(ChatType.GLOBAL);
+        ChatModel global = chatModelMap.get(key);
+        ChatViewController globalController = chatController.activeChatControllers.get(key);
+
+        for (String user : chatController.getLocalUserList()) {
+            addWhisperUser(user);
+        }
+
+        for (Message msg : global.messages) {
+            globalController.showMessage(msg);
+        }
+        for (String user : chatController.getLocalUserList()) {
+            ChatController.ChatKey whisperUserKey =
+                    new ChatController.ChatKey(ChatType.WHISPER, user);
+            if (chatModelMap.containsKey(whisperUserKey)) {
+                ChatModel whisperChatModel = chatModelMap.get(whisperUserKey);
+                addWhisperChat(user, whisperChatModel);
+                for (Message msg : whisperChatModel.messages) {
+                    chatController.activeChatControllers.get(whisperUserKey).showMessage(msg);
+                }
             }
         }
     }
