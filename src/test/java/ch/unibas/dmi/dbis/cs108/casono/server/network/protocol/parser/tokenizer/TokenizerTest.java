@@ -149,7 +149,8 @@ class TokenizerTest {
 
     @Test
     void testStringWithEscapedQuote() {
-        List<RawToken> tokens = Tokenizer.tokenize("WONDERFUL_GREETING MSG='it\\'s a wonderful day'");
+        List<RawToken> tokens =
+                Tokenizer.tokenize("WONDERFUL_GREETING MSG='it\\'s a wonderful day'");
         assertEquals(5, tokens.size());
         assertEquals(RawTokenType.STRING, tokens.get(3).type());
         assertEquals("it's a wonderful day", tokens.get(3).value());
@@ -157,7 +158,10 @@ class TokenizerTest {
 
     @Test
     void testStringWithWronglyEscapedQuote() {
-        TokenizerException ex = assertThrows(TokenizerException.class, () -> Tokenizer.tokenize("WONDERFUL_GREETING MSG='it\'s a wonderful day'"));
+        TokenizerException ex =
+                assertThrows(
+                        TokenizerException.class,
+                        () -> Tokenizer.tokenize("WONDERFUL_GREETING MSG='it\'s a wonderful day'"));
         assertEquals("Unterminated string literal", ex.getMessage());
     }
 
@@ -181,7 +185,9 @@ class TokenizerTest {
 
     @Test
     void testUnterminatedStringThrows() {
-        TokenizerException ex = assertThrows(TokenizerException.class, () -> Tokenizer.tokenize("GREETING = 'unclosed"));
+        TokenizerException ex =
+                assertThrows(
+                        TokenizerException.class, () -> Tokenizer.tokenize("GREETING = 'unclosed"));
         assertEquals(1, ex.getLine());
         assertEquals(12, ex.getColumn());
         assertTrue(ex.getMessage().contains("Unterminated string literal"));
@@ -189,7 +195,8 @@ class TokenizerTest {
 
     @Test
     void testUnexpectedCharacterThrows() {
-        TokenizerException ex = assertThrows(TokenizerException.class, () -> Tokenizer.tokenize("CMD @ KEY=VALUE"));
+        TokenizerException ex =
+                assertThrows(TokenizerException.class, () -> Tokenizer.tokenize("CMD @ KEY=VALUE"));
         assertTrue(ex.getMessage().contains("Unexpected character '@'"));
         assertEquals(1, ex.getLine());
     }
