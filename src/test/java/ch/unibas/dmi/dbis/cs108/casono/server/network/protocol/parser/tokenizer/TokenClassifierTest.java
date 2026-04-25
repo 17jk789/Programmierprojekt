@@ -64,6 +64,15 @@ public class TokenClassifierTest {
     }
 
     @Test
+    void testMissingKeyBeforeSeparatorThrows() {
+        List<RawToken> raw = Tokenizer.tokenize("CMD =VALUE");
+
+        TokenizerException ex =
+                assertThrows(TokenizerException.class, () -> TokenClassifier.classify(raw));
+        assertEquals("Expected KEY before '='", ex.getMessage());
+    }
+
+    @Test
     void testNextWordIsKeyThrows() {
         List<RawToken> raw = Tokenizer.tokenize("CMD KEY1=KEY2=42");
 
