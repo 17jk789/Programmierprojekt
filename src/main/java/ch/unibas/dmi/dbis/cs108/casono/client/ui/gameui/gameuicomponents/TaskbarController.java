@@ -20,6 +20,9 @@ import javafx.scene.layout.HBox;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 /**
  * Controller for the interactive taskbar within the poker UI.
  *
@@ -865,6 +868,9 @@ public class TaskbarController {
      */
     @FXML
     private void onTaskbarPressed(MouseEvent event) {
+        if (taskbar == null || event == null) {
+            return;
+        }
         xOffset = event.getSceneX() - taskbar.getLayoutX();
         yOffset = event.getSceneY() - taskbar.getLayoutY();
     }
@@ -879,11 +885,21 @@ public class TaskbarController {
      */
     @FXML
     private void onTaskbarDragged(MouseEvent event) {
-        taskbar.setLayoutX(event.getSceneX() - xOffset);
-        taskbar.setLayoutY(event.getSceneY() - yOffset);
+        if (taskbar == null || event == null || taskbar.getScene() == null) {
+            return;
+        }
 
         taskbar.setScaleX(TASKBAR_SCALE);
         taskbar.setScaleY(TASKBAR_SCALE);
+
+        double targetX = event.getSceneX() - xOffset;
+        double targetY = event.getSceneY() - yOffset;
+
+        double maxX = Math.max(0, taskbar.getScene().getWidth() - scaledNodeWidth());
+        double maxY = Math.max(0, taskbar.getScene().getHeight() - scaledNodeHeight());
+
+        taskbar.setLayoutX(clamp(targetX, 0, maxX));
+        taskbar.setLayoutY(clamp(targetY, 0, maxY));
     }
 
     /**
@@ -894,8 +910,59 @@ public class TaskbarController {
      */
     @FXML
     private void onTaskbarReleased(MouseEvent event) {
+        if (taskbar == null) {
+            return;
+        }
         taskbar.setScaleX(SCALE_NORMAL);
         taskbar.setScaleY(SCALE_NORMAL);
+
+        if (taskbar.getScene() == null) {
+            return;
+        }
+
+        double maxX = Math.max(0, taskbar.getScene().getWidth() - scaledNodeWidth());
+        double maxY = Math.max(0, taskbar.getScene().getHeight() - scaledNodeHeight());
+
+        taskbar.setLayoutX(clamp(taskbar.getLayoutX(), 0, maxX));
+        taskbar.setLayoutY(clamp(taskbar.getLayoutY(), 0, maxY));
+    }
+
+    /**
+     * Calculates the scaled width of the taskbar node based on its current bounds and scale factor.
+     *
+     * @return The scaled width of the taskbar node, ensuring it is non-negative and accounts for the current scale applied to the node.
+     */
+    private double scaledNodeWidth() {
+        double width = taskbar.getBoundsInLocal().getWidth();
+        if (width <= 0) {
+            width = taskbar.prefWidth(-1);
+        }
+        return Math.max(0, width * taskbar.getScaleX());
+    }
+
+    /**
+     * Calculates the scaled height of the taskbar node based on its current bounds and scale factor.
+     *
+     * @return The scaled height of the taskbar node, ensuring it is non-negative and accounts for the current scale applied to the node.
+     */
+    private double scaledNodeHeight() {
+        double height = taskbar.getBoundsInLocal().getHeight();
+        if (height <= 0) {
+            height = taskbar.prefHeight(-1);
+        }
+        return Math.max(0, height * taskbar.getScaleY());
+    }
+
+    /**
+     * Clamps a value between a minimum and maximum bound.
+     *
+     * @param value the value to clamp
+     * @param min the lower bound
+     * @param max the upper bound
+     * @return the clamped value in the range [min, max]
+     */
+    private double clamp(double value, double min, double max) {
+        return Math.max(min, Math.min(value, max));
     }
 
     /**
@@ -1074,12 +1141,24 @@ public class TaskbarController {
     /**
      * Opens the integrated Casono web browser.
      *
-     * <p>TODO: Replace the start URL with the official project website (e.g., Tips & Tricks page)
      * once the content for strategies and support is available.
      */
     @FXML
     private void onBrowserButtonClick() {
-        CasinoBrowserController.open("wikipedia.org");
+        try {
+            Path path = Paths.get(
+                    System.getProperty("user.dir"),
+                    "documents",
+                    "docs",
+                    "game-engine",
+                    "manual.html" // Tippfehler korrigiert!
+            );
+
+            CasinoBrowserController.open(path.toUri().toString());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /** Opens the highscore popup window from the taskbar. */
@@ -1122,6 +1201,25 @@ public class TaskbarController {
             stage.toFront();
         } catch (Exception e) {
             LOGGER.error("Could not open highscore window from taskbar: {}", e.getMessage());
+        }
+    }
+
+    /**
+     * Highlight or unhighlight the taskbar when it is the player's turn.
+     *
+     * @param highlighted true to highlight, false to remove highlight
+     */
+    public void setTurnHighlighted(boolean highlighted) {
+        if (taskbar == null) {
+            return;
+        }
+
+        if (highlighted) {
+            if (!taskbar.getStyleClass().contains("player-active-turn")) {
+                taskbar.getStyleClass().add("player-active-turn");
+            }
+        } else {
+            taskbar.getStyleClass().remove("player-active-turn");
         }
     }
 }
