@@ -93,6 +93,7 @@
 
                 <!-- Player Cards -->
                 <HBox fx:id="playerCardsBox"
+                      styleClass="player-cards-box"
                       spacing="10"
                       alignment="CENTER"
                       StackPane.alignment="BOTTOM_CENTER">

@@ -6,8 +6,6 @@
 <?import javafx.geometry.Insets?>
 
 <!--
-TODO: Main placeholder for player status & input.
-
 This layout currently serves as a visual structure. As soon as the game engine and
 server requests (API/requests) can be processed, the name, account balance
 and status displays will be dynamically populated with real-time data from the server.
@@ -24,7 +22,8 @@ and status displays will be dynamically populated with real-time data from the s
     <children>
 
         <!-- NAME -->
-        <HBox styleClass="status-inner-box-top"
+        <HBox fx:id="statusInnerBoxTop"
+              styleClass="status-inner-box-top"
               alignment="CENTER_LEFT"
               prefHeight="40">
 
@@ -40,7 +39,8 @@ and status displays will be dynamically populated with real-time data from the s
         <HBox prefHeight="5"/>
 
         <!-- MONEY -->
-        <HBox styleClass="status-inner-box-bottom"
+        <HBox fx:id="statusInnerBoxBottom"
+              styleClass="status-inner-box-bottom"
               alignment="CENTER_LEFT"
               prefHeight="40">
 
