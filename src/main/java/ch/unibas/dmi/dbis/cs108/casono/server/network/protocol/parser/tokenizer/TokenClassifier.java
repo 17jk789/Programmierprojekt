@@ -48,7 +48,7 @@ public class TokenClassifier {
     }
 
     private static void validateSeparator(List<RawToken> rawTokens, int index) {
-        boolean missingKey = index == 0 || rawTokens.get(index - 1).type() != RawTokenType.WORD;
+        boolean missingKey = index <= 1 || rawTokens.get(index - 1).type() != RawTokenType.WORD;
 
         boolean missingValue =
                 index + 1 >= rawTokens.size()
