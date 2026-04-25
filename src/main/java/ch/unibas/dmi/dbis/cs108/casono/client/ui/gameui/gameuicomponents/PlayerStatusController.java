@@ -8,9 +8,9 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-import javafx.scene.layout.HBox;
 
 /**
  * Controller for displaying a player's status in the poker game, including their name, chip count
@@ -115,7 +115,10 @@ public class PlayerStatusController {
      * @return true if both represent the same player.
      */
     public boolean hasPlayer(Player candidate) {
-        if (player == null || candidate == null || player.getId() == null || candidate.getId() == null) {
+        if (player == null
+                || candidate == null
+                || player.getId() == null
+                || candidate.getId() == null) {
             return false;
         }
 
@@ -147,7 +150,8 @@ public class PlayerStatusController {
     }
 
     /**
-     * Update the visual style of the player status box to indicate whether it's currently this player's turn.
+     * Update the visual style of the player status box to indicate whether it's currently this
+     * player's turn.
      */
     private void updateTurnHighlightStyle() {
         if (statusInnerBoxTop == null || statusInnerBoxBottom == null) {

@@ -8,6 +8,8 @@ import ch.unibas.dmi.dbis.cs108.casono.client.game.PlayerId;
 import ch.unibas.dmi.dbis.cs108.casono.client.game.PlayerState;
 import ch.unibas.dmi.dbis.cs108.casono.client.network.LobbyClient;
 import ch.unibas.dmi.dbis.cs108.casono.client.ui.lobbyui.Casinomainui;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -19,9 +21,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * Controller for the interactive taskbar within the poker UI.
@@ -930,7 +929,8 @@ public class TaskbarController {
     /**
      * Calculates the scaled width of the taskbar node based on its current bounds and scale factor.
      *
-     * @return The scaled width of the taskbar node, ensuring it is non-negative and accounts for the current scale applied to the node.
+     * @return The scaled width of the taskbar node, ensuring it is non-negative and accounts for
+     *     the current scale applied to the node.
      */
     private double scaledNodeWidth() {
         double width = taskbar.getBoundsInLocal().getWidth();
@@ -941,9 +941,11 @@ public class TaskbarController {
     }
 
     /**
-     * Calculates the scaled height of the taskbar node based on its current bounds and scale factor.
+     * Calculates the scaled height of the taskbar node based on its current bounds and scale
+     * factor.
      *
-     * @return The scaled height of the taskbar node, ensuring it is non-negative and accounts for the current scale applied to the node.
+     * @return The scaled height of the taskbar node, ensuring it is non-negative and accounts for
+     *     the current scale applied to the node.
      */
     private double scaledNodeHeight() {
         double height = taskbar.getBoundsInLocal().getHeight();
@@ -1141,18 +1143,18 @@ public class TaskbarController {
     /**
      * Opens the integrated Casono web browser.
      *
-     * once the content for strategies and support is available.
+     * <p>once the content for strategies and support is available.
      */
     @FXML
     private void onBrowserButtonClick() {
         try {
-            Path path = Paths.get(
-                    System.getProperty("user.dir"),
-                    "documents",
-                    "docs",
-                    "game-engine",
-                    "manual.html" // Tippfehler korrigiert!
-            );
+            Path path =
+                    Paths.get(
+                            System.getProperty("user.dir"),
+                            "documents",
+                            "docs",
+                            "game-engine",
+                            "manual.html");
 
             CasinoBrowserController.open(path.toUri().toString());
 

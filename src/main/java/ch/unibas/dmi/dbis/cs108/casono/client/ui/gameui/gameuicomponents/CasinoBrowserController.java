@@ -11,13 +11,17 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -32,10 +36,6 @@ import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.MenuItem;
 
 /**
  * Experimental embedded browser for Casono.
@@ -86,6 +86,7 @@ public class CasinoBrowserController {
     private static final int ALERT_HEIGHT = 300;
     private static final String LOGO_PATH = "/images/logoinverted.png";
     private static final String LOGO_PATH_MAIN = "/images/logo.png";
+    private static final int MAX_AUTOCOMPLETE_RESULTS = 5;
 
     static {
         CookieHandler.setDefault(COOKIE_MANAGER);
@@ -112,43 +113,44 @@ public class CasinoBrowserController {
         TRUSTED_DOMAINS.add("startpage.com");
     }
 
-    /**
-     * Aliases for common websites.
-     */
-    private static final java.util.Map<String, String> ALIASES = Map.ofEntries(
-            Map.entry("wiki", "wikipedia.org"),
-            Map.entry("yt", "youtube.com"),
-            Map.entry("bra", "search.brave.com"),
-            Map.entry("bs", "search.brave.com"),
-            Map.entry("gh", "github.com"),
-            Map.entry("google", "google.com"),
-            Map.entry("duck", "duckduckgo.com"),
-            Map.entry("bing", "bing.com"),
-            Map.entry("meta", "metager.de"),
-            Map.entry("mojeek", "mojeek.com"),
-            Map.entry("searx", "searx.be"),
-            Map.entry("startpage", "startpage.com"),
-            Map.entry("stack", "stackoverflow.com"),
-            Map.entry("so", "stackoverflow.com"),
-            Map.entry("oracle", "oracle.com"),
-            Map.entry("docs", "docs.oracle.com"),
-            Map.entry("mdn", "developer.mozilla.org"),
-            Map.entry("maven", "maven.apache.org"),
-            Map.entry("gradle", "gradle.org"),
-            Map.entry("spring", "spring.io"),
-            Map.entry("jetbrains", "jetbrains.com"),
-            Map.entry("uni", "unibas.ch")
-    );
+    /** Aliases for common websites. */
+    private static final java.util.Map<String, String> ALIASES =
+            Map.ofEntries(
+                    Map.entry("wiki", "wikipedia.org"),
+                    Map.entry("yt", "youtube.com"),
+                    Map.entry("bra", "search.brave.com"),
+                    Map.entry("bs", "search.brave.com"),
+                    Map.entry("gh", "github.com"),
+                    Map.entry("google", "google.com"),
+                    Map.entry("duck", "duckduckgo.com"),
+                    Map.entry("bing", "bing.com"),
+                    Map.entry("meta", "metager.de"),
+                    Map.entry("mojeek", "mojeek.com"),
+                    Map.entry("searx", "searx.be"),
+                    Map.entry("startpage", "startpage.com"),
+                    Map.entry("stack", "stackoverflow.com"),
+                    Map.entry("so", "stackoverflow.com"),
+                    Map.entry("oracle", "oracle.com"),
+                    Map.entry("docs", "docs.oracle.com"),
+                    Map.entry("mdn", "developer.mozilla.org"),
+                    Map.entry("maven", "maven.apache.org"),
+                    Map.entry("gradle", "gradle.org"),
+                    Map.entry("spring", "spring.io"),
+                    Map.entry("jetbrains", "jetbrains.com"),
+                    Map.entry("uni", "unibas.ch"));
 
     /**
      * Resolves user input into a valid URL.
      *
-     * @param input User input from the URL field, which can be a full URL, a domain name, or an alias.
-     * @return A properly formatted URL string that can be loaded by the browser, or the original input
-     *         if it cannot be resolved.
+     * @param input User input from the URL field, which can be a full URL, a domain name, or an
+     *     alias.
+     * @return A properly formatted URL string that can be loaded by the browser, or the original
+     *     input if it cannot be resolved.
      */
     private static String resolveInputToUrl(String input) {
-        if (input == null || input.isBlank()) return input;
+        if (input == null || input.isBlank()) {
+            return input;
+        }
 
         input = input.trim();
 
@@ -271,7 +273,7 @@ public class CasinoBrowserController {
                     Alert alert = new Alert(Alert.AlertType.WARNING);
                     alert.setTitle("Popup blocked");
                     alert.setHeaderText(null);
-                    alert.setContentText("The Casono browser has detected a threat and successfully blocked it.");
+                    alert.setContentText("Casono Browser blocked a security threat.");
 
                     try {
                         var stream = CasinoBrowserController.class.getResourceAsStream(LOGO_PATH);
@@ -349,65 +351,88 @@ public class CasinoBrowserController {
         urlField.getStyleClass().add("gray-input-field");
         HBox.setHgrow(urlField, Priority.ALWAYS);
 
-        urlField.textProperty().addListener((obs, oldText, newText) -> {
-            if (newText == null || newText.isBlank()) {
-                autoCompleteMenu.hide();
-                return;
-            }
+        urlField.textProperty()
+                .addListener(
+                        (obs, oldText, newText) -> {
+                            if (newText == null || newText.isBlank()) {
+                                autoCompleteMenu.hide();
+                                return;
+                            }
 
-            String input = newText.toLowerCase();
+                            String input = newText.toLowerCase();
 
-            String aliasMatch = ALIASES.get(input);
-            if (aliasMatch != null) {
-                autoCompleteMenu.getItems().clear();
+                            String aliasMatch = ALIASES.get(input);
+                            if (aliasMatch != null) {
+                                autoCompleteMenu.getItems().clear();
 
-                MenuItem item = new MenuItem(aliasMatch);
-                item.setOnAction(e -> {
-                    urlField.setText("https://" + aliasMatch);
-                    autoCompleteMenu.hide();
-                });
+                                MenuItem item = new MenuItem(aliasMatch);
+                                item.setOnAction(
+                                        e -> {
+                                            urlField.setText("https://" + aliasMatch);
+                                            autoCompleteMenu.hide();
+                                        });
 
-                autoCompleteMenu.getItems().add(item);
-                autoCompleteMenu.show(urlField, javafx.geometry.Side.BOTTOM, 0, 0);
-                return;
-            }
+                                autoCompleteMenu.getItems().add(item);
+                                autoCompleteMenu.show(urlField, javafx.geometry.Side.BOTTOM, 0, 0);
+                                return;
+                            }
 
-            autoCompleteMenu.getItems().clear();
-
-            URL_SUGGESTIONS.stream()
-                    .filter(domain -> domain.toLowerCase().startsWith(input)
-                            || domain.toLowerCase().contains(input))
-                    .sorted((a, b) -> {
-                        boolean aStarts = a.startsWith(input);
-                        boolean bStarts = b.startsWith(input);
-                        return Boolean.compare(!aStarts, !bStarts);
-                    })
-                    .limit(5)
-                    .forEach(domain -> {
-                        MenuItem item = new MenuItem(domain);
-
-                        item.setOnAction(e -> {
-                            urlField.setText("https://" + domain);
-                            autoCompleteMenu.hide();
+                            updateSuggestions(input, urlField);
                         });
 
-                        autoCompleteMenu.getItems().add(item);
-                    });
-
-            if (!autoCompleteMenu.getItems().isEmpty()) {
-                autoCompleteMenu.show(urlField,
-                        javafx.geometry.Side.BOTTOM,
-                        0, 0);
-            } else {
-                autoCompleteMenu.hide();
-            }
-        });
-
-        urlField.focusedProperty().addListener((obs, oldVal, newVal) -> {
-            if (!newVal) autoCompleteMenu.hide();
-        });
+        urlField.focusedProperty()
+                .addListener(
+                        (obs, oldVal, newVal) -> {
+                            if (!newVal) {
+                                autoCompleteMenu.hide();
+                            }
+                        });
 
         return urlField;
+    }
+
+    /**
+     * Updates the autocomplete suggestions based on the current input in the URL field. Suggestions
+     * are filtered from the list of trusted domains and sorted to prioritize those that start with
+     * the input.
+     *
+     * @param input The current text input from the URL field, used to filter and sort suggestions.
+     * @param urlField The TextField for the URL input, used to position the autocomplete menu and
+     *     update its content.
+     */
+    private static void updateSuggestions(String input, TextField urlField) {
+        autoCompleteMenu.getItems().clear();
+
+        URL_SUGGESTIONS.stream()
+                .filter(
+                        domain ->
+                                domain.toLowerCase().startsWith(input)
+                                        || domain.toLowerCase().contains(input))
+                .sorted(
+                        (a, b) -> {
+                            boolean aStarts = a.startsWith(input);
+                            boolean bStarts = b.startsWith(input);
+                            return Boolean.compare(!aStarts, !bStarts);
+                        })
+                .limit(MAX_AUTOCOMPLETE_RESULTS)
+                .forEach(
+                        domain -> {
+                            MenuItem item = new MenuItem(domain);
+
+                            item.setOnAction(
+                                    e -> {
+                                        urlField.setText("https://" + domain);
+                                        autoCompleteMenu.hide();
+                                    });
+
+                            autoCompleteMenu.getItems().add(item);
+                        });
+
+        if (!autoCompleteMenu.getItems().isEmpty()) {
+            autoCompleteMenu.show(urlField, javafx.geometry.Side.BOTTOM, 0, 0);
+        } else {
+            autoCompleteMenu.hide();
+        }
     }
 
     /**
@@ -534,15 +559,16 @@ public class CasinoBrowserController {
      */
     public static void configureUrlEvents(
             WebEngine engine, TextField urlField, Label securityLabel) {
-        urlField.setOnKeyPressed(e -> {
-            if (e.getCode() == KeyCode.ENTER) {
-                if (!autoCompleteMenu.isShowing()) {
-                    String resolved = resolveInputToUrl(urlField.getText());
-                    urlField.setText(resolved);
-                    loadUrlSafely(engine, resolved, securityLabel);
-                }
-            }
-        });
+        urlField.setOnKeyPressed(
+                e -> {
+                    if (e.getCode() == KeyCode.ENTER) {
+                        if (!autoCompleteMenu.isShowing()) {
+                            String resolved = resolveInputToUrl(urlField.getText());
+                            urlField.setText(resolved);
+                            loadUrlSafely(engine, resolved, securityLabel);
+                        }
+                    }
+                });
         engine.locationProperty().addListener((obs, o, n) -> urlField.setText(n));
     }
 
@@ -608,13 +634,14 @@ public class CasinoBrowserController {
             String scheme = uri.getScheme();
 
             if ("file".equalsIgnoreCase(scheme)) {
-                Path allowed = Paths.get(
-                        System.getProperty("user.dir"),
-                        "documents",
-                        "docs",
-                        "game-engine",
-                        "manual.html"
-                ).normalize();
+                Path allowed =
+                        Paths.get(
+                                        System.getProperty("user.dir"),
+                                        "documents",
+                                        "docs",
+                                        "game-engine",
+                                        "manual.html")
+                                .normalize();
 
                 Path requested = Paths.get(uri).normalize();
 
@@ -638,8 +665,9 @@ public class CasinoBrowserController {
                 return;
             }
 
-            boolean trusted = TRUSTED_DOMAINS.stream()
-                    .anyMatch(domain -> host.equals(domain) || host.endsWith("." + domain));
+            boolean trusted =
+                    TRUSTED_DOMAINS.stream()
+                            .anyMatch(domain -> host.equals(domain) || host.endsWith("." + domain));
 
             if (!trusted) {
                 if (!showUnknownWebsiteAlert(host)) {

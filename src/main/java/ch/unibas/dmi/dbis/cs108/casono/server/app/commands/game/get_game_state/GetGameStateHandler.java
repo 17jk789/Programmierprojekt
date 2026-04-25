@@ -12,8 +12,8 @@ import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.ErrorRes
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.dispatcher.ResponseDispatcher;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /** Handler for GET_GAME_STATE: returns pot, phase, community cards and per-player info. */
 public class GetGameStateHandler extends CommandHandler<GetGameStateRequest> {
@@ -83,8 +83,7 @@ public class GetGameStateHandler extends CommandHandler<GetGameStateRequest> {
         responseDispatcher.dispatch(new GetGameStateResponse(request.getContext(), game, username));
 
         if (game.getState().getPhase() == GamePhase.FINISHED) {
-            CompletableFuture.delayedExecutor(
-                            FINISHED_CLEANUP_DELAY_SECONDS, TimeUnit.SECONDS)
+            CompletableFuture.delayedExecutor(FINISHED_CLEANUP_DELAY_SECONDS, TimeUnit.SECONDS)
                     .execute(() -> cleanupLobby(lobby, lobbyId));
         }
     }
@@ -104,8 +103,10 @@ public class GetGameStateHandler extends CommandHandler<GetGameStateRequest> {
             }
             lobby.initGame(null);
         } catch (RuntimeException e) {
-            LOGGER.log(Level.WARNING,
-                    "Failed to cleanup lobby " + lobbyId + " during FINISHED state", e);
+            LOGGER.log(
+                    Level.WARNING,
+                    "Failed to cleanup lobby " + lobbyId + " during FINISHED state",
+                    e);
         }
     }
 

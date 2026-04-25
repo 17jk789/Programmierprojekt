@@ -513,20 +513,7 @@ public class CasinoGameController {
             return;
         }
 
-        List<Card> community = (s.communityCards != null) ? s.communityCards : List.of();
-        List<Card> myCards = getMyCards(players);
-
-        java.util.List<String> newCommunityKeys = cardKeys(community, TOTAL_SLOTS);
-        if (!newCommunityKeys.equals(lastCommunityKeys)) {
-            lastCommunityKeys = newCommunityKeys;
-            renderCommunityCards(community);
-        }
-
-        java.util.List<String> newMyCardKeys = cardKeys(myCards, PLAYER_SLOTS);
-        if (!newMyCardKeys.equals(lastMyCardKeys)) {
-            lastMyCardKeys = newMyCardKeys;
-            renderPlayerCards(myCards);
-        }
+        updateCards(s, players);
 
         if (s.pot != lastPot) {
             lastPot = s.pot;
@@ -553,6 +540,32 @@ public class CasinoGameController {
                             + (p != null ? p.getBet() : null)
                             + " state="
                             + (p != null ? p.getState() : null));
+        }
+    }
+
+    /**
+     * Update the displayed community cards and the player's hole cards based on the current game
+     * state.
+     *
+     * @param s The current game state containing the community cards and the list of players, used
+     *     to determine.
+     * @param players The list of players currently in the game, used to retrieve the player's hole
+     *     cards for display. If null, it will be treated as an empty list.
+     */
+    private void updateCards(GameState s, List<Player> players) {
+        List<Card> community = (s.communityCards != null) ? s.communityCards : List.of();
+        List<Card> myCards = getMyCards(players);
+
+        var newCommunityKeys = cardKeys(community, TOTAL_SLOTS);
+        if (!newCommunityKeys.equals(lastCommunityKeys)) {
+            lastCommunityKeys = newCommunityKeys;
+            renderCommunityCards(community);
+        }
+
+        var newMyCardKeys = cardKeys(myCards, PLAYER_SLOTS);
+        if (!newMyCardKeys.equals(lastMyCardKeys)) {
+            lastMyCardKeys = newMyCardKeys;
+            renderPlayerCards(myCards);
         }
     }
 
@@ -733,7 +746,7 @@ public class CasinoGameController {
             }
 
             PlayerId pid = p.getId();
-                boolean isMe = myPlayerId != null && myPlayerId.equals(pid);
+            boolean isMe = myPlayerId != null && myPlayerId.equals(pid);
 
             if (isMe) {
                 meFound = true;
@@ -809,9 +822,7 @@ public class CasinoGameController {
         setTaskbarTurnHighlight(false);
     }
 
-    /**
-     * Clear all visual highlights in the UI that indicate the active player's turn.
-     */
+    /** Clear all visual highlights in the UI that indicate the active player's turn. */
     private void clearActiveTurnHighlights() {
         if (player1Controller != null) {
             player1Controller.setTurnHighlighted(false);
@@ -833,11 +844,11 @@ public class CasinoGameController {
     }
 
     /**
-     * Set the visual highlight state of the player's hole cards to indicate whether it is
-     * currently the player's turn in the game.
+     * Set the visual highlight state of the player's hole cards to indicate whether it is currently
+     * the player's turn in the game.
      *
-     * @param highlighted true to highlight the player's hole cards, indicating that it is their turn,
-     *                    or false to remove the highlight when it is not their turn.
+     * @param highlighted true to highlight the player's hole cards, indicating that it is their
+     *     turn, or false to remove the highlight when it is not their turn.
      */
     private void setPlayerCardsTurnHighlighted(boolean highlighted) {
         if (playerCardsBox == null) {
@@ -852,12 +863,13 @@ public class CasinoGameController {
     }
 
     /**
-     * Update the visual highlights in the UI to indicate which player's turn it is based on the active.
+     * Update the visual highlights in the UI to indicate which player's turn it is based on the
+     * active.
      *
-     * @param players The list of players currently in the game, used to identify the active
-     *                player and update the turn highlights accordingly.
-     * @param activePlayerIndex The index of the active player in the players list, which is used to determine
-     *                          whose turn it is and update the UI highlights to reflect that.
+     * @param players The list of players currently in the game, used to identify the active player
+     *     and update the turn highlights accordingly.
+     * @param activePlayerIndex The index of the active player in the players list, which is used to
+     *     determine whose turn it is and update the UI highlights to reflect that.
      */
     private void updateActiveTurnHighlights(List<Player> players, int activePlayerIndex) {
         clearActiveTurnHighlights();
@@ -892,8 +904,8 @@ public class CasinoGameController {
     }
 
     /**
-     * Set the turn highlight state in the taskbar controller, which visually indicates whether
-     * it is the current player's turn in the game.
+     * Set the turn highlight state in the taskbar controller, which visually indicates whether it
+     * is the current player's turn in the game.
      *
      * @param highlighted true to highlight the turn in the taskbar, false to remove the highlight.
      */
@@ -910,7 +922,7 @@ public class CasinoGameController {
      * @param players The list of players from which to retrieve the player at the specified index.
      * @param index The index of the player to retrieve from the list.
      * @return The Player object at the specified index if it exists and is valid, or null if the
-     *         index is out of bounds or if the players list is null or empty.
+     *     index is out of bounds or if the players list is null or empty.
      */
     private Player getPlayerAtIndex(List<Player> players, int index) {
         if (players == null || index < 0 || index >= players.size()) {
@@ -923,10 +935,10 @@ public class CasinoGameController {
     /**
      * Resolve the winner of the hand based on the game state.
      *
-     * @param s The current game state, which may contain information about the players,
-     *          their states, and the winner index.
-     * @return The Player object representing the winner if it can be determined from the
-     *         game state, or null if the winner cannot be resolved or if the game is still in progress.
+     * @param s The current game state, which may contain information about the players, their
+     *     states, and the winner index.
+     * @return The Player object representing the winner if it can be determined from the game
+     *     state, or null if the winner cannot be resolved or if the game is still in progress.
      */
     private Player resolveWinner(GameState s) {
         if (s == null || s.players == null || s.players.isEmpty()) {
@@ -963,10 +975,10 @@ public class CasinoGameController {
     /**
      * Resolve the name of the winner based on the game state.
      *
-     * @param s The current game state, which may contain information about the players,
-     *          their states, and the winner index.
-     * @return The name of the winner if it can be determined from the game state,
-     *         or null if the winner cannot be resolved or if the game is still in progress.
+     * @param s The current game state, which may contain information about the players, their
+     *     states, and the winner index.
+     * @return The name of the winner if it can be determined from the game state, or null if the
+     *     winner cannot be resolved or if the game is still in progress.
      */
     private String resolveWinnerName(GameState s) {
         Player winner = resolveWinner(s);
@@ -987,14 +999,15 @@ public class CasinoGameController {
     }
 
     /**
-     * Determine if the game is in a finished state based on the game state and the presence of a winner name.
+     * Determine if the game is in a finished state based on the game state and the presence of a
+     * winner name.
      *
-     * @param s The current game state, which may be null or contain information about the phase, players,
-     *          and winner index.
-     * @param winnerName The name of the winner, which may be null or blank if the winner is not yet determined
-     *                   or if the game is still in progress.
-     * @return true if the game is considered finished based on the provided state and winner information,
-     *         false otherwise.
+     * @param s The current game state, which may be null or contain information about the phase,
+     *     players, and winner index.
+     * @param winnerName The name of the winner, which may be null or blank if the winner is not yet
+     *     determined or if the game is still in progress.
+     * @return true if the game is considered finished based on the provided state and winner
+     *     information, false otherwise.
      */
     private boolean isGameFinishedState(GameState s, String winnerName) {
         if (s == null) {
@@ -1042,19 +1055,18 @@ public class CasinoGameController {
     }
 
     /**
-     * Determine if the current phase of the game is a terminal phase, such as "FINISHED" or "SHOWDOWN".
+     * Determine if the current phase of the game is a terminal phase, such as "FINISHED" or
+     * "SHOWDOWN".
      *
      * @param phase The current phase of the game, which may be null or blank.
-     * @return true if the phase is considered terminal, indicating that the hand has ended
-     *         and a winner can be declared, false otherwise.
+     * @return true if the phase is considered terminal, indicating that the hand has ended and a
+     *     winner can be declared, false otherwise.
      */
     private boolean isTerminalPhase(String phase) {
         return "FINISHED".equalsIgnoreCase(phase) || "SHOWDOWN".equalsIgnoreCase(phase);
     }
 
-    /**
-     * Finish the game UI loop by stopping the timeline that updates the UI.
-     */
+    /** Finish the game UI loop by stopping the timeline that updates the UI. */
     private void finishGameUiLoop() {
         if (gameFinished) {
             return;
@@ -1070,8 +1082,8 @@ public class CasinoGameController {
      *
      * @param node The JavaFX Node on which to toggle the style class.
      * @param styleClass The name of the CSS style class to toggle.
-     * @param active A boolean indicating whether to add (true)
-     *               or remove (false) the style class from the node.
+     * @param active A boolean indicating whether to add (true) or remove (false) the style class
+     *     from the node.
      */
     private void toggleStyleClass(Node node, String styleClass, boolean active) {
         if (node == null || styleClass == null || styleClass.isBlank()) {
