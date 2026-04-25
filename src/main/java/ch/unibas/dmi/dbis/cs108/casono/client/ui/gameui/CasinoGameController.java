@@ -140,6 +140,9 @@ public class CasinoGameController {
     private static final double CHAT_WIDTH = 400;
     private static final double CHAT_HEIGHT = 600;
     private static final String ACTIVE_CARD_BOX_STYLE_CLASS = "player-cards-active-turn";
+    private static final int DEALER_OFFSET = 3;
+    private static final String FIRST_PREFLOP_INFO_TEMPLATE =
+            "Set the big blind amount: %d$ or %d$";
 
     private String chatUsername;
     private ClientService chatClientService;
@@ -657,6 +660,12 @@ public class CasinoGameController {
             return;
         }
 
+        String firstPreflopInfo = resolveFirstPreflopInfo(s);
+        if (firstPreflopInfo != null) {
+            tableText.setText(firstPreflopInfo);
+            return;
+        }
+
         String phaseText = formatPhaseText(s.phase);
         StringBuilder text = new StringBuilder("Phase: ").append(phaseText);
 
@@ -668,6 +677,86 @@ public class CasinoGameController {
             return "-";
         }
         return phase.toUpperCase().replace("_", " ");
+    }
+
+    /**
+     * Returns a context-specific info message for the first player to act preflop.
+     *
+     * @param s The current game state.
+     * @return An English hint with the big blind amount and its double, or null if the special
+     *     case does not apply.
+     */
+    private String resolveFirstPreflopInfo(GameState s) {
+        if (s == null || myPlayerId == null || s.players == null || s.players.size() < 2) {
+            return null;
+        }
+
+        if (!"PREFLOP".equalsIgnoreCase(s.phase)) {
+            return null;
+        }
+
+        int myIndex = -1;
+        for (int i = 0; i < s.players.size(); i++) {
+            Player player = s.players.get(i);
+            if (player != null && myPlayerId.equals(player.getId())) {
+                myIndex = i;
+                break;
+            }
+        }
+
+        if (myIndex < 0) {
+            return null;
+        }
+
+        int firstIndex =
+                (s.players.size() == 2) ? s.dealer : (s.dealer + DEALER_OFFSET) % s.players.size();
+        if (s.activePlayer != firstIndex || myIndex != firstIndex) {
+            return null;
+        }
+
+        if (!isInitialPreflopBlindLayout(s)) {
+            return null;
+        }
+
+        int callTarget = Math.max(0, s.currentBet);
+        if (callTarget <= 0) {
+            return null;
+        }
+
+        long raiseTarget = (long) callTarget * 2L;
+        int safeRaiseTarget = raiseTarget > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) raiseTarget;
+        return String.format(FIRST_PREFLOP_INFO_TEMPLATE, callTarget, safeRaiseTarget);
+    }
+
+    /**
+     * Checks whether the preflop state still matches the initial blind layout.
+     *
+     * @param s The current game state.
+     * @return true if exactly one small blind and one big blind are present and all other players
+     *     have not yet committed chips.
+     */
+    private boolean isInitialPreflopBlindLayout(GameState s) {
+        int sbCount = 0;
+        int bbCount = 0;
+        int zeroCount = 0;
+
+        for (Player player : s.players) {
+            if (player == null) {
+                continue;
+            }
+
+            int bet = Math.max(0, player.getBet());
+            if (bet == 100) {
+                sbCount++;
+            } else if (bet == 200) {
+                bbCount++;
+            } else if (bet == 0) {
+                zeroCount++;
+            }
+        }
+
+        int playerCount = s.players.size();
+        return playerCount >= 2 && sbCount == 1 && bbCount == 1 && zeroCount == playerCount - 2;
     }
 
     /**
@@ -694,6 +783,8 @@ public class CasinoGameController {
      * @param players The list of players currently in the game, used to determine which players are
      *     opponents and update their display in the UI accordingly. If the list is null or empty,
      *     all opponent slots will be cleared.
+     * @param activePlayerIndex The index of the active player in the players list, used to
+     *     determine whose turn it is and update the UI highlights to reflect that.
      */
     private void updatePlayers(List<Player> players, int activePlayerIndex) {
         if (players == null || players.isEmpty()) {
@@ -868,7 +959,7 @@ public class CasinoGameController {
      *
      * @param players The list of players currently in the game, used to identify the active player
      *     and update the turn highlights accordingly.
-     * @param activePlayerIndex The index of the active player in the players list, which is used to
+     * @param activePlayerIndex The index of the active player in the players list, used to
      *     determine whose turn it is and update the UI highlights to reflect that.
      */
     private void updateActiveTurnHighlights(List<Player> players, int activePlayerIndex) {
