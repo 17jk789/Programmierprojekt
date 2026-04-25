@@ -10,11 +10,16 @@ import ch.unibas.dmi.dbis.cs108.casono.client.network.LobbyClient;
 import ch.unibas.dmi.dbis.cs108.casono.client.ui.lobbyui.Casinomainui;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -61,6 +66,9 @@ public class TaskbarController {
     private static final String STYLE_RED_INPUT = "red-input-field";
     private static final double SCALE_NORMAL = 1.0;
     private static final int DEALER_OFFSET = 3;
+    private static final String LOGO_PATH = "/images/logoinverted.png";
+    private static final String LOGO_PATH_MAIN = "/images/logo.png";
+    private static final double ALERT_LOGO_HEIGHT = 40.0;
     private boolean inputActionAllowed;
     private int lastReferenceBet = BIG_BLIND;
 
@@ -620,57 +628,31 @@ public class TaskbarController {
         }
 
         GameState state = ensureLatestStateForAction(actionType.name().toLowerCase());
-        if (state == null) {
-            return;
-        }
-
-        if (isHandFinished(state)) {
-            LOGGER.info("Action {} ignored: hand is already finished", actionType);
-            update(state, myPlayerId);
+        if (state == null || isHandFinished(state)) {
+            if (state != null) {
+                LOGGER.info("Action {} ignored: hand finished", actionType);
+                update(state, myPlayerId);
+            }
             return;
         }
 
         Player me = findCurrentPlayer(state);
         if (me == null) {
-            LOGGER.error("Action {} blocked: player missing in state", actionType);
+            LOGGER.error("Action {} blocked: player missing", actionType);
             return;
         }
 
-        int callTarget = effectiveCallTarget(state);
-        int targetBet;
-        if (actionType == ActionType.CALL_BUTTON) {
-            targetBet = callTarget;
-        } else if (actionType == ActionType.RAISE_BUTTON) {
-            targetBet = safeDouble(callTarget);
-        } else {
-            Integer fromInput = parseInputTarget(taskbarInput.getText());
-            if (fromInput == null) {
-                return;
-            }
-            targetBet = fromInput;
+        Integer targetBet = resolveTargetBet(actionType, state);
+        if (targetBet == null) {
+            return;
         }
 
         ValidationResult validation = validateTarget(state, me, targetBet);
-        if (!validation.valid) {
-            refreshBetInputUi();
+        if (!handleValidation(validation, actionType)) {
             return;
         }
 
-        if (validation.warning) {
-            showWarningDialog("WARNING", validation.message);
-        }
-
-        if (state.currentBet <= 0) {
-            gameService.bet(targetBet);
-            LOGGER.info("Player BET (target={})", targetBet);
-        } else if (targetBet == callTarget) {
-            gameService.call();
-            LOGGER.info("Player CALL (target={})", targetBet);
-        } else {
-            int raiseBy = Math.max(0, targetBet - state.currentBet);
-            gameService.raise(raiseBy);
-            LOGGER.info("Player RAISE by {} (target={})", raiseBy, targetBet);
-        }
+        executeAction(state, targetBet);
 
         if (targetBet > 0) {
             lastReferenceBet = targetBet;
@@ -678,6 +660,88 @@ public class TaskbarController {
 
         taskbarInput.clear();
         refreshGame();
+    }
+
+    /**
+     * Resolves the target bet amount based on the type of action being submitted and the current
+     * game state.
+     *
+     * @param actionType The type of action being submitted, which determines how the target bet is
+     *     calculated.
+     * @param state The current GameState object representing the state of the game, which is used
+     *     to determine the effective call target and to validate the input for the bet amount.
+     * @return An Integer representing the resolved target bet amount for the action being
+     *     submitted, or null if the input is invalid or cannot be resolved based on the action type
+     *     and game state.
+     */
+    private Integer resolveTargetBet(ActionType actionType, GameState state) {
+        int callTarget = effectiveCallTarget(state);
+
+        if (actionType == ActionType.CALL_BUTTON) {
+            return callTarget;
+        }
+
+        if (actionType == ActionType.RAISE_BUTTON) {
+            return safeDouble(callTarget);
+        }
+
+        return parseInputTarget(taskbarInput.getText());
+    }
+
+    /**
+     * Handles the validation result of a proposed action, including displaying warnings and
+     * refreshing the UI if the action is blocked or cancelled.
+     *
+     * @param validation The ValidationResult object representing the outcome of validating the
+     *     proposed action, which includes whether the action is valid, if it triggers a warning,
+     *     and any associated messages.
+     * @param actionType The type of action being processed, used for logging purposes to indicate
+     *     which action is being validated and potentially blocked or cancelled.
+     * @return A boolean value indicating whether the action is valid and can proceed (true) or if
+     *     it is blocked or cancelled due to validation failure or user cancellation after a warning
+     *     (false).
+     */
+    private boolean handleValidation(ValidationResult validation, ActionType actionType) {
+        if (!validation.valid) {
+            refreshBetInputUi();
+            return false;
+        }
+
+        if (validation.warning) {
+            boolean confirmed = showWarningDialog("WARNING", validation.message);
+            if (!confirmed) {
+                LOGGER.info("Action {} cancelled after warning", actionType);
+                refreshBetInputUi();
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Executes the player action by sending the appropriate command to the GameService based on the
+     * target bet and the current game state.
+     *
+     * @param state The current GameState object representing the state of the game, which includes
+     *     information about the current bet and the player's status, used to determine how to
+     *     execute the action based on the target bet.
+     * @param targetBet The integer value representing the target bet amount for the action being
+     *     executed, which is used to determine
+     */
+    private void executeAction(GameState state, int targetBet) {
+        int callTarget = effectiveCallTarget(state);
+
+        if (state.currentBet <= 0) {
+            gameService.bet(targetBet);
+            LOGGER.info("BET {}", targetBet);
+        } else if (targetBet == callTarget) {
+            gameService.call();
+            LOGGER.info("CALL {}", targetBet);
+        } else {
+            int raiseBy = Math.max(0, targetBet - state.currentBet);
+            gameService.raise(raiseBy);
+            LOGGER.info("RAISE {} (target={})", raiseBy, targetBet);
+        }
     }
 
     /**
@@ -851,12 +915,50 @@ public class TaskbarController {
      * @param content The string representing the content of the warning message, which is displayed
      *     in the body of the dialog.
      */
-    private void showWarningDialog(String title, String content) {
+    private boolean showWarningDialog(String title, String content) {
         Alert alert = new Alert(Alert.AlertType.WARNING);
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(content);
-        alert.showAndWait();
+        ButtonType proceedButton = new ButtonType("CONTINUE");
+        ButtonType cancelButton = new ButtonType("CANCEL", ButtonBar.ButtonData.CANCEL_CLOSE);
+        alert.getButtonTypes().setAll(proceedButton, cancelButton);
+        applyAlertBranding(alert);
+        Optional<ButtonType> result = alert.showAndWait();
+        return result.isPresent() && result.get() == proceedButton;
+    }
+
+    /** Applies Casono icon and logo to alert dialogs when resources are available. */
+    private void applyAlertBranding(Alert alert) {
+        if (alert == null) {
+            return;
+        }
+
+        try (var iconStream = TaskbarController.class.getResourceAsStream(LOGO_PATH);
+                var mainLogoStream = TaskbarController.class.getResourceAsStream(LOGO_PATH_MAIN)) {
+            if (iconStream != null) {
+                Image icon = new Image(iconStream);
+                if (!icon.isError()
+                        && alert.getDialogPane() != null
+                        && alert.getDialogPane().getScene() != null
+                        && alert.getDialogPane().getScene().getWindow()
+                                instanceof javafx.stage.Stage stage) {
+                    stage.getIcons().add(icon);
+                }
+            }
+
+            if (mainLogoStream != null) {
+                Image mainLogo = new Image(mainLogoStream);
+                if (!mainLogo.isError()) {
+                    ImageView logoView = new ImageView(mainLogo);
+                    logoView.setFitHeight(ALERT_LOGO_HEIGHT);
+                    logoView.setPreserveRatio(true);
+                    alert.setGraphic(logoView);
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.warn("Could not load alert logo resources: {}", e.getMessage());
+        }
     }
 
     /**
@@ -1173,6 +1275,7 @@ public class TaskbarController {
                 alert.setTitle("Info");
                 alert.setHeaderText(null);
                 alert.setContentText("No active server connection for highscores.");
+                applyAlertBranding(alert);
                 alert.showAndWait();
                 return;
             }
