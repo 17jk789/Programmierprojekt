@@ -39,9 +39,7 @@ class TaskbarControllerSmokeTest {
         }
     }
 
-    /**
-     * Ensures FXML loads and controller initializes without errors.
-     */
+    /** Ensures FXML loads and controller initializes without errors. */
     @Test
     void taskbarLoadsWithoutErrors() throws Exception {
         URL url = getClass().getResource("/ui-structure/gameuicomponents/Taskbar.fxml");
