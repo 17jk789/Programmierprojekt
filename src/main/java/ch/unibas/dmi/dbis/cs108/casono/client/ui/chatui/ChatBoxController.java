@@ -1,6 +1,7 @@
 package ch.unibas.dmi.dbis.cs108.casono.client.ui.chatui;
 
 import ch.unibas.dmi.dbis.cs108.casono.client.chat.ChatController;
+import ch.unibas.dmi.dbis.cs108.casono.client.chat.ChatController.ChatKey;
 import ch.unibas.dmi.dbis.cs108.casono.client.chat.ChatModel;
 import ch.unibas.dmi.dbis.cs108.casono.client.chat.ChatType;
 import ch.unibas.dmi.dbis.cs108.casono.client.chat.Message;
@@ -167,9 +168,19 @@ public class ChatBoxController {
             ChatType whisper = ChatType.WHISPER;
             chatController
                     .getChatModelMap()
-                    .put(new ChatController.ChatKey(whisper, target), chatModel);
-            addChatTab(target, chatModel, whisper);
+                    .put(new ChatKey(whisper, target), chatModel);
+            ChatViewController chatViewController = addChatTab(target, chatModel, whisper);
+            Tab chatTab = chatViewController.getChatTab();
+            chatTab.setOnCloseRequest(_ -> {
+                chatViewController.tabIsOpen = false;
+                chatTabPane.getTabs().remove(chatTab);
+            });
         } else {
+            ChatViewController chatViewController = chatController.activeChatControllers.get(new ChatKey(ChatType.WHISPER, target));
+            if (!chatViewController.tabIsOpen) {
+                reopenChatTab(chatViewController.getChatTab());
+                chatViewController.tabIsOpen = true;
+            }
             chatTabPane.getSelectionModel().select(usernameTabMap.get(target));
         }
     }
@@ -183,18 +194,25 @@ public class ChatBoxController {
      * @param chatModel The {@link ChatModel} containing the data and logic for this specific chat.
      * @throws RuntimeException If the FXML resource for the chat tab cannot be loaded.
      */
-    public void addChatTab(String title, ChatModel chatModel, ChatType chatType) {
+    public ChatViewController addChatTab(String title, ChatModel chatModel, ChatType chatType) {
         String ressource = "/ui-structure/components/chatui/chattab.fxml";
         URL resource = getClass().getResource(ressource);
         FXMLLoader fxmlLoader = new FXMLLoader(resource);
-        runOnPlatformSynchronized(
+        return runOnPlatformSynchronized(
                 () -> {
                     try {
                         ChatViewController chatViewController =
                                 new ChatViewController(
-                                        this.chatController, chatModel, this.username);
+                                        this.chatController, chatModel, this.username, this);
+
+                        ChatKey chatKey;
+                        if (chatType.equals(ChatType.WHISPER)) {
+                            chatKey = new ChatKey(chatType, title);
+                        } else {
+                            chatKey = new ChatKey(chatType);
+                        }
                         chatController.activeChatControllers.put(
-                                new ChatController.ChatKey(chatType), chatViewController);
+                                chatKey, chatViewController);
                         fxmlLoader.setController(chatViewController);
                         Node load = fxmlLoader.load();
                         VBox.setVgrow(load, Priority.ALWAYS);
@@ -204,9 +222,13 @@ public class ChatBoxController {
                         chatModel.addListener((msg) -> chatViewController.showMessage(msg));
                         Tab newChat = new Tab(title, vbox);
                         usernameTabMap.put(title, newChat);
-                        this.chatTabPane.getTabs().add(newChat);
+                        chatTabPane.getTabs().add(newChat);
                         this.chatTabPane.getSelectionModel().select(newChat);
-                        return newChat;
+                        chatViewController.setChatTab(newChat);
+                        if (!chatType.equals(ChatType.WHISPER)) {
+                            newChat.setClosable(false);
+                        }
+                        return chatViewController;
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
@@ -266,5 +288,12 @@ public class ChatBoxController {
                 }
             }
         }
+    }
+
+    public void reopenChatTab(Tab chatTab) {
+        Platform.runLater(() -> {
+            chatTabPane.getTabs().add(chatTab);
+            chatTabPane.getSelectionModel().select(chatTab);
+        });
     }
 }
