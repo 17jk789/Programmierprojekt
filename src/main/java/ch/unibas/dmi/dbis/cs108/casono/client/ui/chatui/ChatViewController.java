@@ -2,15 +2,17 @@ package ch.unibas.dmi.dbis.cs108.casono.client.ui.chatui;
 
 import ch.unibas.dmi.dbis.cs108.casono.client.chat.ChatController;
 import ch.unibas.dmi.dbis.cs108.casono.client.chat.ChatModel;
-import ch.unibas.dmi.dbis.cs108.casono.client.chat.ChatType;
 import ch.unibas.dmi.dbis.cs108.casono.client.chat.Message;
 import java.net.URL;
-import java.util.Map;
 import java.util.ResourceBundle;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
@@ -50,7 +52,11 @@ public class ChatViewController implements Initializable {
 
     private static final int CHAT_PADDING = 20;
 
-    public ChatViewController(ChatController chatController, ChatModel chatModel, String username, ChatBoxController chatBoxController) {
+    public ChatViewController(
+            ChatController chatController,
+            ChatModel chatModel,
+            String username,
+            ChatBoxController chatBoxController) {
         this.controller = chatController;
         this.username = username;
         this.chatModel = chatModel;

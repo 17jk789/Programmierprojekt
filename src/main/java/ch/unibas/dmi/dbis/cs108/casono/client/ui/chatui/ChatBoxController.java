@@ -166,17 +166,17 @@ public class ChatBoxController {
         if (!activeWhisperChats.contains(target)) {
             activeWhisperChats.add(target);
             ChatType whisper = ChatType.WHISPER;
-            chatController
-                    .getChatModelMap()
-                    .put(new ChatKey(whisper, target), chatModel);
+            chatController.getChatModelMap().put(new ChatKey(whisper, target), chatModel);
             ChatViewController chatViewController = addChatTab(target, chatModel, whisper);
             Tab chatTab = chatViewController.getChatTab();
-            chatTab.setOnCloseRequest(_ -> {
-                chatViewController.tabIsOpen = false;
-                chatTabPane.getTabs().remove(chatTab);
-            });
+            chatTab.setOnCloseRequest(
+                    _ -> {
+                        chatViewController.tabIsOpen = false;
+                        chatTabPane.getTabs().remove(chatTab);
+                    });
         } else {
-            ChatViewController chatViewController = chatController.activeChatControllers.get(new ChatKey(ChatType.WHISPER, target));
+            ChatViewController chatViewController =
+                    chatController.activeChatControllers.get(new ChatKey(ChatType.WHISPER, target));
             if (!chatViewController.tabIsOpen) {
                 reopenChatTab(chatViewController.getChatTab());
                 chatViewController.tabIsOpen = true;
@@ -211,8 +211,7 @@ public class ChatBoxController {
                         } else {
                             chatKey = new ChatKey(chatType);
                         }
-                        chatController.activeChatControllers.put(
-                                chatKey, chatViewController);
+                        chatController.activeChatControllers.put(chatKey, chatViewController);
                         fxmlLoader.setController(chatViewController);
                         Node load = fxmlLoader.load();
                         VBox.setVgrow(load, Priority.ALWAYS);
@@ -291,9 +290,10 @@ public class ChatBoxController {
     }
 
     public void reopenChatTab(Tab chatTab) {
-        Platform.runLater(() -> {
-            chatTabPane.getTabs().add(chatTab);
-            chatTabPane.getSelectionModel().select(chatTab);
-        });
+        Platform.runLater(
+                () -> {
+                    chatTabPane.getTabs().add(chatTab);
+                    chatTabPane.getSelectionModel().select(chatTab);
+                });
     }
 }
