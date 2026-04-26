@@ -195,8 +195,7 @@ public class ChatBoxController {
                 () -> {
                     try {
                         ChatViewController chatViewController =
-                                new ChatViewController(
-                                        this.chatController, chatModel, this);
+                                new ChatViewController(this.chatController, chatModel, this);
 
                         ChatKey chatKey;
                         if (chatType.equals(ChatType.WHISPER)) {
