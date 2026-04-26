@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui.gameuicomponents.TaskbarController;
 import java.net.URL;
-import java.util.concurrent.CountDownLatch;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -17,31 +16,17 @@ class TaskbarControllerSmokeTest {
     private static boolean started = false;
 
     @BeforeAll
-    static void initJavaFX() throws Exception {
+    static void initJavaFX() {
         if (started) {
             return;
         }
 
-        CountDownLatch latch = new CountDownLatch(1);
+        try {
+            Platform.startup(() -> {});
+        } catch (IllegalStateException ignored) {
+            // already started
+        }
 
-        Thread t =
-                new Thread(
-                        () -> {
-                            try {
-                                Platform.startup(
-                                        () -> {
-                                            Platform.setImplicitExit(false);
-                                            latch.countDown();
-                                        });
-                            } catch (IllegalStateException ignored) {
-                                latch.countDown();
-                            }
-                        });
-
-        t.setDaemon(true);
-        t.start();
-
-        latch.await();
         started = true;
     }
 

@@ -22,25 +22,17 @@ class TaskbarControllerInputValidationTest {
     private static boolean started = false;
 
     @BeforeAll
-    static void initJavaFX() throws Exception {
+    static void initJavaFX() {
         if (started) {
             return;
         }
 
-        CountDownLatch latch = new CountDownLatch(1);
-
         try {
-            Platform.startup(
-                    () -> {
-                        Platform.setImplicitExit(false);
-                        latch.countDown();
-                    });
-        } catch (IllegalStateException e) {
-            // JavaFX already started → CI safe
-            latch.countDown();
+            Platform.startup(() -> {});
+        } catch (IllegalStateException ignored) {
+            // already started
         }
 
-        assertTrue(latch.await(10, TimeUnit.SECONDS));
         started = true;
     }
 
@@ -107,6 +99,10 @@ class TaskbarControllerInputValidationTest {
                 });
 
         assertTrue(latch.await(5, TimeUnit.SECONDS));
+
+        CountDownLatch fxLatch = new CountDownLatch(1);
+        Platform.runLater(fxLatch::countDown);
+        assertTrue(fxLatch.await(5, TimeUnit.SECONDS));
     }
 
     private GameState createGameState() {
@@ -132,6 +128,10 @@ class TaskbarControllerInputValidationTest {
 
         root.applyCss();
         root.layout();
+
+        CountDownLatch latch = new CountDownLatch(1);
+        Platform.runLater(latch::countDown);
+        assertTrue(latch.await(5, TimeUnit.SECONDS));
 
         TaskbarController controller = loader.getController();
         TextField input = get(controller, "taskbarInput", TextField.class);
