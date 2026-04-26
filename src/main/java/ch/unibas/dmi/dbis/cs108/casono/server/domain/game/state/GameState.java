@@ -35,6 +35,7 @@ public class GameState {
     private int currentPlayerIndex;
     private boolean handActive;
     private boolean allowOutOfTurn;
+    private boolean winnerPersistedForHand;
     private GamePhase phase;
     private int dealerIndex;
 
@@ -551,6 +552,7 @@ public class GameState {
      */
     public void startNewHand() {
         handActive = true;
+        resetWinnerPersistedForHand();
         phase = GamePhase.PREFLOP;
 
         pot = new Pot();
@@ -573,6 +575,24 @@ public class GameState {
         deck.shuffle();
 
         setCurrentPlayerToPreflopFirstToAct();
+    }
+
+    /**
+     * Marks the winner as already persisted for the current hand.
+     *
+     * @return true exactly once per hand; false on all subsequent calls.
+     */
+    public synchronized boolean tryMarkWinnerPersistedForHand() {
+        if (winnerPersistedForHand) {
+            return false;
+        }
+        winnerPersistedForHand = true;
+        return true;
+    }
+
+    /** Resets the winner persistence guard for a new hand. */
+    public synchronized void resetWinnerPersistedForHand() {
+        winnerPersistedForHand = false;
     }
 
     public void foldPlayer(PlayerId playerId) {

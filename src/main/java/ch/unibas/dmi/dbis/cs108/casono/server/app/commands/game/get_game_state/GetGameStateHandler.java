@@ -10,9 +10,16 @@ import ch.unibas.dmi.dbis.cs108.casono.server.domain.user.UserRegistry;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.command.execution.CommandHandler;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.ErrorResponse;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.dispatcher.ResponseDispatcher;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /** Handler for GET_GAME_STATE: returns pot, phase, community cards and per-player info. */
 public class GetGameStateHandler extends CommandHandler<GetGameStateRequest> {
+    private static final Logger LOGGER = Logger.getLogger(GetGameStateHandler.class.getName());
+    private static final int FINISHED_CLEANUP_DELAY_SECONDS = 2;
+
     private final LobbyManager lobbyManager;
     private final UserRegistry userRegistry;
 
@@ -73,11 +80,12 @@ public class GetGameStateHandler extends CommandHandler<GetGameStateRequest> {
             return;
         }
 
-        if (game.getState().getPhase() == GamePhase.FINISHED) {
-            cleanupLobby(lobby, lobbyId);
-        }
-
         responseDispatcher.dispatch(new GetGameStateResponse(request.getContext(), game, username));
+
+        if (game.getState().getPhase() == GamePhase.FINISHED) {
+            CompletableFuture.delayedExecutor(FINISHED_CLEANUP_DELAY_SECONDS, TimeUnit.SECONDS)
+                    .execute(() -> cleanupLobby(lobby, lobbyId));
+        }
     }
 
     /**
@@ -85,15 +93,20 @@ public class GetGameStateHandler extends CommandHandler<GetGameStateRequest> {
      * when the game reaches FINISHED phase.
      */
     private void cleanupLobby(Lobby lobby, LobbyId lobbyId) {
+        if (lobby == null || lobbyId == null) {
+            return;
+        }
+
         try {
-            // Remove all players from the lobby
             for (String playerName : lobby.getPlayerNames()) {
                 lobbyManager.removePlayer(playerName);
             }
-            // Reset the game controller so the lobby returns to CREATED state
             lobby.initGame(null);
         } catch (RuntimeException e) {
-            // Log silently to avoid disrupting game state response
+            LOGGER.log(
+                    Level.WARNING,
+                    "Failed to cleanup lobby " + lobbyId + " during FINISHED state",
+                    e);
         }
     }
 

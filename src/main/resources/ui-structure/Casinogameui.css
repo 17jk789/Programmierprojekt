@@ -48,7 +48,7 @@
 }
 
 .taskbar {
-    -fx-background-color: rgba(13, 158, 59);
+    -fx-background-color: rgb(13, 158, 59);
     -fx-background-radius: 23;
     -fx-border-radius: 20;
     -fx-border-color: #5c3d10 #3d260a #3d260a #5c3d10;
@@ -56,11 +56,15 @@
     -fx-padding: 10 25;
     -fx-cursor: move;
     -fx-effect: dropshadow(one-pass-box, rgba(0,0,0,0.8), 0, 0, 5, 5);
-    transition: all 0.2s ease-in-out;
 }
 
 .taskbar:hover {
     -fx-border-color: #ffffff;
+}
+
+.taskbar.player-active-turn {
+    /* Active turn should only change the shadow to avoid flicker/transparency jumps. */
+    -fx-effect: dropshadow(one-pass-box, rgb(184, 134, 11), 0, 0, 5, 5);
 }
 
 .black-input-field {
@@ -229,6 +233,13 @@
     -fx-opacity: 1;
 }
 
+.player-card.player-cards-active-turn {
+    -fx-effect: dropshadow(one-pass-box, rgb(184, 134, 11), 0, 0, 5, 5);
+}
+
+.dealer-box.player-cards-active-turn {
+    -fx-effect: dropshadow(one-pass-box, rgb(184, 134, 11), 0, 0, 5, 5);
+}
 
 .chips-icon {
     -fx-effect: dropshadow(one-pass-box, rgba(0, 0, 0, 0.8), 0, 0, 3, 3);
@@ -242,6 +253,10 @@
 .player-cards-box {
     -fx-padding: 10;
 }
+
+/*.player-cards-box.player-cards-active-turn {*/
+/*    -fx-effect: dropshadow(one-pass-box, rgb(184, 134, 11), 0, 0, 5, 5);*/
+/*}*/
 
 .money-value {
     -fx-text-fill: #ffffff;
@@ -295,6 +310,14 @@
     -fx-border-color: #5c3d10 #3d260a #3d260a #5c3d10;
     -fx-border-width: 3;
     -fx-effect: dropshadow(one-pass-box, rgba(0, 0, 0, 0.8), 0, 0, 3, 3);
+}
+
+.status-inner-box-top.player-status-active-turn {
+    -fx-effect: dropshadow(one-pass-box, rgb(184, 134, 11), 0, 0, 5, 5);
+}
+
+.status-inner-box-bottom.player-status-active-turn {
+    -fx-effect: dropshadow(one-pass-box, rgb(184, 134, 11), 0, 0, 5, 5);
 }
 
 .status-label-small {
@@ -368,4 +391,25 @@
     -fx-text-fill: #000000;
     -fx-font-weight: bold;
     -fx-font-size: 16px;
+}
+
+.context-menu {
+    -fx-background-color: #333333;
+    -fx-text-fill: #ffffff;
+    -fx-font-family: "Courier New";
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-color: #333333;
+    -fx-color-color: #cccccc;
+    -fx-border-width: 2;
+    -fx-padding: 5 12;
+}
+
+.context-menu .menu-item {
+    -fx-background-color: #333333;
+}
+
+.context-menu .menu-item:focused {
+    -fx-background-color: #333333;
 }

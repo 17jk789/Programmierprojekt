@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Markdown Viewer</title>
+    <script src="casono-markdown-render-engine.js"></script>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #0d9e3b;
+            color: #ffffff;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+        }
+
+        #content {
+            padding: 40px;
+            max-width: 900px;
+            margin: auto;
+        }
+
+        h1, h2, h3 {
+            color: #ffffff;
+            text-shadow: 2px 2px 0 #000;
+        }
+
+        p, li {
+            color: #ffffff;
+            font-size: 16px;
+        }
+
+        a {
+            color: gold;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        code {
+            background: rgba(0,0,0,0.4);
+            padding: 2px 6px;
+            border-radius: 5px;
+        }
+
+        hr {
+            border: 1px solid #5c3d10;
+        }
+
+        .cm-toc {
+            margin-bottom: 25px;
+        }
+
+        .cm-toc-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .cm-toc-item {
+            margin: 3px 0;
+        }
+
+        .cm-toc-item a {
+            color: gold;
+            text-decoration: none;
+        }
+
+        .cm-toc-item a:hover {
+            text-decoration: underline;
+        }
+
+        .level-2 { margin-left: 12px; opacity: 0.95; }
+        .level-3 { margin-left: 24px; opacity: 0.85; }
+
+        .cm-h1 {
+            font-size: 28px;
+            margin-top: 20px;
+            text-shadow: 2px 2px 0 #000;
+        }
+
+        .cm-h2 {
+            font-size: 22px;
+            margin-top: 18px;
+        }
+
+        .cm-h3 {
+            font-size: 18px;
+            margin-top: 14px;
+        }
+
+        .cm-img {
+            max-width: 600px;
+            width: 100%;
+            display: block;
+            margin: 10px 0;
+            border-radius: 6px;
+        }
+
+        /* CODE */
+        .cm-code {
+            background: rgba(0,0,0,0.35);
+            padding: 10px;
+            border-radius: 6px;
+            overflow-x: auto;
+        }
+
+        .cm-inline {
+            background: rgba(0,0,0,0.4);
+            padding: 2px 5px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div id="content"></div>
+
+<script>
+
+    window.addEventListener("DOMContentLoaded", () => {
+        const markdown = `
+# Casono Manual
+
+Hinweis: Eine vereinfachte Einführung finden Sie in der Datei [Casono Rules – Easy Description](casono-rules-easy-description.md).
+Dieses Dokument beschreibt den Ablauf eines Pokerspiels anhand eines Beispiels.
+
+## 1. Spielübersicht
+
+Texas Hold’em ist ein strategisches Kartenspiel für mehrere Spieler.
+Ziel ist es, den Pot (alle gesetzten Chips) zu gewinnen, entweder durch:
+
+- die beste Kartenkombination am Ende der Runde
+- oder indem alle anderen Spieler vorher aussteigen (Fold)
+
+### Grundregeln
+
+- Jeder Spieler erhält 2 verdeckte Karten (Hole Cards)
+- Es werden 5 Gemeinschaftskarten offen in der Mitte ausgelegt
+- Jeder Spieler bildet die beste 5-Karten-Kombination aus:
+  - eigenen Karten
+  - und Gemeinschaftskarten
+
+- Zu Spielbeginn erhält jeder Spieler ein Startgeld von 20000 Chips ($)
+
+## 2. Sitzposition & Dealer-Button
+
+Der sogenannte Dealer-Button bestimmt die Positionen am Tisch:
+
+- Er zeigt an, wer als „Geber“ (Dealer) fungiert
+- Die Positionen rotieren im Uhrzeigersinn nach jeder Runde
+
+Die Position ist entscheidend, da sie bestimmt:
+
+- die Reihenfolge der Aktionen
+- wer die Blinds setzen muss
+
+## 3. Blinds (Pflichteinsätze)
+
+Vor jeder Runde werden zwei verpflichtende Einsätze geleistet:
+
+- **Small Blind** (kleiner Blind): 100 Chips – gesetzt vom Spieler links neben dem Dealer
+- **Big Blind** (großer Blind): 200 Chips - gesetzt vom Spieler zwei Plätze links vom Dealer
+
+Diese Einsätze sorgen dafür, dass:
+
+- ein Startpot entsteht
+- jede Runde aktiv gespielt wird
+
+## 4. Spielablauf im Detail
+
+### 4.1 Preflop (erste Setzrunde)
+
+Nach dem Austeilen der Karten beginnt die erste Setzrunde.
+
+Der Spieler links vom Big Blind eröffnet die Runde.
+
+Jeder Spieler hat folgende Optionen:
+
+- **Fold** – Karten ablegen und aussteigen
+- **Call** – Einsatz mitgehen
+- **Raise** – Einsatz erhöhen
+
+### 4.2 Flop (3 Gemeinschaftskarten)
+
+- Drei Karten werden offen auf den Tisch gelegt
+- Eine neue Setzrunde beginnt
+- Die Setzrunde beginnt jetzt immer beim ersten aktiven Spieler links vom Dealer (im Uhrzeigersinn).
+
+Ab diesem Zeitpunkt können alle Spieler ihre Strategie anhand zusätzlicher Informationen anpassen.
+
+### 4.3 Turn (4. Gemeinschaftskarte)
+
+- Die vierte Karte wird aufgedeckt
+- Eine weitere Setzrunde folgt
+
+Die Einsätze werden oft höher, da sich stärkere Hände entwickeln.
+
+### 4.4 River (5. Gemeinschaftskarte)
+
+- Die letzte Karte wird aufgedeckt
+- Letzte Setzrunde
+
+Dies ist die finale Entscheidungsphase:
+
+- Maximierung des Gewinns
+- oder Minimierung von Verlusten
+
+## 5. Showdown (Kartenvergleich)
+
+Wenn nach der letzten Setzrunde mindestens zwei Spieler verbleiben:
+
+- Alle verbleibenden Spieler decken ihre Karten auf
+- Die **beste 5-Karten-Kombination gewinnt**
+
+Wichtig:
+
+- Die Karten „sprechen für sich“ – die beste Hand zählt unabhängig von Ansagen
+
+## 6. Poker-Handrangfolge
+
+Die Stärke der Hände ist eindeutig festgelegt (von schwach nach stark):
+
+1. High Card (höchste Einzelkarte)
+2. One Pair (ein Paar)
+3. Two Pair (zwei Paare)
+4. Three of a Kind (Drilling)
+5. Straight (Straße)
+6. Flush (Farbe)
+7. Full House
+8. Four of a Kind (Vierling)
+9. Straight Flush
+10. Royal Flush
+
+Je höher die Kombination, desto stärker die Hand.
+
+## 7. Wichtige Grundprinzipien
+
+### Reihenfolge beachten
+
+Spieler müssen immer der Reihe nach handeln.
+
+### Klare Aktionen
+
+Alle Aktionen müssen eindeutig sein:
+
+- Einsätze klar ansagen oder eindeutig setzen
+
+### Ein Spieler – eine Hand
+
+- Spieler dürfen ihre Karten nicht teilen oder gemeinsam spielen
+
+### Fehlerhafte Einsätze
+
+- Unklare oder falsche Einsätze können korrigiert werden, abhängig von der Spielsituation (nur wenn der Einsatz außerhalb der gültigen Grenzen liegt; zu hohe oder unzulässige Beträge werden blockiert und nicht automatisch korrigiert)
+
+## 8. Strategische Einordnung
+
+Texas Hold’em ist kein reines Glücksspiel. Der Erfolg basiert auf:
+
+- Wahrscheinlichkeiten (Mathematik)
+- Einschätzung von Gegnern (Psychologie)
+- Positionsspiel und Timing
+        `;
+
+        document.getElementById("content").innerHTML =
+            marked.parse(markdown);
+
+        document.querySelectorAll("#content a").forEach(link => {
+            link.addEventListener("click", (e) => {
+                const href = link.getAttribute("href");
+
+                if (href && href.endsWith(".md")) {
+                    e.preventDefault();
+                    alert("You cannot load an external MD file using `file:///` without a server.");
+                }
+            });
+        });
+    });
+</script>
+
+<noscript>
+    <div style="
+        padding: 40px;
+        font-family: Arial, sans-serif;
+        background-color: #0d9e3b;
+        color: #ffffff;
+        text-align: center;
+    ">
+        <h2>JavaScript is disabled</h2>
+
+        <p>
+            The Casono Browser requires JavaScript for the <br>
+            Casono Markdown Render Engine to display content correctly.<br><br>
+
+            For security, JavaScript is disabled by default in the Casono Browser and should only be enabled when needed.
+        </p>
+
+        <p>
+            Please enable JavaScript in your Browser settings and reload the page.
+        </p>
+
+        <img src="images/activate-js.png" alt="JavaScript aktivieren Anleitung" style="max-width: 100%; margin-top: 20px; border-radius: 10px;">
+    </div>
+</noscript>
+
+</body>
+</html>
