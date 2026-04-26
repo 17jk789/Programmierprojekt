@@ -10,12 +10,12 @@ import org.junit.jupiter.api.Test;
 public class EventBusTest {
     private EventBus eventBus;
 
+    private class TestEvent implements Event {}
+
     @BeforeEach
     void setUp() {
         eventBus = new EventBus();
     }
-
-    static class TestEvent implements Event {}
 
     @Test
     void testSingleSubscriberReceivesEvent() {
