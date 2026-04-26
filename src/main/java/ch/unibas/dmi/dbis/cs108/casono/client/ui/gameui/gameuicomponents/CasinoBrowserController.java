@@ -192,12 +192,14 @@ public class CasinoBrowserController {
                     WebView webView = new WebView();
                     WebEngine engine = webView.getEngine();
 
-                    engine.locationProperty().addListener((obs, oldUrl, newUrl) -> {
-                        if (isDownloadUrl(newUrl)) {
-                            LOGGER.warn("Download navigation blocked: " + newUrl);
-                            engine.getLoadWorker().cancel();
-                        }
-                    });
+                    engine.locationProperty()
+                            .addListener(
+                                    (obs, oldUrl, newUrl) -> {
+                                        if (isDownloadUrl(newUrl)) {
+                                            LOGGER.warn("Download navigation blocked: " + newUrl);
+                                            engine.getLoadWorker().cancel();
+                                        }
+                                    });
 
                     engine.setJavaScriptEnabled(false);
 
@@ -749,7 +751,9 @@ public class CasinoBrowserController {
      * @return true if the URL is likely a download link, false otherwise
      */
     private static boolean isDownloadUrl(String url) {
-        if (url == null) return false;
+        if (url == null) {
+            return false;
+        }
 
         return url.matches(".*\\.(exe|zip|dmg|msi|apk|jar|pdf)(\\?.*)?$");
     }
