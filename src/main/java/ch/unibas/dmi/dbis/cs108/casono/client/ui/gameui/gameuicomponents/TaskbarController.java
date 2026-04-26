@@ -433,15 +433,15 @@ public class TaskbarController {
             return;
         }
 
-         if (isFirstPreflopPlayer(state, me)) {
-             setActionEnabled(betButton, true);
-             setActionEnabled(callButton, false);
-             setActionEnabled(foldButton, false);
-             setActionEnabled(raiseButton, false);
-             activateInputField(taskbarInput);
-             inputActionAllowed = true;
-             return;
-         }
+        if (isFirstPreflopPlayer(state, me)) {
+            setActionEnabled(betButton, true);
+            setActionEnabled(callButton, false);
+            setActionEnabled(foldButton, false);
+            setActionEnabled(raiseButton, false);
+            activateInputField(taskbarInput);
+            inputActionAllowed = true;
+            return;
+        }
 
         if (isFirstPlayerOfPhase(state, me)) {
             setActionEnabled(betButton, true);
