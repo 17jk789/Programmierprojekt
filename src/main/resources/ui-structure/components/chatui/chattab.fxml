@@ -8,7 +8,7 @@
 <VBox fx:id="chatInterfaceVBox"
       maxWidth="Infinity"
       spacing="10"
-      styleClass="chat-box"
+      styleClass="tab-chat-box"
       stylesheets="@chatui.css"
       VBox.vgrow="ALWAYS"
       xmlns="http://javafx.com/javafx/17.0.12"

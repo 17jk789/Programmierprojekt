@@ -11,37 +11,48 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.Tab;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 /** Responsible for the presentation of the ChatModel to the Client */
 public class ChatViewController implements Initializable {
 
+    private final ChatBoxController chatBoxController;
     @FXML private Button sendButton;
 
     @FXML private TextField inputField;
-
-    @FXML private VBox chatInterfaceVBox;
-
-    @FXML private HBox controlBar;
 
     @FXML private ScrollPane scrollPane;
 
     @FXML private VBox chat;
 
-    private final ChatModel chatModel;
+    public Tab getChatTab() {
+        return chatTab;
+    }
 
-    private final String username;
+    public void setChatTab(Tab chatTab) {
+        this.chatTab = chatTab;
+    }
+
+    @FXML private Tab chatTab;
+
+    public Boolean tabIsOpen;
+
+    private final ChatModel chatModel;
 
     private final ChatController controller;
 
     private static final int CHAT_PADDING = 20;
 
-    public ChatViewController(ChatController chatController, ChatModel chatModel, String username) {
+    public ChatViewController(
+            ChatController chatController,
+            ChatModel chatModel,
+            ChatBoxController chatBoxController) {
         this.controller = chatController;
-        this.username = username;
         this.chatModel = chatModel;
+        this.chatBoxController = chatBoxController;
+        tabIsOpen = true;
     }
 
     /**
@@ -54,8 +65,8 @@ public class ChatViewController implements Initializable {
      */
     @Override
     public void initialize(URL location, ResourceBundle resourceBundle) {
-        inputField.setOnAction(event -> sendMessage());
-        sendButton.setOnAction(event -> sendMessage());
+        inputField.setOnAction(_ -> sendMessage());
+        sendButton.setOnAction(_ -> sendMessage());
         scrollPane.vvalueProperty().bind(chat.heightProperty());
     }
 
@@ -88,6 +99,10 @@ public class ChatViewController implements Initializable {
      * @param msg The {@link Message} object containing the content and metadata to display.
      */
     public void showMessage(Message msg) {
+        if (!tabIsOpen) {
+            tabIsOpen = true;
+            chatBoxController.reopenChatTab(chatTab);
+        }
         Platform.runLater(
                 () -> {
                     String msgText =
