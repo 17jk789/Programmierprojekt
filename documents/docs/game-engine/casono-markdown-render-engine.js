@@ -23,8 +23,9 @@ const marked = {
             `;
         });
 
-        md = md.replace(/```([\s\S]*?)```/g, (_, code) => {
-            return `<pre class="cm-code"><code>${escapeHtml(code)}</code></pre>`;
+        md = md.replace(/```(\w*)\n?([\s\S]*?)```/g, (_, lang, code) => {
+            const langClass = lang ? ` language-${lang}` : "";
+            return `<pre class="cm-code${langClass}"><code>${escapeHtml(code.trim())}</code></pre>`;
         });
 
         md = md.replace(/!\[(.*?)\]\((.*?)\)/gim,
