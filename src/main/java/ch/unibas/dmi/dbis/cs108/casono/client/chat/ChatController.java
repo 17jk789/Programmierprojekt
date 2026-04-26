@@ -33,9 +33,9 @@ public class ChatController {
 
     private volatile String username;
 
-    private final ClientService clientService;
+    private ClientService clientService;
 
-    private final ChatClient chatClient;
+    private final ChatClientInterface chatClient;
 
     public ChatBoxController getChatBoxController() {
         return chatBoxController;
@@ -94,6 +94,37 @@ public class ChatController {
 
         registerAsActiveController(clientService);
         clientService.addEventListener(serverEventListener);
+
+        this.timer = new Timer(true);
+        timer.schedule(
+                new TimerTask() {
+                    @Override
+                    public void run() {
+                        try {
+                            receiveMessage();
+                            checkWhisperUsers();
+                        } catch (RuntimeException e) {
+                            logger.warn("Chat refresh failed: {}", e.getMessage());
+                        }
+                    }
+                },
+                0,
+                REFRESH_TIME);
+    }
+
+    /**
+     * Another constructor to give the ChatClient directly instead of the Client Service used only for test purposes
+     * @param username
+     */
+    public ChatController(String username, ChatClientInterface chatClient) {
+        this.username = username;
+        this.chatClient = chatClient;
+        chatModelMap = new LinkedHashMap<>();
+        localUserList = new ArrayList<>();
+        this.chatBoxController = new ChatBoxController(username, this);
+        this.logger = LogManager.getLogger(ChatController.class);
+        this.serverEventListener = this::handleServerEvent;
+        this.activeChatControllers = new HashMap<>();
 
         this.timer = new Timer(true);
         timer.schedule(
