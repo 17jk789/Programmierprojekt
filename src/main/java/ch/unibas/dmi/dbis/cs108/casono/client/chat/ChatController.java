@@ -113,7 +113,9 @@ public class ChatController {
     }
 
     /**
-     * Another constructor to give the ChatClient directly instead of the Client Service used only for test purposes
+     * Another constructor to give the ChatClient directly instead of the Client Service used only
+     * for test purposes
+     *
      * @param username
      */
     public ChatController(String username, ChatClientInterface chatClient) {

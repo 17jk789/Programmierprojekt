@@ -1,13 +1,12 @@
 package ch.unibas.dmi.dbis.cs108.casono.client.chat;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+
+import java.util.ArrayList;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.util.ArrayList;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 public class ChatControllerTest {
 
@@ -117,7 +116,9 @@ public class ChatControllerTest {
     @Test
     public void sendWhisperMessage() {
         ChatModel whisper = new ChatModel(ChatType.WHISPER, name2, -1, name1);
-        chatController2.getChatModelMap().put(new ChatController.ChatKey(ChatType.WHISPER, name1), whisper);
+        chatController2
+                .getChatModelMap()
+                .put(new ChatController.ChatKey(ChatType.WHISPER, name1), whisper);
 
         Message msg1 = new Message(ChatType.WHISPER, -1, name1, name2, "Hallo Welt");
         Message msg2 = new Message(ChatType.WHISPER, -1, name1, name2, "$$Hallo$$Welt$$");
