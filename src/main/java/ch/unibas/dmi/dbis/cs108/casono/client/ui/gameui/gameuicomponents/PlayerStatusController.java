@@ -31,7 +31,7 @@ public class PlayerStatusController {
     private Image dealerImage;
     private Player player;
     private boolean turnHighlighted;
-    private static final String DEALER_IMAGE_PATH = "/images/chip-dealer-blue-3.png";
+    private static final String DEALER_IMAGE_PATH = "/images/chip-dealer-blue-5.png";
     private static final double DEALER_ICON_X_FACTOR = 0.8;
     private static final String TURN_HIGHLIGHT_STYLE_CLASS = "player-status-active-turn";
 
