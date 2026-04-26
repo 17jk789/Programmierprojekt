@@ -18,7 +18,7 @@ public class EventBusTest {
     static class TestEvent implements Event {}
 
     @Test
-    void singleSubscriberReceivesEvent() {
+    void testSingleSubscriberReceivesEvent() {
         AtomicBoolean called = new AtomicBoolean(false);
         eventBus.subscribe(TestEvent.class, e -> called.set(true));
         eventBus.publish(new TestEvent());
@@ -26,7 +26,7 @@ public class EventBusTest {
     }
 
     @Test
-    void multipleSubscribersReceiveEvent() {
+    void testMultipleSubscribersReceiveEvent() {
         AtomicInteger counter = new AtomicInteger(0);
         eventBus.subscribe(TestEvent.class, e -> counter.incrementAndGet());
         eventBus.subscribe(TestEvent.class, e -> counter.incrementAndGet());
@@ -35,12 +35,12 @@ public class EventBusTest {
     }
 
     @Test
-    void publishNullThrowsNpe() {
+    void testPublishNullThrowsNpe() {
         assertThrows(NullPointerException.class, () -> eventBus.publish((Event) null));
     }
 
     @Test
-    void subscribingToBaseEventDoesNotReceiveSubclass() {
+    void testSubscribingToBaseEventDoesNotReceiveSubclass() {
         AtomicBoolean called = new AtomicBoolean(false);
         eventBus.subscribe(Event.class, e -> called.set(true));
         eventBus.publish(new TestEvent());
