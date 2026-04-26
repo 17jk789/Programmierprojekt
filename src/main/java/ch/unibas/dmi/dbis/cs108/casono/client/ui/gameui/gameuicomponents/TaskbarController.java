@@ -412,7 +412,7 @@ public class TaskbarController {
             boolean phaseChanged) {
 
         // boolean firstPlayerNewRound =
-        //        phaseChanged && isFirstPreflopPlayerInputOnly(state, me);
+        //        phaseChanged && isFirstPreflopPlayer(state, me);
         inputActionAllowed = false;
         if (!isMyTurn || isOutOrFinished || state == null || me == null) {
             setBetButtonVisible(false);
@@ -433,20 +433,20 @@ public class TaskbarController {
             return;
         }
 
-        // if (isFirstPreflopPlayerInputOnly(state, me)) {
-        //     setActionEnabled(betButton, true);
-        //     setActionEnabled(callButton, false);
-        //     setActionEnabled(foldButton, false);
-        //     setActionEnabled(raiseButton, false);
-        //     activateInputField(taskbarInput);
-        //     inputActionAllowed = true;
-        //     return;
-        // }
+        if (isFirstPreflopPlayer(state, me)) {
+            setActionEnabled(betButton, true);
+            setActionEnabled(callButton, false);
+            setActionEnabled(foldButton, false);
+            setActionEnabled(raiseButton, false);
+            activateInputField(taskbarInput);
+            inputActionAllowed = true;
+            return;
+        }
 
         if (isFirstPlayerOfPhase(state, me)) {
             setActionEnabled(betButton, true);
             setActionEnabled(callButton, false);
-            setActionEnabled(foldButton, false);
+            // setActionEnabled(foldButton, false);
             setActionEnabled(raiseButton, false);
             activateInputField(taskbarInput);
             inputActionAllowed = true;
@@ -605,7 +605,7 @@ public class TaskbarController {
      * @return A boolean value indicating whether the current player is the first to act in the
      *     pre-flop phase with only the initial blind layout in place.
      */
-    private boolean isFirstPreflopPlayerInputOnly(GameState state, Player me) {
+    private boolean isFirstPreflopPlayer(GameState state, Player me) {
         if (state == null || me == null || !isPreflop(state.phase) || state.players == null) {
             return false;
         }
@@ -1078,7 +1078,7 @@ public class TaskbarController {
             return ValidationResult.blocked("Bet must match at least the call amount");
         }
 
-        if (isFirstPlayerOfPhase(state, me)) {
+        if (isFirstPreflopPlayer(state, me)) {
             if (required > FIRST_PLAYER_MAX_BET) {
                 return ValidationResult.blocked(
                         "First player cannot bet more than " + FIRST_PLAYER_MAX_BET);
