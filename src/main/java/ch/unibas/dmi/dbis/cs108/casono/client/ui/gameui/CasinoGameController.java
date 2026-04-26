@@ -1,11 +1,14 @@
 package ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui;
 
 import ch.unibas.dmi.dbis.cs108.casono.client.chat.ChatController;
+import ch.unibas.dmi.dbis.cs108.casono.client.chat.ChatType;
+import ch.unibas.dmi.dbis.cs108.casono.client.chat.Message;
 import ch.unibas.dmi.dbis.cs108.casono.client.game.Card;
 import ch.unibas.dmi.dbis.cs108.casono.client.game.GameService;
 import ch.unibas.dmi.dbis.cs108.casono.client.game.GameState;
 import ch.unibas.dmi.dbis.cs108.casono.client.game.Player;
 import ch.unibas.dmi.dbis.cs108.casono.client.game.PlayerId;
+import ch.unibas.dmi.dbis.cs108.casono.client.game.PlayerState;
 import ch.unibas.dmi.dbis.cs108.casono.client.network.ClientService;
 import ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui.gameuicomponents.PlayerStatusController;
 import ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui.gameuicomponents.TaskbarController;
@@ -138,11 +141,21 @@ public class CasinoGameController {
     private static final long CHIP_STAGGER_DELAY_MULTIPLIER = 35L;
     private static final double CHAT_WIDTH = 400;
     private static final double CHAT_HEIGHT = 600;
+    private static final String ACTIVE_CARD_BOX_STYLE_CLASS = "player-cards-active-turn";
+    private static final int DEALER_OFFSET = 3;
+    private static final String FIRST_PREFLOP_INFO_TEMPLATE =
+            "Bet the big blind amount: %d$ or +%d$";
 
     private String chatUsername;
     private ClientService chatClientService;
     private int chatLobbyId = -1;
     private boolean chatInitialized;
+    private boolean gameFinished;
+    private boolean localWinAnnouncementSent;
+    private String lastWinnerName;
+    private static final int SMALL_BLIND = 100;
+    private static final int BIG_BLIND = 200;
+    private static final int NO_BET = 0;
 
     /** Standard constructor. Used by FXML. */
     public CasinoGameController() {
@@ -194,11 +207,18 @@ public class CasinoGameController {
         if (controller != null && myPlayerId != null) {
             controller.setGameService(gameService, myPlayerId);
         }
+        configureTaskbarLobbyActionAnnouncements();
     }
 
+    /**
+     * Set the PlayerId of the current player.
+     *
+     * @param chatController The ChatController instance used for managing the chat functionality.
+     */
     public void startChat(ChatController chatController) {
         this.chatController = chatController;
         initializeChatIfPossible();
+        configureTaskbarLobbyActionAnnouncements();
     }
 
     /** Set the PlayerId of the current player. */
@@ -210,6 +230,7 @@ public class CasinoGameController {
         if (taskbarController != null && gameService != null && myPlayerId != null) {
             taskbarController.setGameService(gameService, myPlayerId);
         }
+        configureTaskbarLobbyActionAnnouncements();
 
         if (communityCardsBox == null) {
             LOGGER.warning("communityCardsBox is NULL");
@@ -230,6 +251,7 @@ public class CasinoGameController {
         }
 
         myDealerIcon.setVisible(false);
+        tableText.setWrapText(true);
 
         javafx.stage.Screen screen = javafx.stage.Screen.getPrimary();
         double screenHeight = screen.getBounds().getHeight();
@@ -262,6 +284,7 @@ public class CasinoGameController {
         this.chatUsername = username;
         this.chatClientService = clientService;
         this.chatLobbyId = lobbyId;
+        configureTaskbarLobbyActionAnnouncements();
     }
 
     /**
@@ -477,7 +500,7 @@ public class CasinoGameController {
      */
     private void applyState(GameState s) {
 
-        if (s == null) {
+        if (s == null || gameFinished) {
             return;
         }
 
@@ -490,27 +513,33 @@ public class CasinoGameController {
                         + (s.players != null ? s.players.size() : 0));
 
         List<Player> players = (s.players != null) ? s.players : List.of();
-        List<Card> community = (s.communityCards != null) ? s.communityCards : List.of();
-        List<Card> myCards = getMyCards(players);
-
-        java.util.List<String> newCommunityKeys = cardKeys(community, TOTAL_SLOTS);
-        if (!newCommunityKeys.equals(lastCommunityKeys)) {
-            lastCommunityKeys = newCommunityKeys;
-            renderCommunityCards(community);
+        String winnerName = resolveWinnerName(s);
+        if (winnerName != null && !winnerName.isBlank()) {
+            lastWinnerName = winnerName;
+        } else if (!isTerminalPhase(s.phase)) {
+            lastWinnerName = null;
         }
 
-        java.util.List<String> newMyCardKeys = cardKeys(myCards, PLAYER_SLOTS);
-        if (!newMyCardKeys.equals(lastMyCardKeys)) {
-            lastMyCardKeys = newMyCardKeys;
-            renderPlayerCards(myCards);
+        if (isGameFinishedState(s, winnerName)) {
+            updatePlayers(players, -1);
+            syncWhisperTargetsFromPlayers(players);
+            updateGameInfo(s);
+            highlightDealer(s);
+            updateTaskbar(s);
+            clearActiveTurnHighlights();
+            announceLocalWinIfNeeded(s);
+            finishGameUiLoop();
+            return;
         }
+
+        updateCards(s, players);
 
         if (s.pot != lastPot) {
             lastPot = s.pot;
             renderPot(s.pot);
         }
 
-        updatePlayers(players);
+        updatePlayers(players, s.activePlayer);
         syncWhisperTargetsFromPlayers(players);
         updateGameInfo(s);
         highlightDealer(s);
@@ -530,6 +559,32 @@ public class CasinoGameController {
                             + (p != null ? p.getBet() : null)
                             + " state="
                             + (p != null ? p.getState() : null));
+        }
+    }
+
+    /**
+     * Update the displayed community cards and the player's hole cards based on the current game
+     * state.
+     *
+     * @param s The current game state containing the community cards and the list of players, used
+     *     to determine.
+     * @param players The list of players currently in the game, used to retrieve the player's hole
+     *     cards for display. If null, it will be treated as an empty list.
+     */
+    private void updateCards(GameState s, List<Player> players) {
+        List<Card> community = (s.communityCards != null) ? s.communityCards : List.of();
+        List<Card> myCards = getMyCards(players);
+
+        var newCommunityKeys = cardKeys(community, TOTAL_SLOTS);
+        if (!newCommunityKeys.equals(lastCommunityKeys)) {
+            lastCommunityKeys = newCommunityKeys;
+            renderCommunityCards(community);
+        }
+
+        var newMyCardKeys = cardKeys(myCards, PLAYER_SLOTS);
+        if (!newMyCardKeys.equals(lastMyCardKeys)) {
+            lastMyCardKeys = newMyCardKeys;
+            renderPlayerCards(myCards);
         }
     }
 
@@ -610,14 +665,102 @@ public class CasinoGameController {
      */
     private void updateGameInfo(GameState s) {
 
-        String text = "Phase: " + s.phase;
-
-        if (s.winnerIndex >= 0 && s.winnerIndex < s.players.size()) {
-            Player winner = s.players.get(s.winnerIndex);
-            text = "Winner: " + winner.getName();
+        if (s == null) {
+            tableText.setText("Phase: -");
+            return;
         }
 
-        tableText.setText(text);
+        String winnerName = resolveWinnerName(s);
+        if (winnerName != null && !winnerName.isBlank()) {
+            tableText.setText("Winner: " + winnerName);
+            return;
+        }
+
+        String firstPreflopInfo = resolveFirstPreflopInfo(s);
+        if (firstPreflopInfo != null) {
+            tableText.setText(firstPreflopInfo);
+            return;
+        }
+
+        String phaseText = formatPhaseText(s.phase);
+        StringBuilder text = new StringBuilder("Phase: ").append(phaseText);
+
+        tableText.setText(text.toString());
+    }
+
+    private String formatPhaseText(String phase) {
+        if (phase == null || phase.isBlank()) {
+            return "-";
+        }
+        return phase.toUpperCase().replace("_", " ");
+    }
+
+    /**
+     * Returns a context-specific info message for the first player to act preflop.
+     *
+     * @param s The current game state.
+     * @return An English hint with the big blind amount and its double, or null if the special case
+     *     does not apply.
+     */
+    private String resolveFirstPreflopInfo(GameState s) {
+        if (s == null || s.players == null || s.players.size() < 2) {
+            return null;
+        }
+
+        if (!"PREFLOP".equalsIgnoreCase(s.phase)) {
+            return null;
+        }
+
+        int firstIndex =
+                (s.players.size() == 2) ? s.dealer : (s.dealer + DEALER_OFFSET) % s.players.size();
+        if (s.activePlayer != firstIndex) {
+            return null;
+        }
+
+        if (!isInitialPreflopBlindLayout(s)) {
+            return null;
+        }
+
+        int callTarget = Math.max(0, s.currentBet);
+        if (callTarget <= 0) {
+            return null;
+        }
+
+        long raiseTarget = (long) callTarget * 2L;
+        int safeRaiseTarget =
+                raiseTarget > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) raiseTarget;
+        return String.format(FIRST_PREFLOP_INFO_TEMPLATE, callTarget, safeRaiseTarget);
+    }
+
+    /**
+     * Checks whether the preflop state still matches the initial blind layout.
+     *
+     * @param s The current game state.
+     * @return true if exactly one small blind and one big blind are present and all other players
+     *     have not yet committed chips.
+     */
+    private boolean isInitialPreflopBlindLayout(GameState s) {
+        int sbCount = 0;
+        int bbCount = 0;
+        int zeroCount = 0;
+
+        for (Player player : s.players) {
+            if (player == null) {
+                continue;
+            }
+
+            int bet = Math.max(0, player.getBet());
+            if (bet == SMALL_BLIND) {
+                sbCount++;
+            } else if (bet == BIG_BLIND) {
+                bbCount++;
+            } else if (bet == NO_BET) {
+                zeroCount++;
+            }
+        }
+
+        int playerCount = s.players.size();
+        return playerCount >= 2 && sbCount == 1 && bbCount == 1 && zeroCount == playerCount - 2;
     }
 
     /**
@@ -644,8 +787,10 @@ public class CasinoGameController {
      * @param players The list of players currently in the game, used to determine which players are
      *     opponents and update their display in the UI accordingly. If the list is null or empty,
      *     all opponent slots will be cleared.
+     * @param activePlayerIndex The index of the active player in the players list, used to
+     *     determine whose turn it is and update the UI highlights to reflect that.
      */
-    private void updatePlayers(List<Player> players) {
+    private void updatePlayers(List<Player> players, int activePlayerIndex) {
         if (players == null || players.isEmpty()) {
             clearOpponentSlots();
             return;
@@ -671,6 +816,7 @@ public class CasinoGameController {
         safeRefresh(player1Controller);
         safeRefresh(player2Controller);
         safeRefresh(player3Controller);
+        updateActiveTurnHighlights(players, activePlayerIndex);
     }
 
     /**
@@ -695,7 +841,7 @@ public class CasinoGameController {
             }
 
             PlayerId pid = p.getId();
-            boolean isMe = myPlayerId != null && pid != null && pid.equals(myPlayerId);
+            boolean isMe = myPlayerId != null && myPlayerId.equals(pid);
 
             if (isMe) {
                 meFound = true;
@@ -767,6 +913,318 @@ public class CasinoGameController {
         safeRefresh(player1Controller);
         safeRefresh(player2Controller);
         safeRefresh(player3Controller);
+        clearActiveTurnHighlights();
+        setTaskbarTurnHighlight(false);
+    }
+
+    /** Clear all visual highlights in the UI that indicate the active player's turn. */
+    private void clearActiveTurnHighlights() {
+        if (player1Controller != null) {
+            player1Controller.setTurnHighlighted(false);
+        }
+
+        if (player2Controller != null) {
+            player2Controller.setTurnHighlighted(false);
+        }
+
+        if (player3Controller != null) {
+            player3Controller.setTurnHighlighted(false);
+        }
+
+        if (playerStatusController != null) {
+            playerStatusController.setTurnHighlighted(false);
+        }
+
+        setPlayerCardsTurnHighlighted(false);
+    }
+
+    /**
+     * Set the visual highlight state of the player's hole cards to indicate whether it is currently
+     * the player's turn in the game.
+     *
+     * @param highlighted true to highlight the player's hole cards, indicating that it is their
+     *     turn, or false to remove the highlight when it is not their turn.
+     */
+    private void setPlayerCardsTurnHighlighted(boolean highlighted) {
+        if (playerCardsBox == null) {
+            return;
+        }
+
+        for (Node child : playerCardsBox.getChildren()) {
+            if (child instanceof ImageView) {
+                toggleStyleClass(child, ACTIVE_CARD_BOX_STYLE_CLASS, highlighted);
+            }
+        }
+    }
+
+    /**
+     * Update the visual highlights in the UI to indicate which player's turn it is based on the
+     * active.
+     *
+     * @param players The list of players currently in the game, used to identify the active player
+     *     and update the turn highlights accordingly.
+     * @param activePlayerIndex The index of the active player in the players list, used to
+     *     determine whose turn it is and update the UI highlights to reflect that.
+     */
+    private void updateActiveTurnHighlights(List<Player> players, int activePlayerIndex) {
+        clearActiveTurnHighlights();
+
+        Player activePlayer = getPlayerAtIndex(players, activePlayerIndex);
+        if (activePlayer == null || activePlayer.getId() == null) {
+            setTaskbarTurnHighlight(false);
+            return;
+        }
+
+        if (myPlayerId != null && myPlayerId.equals(activePlayer.getId())) {
+            setPlayerCardsTurnHighlighted(true);
+            setTaskbarTurnHighlight(true);
+            return;
+        }
+
+        setTaskbarTurnHighlight(false);
+
+        if (player1Controller != null && player1Controller.hasPlayer(activePlayer)) {
+            player1Controller.setTurnHighlighted(true);
+            return;
+        }
+
+        if (player2Controller != null && player2Controller.hasPlayer(activePlayer)) {
+            player2Controller.setTurnHighlighted(true);
+            return;
+        }
+
+        if (player3Controller != null && player3Controller.hasPlayer(activePlayer)) {
+            player3Controller.setTurnHighlighted(true);
+        }
+    }
+
+    /**
+     * Set the turn highlight state in the taskbar controller, which visually indicates whether it
+     * is the current player's turn in the game.
+     *
+     * @param highlighted true to highlight the turn in the taskbar, false to remove the highlight.
+     */
+    private void setTaskbarTurnHighlight(boolean highlighted) {
+        TaskbarController taskbarCtrl = resolveTaskbarController();
+        if (taskbarCtrl != null) {
+            taskbarCtrl.setTurnHighlighted(highlighted);
+        }
+    }
+
+    /**
+     * Retrieve the Player object at the specified index from the list of players.
+     *
+     * @param players The list of players from which to retrieve the player at the specified index.
+     * @param index The index of the player to retrieve from the list.
+     * @return The Player object at the specified index if it exists and is valid, or null if the
+     *     index is out of bounds or if the players list is null or empty.
+     */
+    private Player getPlayerAtIndex(List<Player> players, int index) {
+        if (players == null || index < 0 || index >= players.size()) {
+            return null;
+        }
+
+        return players.get(index);
+    }
+
+    /**
+     * Resolve the winner of the hand based on the game state.
+     *
+     * @param s The current game state, which may contain information about the players, their
+     *     states, and the winner index.
+     * @return The Player object representing the winner if it can be determined from the game
+     *     state, or null if the winner cannot be resolved or if the game is still in progress.
+     */
+    private Player resolveWinner(GameState s) {
+        if (s == null || s.players == null || s.players.isEmpty()) {
+            return null;
+        }
+
+        if (s.winnerIndex >= 0 && s.winnerIndex < s.players.size()) {
+            return s.players.get(s.winnerIndex);
+        }
+
+        Player remaining = null;
+        int remainingCount = 0;
+        for (Player player : s.players) {
+            if (player == null) {
+                continue;
+            }
+            if (player.getState() == PlayerState.FOLDED) {
+                continue;
+            }
+            if (remainingCount > 0) {
+                return null;
+            }
+            remaining = player;
+            remainingCount++;
+        }
+
+        if (remaining != null && remainingCount == 1) {
+            return remaining;
+        }
+
+        return null;
+    }
+
+    /**
+     * Resolve the name of the winner based on the game state.
+     *
+     * @param s The current game state, which may contain information about the players, their
+     *     states, and the winner index.
+     * @return The name of the winner if it can be determined from the game state, or null if the
+     *     winner cannot be resolved or if the game is still in progress.
+     */
+    private String resolveWinnerName(GameState s) {
+        Player winner = resolveWinner(s);
+        if (winner != null) {
+            String name = winner.getName();
+            if (name != null && !name.isBlank()) {
+                return name;
+            }
+        }
+
+        if (isTerminalPhase(s != null ? s.phase : null)
+                && lastWinnerName != null
+                && !lastWinnerName.isBlank()) {
+            return lastWinnerName;
+        }
+
+        return null;
+    }
+
+    /**
+     * Sends a short lobby chat message when the local player wins, but only once per hand.
+     *
+     * @param s The current game state.
+     */
+    private void announceLocalWinIfNeeded(GameState s) {
+        if (localWinAnnouncementSent || s == null || !isTerminalPhase(s.phase)) {
+            return;
+        }
+
+        Player winner = resolveWinner(s);
+        boolean isLocalWinner =
+                winner != null
+                        && winner.getId() != null
+                        && myPlayerId != null
+                        && myPlayerId.equals(winner.getId());
+
+        if (!isLocalWinner && lastWinnerName != null && !lastWinnerName.isBlank()) {
+            String localName =
+                    (chatUsername != null && !chatUsername.isBlank())
+                            ? chatUsername
+                            : (winner != null ? winner.getName() : null);
+            isLocalWinner = localName != null && localName.equalsIgnoreCase(lastWinnerName);
+        }
+
+        if (!isLocalWinner) {
+            return;
+        }
+
+        localWinAnnouncementSent = true;
+        sendLobbyActionMessage("I won");
+    }
+
+    /**
+     * Determine if the game is in a finished state based on the game state and the presence of a
+     * winner name.
+     *
+     * @param s The current game state, which may be null or contain information about the phase,
+     *     players, and winner index.
+     * @param winnerName The name of the winner, which may be null or blank if the winner is not yet
+     *     determined or if the game is still in progress.
+     * @return true if the game is considered finished based on the provided state and winner
+     *     information, false otherwise.
+     */
+    private boolean isGameFinishedState(GameState s, String winnerName) {
+        if (s == null) {
+            return false;
+        }
+
+        boolean winnerKnown = winnerName != null && !winnerName.isBlank();
+        if (!winnerKnown) {
+            return false;
+        }
+
+        if (isTerminalPhase(s.phase)) {
+            return true;
+        }
+
+        if (s.winnerIndex >= 0 && s.players != null && s.winnerIndex < s.players.size()) {
+            return true;
+        }
+
+        return hasSingleRemainingPlayer(s);
+    }
+
+    /**
+     * Determine if there is only one remaining active player in the game state.
+     *
+     * @param s The current game state, which may be null or contain a list of players.
+     * @return true if there is exactly one active player remaining (not folded), false otherwise.
+     */
+    private boolean hasSingleRemainingPlayer(GameState s) {
+        if (s == null || s.players == null || s.players.isEmpty()) {
+            return false;
+        }
+
+        int remaining = 0;
+        for (Player player : s.players) {
+            if (player == null || player.getState() == PlayerState.FOLDED) {
+                continue;
+            }
+            remaining++;
+            if (remaining > 1) {
+                return false;
+            }
+        }
+        return remaining == 1;
+    }
+
+    /**
+     * Determine if the current phase of the game is a terminal phase, such as "FINISHED" or
+     * "SHOWDOWN".
+     *
+     * @param phase The current phase of the game, which may be null or blank.
+     * @return true if the phase is considered terminal, indicating that the hand has ended and a
+     *     winner can be declared, false otherwise.
+     */
+    private boolean isTerminalPhase(String phase) {
+        return "FINISHED".equalsIgnoreCase(phase) || "SHOWDOWN".equalsIgnoreCase(phase);
+    }
+
+    /** Finish the game UI loop by stopping the timeline that updates the UI. */
+    private void finishGameUiLoop() {
+        if (gameFinished) {
+            return;
+        }
+        gameFinished = true;
+        if (timeline != null) {
+            timeline.stop();
+        }
+    }
+
+    /**
+     * Toggle a CSS style class on a JavaFX Node based on the active state.
+     *
+     * @param node The JavaFX Node on which to toggle the style class.
+     * @param styleClass The name of the CSS style class to toggle.
+     * @param active A boolean indicating whether to add (true) or remove (false) the style class
+     *     from the node.
+     */
+    private void toggleStyleClass(Node node, String styleClass, boolean active) {
+        if (node == null || styleClass == null || styleClass.isBlank()) {
+            return;
+        }
+
+        if (active) {
+            if (!node.getStyleClass().contains(styleClass)) {
+                node.getStyleClass().add(styleClass);
+            }
+        } else {
+            node.getStyleClass().remove(styleClass);
+        }
     }
 
     /**
@@ -1315,6 +1773,47 @@ public class CasinoGameController {
         if (controller != null && gameService != null && myPlayerId != null) {
             controller.setGameService(gameService, myPlayerId);
         }
+        configureTaskbarLobbyActionAnnouncements();
+    }
+
+    /**
+     * Configure the TaskbarController to announce lobby actions by sending chat messages when
+     * certain actions occur in the game, such as winning a hand.
+     */
+    private void configureTaskbarLobbyActionAnnouncements() {
+        TaskbarController controller = resolveTaskbarController();
+        if (controller == null) {
+            return;
+        }
+        controller.setLobbyActionAnnouncer(this::sendLobbyActionMessage);
+    }
+
+    /**
+     * Send a lobby action message to the chat controller with the specified action label, which can
+     * be used to announce game events in the lobby chat.
+     *
+     * @param actionLabel The label describing the action to announce in the lobby chat, such as "I
+     *     won" when the local player wins a hand.
+     */
+    private void sendLobbyActionMessage(String actionLabel) {
+        if (chatController == null
+                || chatLobbyId < 0
+                || actionLabel == null
+                || actionLabel.isBlank()) {
+            return;
+        }
+
+        String sender =
+                (chatUsername != null && !chatUsername.isBlank())
+                        ? chatUsername
+                        : chatController.getCurrentUsername();
+        if (sender == null || sender.isBlank()) {
+            return;
+        }
+
+        Message message =
+                new Message(ChatType.LOBBY, chatLobbyId, sender, null, actionLabel.trim());
+        chatController.onSendToNetwork(message);
     }
 
     /**

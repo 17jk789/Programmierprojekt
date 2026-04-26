@@ -36,7 +36,9 @@ None, as milestone 3 covered the assessment of individual technical understandin
 
 
 ## Milestone 5
-*(Meeting notes to be added here when available)*
+### [26. April 2026](26-04.md)
+- Progress on unit tests and code quality improvements
+- Discussion of compromises made for MS4 and plans for finalizing code quality by MS6
 
 
 ## Milestone 6

@@ -69,6 +69,10 @@ public class GetGameStateResponse extends SuccessResponse {
             return;
         }
 
+        if (!state.tryMarkWinnerPersistedForHand()) {
+            return;
+        }
+
         Player winner = findPlayerByIndex(state, winnerIndex);
         if (winner == null || winner.getId() == null || winner.getId().value() == null) {
             return;

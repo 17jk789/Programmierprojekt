@@ -39,19 +39,19 @@
             styleClass="yellow-button"/>
 
     <!-- Action buttons: Trigger Call -->
-    <Button text="Call"
+    <Button text="CALL"
             fx:id="callButton"
             onAction="#onInputPlayerCall"
             styleClass="yellow-button"/>
 
     <!-- Action buttons: Trigger Fold -->
-    <Button text="Fold"
+    <Button text="FOLD"
             fx:id="foldButton"
             onAction="#onInputPlayerFold"
             styleClass="yellow-button"/>
 
     <!-- Action buttons: Trigger Raise -->
-    <Button text="Raise"
+    <Button text="RAISE"
             fx:id="raiseButton"
             onAction="#onInputPlayerRaise"
             styleClass="yellow-button"/>

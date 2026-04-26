@@ -8,11 +8,22 @@ import ch.unibas.dmi.dbis.cs108.casono.client.game.PlayerId;
 import ch.unibas.dmi.dbis.cs108.casono.client.game.PlayerState;
 import ch.unibas.dmi.dbis.cs108.casono.client.network.LobbyClient;
 import ch.unibas.dmi.dbis.cs108.casono.client.ui.lobbyui.Casinomainui;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.UnaryOperator;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter;
+import javafx.scene.control.Tooltip;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -59,8 +70,16 @@ public class TaskbarController {
     private static final String STYLE_RED_INPUT = "red-input-field";
     private static final double SCALE_NORMAL = 1.0;
     private static final int DEALER_OFFSET = 3;
+    private static final String LOGO_PATH = "/images/logoinverted.png";
+    private static final String LOGO_PATH_MAIN = "/images/logo.png";
+    private static final double ALERT_LOGO_HEIGHT = 40.0;
     private boolean inputActionAllowed;
     private int lastReferenceBet = BIG_BLIND;
+    private Consumer<String> lobbyActionAnnouncer;
+    private String lastPhase;
+    private static final int FIRST_PLAYER_MAX_BET = 3000;
+    private static final int MAX_INPUT_LENGTH = 6;
+    private static final double MAX_CHIP_PERCENT = 0.30;
 
     /** Standard constructor. Used by FXML. */
     public TaskbarController() {
@@ -213,6 +232,11 @@ public class TaskbarController {
         this.myPlayerId = myPlayerId;
     }
 
+    /** Sets an optional callback that publishes simple action labels to lobby chat. */
+    public void setLobbyActionAnnouncer(Consumer<String> lobbyActionAnnouncer) {
+        this.lobbyActionAnnouncer = lobbyActionAnnouncer;
+    }
+
     /**
      * Initializes the taskbar controller. This method is called automatically after the FXML
      * components have been loaded.
@@ -220,13 +244,100 @@ public class TaskbarController {
     @FXML
     public void initialize() {
         updateBasicButtons(false, false);
+
         if (taskbarInput != null) {
+
+            UnaryOperator<TextFormatter.Change> filter =
+                    change -> {
+                        String newText = change.getControlNewText();
+
+                        if (newText.length() > MAX_INPUT_LENGTH) {
+                            return null;
+                        }
+
+                        if (!newText.matches("\\d*")) {
+                            return null;
+                        }
+
+                        return change;
+                    };
+
+            taskbarInput.setTextFormatter(new TextFormatter<>(filter));
+
             taskbarInput
                     .textProperty()
                     .addListener((obs, oldValue, newValue) -> refreshBetInputUi());
         }
 
+        Tooltip callTooltip = new Tooltip();
+        callButton.setTooltip(callTooltip);
+        callButton.setOnMouseEntered(e -> callTooltip.setText(previewCall()));
+
+        Tooltip raiseTooltip = new Tooltip();
+        raiseButton.setTooltip(raiseTooltip);
+        raiseButton.setOnMouseEntered(e -> raiseTooltip.setText(previewRaise()));
+
         setBetButtonVisible(false);
+    }
+
+    /**
+     * Generates a preview string for the Call action, showing the amount that would be called based
+     * on the current game state and the player's bet status.
+     *
+     * @return A string representing the Call action preview, including the amount that would be
+     *     called, or an empty string if the game state is not available.
+     */
+    private String previewCall() {
+        if (lastState == null) {
+            return "";
+        }
+
+        int callTarget = effectiveCallTarget(lastState);
+        Player me = findCurrentPlayer(lastState);
+
+        int alreadyInvested = (me != null) ? Math.max(0, me.getBet()) : 0;
+        int amount = Math.max(0, callTarget - alreadyInvested);
+
+        return "CALL " + amount;
+    }
+
+    /**
+     * Generates a preview string for the Raise action, showing the amount that would be raised.
+     *
+     * @return A string representing the Raise action preview, including the amount that would be
+     *     raised.
+     */
+    private String previewRaise() {
+        if (lastState == null) {
+            return "";
+        }
+
+        // int callTarget = effectiveCallTarget(lastState);
+        // Player me = findCurrentPlayer(lastState);
+
+        // int alreadyInvested = (me != null) ? Math.max(0, me.getBet()) : 0;
+
+        // Integer targetBet = resolveTargetBet(ActionType.RAISE_BUTTON, lastState);
+        // if (targetBet == null) {
+        //    return "";
+        // }
+
+        // int totalContribution = Math.max(0, targetBet);
+
+        GameState state = ensureLatestStateForAction(ActionType.CALL_BUTTON.name().toLowerCase());
+
+        // int raiseBy = Math.max(0, targetBet);
+        int raiseBy = effectiveCallTarget(state);
+
+        int callTarget = effectiveCallTarget(lastState);
+        Player me = findCurrentPlayer(lastState);
+
+        int alreadyInvested = (me != null) ? Math.max(0, me.getBet()) : 0;
+        int amount = Math.max(0, callTarget - alreadyInvested);
+
+        int raiseamout = amount + raiseBy;
+
+        return "RAISE +" + raiseBy + " TO " + raiseamout;
     }
 
     /**
@@ -248,6 +359,7 @@ public class TaskbarController {
         }
 
         this.lastState = state;
+
         if (state.currentBet > 0) {
             lastReferenceBet = state.currentBet;
         }
@@ -269,8 +381,14 @@ public class TaskbarController {
         boolean isOut = me.getState() == PlayerState.FOLDED;
         boolean isGameFinished = isHandFinished(state);
 
+        boolean phaseChanged = lastPhase == null || !lastPhase.equalsIgnoreCase(state.phase);
+
+        lastPhase = state.phase;
+
         updateBasicButtons(isMyTurn, isOut || isGameFinished);
-        applyActionAvailability(state, me, isMyTurn, isOut || isGameFinished);
+
+        applyActionAvailability(state, me, isMyTurn, isOut || isGameFinished, phaseChanged);
+
         setMoney(me.getChips());
         refreshBetInputUi();
     }
@@ -287,7 +405,14 @@ public class TaskbarController {
      *     if the game is finished, which disables actions.
      */
     private void applyActionAvailability(
-            GameState state, Player me, boolean isMyTurn, boolean isOutOrFinished) {
+            GameState state,
+            Player me,
+            boolean isMyTurn,
+            boolean isOutOrFinished,
+            boolean phaseChanged) {
+
+        // boolean firstPlayerNewRound =
+        //        phaseChanged && isFirstPreflopPlayerInputOnly(state, me);
         inputActionAllowed = false;
         if (!isMyTurn || isOutOrFinished || state == null || me == null) {
             setBetButtonVisible(false);
@@ -308,7 +433,17 @@ public class TaskbarController {
             return;
         }
 
-        if (isFirstPreflopPlayerInputOnly(state, me)) {
+        // if (isFirstPreflopPlayerInputOnly(state, me)) {
+        //     setActionEnabled(betButton, true);
+        //     setActionEnabled(callButton, false);
+        //     setActionEnabled(foldButton, false);
+        //     setActionEnabled(raiseButton, false);
+        //     activateInputField(taskbarInput);
+        //     inputActionAllowed = true;
+        //     return;
+        // }
+
+        if (isFirstPlayerOfPhase(state, me)) {
             setActionEnabled(betButton, true);
             setActionEnabled(callButton, false);
             setActionEnabled(foldButton, false);
@@ -353,7 +488,16 @@ public class TaskbarController {
         if (value > Integer.MAX_VALUE / 2) {
             return Integer.MAX_VALUE;
         }
-        return value * 2;
+
+        int callTarget = effectiveCallTarget(lastState);
+        Player me = findCurrentPlayer(lastState);
+
+        int alreadyInvested = (me != null) ? Math.max(0, me.getBet()) : 0;
+        int amount = Math.max(0, callTarget - alreadyInvested);
+
+        int raisevalue = amount + value;
+
+        return raisevalue;
     }
 
     /**
@@ -431,10 +575,22 @@ public class TaskbarController {
      * @return An integer representing the effective call target for the current game state.
      */
     private int effectiveCallTarget(GameState state) {
-        if (state != null && state.currentBet > 0) {
-            return state.currentBet;
+        int currentBet = (state != null) ? Math.max(0, state.currentBet) : 0;
+        int rememberedBet = Math.max(0, lastReferenceBet);
+
+        if (state != null && isPreflop(state.phase) && isInitialPreflopBlindLayout(state)) {
+            return currentBet;
         }
-        return Math.max(0, lastReferenceBet);
+
+        if (currentBet <= 0) {
+            return rememberedBet;
+        }
+
+        if (rememberedBet <= 0) {
+            return currentBet;
+        }
+
+        return Math.max(currentBet, rememberedBet);
     }
 
     /**
@@ -474,6 +630,46 @@ public class TaskbarController {
     }
 
     /**
+     * Checks if the current player is the first to act in the current phase of the game, based on
+     * the dealer position and the active player index.
+     *
+     * @param state The current GameState object representing the state of the game, which includes
+     *     information about
+     * @param me The Player object representing the current player, used to determine their
+     *     position.
+     * @return A boolean value indicating whether the current player is the first to act in the
+     *     current phase of the game.
+     */
+    private boolean isFirstPlayerOfPhase(GameState state, Player me) {
+
+        if (state == null || me == null || state.players == null) {
+            return false;
+        }
+
+        int size = state.players.size();
+        if (size < 2) {
+            return false;
+        }
+
+        int myIndex = state.players.indexOf(me);
+        if (myIndex < 0) {
+            return false;
+        }
+
+        int dealer = state.dealer;
+
+        int firstIndex;
+
+        if (isPreflop(state.phase)) {
+            firstIndex = (size == 2) ? dealer : (dealer + DEALER_OFFSET) % size;
+        } else {
+            firstIndex = (dealer + 1) % size;
+        }
+
+        return state.activePlayer == firstIndex && myIndex == firstIndex;
+    }
+
+    /**
      * Checks if the initial blind layout is still in place during the pre-flop phase.
      *
      * @param state The current GameState object representing the state of the game, which includes
@@ -482,6 +678,10 @@ public class TaskbarController {
      *     the pre-flop phase.
      */
     private boolean isInitialPreflopBlindLayout(GameState state) {
+        if (state == null || state.players == null || state.players.isEmpty()) {
+            return false;
+        }
+
         int sbCount = 0;
         int bbCount = 0;
         int zeroCount = 0;
@@ -618,57 +818,31 @@ public class TaskbarController {
         }
 
         GameState state = ensureLatestStateForAction(actionType.name().toLowerCase());
-        if (state == null) {
-            return;
-        }
-
-        if (isHandFinished(state)) {
-            LOGGER.info("Action {} ignored: hand is already finished", actionType);
-            update(state, myPlayerId);
+        if (state == null || isHandFinished(state)) {
+            if (state != null) {
+                LOGGER.info("Action {} ignored: hand finished", actionType);
+                update(state, myPlayerId);
+            }
             return;
         }
 
         Player me = findCurrentPlayer(state);
         if (me == null) {
-            LOGGER.error("Action {} blocked: player missing in state", actionType);
+            LOGGER.error("Action {} blocked: player missing", actionType);
             return;
         }
 
-        int callTarget = effectiveCallTarget(state);
-        int targetBet;
-        if (actionType == ActionType.CALL_BUTTON) {
-            targetBet = callTarget;
-        } else if (actionType == ActionType.RAISE_BUTTON) {
-            targetBet = safeDouble(callTarget);
-        } else {
-            Integer fromInput = parseInputTarget(taskbarInput.getText());
-            if (fromInput == null) {
-                return;
-            }
-            targetBet = fromInput;
+        Integer targetBet = resolveTargetBet(actionType, state);
+        if (targetBet == null) {
+            return;
         }
 
         ValidationResult validation = validateTarget(state, me, targetBet);
-        if (!validation.valid) {
-            refreshBetInputUi();
+        if (!handleValidation(validation, actionType)) {
             return;
         }
 
-        if (validation.warning) {
-            showWarningDialog("WARNING", validation.message);
-        }
-
-        if (state.currentBet <= 0) {
-            gameService.bet(targetBet);
-            LOGGER.info("Player BET (target={})", targetBet);
-        } else if (targetBet == callTarget) {
-            gameService.call();
-            LOGGER.info("Player CALL (target={})", targetBet);
-        } else {
-            int raiseBy = Math.max(0, targetBet - state.currentBet);
-            gameService.raise(raiseBy);
-            LOGGER.info("Player RAISE by {} (target={})", raiseBy, targetBet);
-        }
+        executeAction(state, targetBet, actionType);
 
         if (targetBet > 0) {
             lastReferenceBet = targetBet;
@@ -676,6 +850,148 @@ public class TaskbarController {
 
         taskbarInput.clear();
         refreshGame();
+    }
+
+    /**
+     * Resolves the target bet amount based on the type of action being submitted and the current
+     * game state.
+     *
+     * @param actionType The type of action being submitted, which determines how the target bet is
+     *     calculated.
+     * @param state The current GameState object representing the state of the game, which is used
+     *     to determine the effective call target and to validate the input for the bet amount.
+     * @return An Integer representing the resolved target bet amount for the action being
+     *     submitted, or null if the input is invalid or cannot be resolved based on the action type
+     *     and game state.
+     */
+    private Integer resolveTargetBet(ActionType actionType, GameState state) {
+        int callTarget = effectiveCallTarget(state);
+
+        if (actionType == ActionType.CALL_BUTTON) {
+            return callTarget;
+        }
+
+        if (actionType == ActionType.RAISE_BUTTON) {
+            Integer input = parseInputTarget(taskbarInput.getText());
+            return input != null ? input : callTarget + BIG_BLIND;
+        }
+
+        return parseInputTarget(taskbarInput.getText());
+    }
+
+    /**
+     * Handles the validation result of a proposed action, including displaying warnings and
+     * refreshing the UI if the action is blocked or cancelled.
+     *
+     * @param validation The ValidationResult object representing the outcome of validating the
+     *     proposed action, which includes whether the action is valid, if it triggers a warning,
+     *     and any associated messages.
+     * @param actionType The type of action being processed, used for logging purposes to indicate
+     *     which action is being validated and potentially blocked or cancelled.
+     * @return A boolean value indicating whether the action is valid and can proceed (true) or if
+     *     it is blocked or cancelled due to validation failure or user cancellation after a warning
+     *     (false).
+     */
+    private boolean handleValidation(ValidationResult validation, ActionType actionType) {
+        if (!validation.valid) {
+            refreshBetInputUi();
+            return false;
+        }
+
+        if (validation.warning) {
+            boolean confirmed = showWarningDialog("WARNING", validation.message);
+            if (!confirmed) {
+                LOGGER.info("Action {} cancelled after warning", actionType);
+                refreshBetInputUi();
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Executes the player action by sending the appropriate command to the GameService based on the
+     * target bet and the current game state.
+     *
+     * @param state The current GameState object representing the state of the game, which includes
+     *     information about the current bet and the player's status, used to determine how to
+     *     execute the action based on the target bet.
+     * @param targetBet The integer value representing the target bet amount for the action being
+     *     executed, which is used to determine
+     */
+    private void executeAction(GameState state, int targetBet, ActionType actionType) {
+        int callTarget = effectiveCallTarget(state);
+        String phase = (state != null ? state.phase : "UNKNOWN");
+
+        int alreadyInvested =
+                (findCurrentPlayer(state) != null)
+                        ? Math.max(0, findCurrentPlayer(state).getBet())
+                        : 0;
+
+        if (actionType == ActionType.CALL_BUTTON) {
+
+            int amount = Math.max(0, callTarget - alreadyInvested);
+
+            gameService.call();
+
+            LOGGER.info("[{}] CALL +{} (total to {})", phase, amount, callTarget);
+            announceLobbyAction("CALL " + amount);
+
+            return;
+        }
+
+        if (actionType == ActionType.RAISE_BUTTON) {
+
+            int raiseBy = Math.max(0, targetBet - callTarget);
+
+            gameService.raise(raiseBy);
+
+            LOGGER.info("[{}] RAISE +{} (target={})", phase, raiseBy, targetBet);
+            announceLobbyAction("RAISE +" + raiseBy + " TO " + targetBet);
+
+            return;
+        }
+
+        if (state.currentBet <= 0) {
+
+            gameService.bet(targetBet);
+
+            LOGGER.info("[{}] BET {}", phase, targetBet);
+            announceLobbyAction("BET " + targetBet);
+
+            return;
+        }
+
+        if (targetBet == callTarget) {
+
+            int amount = Math.max(0, callTarget - alreadyInvested);
+
+            gameService.call();
+
+            LOGGER.info("[{}] CALL +{} (total to {})", phase, amount, callTarget);
+            announceLobbyAction("CALL " + amount);
+
+        } else {
+
+            int raiseBy = Math.max(0, targetBet - callTarget);
+
+            gameService.raise(raiseBy);
+
+            LOGGER.info("[{}] RAISE +{} (target={})", phase, raiseBy, targetBet);
+            announceLobbyAction("RAISE +" + raiseBy + " TO " + targetBet);
+        }
+    }
+
+    /** Publishes a simple action label to the lobby chat, if a publisher is configured. */
+    private void announceLobbyAction(String actionLabel) {
+        if (lobbyActionAnnouncer == null || actionLabel == null || actionLabel.isBlank()) {
+            return;
+        }
+        try {
+            lobbyActionAnnouncer.accept(actionLabel.trim());
+        } catch (RuntimeException ex) {
+            LOGGER.warn("Could not publish lobby action '{}': {}", actionLabel, ex.getMessage());
+        }
     }
 
     /**
@@ -691,8 +1007,15 @@ public class TaskbarController {
         if (text == null || text.trim().isEmpty()) {
             return null;
         }
+
         try {
-            return Integer.parseInt(text.trim());
+            int value = Integer.parseInt(text.trim());
+
+            if (value % SMALL_BLIND != 0) {
+                return null;
+            }
+
+            return value;
         } catch (NumberFormatException e) {
             return null;
         }
@@ -737,21 +1060,44 @@ public class TaskbarController {
      *     triggers a warning, or if it is blocked due to being invalid or too risky.
      */
     private ValidationResult validateTarget(GameState state, Player me, int targetBet) {
+
         if (state == null || me == null) {
             return ValidationResult.blocked("Invalid game state");
         }
 
-        int callTarget = effectiveCallTarget(state);
-        int raiseTarget = safeDouble(callTarget);
-        if (targetBet != callTarget && targetBet != raiseTarget) {
-            return ValidationResult.blocked("Only calls or exactly two raises allowed");
+        final int callTarget = effectiveCallTarget(state);
+
+        final int alreadyInvested = Math.max(0, me.getBet());
+        final int chips = Math.max(0, me.getChips());
+
+        final int required = Math.max(0, targetBet - alreadyInvested);
+
+        final int minRequiredToCall = Math.max(0, callTarget - alreadyInvested);
+
+        if (required < minRequiredToCall) {
+            return ValidationResult.blocked("Bet must match at least the call amount");
         }
 
-        int alreadyInvested = Math.max(0, me.getBet());
-        int required = Math.max(0, targetBet - alreadyInvested);
-        int chips = Math.max(0, me.getChips());
+        if (isFirstPlayerOfPhase(state, me)) {
+            if (required > FIRST_PLAYER_MAX_BET) {
+                return ValidationResult.blocked(
+                        "First player cannot bet more than " + FIRST_PLAYER_MAX_BET);
+            }
+        }
 
-        if (targetBet == callTarget && required == 0) {
+        if (isPreflop(state.phase)) {
+            int maxAllowed = (int) Math.floor(me.getChips() * MAX_CHIP_PERCENT);
+
+            if (required > maxAllowed) {
+                return ValidationResult.blocked(
+                        "Preflop: You can only bet up to 30% of your stack (" + maxAllowed + ")");
+            }
+        }
+
+        if (required == minRequiredToCall) {
+            if (required > chips) {
+                return ValidationResult.blocked("Not enough chips to call");
+            }
             return ValidationResult.ok();
         }
 
@@ -760,16 +1106,19 @@ public class TaskbarController {
         }
 
         if (required > chips) {
-            return ValidationResult.blocked("Not enough chips for the next bet");
+            return ValidationResult.blocked("Not enough chips for this bet");
         }
 
         BetRisk risk = evaluateBetRisk(state, required, chips);
+
         if (risk == BetRisk.BLOCKED) {
-            return ValidationResult.blocked("Assignment for this phase is blocked");
+            return ValidationResult.blocked("Bet too risky for this phase");
         }
+
         if (risk == BetRisk.WARNING) {
             return ValidationResult.warning(warningTextForPhase(state));
         }
+
         return ValidationResult.ok();
     }
 
@@ -849,12 +1198,50 @@ public class TaskbarController {
      * @param content The string representing the content of the warning message, which is displayed
      *     in the body of the dialog.
      */
-    private void showWarningDialog(String title, String content) {
+    private boolean showWarningDialog(String title, String content) {
         Alert alert = new Alert(Alert.AlertType.WARNING);
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(content);
-        alert.showAndWait();
+        ButtonType proceedButton = new ButtonType("CONTINUE");
+        ButtonType cancelButton = new ButtonType("CANCEL", ButtonBar.ButtonData.CANCEL_CLOSE);
+        alert.getButtonTypes().setAll(proceedButton, cancelButton);
+        applyAlertBranding(alert);
+        Optional<ButtonType> result = alert.showAndWait();
+        return result.isPresent() && result.get() == proceedButton;
+    }
+
+    /** Applies Casono icon and logo to alert dialogs when resources are available. */
+    private void applyAlertBranding(Alert alert) {
+        if (alert == null) {
+            return;
+        }
+
+        try (var iconStream = TaskbarController.class.getResourceAsStream(LOGO_PATH);
+                var mainLogoStream = TaskbarController.class.getResourceAsStream(LOGO_PATH_MAIN)) {
+            if (iconStream != null) {
+                Image icon = new Image(iconStream);
+                if (!icon.isError()
+                        && alert.getDialogPane() != null
+                        && alert.getDialogPane().getScene() != null
+                        && alert.getDialogPane().getScene().getWindow()
+                                instanceof javafx.stage.Stage stage) {
+                    stage.getIcons().add(icon);
+                }
+            }
+
+            if (mainLogoStream != null) {
+                Image mainLogo = new Image(mainLogoStream);
+                if (!mainLogo.isError()) {
+                    ImageView logoView = new ImageView(mainLogo);
+                    logoView.setFitHeight(ALERT_LOGO_HEIGHT);
+                    logoView.setPreserveRatio(true);
+                    alert.setGraphic(logoView);
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.warn("Could not load alert logo resources: {}", e.getMessage());
+        }
     }
 
     /**
@@ -865,6 +1252,9 @@ public class TaskbarController {
      */
     @FXML
     private void onTaskbarPressed(MouseEvent event) {
+        if (taskbar == null || event == null) {
+            return;
+        }
         xOffset = event.getSceneX() - taskbar.getLayoutX();
         yOffset = event.getSceneY() - taskbar.getLayoutY();
     }
@@ -873,17 +1263,25 @@ public class TaskbarController {
      * Called while dragging the taskbar with the mouse. Updates the position and slightly scales
      * the taskbar for visual feedback.
      *
-     * <p>TODO: It still needs to be fixed that the taskbar cannot disappear out of the window.
-     *
      * @param event Das Mausereignis
      */
     @FXML
     private void onTaskbarDragged(MouseEvent event) {
-        taskbar.setLayoutX(event.getSceneX() - xOffset);
-        taskbar.setLayoutY(event.getSceneY() - yOffset);
+        if (taskbar == null || event == null || taskbar.getScene() == null) {
+            return;
+        }
 
         taskbar.setScaleX(TASKBAR_SCALE);
         taskbar.setScaleY(TASKBAR_SCALE);
+
+        double targetX = event.getSceneX() - xOffset;
+        double targetY = event.getSceneY() - yOffset;
+
+        double maxX = Math.max(0, taskbar.getScene().getWidth() - scaledNodeWidth());
+        double maxY = Math.max(0, taskbar.getScene().getHeight() - scaledNodeHeight());
+
+        taskbar.setLayoutX(clamp(targetX, 0, maxX));
+        taskbar.setLayoutY(clamp(targetY, 0, maxY));
     }
 
     /**
@@ -894,8 +1292,62 @@ public class TaskbarController {
      */
     @FXML
     private void onTaskbarReleased(MouseEvent event) {
+        if (taskbar == null) {
+            return;
+        }
         taskbar.setScaleX(SCALE_NORMAL);
         taskbar.setScaleY(SCALE_NORMAL);
+
+        if (taskbar.getScene() == null) {
+            return;
+        }
+
+        double maxX = Math.max(0, taskbar.getScene().getWidth() - scaledNodeWidth());
+        double maxY = Math.max(0, taskbar.getScene().getHeight() - scaledNodeHeight());
+
+        taskbar.setLayoutX(clamp(taskbar.getLayoutX(), 0, maxX));
+        taskbar.setLayoutY(clamp(taskbar.getLayoutY(), 0, maxY));
+    }
+
+    /**
+     * Calculates the scaled width of the taskbar node based on its current bounds and scale factor.
+     *
+     * @return The scaled width of the taskbar node, ensuring it is non-negative and accounts for
+     *     the current scale applied to the node.
+     */
+    private double scaledNodeWidth() {
+        double width = taskbar.getBoundsInLocal().getWidth();
+        if (width <= 0) {
+            width = taskbar.prefWidth(-1);
+        }
+        return Math.max(0, width * taskbar.getScaleX());
+    }
+
+    /**
+     * Calculates the scaled height of the taskbar node based on its current bounds and scale
+     * factor.
+     *
+     * @return The scaled height of the taskbar node, ensuring it is non-negative and accounts for
+     *     the current scale applied to the node.
+     */
+    private double scaledNodeHeight() {
+        double height = taskbar.getBoundsInLocal().getHeight();
+        if (height <= 0) {
+            height = taskbar.prefHeight(-1);
+        }
+        return Math.max(0, height * taskbar.getScaleY());
+    }
+
+    /**
+     * Clamps a value between a minimum and maximum bound.
+     *
+     * @param value the value to clamp
+     * @param min the lower bound
+     * @param max the upper bound
+     * @return the clamped value in the range [min, max]
+     */
+    private double clamp(double value, double min, double max) {
+        return Math.max(min, Math.min(value, max));
     }
 
     /**
@@ -928,7 +1380,7 @@ public class TaskbarController {
     /** Called when the Call button is clicked. */
     @FXML
     private void onInputPlayerCall() {
-        submitPresetInputAndProcess("call");
+        submitAction(ActionType.CALL_BUTTON);
     }
 
     /** Called when the Fold button is clicked. */
@@ -949,6 +1401,7 @@ public class TaskbarController {
 
         gameService.fold();
         LOGGER.info("Player FOLD");
+        announceLobbyAction("FOLD");
 
         refreshGame();
     }
@@ -1062,6 +1515,9 @@ public class TaskbarController {
             GameState refreshed = gameService.refresh();
             if (refreshed != null) {
                 lastState = refreshed;
+                if (refreshed.currentBet > 0 && refreshed.currentBet >= lastReferenceBet) {
+                    lastReferenceBet = refreshed.currentBet;
+                }
                 return refreshed;
             }
         } catch (Exception e) {
@@ -1074,12 +1530,24 @@ public class TaskbarController {
     /**
      * Opens the integrated Casono web browser.
      *
-     * <p>TODO: Replace the start URL with the official project website (e.g., Tips & Tricks page)
-     * once the content for strategies and support is available.
+     * <p>once the content for strategies and support is available.
      */
     @FXML
     private void onBrowserButtonClick() {
-        CasinoBrowserController.open("wikipedia.org");
+        try {
+            Path path =
+                    Paths.get(
+                            System.getProperty("user.dir"),
+                            "documents",
+                            "docs",
+                            "game-engine",
+                            "manual.html");
+
+            CasinoBrowserController.open(path.toUri().toString());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /** Opens the highscore popup window from the taskbar. */
@@ -1092,6 +1560,7 @@ public class TaskbarController {
                 alert.setTitle("Info");
                 alert.setHeaderText(null);
                 alert.setContentText("No active server connection for highscores.");
+                applyAlertBranding(alert);
                 alert.showAndWait();
                 return;
             }
@@ -1122,6 +1591,25 @@ public class TaskbarController {
             stage.toFront();
         } catch (Exception e) {
             LOGGER.error("Could not open highscore window from taskbar: {}", e.getMessage());
+        }
+    }
+
+    /**
+     * Highlight or unhighlight the taskbar when it is the player's turn.
+     *
+     * @param highlighted true to highlight, false to remove highlight
+     */
+    public void setTurnHighlighted(boolean highlighted) {
+        if (taskbar == null) {
+            return;
+        }
+
+        if (highlighted) {
+            if (!taskbar.getStyleClass().contains("player-active-turn")) {
+                taskbar.getStyleClass().add("player-active-turn");
+            }
+        } else {
+            taskbar.getStyleClass().remove("player-active-turn");
         }
     }
 }
