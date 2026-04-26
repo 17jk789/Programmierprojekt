@@ -192,6 +192,13 @@ public class CasinoBrowserController {
                     WebView webView = new WebView();
                     WebEngine engine = webView.getEngine();
 
+                    engine.locationProperty().addListener((obs, oldUrl, newUrl) -> {
+                        if (isDownloadUrl(newUrl)) {
+                            LOGGER.warn("Download navigation blocked: " + newUrl);
+                            engine.getLoadWorker().cancel();
+                        }
+                    });
+
                     engine.setJavaScriptEnabled(false);
 
                     configurePopupBlocker(engine);
@@ -633,6 +640,15 @@ public class CasinoBrowserController {
             URI uri = new URI(url);
             String scheme = uri.getScheme();
 
+            String fullUrl = uri.toString();
+
+            if (isDownloadUrl(fullUrl)) {
+                securityLabel.setText("BLOCKED DOWNLOAD");
+
+                LOGGER.warn("Download blocked: " + fullUrl);
+                return;
+            }
+
             if ("file".equalsIgnoreCase(scheme)) {
                 Path allowed =
                         Paths.get(
@@ -724,5 +740,17 @@ public class CasinoBrowserController {
         }
 
         return true;
+    }
+
+    /**
+     * Checks if a given URL points to a downloadable file based on its extension.
+     *
+     * @param url the URL to check
+     * @return true if the URL is likely a download link, false otherwise
+     */
+    private static boolean isDownloadUrl(String url) {
+        if (url == null) return false;
+
+        return url.matches(".*\\.(exe|zip|dmg|msi|apk|jar|pdf)(\\?.*)?$");
     }
 }
