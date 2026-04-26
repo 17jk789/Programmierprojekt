@@ -67,7 +67,7 @@
                             </Label>
 
                             <Label fx:id="tableText"
-                                   text="Place your bet"
+                                   text="Welcome! The round is about to begin."
                                    styleClass="table-title" />
 
                         </VBox>
