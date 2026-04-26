@@ -1,5 +1,6 @@
 package ch.unibas.dmi.dbis.cs108.casono.client.network;
 
+import ch.unibas.dmi.dbis.cs108.casono.client.chat.ChatClientInterface;
 import ch.unibas.dmi.dbis.cs108.casono.client.chat.Message;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.command.parsing.RequestParameter;
 import java.util.ArrayList;
@@ -12,7 +13,7 @@ import org.apache.logging.log4j.Logger;
  * from the server. It uses the ClientService to send commands and receive responses from the
  * server.
  */
-public class ChatClient {
+public class ChatClient implements ChatClientInterface {
 
     private final ClientService clientService;
     private final Logger logger;
