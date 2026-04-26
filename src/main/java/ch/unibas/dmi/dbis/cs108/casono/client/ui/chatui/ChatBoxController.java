@@ -205,15 +205,6 @@ public class ChatBoxController {
                             chatKey = new ChatKey(chatType);
                         }
                         chatController.activeChatControllers.put(chatKey, chatViewController);
-                                        this.chatController, chatModel, this.username, this);
-
-                        ChatKey chatKey;
-                        if (chatType.equals(ChatType.WHISPER)) {
-                            chatKey = new ChatKey(chatType, title);
-                        } else {
-                            chatKey = new ChatKey(chatType);
-                        }
-                        chatController.activeChatControllers.put(chatKey, chatViewController);
                         fxmlLoader.setController(chatViewController);
                         Node load = fxmlLoader.load();
                         VBox.setVgrow(load, Priority.ALWAYS);

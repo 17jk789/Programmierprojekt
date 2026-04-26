@@ -15,8 +15,8 @@ public class Message {
     private final String message;
     public String sender;
     public String timestamp;
-    public int lobbyId = 0;
-    public String target = null;
+    public int lobbyId;
+    public String target;
 
     /**
      * Constructs a Message with a provided timestamp. Typically used when reconstructing messages
@@ -100,7 +100,7 @@ public class Message {
      * @return A formatted string containing all message attributes for server transmission.
      */
     public String toArgsString() {
-        String gameIdString = "";
+        String gameIdString;
         if (lobbyId >= 0) {
             gameIdString = " GAME=" + lobbyId;
         } else {
