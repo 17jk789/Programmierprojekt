@@ -8,6 +8,10 @@ import java.util.ResourceBundle;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextField;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -19,10 +23,6 @@ public class ChatViewController implements Initializable {
     @FXML private Button sendButton;
 
     @FXML private TextField inputField;
-
-    @FXML private VBox chatInterfaceVBox;
-
-    @FXML private HBox controlBar;
 
     @FXML private ScrollPane scrollPane;
 
@@ -42,8 +42,6 @@ public class ChatViewController implements Initializable {
 
     private final ChatModel chatModel;
 
-    private final String username;
-
     private final ChatController controller;
 
     private static final int CHAT_PADDING = 20;
@@ -51,10 +49,8 @@ public class ChatViewController implements Initializable {
     public ChatViewController(
             ChatController chatController,
             ChatModel chatModel,
-            String username,
             ChatBoxController chatBoxController) {
         this.controller = chatController;
-        this.username = username;
         this.chatModel = chatModel;
         this.chatBoxController = chatBoxController;
         tabIsOpen = true;
@@ -70,8 +66,8 @@ public class ChatViewController implements Initializable {
      */
     @Override
     public void initialize(URL location, ResourceBundle resourceBundle) {
-        inputField.setOnAction(event -> sendMessage());
-        sendButton.setOnAction(event -> sendMessage());
+        inputField.setOnAction(_ -> sendMessage());
+        sendButton.setOnAction(_ -> sendMessage());
         scrollPane.vvalueProperty().bind(chat.heightProperty());
     }
 

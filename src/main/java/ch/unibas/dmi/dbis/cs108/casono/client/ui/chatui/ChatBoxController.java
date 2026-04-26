@@ -21,7 +21,6 @@ import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
@@ -31,15 +30,9 @@ public class ChatBoxController {
 
     private final ChatController chatController;
 
-    @FXML private VBox chatBox;
-
     @FXML private TabPane chatTabPane;
 
     @FXML private MenuButton addWhisperChatButton;
-
-    @FXML private HBox menuBox;
-
-    private FXMLLoader fxmlLoader;
 
     private final List<String> activeWhisperChats;
 
@@ -77,7 +70,7 @@ public class ChatBoxController {
         ChatModel globalChatModel = new ChatModel(global, username, -1, null);
         chatController.getChatModelMap().put(new ChatController.ChatKey(global), globalChatModel);
         addChatTab("GLOBAL", globalChatModel, global);
-        addWhisperChatButton.setOnAction(event -> addWhisperChatButton.show());
+        addWhisperChatButton.setOnAction(_ -> addWhisperChatButton.show());
     }
 
     /**
@@ -97,7 +90,7 @@ public class ChatBoxController {
                     MenuItem menuItem = new MenuItem(targetUserName);
                     addWhisperChatButton.getItems().add(menuItem);
                     menuItem.setOnAction(
-                            event ->
+                            _ ->
                                     addWhisperChat(
                                             targetUserName,
                                             new ChatModel(
@@ -131,7 +124,7 @@ public class ChatBoxController {
                         if (oldUsername.equals(item.getText())) {
                             item.setText(newUsername);
                             item.setOnAction(
-                                    event ->
+                                    _ ->
                                             addWhisperChat(
                                                     newUsername,
                                                     new ChatModel(
@@ -203,6 +196,15 @@ public class ChatBoxController {
                     try {
                         ChatViewController chatViewController =
                                 new ChatViewController(
+                                        this.chatController, chatModel, this);
+
+                        ChatKey chatKey;
+                        if (chatType.equals(ChatType.WHISPER)) {
+                            chatKey = new ChatKey(chatType, title);
+                        } else {
+                            chatKey = new ChatKey(chatType);
+                        }
+                        chatController.activeChatControllers.put(chatKey, chatViewController);
                                         this.chatController, chatModel, this.username, this);
 
                         ChatKey chatKey;
@@ -218,7 +220,7 @@ public class ChatBoxController {
                         VBox vbox = new VBox();
                         VBox.setVgrow(vbox, Priority.ALWAYS);
                         vbox.getChildren().add(load);
-                        chatModel.addListener((msg) -> chatViewController.showMessage(msg));
+                        chatModel.addListener(chatViewController::showMessage);
                         Tab newChat = new Tab(title, vbox);
                         usernameTabMap.put(title, newChat);
                         chatTabPane.getTabs().add(newChat);
