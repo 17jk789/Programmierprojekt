@@ -1,6 +1,8 @@
 package ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui;
 
 import ch.unibas.dmi.dbis.cs108.casono.client.chat.ChatController;
+import ch.unibas.dmi.dbis.cs108.casono.client.chat.ChatType;
+import ch.unibas.dmi.dbis.cs108.casono.client.chat.Message;
 import ch.unibas.dmi.dbis.cs108.casono.client.game.Card;
 import ch.unibas.dmi.dbis.cs108.casono.client.game.GameService;
 import ch.unibas.dmi.dbis.cs108.casono.client.game.GameState;
@@ -142,14 +144,18 @@ public class CasinoGameController {
     private static final String ACTIVE_CARD_BOX_STYLE_CLASS = "player-cards-active-turn";
     private static final int DEALER_OFFSET = 3;
     private static final String FIRST_PREFLOP_INFO_TEMPLATE =
-            "Set the big blind amount: %d$ or %d$";
+            "Bet the big blind amount: %d$ or +%d$";
 
     private String chatUsername;
     private ClientService chatClientService;
     private int chatLobbyId = -1;
     private boolean chatInitialized;
     private boolean gameFinished;
+    private boolean localWinAnnouncementSent;
     private String lastWinnerName;
+    private static final int SMALL_BLIND = 100;
+    private static final int BIG_BLIND = 200;
+    private static final int NO_BET = 0;
 
     /** Standard constructor. Used by FXML. */
     public CasinoGameController() {
@@ -201,11 +207,18 @@ public class CasinoGameController {
         if (controller != null && myPlayerId != null) {
             controller.setGameService(gameService, myPlayerId);
         }
+        configureTaskbarLobbyActionAnnouncements();
     }
 
+    /**
+     * Set the PlayerId of the current player.
+     *
+     * @param chatController The ChatController instance used for managing the chat functionality.
+     */
     public void startChat(ChatController chatController) {
         this.chatController = chatController;
         initializeChatIfPossible();
+        configureTaskbarLobbyActionAnnouncements();
     }
 
     /** Set the PlayerId of the current player. */
@@ -217,6 +230,7 @@ public class CasinoGameController {
         if (taskbarController != null && gameService != null && myPlayerId != null) {
             taskbarController.setGameService(gameService, myPlayerId);
         }
+        configureTaskbarLobbyActionAnnouncements();
 
         if (communityCardsBox == null) {
             LOGGER.warning("communityCardsBox is NULL");
@@ -270,6 +284,7 @@ public class CasinoGameController {
         this.chatUsername = username;
         this.chatClientService = clientService;
         this.chatLobbyId = lobbyId;
+        configureTaskbarLobbyActionAnnouncements();
     }
 
     /**
@@ -512,6 +527,7 @@ public class CasinoGameController {
             highlightDealer(s);
             updateTaskbar(s);
             clearActiveTurnHighlights();
+            announceLocalWinIfNeeded(s);
             finishGameUiLoop();
             return;
         }
@@ -683,11 +699,11 @@ public class CasinoGameController {
      * Returns a context-specific info message for the first player to act preflop.
      *
      * @param s The current game state.
-     * @return An English hint with the big blind amount and its double, or null if the special
-     *     case does not apply.
+     * @return An English hint with the big blind amount and its double, or null if the special case
+     *     does not apply.
      */
     private String resolveFirstPreflopInfo(GameState s) {
-        if (s == null || myPlayerId == null || s.players == null || s.players.size() < 2) {
+        if (s == null || s.players == null || s.players.size() < 2) {
             return null;
         }
 
@@ -695,22 +711,9 @@ public class CasinoGameController {
             return null;
         }
 
-        int myIndex = -1;
-        for (int i = 0; i < s.players.size(); i++) {
-            Player player = s.players.get(i);
-            if (player != null && myPlayerId.equals(player.getId())) {
-                myIndex = i;
-                break;
-            }
-        }
-
-        if (myIndex < 0) {
-            return null;
-        }
-
         int firstIndex =
                 (s.players.size() == 2) ? s.dealer : (s.dealer + DEALER_OFFSET) % s.players.size();
-        if (s.activePlayer != firstIndex || myIndex != firstIndex) {
+        if (s.activePlayer != firstIndex) {
             return null;
         }
 
@@ -724,7 +727,8 @@ public class CasinoGameController {
         }
 
         long raiseTarget = (long) callTarget * 2L;
-        int safeRaiseTarget = raiseTarget > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) raiseTarget;
+        int safeRaiseTarget =
+                raiseTarget > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) raiseTarget;
         return String.format(FIRST_PREFLOP_INFO_TEMPLATE, callTarget, safeRaiseTarget);
     }
 
@@ -746,11 +750,11 @@ public class CasinoGameController {
             }
 
             int bet = Math.max(0, player.getBet());
-            if (bet == 100) {
+            if (bet == SMALL_BLIND) {
                 sbCount++;
-            } else if (bet == 200) {
+            } else if (bet == BIG_BLIND) {
                 bbCount++;
-            } else if (bet == 0) {
+            } else if (bet == NO_BET) {
                 zeroCount++;
             }
         }
@@ -1087,6 +1091,39 @@ public class CasinoGameController {
         }
 
         return null;
+    }
+
+    /**
+     * Sends a short lobby chat message when the local player wins, but only once per hand.
+     *
+     * @param s The current game state.
+     */
+    private void announceLocalWinIfNeeded(GameState s) {
+        if (localWinAnnouncementSent || s == null || !isTerminalPhase(s.phase)) {
+            return;
+        }
+
+        Player winner = resolveWinner(s);
+        boolean isLocalWinner =
+                winner != null
+                        && winner.getId() != null
+                        && myPlayerId != null
+                        && myPlayerId.equals(winner.getId());
+
+        if (!isLocalWinner && lastWinnerName != null && !lastWinnerName.isBlank()) {
+            String localName =
+                    (chatUsername != null && !chatUsername.isBlank())
+                            ? chatUsername
+                            : (winner != null ? winner.getName() : null);
+            isLocalWinner = localName != null && localName.equalsIgnoreCase(lastWinnerName);
+        }
+
+        if (!isLocalWinner) {
+            return;
+        }
+
+        localWinAnnouncementSent = true;
+        sendLobbyActionMessage("I won");
     }
 
     /**
@@ -1736,6 +1773,47 @@ public class CasinoGameController {
         if (controller != null && gameService != null && myPlayerId != null) {
             controller.setGameService(gameService, myPlayerId);
         }
+        configureTaskbarLobbyActionAnnouncements();
+    }
+
+    /**
+     * Configure the TaskbarController to announce lobby actions by sending chat messages when
+     * certain actions occur in the game, such as winning a hand.
+     */
+    private void configureTaskbarLobbyActionAnnouncements() {
+        TaskbarController controller = resolveTaskbarController();
+        if (controller == null) {
+            return;
+        }
+        controller.setLobbyActionAnnouncer(this::sendLobbyActionMessage);
+    }
+
+    /**
+     * Send a lobby action message to the chat controller with the specified action label, which can
+     * be used to announce game events in the lobby chat.
+     *
+     * @param actionLabel The label describing the action to announce in the lobby chat, such as "I
+     *     won" when the local player wins a hand.
+     */
+    private void sendLobbyActionMessage(String actionLabel) {
+        if (chatController == null
+                || chatLobbyId < 0
+                || actionLabel == null
+                || actionLabel.isBlank()) {
+            return;
+        }
+
+        String sender =
+                (chatUsername != null && !chatUsername.isBlank())
+                        ? chatUsername
+                        : chatController.getCurrentUsername();
+        if (sender == null || sender.isBlank()) {
+            return;
+        }
+
+        Message message =
+                new Message(ChatType.LOBBY, chatLobbyId, sender, null, actionLabel.trim());
+        chatController.onSendToNetwork(message);
     }
 
     /**
