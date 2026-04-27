@@ -331,7 +331,7 @@ Dies ist die letzte Entscheidung im Spiel.
 
 Jona setzt **5000 Chips**.
 
-![10. image](./images/10-1.avg)
+![10. image](./images/10-1.svg)
 
 Lars muss jetzt entscheiden: Fold, Call oder Raise auf 10000 Chips.
 
@@ -343,7 +343,7 @@ Wenn nach der letzten Setzrunde noch zwei Spieler übrig sind, kommt es zum Show
 
 Beide Spieler zeigen ihre Karten offen. Gewonnen hat die **beste 5-Karten-Kombination aus Handkarten und Gemeinschaftskarten**.
 
-![11. image](./images/11-1.avg)
+![11. image](./images/11-1.svg)
 
 Regel: *12 Cards Speak at Showdown 🟢*
 Regel: *16 Face Up for All-Ins 🟢*
