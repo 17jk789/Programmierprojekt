@@ -6,6 +6,7 @@ import ch.unibas.dmi.dbis.cs108.casono.client.network.ClientService;
 import ch.unibas.dmi.dbis.cs108.casono.client.network.LobbyClient;
 import ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui.CasinoGameUI;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.command.parsing.RequestParameter;
+import ch.unibas.dmi.dbis.cs108.casono.ui.sound.SoundManager;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -363,6 +364,7 @@ public class LobbyButtonGridManager {
 
         btn.setOnAction(
                 e -> {
+                    SoundManager.getInstance().playButtonClick();
                     Integer targetLobbyId = translationManager.getLobbyIdForButton(buttonId);
 
                     if (targetLobbyId != null) {

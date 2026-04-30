@@ -1,6 +1,7 @@
 package ch.unibas.dmi.dbis.cs108.casono.client.ui.lobbyui;
 
 /** Main UI application for Casono. Loads the main FXML layout and sets up the stage. */
+import ch.unibas.dmi.dbis.cs108.casono.ui.sound.SoundManager;
 import java.io.IOException;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -30,6 +31,9 @@ public class Casinomainui extends Application {
      * @throws IOException If loading the FXML fails.
      */
     public void start(Stage stage) throws IOException {
+        // Pre-load sounds to avoid delays on first play
+        SoundManager.getInstance().preloadSounds();
+
         // If the launcher passed an address argument (ip:port), expose it as
         // system properties so controllers can read it without embedding defaults.
         var raw = getParameters().getRaw();
