@@ -3,6 +3,7 @@ package ch.unibas.dmi.dbis.cs108.casono.client.ui.chatui;
 import ch.unibas.dmi.dbis.cs108.casono.client.chat.ChatController;
 import ch.unibas.dmi.dbis.cs108.casono.client.chat.ChatModel;
 import ch.unibas.dmi.dbis.cs108.casono.client.chat.Message;
+import ch.unibas.dmi.dbis.cs108.casono.ui.sound.SoundManager;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.application.Platform;
@@ -76,6 +77,7 @@ public class ChatViewController implements Initializable {
      * The input field is cleared after sending.
      */
     public void sendMessage() {
+        SoundManager.getInstance().playButtonClick();
         String message = inputField.getText().trim();
         if (!message.isEmpty()) {
             inputField.clear();
