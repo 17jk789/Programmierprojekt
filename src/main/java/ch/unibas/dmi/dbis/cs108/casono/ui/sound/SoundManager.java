@@ -7,18 +7,26 @@ import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.scene.media.AudioClip;
 import javafx.util.Duration;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
- * Manages sound effects for the Casono game. Provides methods to play sounds for card reveals and
+ * Manages sound effects for the Casono game. Provides methods to play sounds
+ * for card reveals and
  * button clicks.
  */
 public class SoundManager {
+    private static final Logger LOGGER = LogManager.getLogger(SoundManager.class);
     private static final SoundManager INSTANCE = new SoundManager();
     private final Map<String, AudioClip> soundCache = new HashMap<>();
-    private float volume = 0.5f; // Volume level 0.0 - 1.0
+    private static final float MIN_VOLUME = 0.0f;
+    private static final float MAX_VOLUME = 1.0f;
+    private static final float DEFAULT_VOLUME = 0.5f;
+    private float volume = DEFAULT_VOLUME;
     private static final long CARD_REVEAL_STAGGER_MS = 120; // Delay between card reveal sounds
 
-    private SoundManager() {}
+    private SoundManager() {
+    }
 
     /** Returns the singleton instance of SoundManager. */
     public static SoundManager getInstance() {
@@ -26,7 +34,8 @@ public class SoundManager {
     }
 
     /**
-     * Pre-loads critical sounds into cache to avoid delays on first play. Should be called at
+     * Pre-loads critical sounds into cache to avoid delays on first play. Should be
+     * called at
      * application startup.
      */
     public void preloadSounds() {
@@ -34,7 +43,7 @@ public class SoundManager {
             getOrLoadSound("button-click");
             getOrLoadSound("card-reveal");
         } catch (Exception e) {
-            System.err.println("Error preloading sounds: " + e.getMessage());
+            LOGGER.error("Error preloading sounds", e);
         }
     }
 
@@ -49,11 +58,15 @@ public class SoundManager {
     }
 
     /**
-     * Plays multiple card reveal sounds in sequence with slight stagger/overlap. Used when multiple
-     * cards are revealed at once (e.g., Flop reveals 3 cards, Turn reveals 1 card). Sounds play
-     * with a slight delay between them to simulate a person revealing cards one by one.
+     * Plays multiple card reveal sounds in sequence with slight stagger/overlap.
+     * Used when multiple
+     * cards are revealed at once (e.g., Flop reveals 3 cards, Turn reveals 1 card).
+     * Sounds play
+     * with a slight delay between them to simulate a person revealing cards one by
+     * one.
      *
-     * @param count The number of cards being revealed. Each card gets its own sound with stagger.
+     * @param count The number of cards being revealed. Each card gets its own sound
+     *              with stagger.
      */
     public void playCardRevealMultiple(int count) {
         if (count <= 0) {
@@ -70,17 +83,14 @@ public class SoundManager {
 
             PauseTransition pause = new PauseTransition(Duration.millis(delayMs));
             pause.setOnFinished(
-                    event ->
-                            Platform.runLater(
-                                    () -> {
-                                        try {
-                                            playCardReveal();
-                                        } catch (Exception e) {
-                                            System.err.println(
-                                                    "Error playing card reveal sound: "
-                                                            + e.getMessage());
-                                        }
-                                    }));
+                    event -> Platform.runLater(
+                            () -> {
+                                try {
+                                    playCardReveal();
+                                } catch (Exception e) {
+                                    LOGGER.error("Error playing card reveal sound", e);
+                                }
+                            }));
             pause.play();
         }
     }
@@ -96,7 +106,8 @@ public class SoundManager {
     }
 
     /**
-     * Plays a generic sound by key. The sound file should exist at: /sounds/{category}/{key}.mp3 or
+     * Plays a generic sound by key. The sound file should exist at:
+     * /sounds/{category}/{key}.mp3 or
      * .wav
      */
     public void playSound(String soundKey) {
@@ -107,12 +118,14 @@ public class SoundManager {
                 audioClip.play();
             }
         } catch (Exception e) {
-            System.err.println("Error playing sound: " + soundKey);
-            e.printStackTrace();
+            LOGGER.error("Error playing sound: {}", soundKey, e);
         }
     }
 
-    /** Gets or loads a sound from cache. Categorizes sounds automatically based on key prefix. */
+    /**
+     * Gets or loads a sound from cache. Categorizes sounds automatically based on
+     * key prefix.
+     */
     private AudioClip getOrLoadSound(String soundKey) {
         if (soundCache.containsKey(soundKey)) {
             return soundCache.get(soundKey);
@@ -128,12 +141,11 @@ public class SoundManager {
                 soundCache.put(soundKey, clip);
                 return clip;
             } else {
-                System.err.println("Sound resource not found: " + resourcePath);
+                LOGGER.warn("Sound resource not found: {}", resourcePath);
                 return null;
             }
         } catch (Exception e) {
-            System.err.println("Failed to load sound: " + resourcePath);
-            e.printStackTrace();
+            LOGGER.error("Failed to load sound: {}", resourcePath, e);
             return null;
         }
     }
@@ -151,7 +163,7 @@ public class SoundManager {
 
     /** Sets the volume for sound effects (0.0 - 1.0). */
     public void setVolume(float volume) {
-        this.volume = Math.max(0.0f, Math.min(1.0f, volume));
+        this.volume = Math.max(MIN_VOLUME, Math.min(MAX_VOLUME, volume));
     }
 
     /** Gets the current volume level. */
@@ -171,6 +183,6 @@ public class SoundManager {
 
     /** Unmutes sounds by restoring to default volume. */
     public void unmute() {
-        setVolume(0.5f);
+        setVolume(DEFAULT_VOLUME);
     }
 }
