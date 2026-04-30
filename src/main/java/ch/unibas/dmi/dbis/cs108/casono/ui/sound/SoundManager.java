@@ -5,14 +5,14 @@ import java.util.HashMap;
 import java.util.Map;
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.scene.media.AudioClip;
 import javafx.util.Duration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Manages sound effects for the Casono game. Provides methods to play sounds
- * for card reveals and
+ * Manages sound effects for the Casono game. Provides methods to play sounds for card reveals and
  * button clicks.
  */
 public class SoundManager {
@@ -25,8 +25,7 @@ public class SoundManager {
     private float volume = DEFAULT_VOLUME;
     private static final long CARD_REVEAL_STAGGER_MS = 120; // Delay between card reveal sounds
 
-    private SoundManager() {
-    }
+    private SoundManager() {}
 
     /** Returns the singleton instance of SoundManager. */
     public static SoundManager getInstance() {
@@ -34,8 +33,7 @@ public class SoundManager {
     }
 
     /**
-     * Pre-loads critical sounds into cache to avoid delays on first play. Should be
-     * called at
+     * Pre-loads critical sounds into cache to avoid delays on first play. Should be called at
      * application startup.
      */
     public void preloadSounds() {
@@ -58,15 +56,11 @@ public class SoundManager {
     }
 
     /**
-     * Plays multiple card reveal sounds in sequence with slight stagger/overlap.
-     * Used when multiple
-     * cards are revealed at once (e.g., Flop reveals 3 cards, Turn reveals 1 card).
-     * Sounds play
-     * with a slight delay between them to simulate a person revealing cards one by
-     * one.
+     * Plays multiple card reveal sounds in sequence with slight stagger/overlap. Used when multiple
+     * cards are revealed at once (e.g., Flop reveals 3 cards, Turn reveals 1 card). Sounds play
+     * with a slight delay between them to simulate a person revealing cards one by one.
      *
-     * @param count The number of cards being revealed. Each card gets its own sound
-     *              with stagger.
+     * @param count The number of cards being revealed. Each card gets its own sound with stagger.
      */
     public void playCardRevealMultiple(int count) {
         if (count <= 0) {
@@ -82,16 +76,20 @@ public class SoundManager {
             long delayMs = cardIndex * CARD_REVEAL_STAGGER_MS;
 
             PauseTransition pause = new PauseTransition(Duration.millis(delayMs));
-            pause.setOnFinished(
-                    event -> Platform.runLater(
-                            () -> {
-                                try {
-                                    playCardReveal();
-                                } catch (Exception e) {
-                                    LOGGER.error("Error playing card reveal sound", e);
-                                }
-                            }));
+            pause.setOnFinished(this::onCardRevealDelayFinished);
             pause.play();
+        }
+    }
+
+    private void onCardRevealDelayFinished(ActionEvent event) {
+        Platform.runLater(this::playCardRevealSafely);
+    }
+
+    private void playCardRevealSafely() {
+        try {
+            playCardReveal();
+        } catch (Exception e) {
+            LOGGER.error("Error playing card reveal sound", e);
         }
     }
 
@@ -106,8 +104,7 @@ public class SoundManager {
     }
 
     /**
-     * Plays a generic sound by key. The sound file should exist at:
-     * /sounds/{category}/{key}.mp3 or
+     * Plays a generic sound by key. The sound file should exist at: /sounds/{category}/{key}.mp3 or
      * .wav
      */
     public void playSound(String soundKey) {
@@ -122,10 +119,7 @@ public class SoundManager {
         }
     }
 
-    /**
-     * Gets or loads a sound from cache. Categorizes sounds automatically based on
-     * key prefix.
-     */
+    /** Gets or loads a sound from cache. Categorizes sounds automatically based on key prefix. */
     private AudioClip getOrLoadSound(String soundKey) {
         if (soundCache.containsKey(soundKey)) {
             return soundCache.get(soundKey);
