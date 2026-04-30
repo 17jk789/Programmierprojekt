@@ -12,6 +12,7 @@ import ch.unibas.dmi.dbis.cs108.casono.client.game.PlayerState;
 import ch.unibas.dmi.dbis.cs108.casono.client.network.ClientService;
 import ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui.gameuicomponents.PlayerStatusController;
 import ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui.gameuicomponents.TaskbarController;
+import ch.unibas.dmi.dbis.cs108.casono.ui.sound.SoundManager;
 import java.io.IOException;
 import java.net.URL;
 import java.util.HashSet;
@@ -65,6 +66,7 @@ public class CasinoGameController {
     private Image dealerImage;
     private javafx.animation.Timeline timeline;
     private boolean gameStarted = false;
+    private boolean firstCardUpdate = true;
     private java.util.List<String> lastCommunityKeys = java.util.List.of();
     private java.util.List<String> lastMyCardKeys = java.util.List.of();
     private int lastPot = Integer.MIN_VALUE;
@@ -176,6 +178,38 @@ public class CasinoGameController {
         String suit = (c.getSuit() == null) ? "" : c.getSuit().toLowerCase();
         String value = (c.getValue() == null) ? "" : c.getValue().toLowerCase();
         return suit + ":" + value;
+    }
+
+    /**
+     * Count how many new non-null card keys were added when transitioning from old keys to new
+     * keys.
+     *
+     * @param oldKeys The previous list of card keys
+     * @param newKeys The new list of card keys
+     * @return The count of new (non-null) cards that were revealed
+     */
+    private int countNewCards(java.util.List<String> oldKeys, java.util.List<String> newKeys) {
+        int count = 0;
+        int minSize = Math.min(oldKeys.size(), newKeys.size());
+
+        // Count cards that changed from "null" to actual card
+        for (int i = 0; i < minSize; i++) {
+            String oldKey = oldKeys.get(i);
+            String newKey = newKeys.get(i);
+            if ("null".equals(oldKey) && !"null".equals(newKey)) {
+                count++;
+            }
+        }
+
+        // Count any new cards beyond the previous size (if applicable)
+        for (int i = minSize; i < newKeys.size(); i++) {
+            String newKey = newKeys.get(i);
+            if (!"null".equals(newKey)) {
+                count++;
+            }
+        }
+
+        return Math.max(1, count); // At least play one sound if cards changed
     }
 
     /**
@@ -577,14 +611,28 @@ public class CasinoGameController {
 
         var newCommunityKeys = cardKeys(community, TOTAL_SLOTS);
         if (!newCommunityKeys.equals(lastCommunityKeys)) {
+            int newCardCount = countNewCards(lastCommunityKeys, newCommunityKeys);
             lastCommunityKeys = newCommunityKeys;
             renderCommunityCards(community);
+            if (!firstCardUpdate) {
+                SoundManager.getInstance().playCardRevealMultiple(newCardCount);
+            }
         }
 
         var newMyCardKeys = cardKeys(myCards, PLAYER_SLOTS);
         if (!newMyCardKeys.equals(lastMyCardKeys)) {
+            int newCardCount = countNewCards(lastMyCardKeys, newMyCardKeys);
             lastMyCardKeys = newMyCardKeys;
             renderPlayerCards(myCards);
+            // Don't play sound on first card update (initial animation)
+            if (!firstCardUpdate) {
+                SoundManager.getInstance().playCardRevealMultiple(newCardCount);
+            }
+        }
+
+        // After first update, enable sounds for subsequent card reveals
+        if (firstCardUpdate) {
+            firstCardUpdate = false;
         }
     }
 
