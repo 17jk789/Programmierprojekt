@@ -13,10 +13,8 @@ import org.apache.logging.log4j.Logger;
 /**
  * Controller for the movable notebook (Tips) display within the Casono Game UI.
  *
- * <p>Responsible for:
- *    - Drag-and-drop movement of the notebook,
- *    - Display of general gaming tips,
- *    - Toggle visibility of the notebook.
+ * <p>Responsible for: - Drag-and-drop movement of the notebook, - Display of general gaming tips, -
+ * Toggle visibility of the notebook.
  */
 public class NotebookController {
 

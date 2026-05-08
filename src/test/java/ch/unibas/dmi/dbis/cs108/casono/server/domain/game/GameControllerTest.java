@@ -16,8 +16,8 @@ import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.evaluator.HandEvaluato
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.evaluator.HandRank;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.player.Player;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.player.PlayerId;
-import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.rules.showdown.CardsSpeakRule;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.rules.RuleEngine;
+import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.rules.showdown.CardsSpeakRule;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.state.GamePhase;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.state.GameState;
 import java.util.ArrayList;
@@ -657,28 +657,32 @@ public class GameControllerTest {
         assertEquals("PlayerA", winners.get(0).getName());
         assertEquals("PlayerB", winners.get(1).getName());
 
-        int chipsBeforeA = state.getPlayers().stream()
-                .filter(p -> p.getId().equals(PlayerId.of("PlayerA")))
-                .findFirst()
-                .orElseThrow()
-                .getChips();
-        int chipsBeforeB = state.getPlayers().stream()
-                .filter(p -> p.getId().equals(PlayerId.of("PlayerB")))
-                .findFirst()
-                .orElseThrow()
-                .getChips();
+        int chipsBeforeA =
+                state.getPlayers().stream()
+                        .filter(p -> p.getId().equals(PlayerId.of("PlayerA")))
+                        .findFirst()
+                        .orElseThrow()
+                        .getChips();
+        int chipsBeforeB =
+                state.getPlayers().stream()
+                        .filter(p -> p.getId().equals(PlayerId.of("PlayerB")))
+                        .findFirst()
+                        .orElseThrow()
+                        .getChips();
 
         state.getPot().add(1000);
         showdown.awardPot(state);
 
-        Player playerA = state.getPlayers().stream()
-                .filter(p -> p.getId().equals(PlayerId.of("PlayerA")))
-                .findFirst()
-                .orElseThrow();
-        Player playerB = state.getPlayers().stream()
-                .filter(p -> p.getId().equals(PlayerId.of("PlayerB")))
-                .findFirst()
-                .orElseThrow();
+        Player playerA =
+                state.getPlayers().stream()
+                        .filter(p -> p.getId().equals(PlayerId.of("PlayerA")))
+                        .findFirst()
+                        .orElseThrow();
+        Player playerB =
+                state.getPlayers().stream()
+                        .filter(p -> p.getId().equals(PlayerId.of("PlayerB")))
+                        .findFirst()
+                        .orElseThrow();
 
         assertEquals(chipsBeforeA + 500, playerA.getChips(), "Player A must receive half the pot");
         assertEquals(chipsBeforeB + 500, playerB.getChips(), "Player B must receive half the pot");

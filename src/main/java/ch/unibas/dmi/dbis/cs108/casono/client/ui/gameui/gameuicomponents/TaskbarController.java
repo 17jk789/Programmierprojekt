@@ -1559,8 +1559,8 @@ public class TaskbarController {
     /**
      * Finds the current player in the given game state based on the player's name or ID.
      *
-     * @param state The current GameState object representing the state of the game,
-     *              which includes a list of players and their details.
+     * @param state The current GameState object representing the state of the game, which includes
+     *     a list of players and their details.
      * @return The Player object representing the current player if found in the game state.
      */
     private Player findCurrentPlayer(GameState state) {
@@ -1574,9 +1574,10 @@ public class TaskbarController {
     /**
      * Checks if the given player matches the current player's identity based on name or ID.
      *
-     * @param player The Player object to check against the current player's identity,
-     *               which includes the player's name and ID.
-     * @return A boolean value indicating whether the given player matches the current player's identity.
+     * @param player The Player object to check against the current player's identity, which
+     *     includes the player's name and ID.
+     * @return A boolean value indicating whether the given player matches the current player's
+     *     identity.
      */
     private boolean isCurrentPlayer(Player player) {
         if (player == null) {
@@ -1592,10 +1593,12 @@ public class TaskbarController {
     }
 
     /**
-     * Normalizes a player identifier (name or ID) by trimming whitespace and converting to lowercase.
+     * Normalizes a player identifier (name or ID) by trimming whitespace and converting to
+     * lowercase.
      *
      * @param value The string value representing a player identifier, such as a name or ID.
-     * @return A normalized version of the player identifier, where leading and trailing whitespace is removed.
+     * @return A normalized version of the player identifier, where leading and trailing whitespace
+     *     is removed.
      */
     private String normalizeIdentifier(String value) {
         if (value == null) {
@@ -1653,9 +1656,7 @@ public class TaskbarController {
         }
     }
 
-    /**
-     * Opens the integrated Casono Web Browser.
-     */
+    /** Opens the integrated Casono Web Browser. */
     @FXML
     private void onBrowserButtonClickWiki() {
         try {
@@ -1667,9 +1668,7 @@ public class TaskbarController {
         }
     }
 
-    /**
-     * Opens the integrated Casono Web Browser.
-     */
+    /** Opens the integrated Casono Web Browser. */
     @FXML
     private void onBrowserButtonClickBrave() {
         try {

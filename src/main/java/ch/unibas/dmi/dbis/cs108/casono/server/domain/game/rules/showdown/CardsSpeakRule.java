@@ -61,7 +61,8 @@ public class CardsSpeakRule implements Rule {
 
         for (Player player : players) {
 
-            // Use folded flag from game flow to stay consistent with winner calculation in controller.
+            // Use folded flag from game flow to stay consistent with winner calculation in
+            // controller.
             if (player.isFolded()) {
                 continue;
             }

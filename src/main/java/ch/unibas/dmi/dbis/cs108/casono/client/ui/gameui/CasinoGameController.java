@@ -527,7 +527,8 @@ public class CasinoGameController {
     }
 
     /**
-     * Refresh the list of opponents in the lobby before the game starts by fetching the latest player.
+     * Refresh the list of opponents in the lobby before the game starts by fetching the latest
+     * player.
      */
     private void refreshLobbyOpponentsBeforeGameStart() {
         if (gameService != null && gameService.peekStateOrNull() != null) {
@@ -933,12 +934,13 @@ public class CasinoGameController {
     }
 
     /**
-     * Find the index of the current player in the provided list of players by comparing their PlayerId
-     * with myPlayerId.
+     * Find the index of the current player in the provided list of players by comparing their
+     * PlayerId with myPlayerId.
      *
-     * @param players The list of players to search through, which may include the current player and their opponents.
-     * @return The index of the current player in the list if found, or -1 if the current player is not present in the
-     * list or if the list is null or empty.
+     * @param players The list of players to search through, which may include the current player
+     *     and their opponents.
+     * @return The index of the current player in the list if found, or -1 if the current player is
+     *     not present in the list or if the list is null or empty.
      */
     private int findCurrentPlayerIndex(List<Player> players) {
         if (players == null || players.isEmpty()) {
@@ -1481,9 +1483,7 @@ public class CasinoGameController {
         }
     }
 
-    /**
-     * Apply styling to the myDealerIcon ImageView.
-     */
+    /** Apply styling to the myDealerIcon ImageView. */
     private void styleMyDealerIcon() {
         if (myDealerIcon == null || playerCardsBox == null) {
             return;
@@ -1508,9 +1508,11 @@ public class CasinoGameController {
     }
 
     /**
-     * Bind the size of the myDealerIcon ImageView to the dimensions of the scene using predefined ratios.
+     * Bind the size of the myDealerIcon ImageView to the dimensions of the scene using predefined
+     * ratios.
      *
-     * @param scene The JavaFX Scene to which the myDealerIcon belongs, used for binding the size properties.
+     * @param scene The JavaFX Scene to which the myDealerIcon belongs, used for binding the size
+     *     properties.
      */
     private void bindMyDealerIconSize(javafx.scene.Scene scene) {
         if (myDealerIconSizeBound || scene == null || myDealerIcon == null) {
@@ -1689,7 +1691,8 @@ public class CasinoGameController {
      * Animate a card hover effect by scaling and lifting the card when hovered and resetting it
      * when not hovered.
      *
-     * However, we have removed the hover animations from the cards and the pot for improved handling and a more stable Game UI.
+     * <p>However, we have removed the hover animations from the cards and the pot for improved
+     * handling and a more stable Game UI.
      *
      * @param view The ImageView representing the card to animate on hover.
      * @param hover A boolean indicating whether the card is being hovered (true) or not (false).
@@ -1834,8 +1837,8 @@ public class CasinoGameController {
     /**
      * Create a new HBox to represent a row of chips in the pot display, with predefined horizontal.
      *
-     * @return A new HBox instance configured for displaying a row of chips in the pot,
-     * with appropriate spacing and alignment.
+     * @return A new HBox instance configured for displaying a row of chips in the pot, with
+     *     appropriate spacing and alignment.
      */
     private HBox createPotRow() {
         HBox row = new HBox(POT_CHIP_H_GAP);
@@ -1844,7 +1847,8 @@ public class CasinoGameController {
     }
 
     /**
-     * Calculate the number of chips that can be displayed per row in the pot based on the available width.
+     * Calculate the number of chips that can be displayed per row in the pot based on the available
+     * width.
      *
      * @return The calculated number of chips that can fit in a single row of the pot display.
      */
@@ -1994,8 +1998,8 @@ public class CasinoGameController {
     }
 
     /**
-     * Render the opponents in the lobby based on the list of lobby player names, but only if the game
-     * service is not yet initialized or if there is no game state available.
+     * Render the opponents in the lobby based on the list of lobby player names, but only if the
+     * game service is not yet initialized or if there is no game state available.
      */
     private void renderLobbyOpponentsIfNeeded() {
         if (gameService != null && gameService.peekStateOrNull() != null) {
@@ -2033,11 +2037,11 @@ public class CasinoGameController {
      * of opponent names and the specified index.
      *
      * @param slot The PlayerStatusController instance representing the UI slot for an opponent,
-     *             which will be updated with the opponent's name if available.
+     *     which will be updated with the opponent's name if available.
      * @param opponents The list of opponent names currently in the lobby, which may be null or
-     *                  contain fewer entries than the index.
-     * @param index The index of the opponent in the opponents list to be displayed in the given slot, where
-     *              0 corresponds to the first opponent, 1 to the second, and so on.
+     *     contain fewer entries than the index.
+     * @param index The index of the opponent in the opponents list to be displayed in the given
+     *     slot, where 0 corresponds to the first opponent, 1 to the second, and so on.
      */
     private void setLobbyOpponent(PlayerStatusController slot, List<String> opponents, int index) {
         if (slot == null) {
@@ -2057,11 +2061,13 @@ public class CasinoGameController {
     }
 
     /**
-     * Determine if the given Player object represents the current player based on the
-     * player's name and ID compared to the stored myPlayerName and myPlayerId values.
+     * Determine if the given Player object represents the current player based on the player's name
+     * and ID compared to the stored myPlayerName and myPlayerId values.
      *
-     * @param player The Player object to check, which may be null or contain name and ID information.
-     * @return true if the given Player is identified as the current player based on name or ID matching, false otherwise.
+     * @param player The Player object to check, which may be null or contain name and ID
+     *     information.
+     * @return true if the given Player is identified as the current player based on name or ID
+     *     matching, false otherwise.
      */
     private boolean isCurrentPlayer(Player player) {
         if (player == null) {
@@ -2077,10 +2083,13 @@ public class CasinoGameController {
     }
 
     /**
-     * Normalize a player name or identifier by trimming whitespace and converting to lowercase, returning null if the result is empty.
+     * Normalize a player name or identifier by trimming whitespace and converting to lowercase,
+     * returning null if the result is empty.
      *
-     * @param value The raw player name or identifier to normalize, which may be null or contain leading/trailing whitespace.
-     * @return The normalized identifier in lowercase without leading/trailing whitespace, or null if the input is null or empty after trimming.
+     * @param value The raw player name or identifier to normalize, which may be null or contain
+     *     leading/trailing whitespace.
+     * @return The normalized identifier in lowercase without leading/trailing whitespace, or null
+     *     if the input is null or empty after trimming.
      */
     private String normalizeIdentifier(String value) {
         if (value == null) {

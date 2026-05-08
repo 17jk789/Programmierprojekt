@@ -204,8 +204,8 @@ public class HandEvaluator {
     }
 
     /**
-     * Helper method to check for a four of a kind hand rank.
-     * Stores the quad rank and 1 kicker for tie-breaking.
+     * Helper method to check for a four of a kind hand rank. Stores the quad rank and 1 kicker for
+     * tie-breaking.
      *
      * @param rankCount A map where the key is the card rank and the value is the count of
      *     occurrences.
@@ -265,15 +265,16 @@ public class HandEvaluator {
     }
 
     /**
-     * Helper method to check for a three of a kind hand rank.
-     * Stores the trips rank and 2 kickers for tie-breaking.
+     * Helper method to check for a three of a kind hand rank. Stores the trips rank and 2 kickers
+     * for tie-breaking.
      *
      * @param rankCount A map where the key is the card rank and the value is the count of
      *     occurrences.
      * @param allRanks A sorted list of all card ranks in the hand.
      * @return A HandRank object representing the three of a kind hand rank, or null if not found.
      */
-    private static HandRank checkThreeOfAKind(Map<Integer, Long> rankCount, List<Integer> allRanks) {
+    private static HandRank checkThreeOfAKind(
+            Map<Integer, Long> rankCount, List<Integer> allRanks) {
         if (!rankCount.containsValue(THREE_OF_A_KIND_COUNT)) {
             return null;
         }
@@ -288,9 +289,8 @@ public class HandEvaluator {
     }
 
     /**
-     * Helper method to check for a two pair hand rank.
-     * Stores the two pair ranks and 1 kicker for tie-breaking.
-     * The kicker is the highest remaining card that is not part of either pair.
+     * Helper method to check for a two pair hand rank. Stores the two pair ranks and 1 kicker for
+     * tie-breaking. The kicker is the highest remaining card that is not part of either pair.
      *
      * @param rankCount A map where the key is the card rank and the value is the count of
      *     occurrences.
@@ -322,8 +322,8 @@ public class HandEvaluator {
     }
 
     /**
-     * Helper method to check for a one pair hand rank.
-     * Stores the pair rank and 3 kickers for tie-breaking.
+     * Helper method to check for a one pair hand rank. Stores the pair rank and 3 kickers for
+     * tie-breaking.
      *
      * @param rankCount A map where the key is the card rank and the value is the count of
      *     occurrences.
@@ -364,8 +364,8 @@ public class HandEvaluator {
     }
 
     /**
-     * Helper method to extract kickers from the list of all card ranks.
-     * Excludes the ranks already used in the main hand combination.
+     * Helper method to extract kickers from the list of all card ranks. Excludes the ranks already
+     * used in the main hand combination.
      *
      * @param allRanks A sorted list of all card ranks in the hand.
      * @param excludeRanks A list of ranks to exclude (e.g., ranks used in pairs, trips, etc.).

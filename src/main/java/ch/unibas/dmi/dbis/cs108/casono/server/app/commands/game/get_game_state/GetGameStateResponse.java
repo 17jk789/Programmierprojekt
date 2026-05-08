@@ -77,7 +77,8 @@ public class GetGameStateResponse extends SuccessResponse {
         return builder.build();
     }
 
-    private static void appendWinnerToHighscoresIfFinished(GameState state, List<String> winnerNames) {
+    private static void appendWinnerToHighscoresIfFinished(
+            GameState state, List<String> winnerNames) {
         if (winnerNames == null || winnerNames.isEmpty()) {
             return;
         }
@@ -139,9 +140,7 @@ public class GetGameStateResponse extends SuccessResponse {
         return -1;
     }
 
-    /**
-     * Computes the list of all winner names at showdown/finished phase.
-     */
+    /** Computes the list of all winner names at showdown/finished phase. */
     private static List<String> computeWinnerNames(GameState state, GameController game) {
         GamePhase phase = state.getPhase();
         if (phase != GamePhase.SHOWDOWN && phase != GamePhase.FINISHED) {
@@ -160,9 +159,7 @@ public class GetGameStateResponse extends SuccessResponse {
         return winnerNames;
     }
 
-    /**
-     * Computes the pot share per winner.
-     */
+    /** Computes the pot share per winner. */
     private static int computePotPerWinner(GameState state, int numWinners) {
         if (numWinners <= 0 || state.getPot() == null) {
             return 0;

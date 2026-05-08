@@ -162,9 +162,7 @@ public class SettingsController {
         this.themeChangeListener = listener;
     }
 
-    /**
-     * Show the settings box by setting its visibility and managed properties to true.
-     */
+    /** Show the settings box by setting its visibility and managed properties to true. */
     public void show() {
         if (settingsBox == null) {
             return;
