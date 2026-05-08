@@ -23,12 +23,12 @@
     -fx-background-color:
             linear-gradient(
                     to bottom right,
-                    rgba(255 ,255 ,255 ,0.38),
-                    rgba(255 ,255 ,255 ,0.18)
+                    rgba(255 ,255 ,255 ,0.18),
+                    rgba(255 ,255 ,255 ,0.08)
             );
     -fx-background-radius: 210;
     -fx-border-radius: 200;
-    -fx-border-color: rgba(255, 255, 255, 0.40);
+    -fx-border-color: rgba(255, 255, 255, 0.25);
     -fx-border-width: 12;
     /*-fx-min-height: 60vh;*/
     /*-fx-max-height: 60vh;*/
@@ -37,7 +37,7 @@
     -fx-effect:
             dropshadow(
                     gaussian,
-                    rgba(0 ,0 ,0 , 0.45),
+                    rgba(0 ,0 ,0 , 0.25),
                     40,
                     0.2,
                     0,
@@ -370,6 +370,10 @@
     -fx-opacity: 1;
 }
 
+.community-card:hover {
+    -fx-translate-y: -3;
+}
+
 .player-card {
     -fx-effect:
             dropshadow(
@@ -390,6 +394,10 @@
     -fx-scale-y: 1;
     -fx-translate-y: 0;
     -fx-opacity: 1;
+}
+
+.player-card:hover {
+    -fx-translate-y: -3;
 }
 
 .player-card.player-cards-active-turn {
@@ -416,6 +424,10 @@
             );
 }
 
+/*.dealer-box:hover {*/
+/*    -fx-translate-y: -3;*/
+/*}*/
+
 .chips-icon {
     -fx-effect:
             dropshadow(
@@ -427,6 +439,10 @@
                     12
             ) !important;
 }
+
+/*.chips-icon:hover {*/
+/*    -fx-translate-y: -3;*/
+/*}*/
 
 .dealer-icon {
     -fx-effect:
@@ -733,20 +749,20 @@
             rgba(255, 255, 255, 0.55);
 }
 
-.notebook.player-active-turn {
-    /* active turn should only change the shadow to avoid flicker/transparency jumps. */
-    -fx-border-color:
-            rgba(184, 134, 11, 0.55);
-    -fx-effect:
-            dropshadow(
-                    gaussian,
-                    rgba(184, 134, 11, 0.45),
-                    40,
-                    0.2,
-                    0,
-                    12
-            );
-}
+/*.notebook.player-active-turn {*/
+/*    !* active turn should only change the shadow to avoid flicker/transparency jumps. *!*/
+/*    -fx-border-color:*/
+/*            rgba(184, 134, 11, 0.55);*/
+/*    -fx-effect:*/
+/*            dropshadow(*/
+/*                    gaussian,*/
+/*                    rgba(184, 134, 11, 0.45),*/
+/*                    40,*/
+/*                    0.2,*/
+/*                    0,*/
+/*                    12*/
+/*            );*/
+/*}*/
 
 .notebook-header {
     -fx-background-color: transparent !important;
@@ -861,20 +877,20 @@
             rgba(255, 255, 255, 0.55);
 }
 
-.settings-box.player-active-turn {
-    /* Active turn should only change the shadow to avoid flicker/transparency jumps. */
-    -fx-border-color:
-            rgba(184, 134, 11, 0.55);
-    -fx-effect:
-            dropshadow(
-                    gaussian,
-                    rgba(184, 134, 11, 0.45),
-                    40,
-                    0.2,
-                    0,
-                    12
-            );
-}
+/*.settings-box.player-active-turn {*/
+/*    !* Active turn should only change the shadow to avoid flicker/transparency jumps. *!*/
+/*    -fx-border-color:*/
+/*            rgba(184, 134, 11, 0.55);*/
+/*    -fx-effect:*/
+/*            dropshadow(*/
+/*                    gaussian,*/
+/*                    rgba(184, 134, 11, 0.45),*/
+/*                    40,*/
+/*                    0.2,*/
+/*                    0,*/
+/*                    12*/
+/*            );*/
+/*}*/
 
 .settings-header {
     -fx-background-color: transparent;
@@ -962,18 +978,18 @@
     -fx-background-color:
             linear-gradient(
                     to bottom right,
-                    rgba(255, 255, 255, 0.38),
-                    rgba(255, 255, 255, 0.18)
+                    rgba(255, 255, 255, 0.18),
+                    rgba(255, 255, 255, 0.08)
             ) !important;
     -fx-background-radius: 58;
     -fx-border-radius: 50;
-    -fx-border-color: rgba(255, 255, 255, 0.40) !important;
+    -fx-border-color: rgba(255, 255, 255, 0.25) !important;
     -fx-border-width: 12;
     -fx-padding: 20;
     -fx-effect:
             dropshadow(
                     gaussian,
-                    rgba(255, 255, 255, 0.45),
+                    rgba(255, 255, 255, 0.25),
                     40,
                     0.2,
                     0,

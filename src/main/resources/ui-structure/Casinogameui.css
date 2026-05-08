@@ -224,6 +224,10 @@
     -fx-opacity: 1;
 }
 
+/*.community-card:hover {*/
+/*    -fx-translate-y: -3;*/
+/*}*/
+
 .player-card {
     -fx-effect: dropshadow(one-pass-box, rgba(0, 0, 0, 0.8), 0, 0, 3, 3);
 
@@ -238,6 +242,10 @@
     -fx-opacity: 1;
 }
 
+/*.player-card:hover {*/
+/*    -fx-translate-y: -3;*/
+/*}*/
+
 .player-card.player-cards-active-turn {
     -fx-effect: dropshadow(one-pass-box, rgb(184, 134, 11), 0, 0, 5, 5);
 }
@@ -246,10 +254,17 @@
     -fx-effect: dropshadow(one-pass-box, rgb(184, 134, 11), 0, 0, 5, 5);
 }
 
+/*.dealer-box:hover {*/
+/*    -fx-translate-y: -3;*/
+/*}*/
+
 .chips-icon {
     -fx-effect: dropshadow(one-pass-box, rgba(0, 0, 0, 0.8), 0, 0, 3, 3);
 }
 
+/*.chips-icon:hover {*/
+/*    -fx-translate-y: -3;*/
+/*}*/
 
 .dealer-icon {
     -fx-effect: dropshadow(one-pass-box, rgba(0, 0, 0, 0.8), 0, 0, 3, 3);
@@ -447,10 +462,10 @@
     -fx-border-color: #ffffff;
 }
 
-.notebook.player-active-turn {
-    /* Active turn should only change the shadow to avoid flicker/transparency jumps. */
-    -fx-effect: dropshadow(one-pass-box, rgb(184, 134, 11), 0, 0, 5, 5);
-}
+/*.notebook.player-active-turn {*/
+/*    !* Active turn should only change the shadow to avoid flicker/transparency jumps. *!*/
+/*    -fx-effect: dropshadow(one-pass-box, rgb(184, 134, 11), 0, 0, 5, 5);*/
+/*}*/
 
 .notebook-header {
     -fx-background-color: rgb(13, 158, 59);
@@ -529,10 +544,10 @@
     -fx-border-color: #ffffff;
 }
 
-.settings-box.player-active-turn {
-    /* Active turn should only change the shadow to avoid flicker/transparency jumps. */
-    -fx-effect: dropshadow(one-pass-box, rgb(184, 134, 11), 0, 0, 5, 5);
-}
+/*.settings-box.player-active-turn {*/
+/*    !* Active turn should only change the shadow to avoid flicker/transparency jumps. *!*/
+/*    -fx-effect: dropshadow(one-pass-box, rgb(184, 134, 11), 0, 0, 5, 5);*/
+/*}*/
 
 .settings-header {
     -fx-background-color: transparent;
