@@ -16,6 +16,7 @@ import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.evaluator.HandEvaluato
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.evaluator.HandRank;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.player.Player;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.player.PlayerId;
+import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.rules.showdown.CardsSpeakRule;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.rules.RuleEngine;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.state.GamePhase;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.state.GameState;
@@ -281,13 +282,9 @@ public class GameControllerTest {
         Set<String> seenCards = new HashSet<>();
 
         for (List<Card> cards : playerCards.values()) {
-
             for (Card c : cards) {
-
                 String key = c.getRank() + "-" + c.getSuit();
-
                 assertFalse(seenCards.contains(key), "Duplicate card found: " + key);
-
                 seenCards.add(key);
             }
         }
@@ -616,5 +613,77 @@ public class GameControllerTest {
         LOGGER.info("Winner determined: " + winner);
 
         LOGGER.info("Test 5 was successfully completed");
+    }
+
+    /**
+     * This test simulates a scenario where two players have identical Two Pair hands at showdown.
+     */
+    @Test
+    public void testSplitPotWithTrueIdenticalTwoPair() {
+
+        GameState state = new GameState();
+
+        state.addPlayer(PlayerId.of("PlayerA"), 5000);
+        state.addPlayer(PlayerId.of("PlayerB"), 5000);
+
+        state.getHoleCards(PlayerId.of("PlayerA")).add(new Card(Suit.CLUBS, Rank.TWO));
+        state.getHoleCards(PlayerId.of("PlayerA")).add(new Card(Suit.DIAMONDS, Rank.THREE));
+        state.getHoleCards(PlayerId.of("PlayerB")).add(new Card(Suit.HEARTS, Rank.FOUR));
+        state.getHoleCards(PlayerId.of("PlayerB")).add(new Card(Suit.SPADES, Rank.FIVE));
+
+        state.addCommunityCard(new Card(Suit.CLUBS, Rank.QUEEN));
+        state.addCommunityCard(new Card(Suit.DIAMONDS, Rank.QUEEN));
+        state.addCommunityCard(new Card(Suit.SPADES, Rank.EIGHT));
+        state.addCommunityCard(new Card(Suit.HEARTS, Rank.EIGHT));
+        state.addCommunityCard(new Card(Suit.CLUBS, Rank.ACE));
+
+        List<Card> board = state.getCommunityCards();
+
+        List<Card> handA = new ArrayList<>(board);
+        handA.addAll(state.getHoleCards(PlayerId.of("PlayerA")));
+
+        List<Card> handB = new ArrayList<>(board);
+        handB.addAll(state.getHoleCards(PlayerId.of("PlayerB")));
+
+        HandRank rankA = HandEvaluator.evaluate(handA);
+        HandRank rankB = HandEvaluator.evaluate(handB);
+
+        assertEquals(0, rankA.compareTo(rankB), "Both hands must be exactly the same");
+
+        CardsSpeakRule showdown = new CardsSpeakRule();
+        List<Player> winners = showdown.determineWinners(state);
+
+        assertEquals(2, winners.size(), "There must be two winners");
+        assertEquals("PlayerA", winners.get(0).getName());
+        assertEquals("PlayerB", winners.get(1).getName());
+
+        int chipsBeforeA = state.getPlayers().stream()
+                .filter(p -> p.getId().equals(PlayerId.of("PlayerA")))
+                .findFirst()
+                .orElseThrow()
+                .getChips();
+        int chipsBeforeB = state.getPlayers().stream()
+                .filter(p -> p.getId().equals(PlayerId.of("PlayerB")))
+                .findFirst()
+                .orElseThrow()
+                .getChips();
+
+        state.getPot().add(1000);
+        showdown.awardPot(state);
+
+        Player playerA = state.getPlayers().stream()
+                .filter(p -> p.getId().equals(PlayerId.of("PlayerA")))
+                .findFirst()
+                .orElseThrow();
+        Player playerB = state.getPlayers().stream()
+                .filter(p -> p.getId().equals(PlayerId.of("PlayerB")))
+                .findFirst()
+                .orElseThrow();
+
+        assertEquals(chipsBeforeA + 500, playerA.getChips(), "Player A must receive half the pot");
+        assertEquals(chipsBeforeB + 500, playerB.getChips(), "Player B must receive half the pot");
+        assertEquals(0, state.getPot().getAmount(), "The pot must be 0 after the payout");
+
+        LOGGER.info("Passed the Split-Pot-Test");
     }
 }

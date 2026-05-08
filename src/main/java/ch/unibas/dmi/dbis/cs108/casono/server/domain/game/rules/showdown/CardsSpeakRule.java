@@ -5,7 +5,6 @@ import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.deck.Card;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.evaluator.HandEvaluator;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.evaluator.HandRank;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.player.Player;
-import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.player.PlayerStatus;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.rules.Rule;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.state.GameState;
 import java.util.ArrayList;
@@ -43,14 +42,27 @@ public class CardsSpeakRule implements Rule {
      */
     public Player determineWinner(GameState state) {
 
+        List<Player> winners = determineWinners(state);
+        return winners.isEmpty() ? null : winners.get(0);
+    }
+
+    /**
+     * Determines all players that share the best hand rank.
+     *
+     * @param state The current state of the game.
+     * @return The list of winners, ordered by appearance in the state.
+     */
+    public List<Player> determineWinners(GameState state) {
+
         List<Player> players = new ArrayList<>(state.getPlayers());
 
-        Player bestPlayer = null;
         HandRank bestRank = null;
+        List<Player> winners = new ArrayList<>();
 
         for (Player player : players) {
 
-            if (player.getStatus() == PlayerStatus.FOLDED) {
+            // Use folded flag from game flow to stay consistent with winner calculation in controller.
+            if (player.isFolded()) {
                 continue;
             }
 
@@ -62,13 +74,15 @@ public class CardsSpeakRule implements Rule {
             HandRank rank = HandEvaluator.evaluate(cards);
 
             if (bestRank == null || rank.compareTo(bestRank) > 0) {
-
                 bestRank = rank;
-                bestPlayer = player;
+                winners.clear();
+                winners.add(player);
+            } else if (rank.compareTo(bestRank) == 0) {
+                winners.add(player);
             }
         }
 
-        return bestPlayer;
+        return winners;
     }
 
     /**
@@ -81,15 +95,23 @@ public class CardsSpeakRule implements Rule {
      */
     public void awardPot(GameState state) {
 
-        Player winner = determineWinner(state);
+        List<Player> winners = determineWinners(state);
 
-        if (winner == null) {
+        if (winners.isEmpty()) {
             return;
         }
 
         int pot = state.getPot().getAmount();
+        int share = winners.isEmpty() ? 0 : pot / winners.size();
+        int remainder = winners.isEmpty() ? 0 : pot % winners.size();
 
-        winner.addChips(pot);
+        for (int i = 0; i < winners.size(); i++) {
+            Player winner = winners.get(i);
+            if (winner == null) {
+                continue;
+            }
+            winner.addChips(share + (i < remainder ? 1 : 0));
+        }
 
         state.getPot().reset();
     }
