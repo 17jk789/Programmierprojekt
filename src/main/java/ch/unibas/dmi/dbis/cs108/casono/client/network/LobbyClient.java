@@ -244,6 +244,33 @@ public class LobbyClient {
         return result;
     }
 
+    /**
+     * Fetches the current lobby members from GET_LOBBY_STATUS and returns their usernames in order.
+     *
+     * @param lobbyId id of the lobby to inspect
+     * @return list of usernames currently known in the lobby
+     */
+    public List<String> fetchLobbyPlayerNames(int lobbyId) {
+        List<String> lines = client.processCommand("GET_LOBBY_STATUS ID=" + lobbyId);
+        List<RequestParameter> params = ClientService.convertToRequestParameters(lines);
+
+        List<String> names = new ArrayList<>();
+        for (RequestParameter parameter : params) {
+            if (!"USERNAME".equalsIgnoreCase(parameter.key())) {
+                continue;
+            }
+            String name = parameter.value();
+            if (name != null) {
+                String trimmed = name.trim();
+                if (!trimmed.isEmpty() && !names.contains(trimmed)) {
+                    names.add(trimmed);
+                }
+            }
+        }
+
+        return names;
+    }
+
     /** Simple data holder for lobby metadata returned by the server. */
     public static final class LobbyInfo {
         public final int id;

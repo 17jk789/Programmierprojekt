@@ -6,6 +6,7 @@ import ch.unibas.dmi.dbis.cs108.casono.client.game.GameService;
 import ch.unibas.dmi.dbis.cs108.casono.client.game.PlayerId;
 import ch.unibas.dmi.dbis.cs108.casono.client.network.ClientService;
 import ch.unibas.dmi.dbis.cs108.casono.client.network.GameClient;
+import ch.unibas.dmi.dbis.cs108.casono.client.network.LobbyClient;
 import java.io.IOException;
 import java.util.UUID;
 import java.util.logging.Logger;
@@ -129,6 +130,13 @@ public class CasinoGameUI extends Application {
 
         controller.setMyPlayerId(PlayerId.of(effectiveUsername));
         controller.setChatContext(effectiveUsername, clientService, lobbyId);
+
+        try {
+            LobbyClient lobbyClient = new LobbyClient(clientService);
+            controller.setLobbyPlayerNames(lobbyClient.fetchLobbyPlayerNames(lobbyId));
+        } catch (Exception e) {
+            LOG.fine("Could not preload lobby player names: " + e.getMessage());
+        }
 
         controller.startChat(chatController);
 

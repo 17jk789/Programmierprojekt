@@ -10,7 +10,10 @@ import ch.unibas.dmi.dbis.cs108.casono.client.game.Player;
 import ch.unibas.dmi.dbis.cs108.casono.client.game.PlayerId;
 import ch.unibas.dmi.dbis.cs108.casono.client.game.PlayerState;
 import ch.unibas.dmi.dbis.cs108.casono.client.network.ClientService;
+import ch.unibas.dmi.dbis.cs108.casono.client.network.LobbyClient;
+import ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui.gameuicomponents.NotebookController;
 import ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui.gameuicomponents.PlayerStatusController;
+import ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui.gameuicomponents.SettingsController;
 import ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui.gameuicomponents.TaskbarController;
 import java.io.IOException;
 import java.net.URL;
@@ -21,6 +24,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.logging.Logger;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -60,8 +64,13 @@ public class CasinoGameController {
 
     private GameService gameService;
     private PlayerId myPlayerId;
+    private String myPlayerName;
     @FXML private TaskbarController taskbarIncludeController;
     private TaskbarController taskbarController;
+    @FXML private NotebookController notebookIncludeController;
+    private NotebookController notebookController;
+    @FXML private SettingsController settingsIncludeController;
+    // private SettingsController settingsController;
     private Image dealerImage;
     private javafx.animation.Timeline timeline;
     private boolean gameStarted = false;
@@ -73,6 +82,7 @@ public class CasinoGameController {
     public static final double CHAT_CONTAINER_CONSTANT = 6.0;
     private static final int TOTAL_SLOTS = 5;
     private static final int PLAYER_SLOTS = 2;
+    private static final int MAX_OPPONENTS_TO_RENDER = 3;
     private int pot = 0;
     private static final String BACKSIDE = "/images/card-background-3.png";
     private static final String DEALER_IMAGE_PATH = "/images/chip-dealer-blue-3.png";
@@ -115,6 +125,8 @@ public class CasinoGameController {
     private static final double COMMUNITY_CARD_WIDTH_RATIO = 0.11;
     private static final double PLAYER_CARD_HEIGHT_RATIO = 0.30;
     private static final double PLAYER_CARD_WIDTH_RATIO = 0.15;
+    private static final double DEALER_HEIGHT_RATIO = 0.13;
+    private static final double DEALER_WIDTH_RATIO = 0.13;
     private static final double PLAYER_CARDS_Y_OFFSET_FACTOR = 0.10;
     private static final int[] CHIP_VALUES = {
         100000, 50000, 20000, 10000,
@@ -139,6 +151,12 @@ public class CasinoGameController {
     private static final long CHIP_SCALE_DURATION_MS = 220;
     private static final long CHIP_DROP_DURATION_MS = 250;
     private static final long CHIP_STAGGER_DELAY_MULTIPLIER = 35L;
+    private static final int MAX_POT_ROWS = 2;
+    private static final double POT_CHIP_H_GAP = 6.0;
+    private static final double POT_CHIP_V_GAP = 6.0;
+    private static final double POT_WIDTH_FACTOR = 0.45;
+    private static final double FALLBACK_POT_WIDTH = 500.0;
+    private static final double FALLBACK_CHIP_WIDTH = 36.0;
     private static final double CHAT_WIDTH = 400;
     private static final double CHAT_HEIGHT = 600;
     private static final String ACTIVE_CARD_BOX_STYLE_CLASS = "player-cards-active-turn";
@@ -156,6 +174,8 @@ public class CasinoGameController {
     private static final int SMALL_BLIND = 100;
     private static final int BIG_BLIND = 200;
     private static final int NO_BET = 0;
+    private boolean myDealerIconSizeBound;
+    private java.util.List<String> lobbyPlayerNames = java.util.List.of();
 
     /** Standard constructor. Used by FXML. */
     public CasinoGameController() {
@@ -230,6 +250,16 @@ public class CasinoGameController {
         if (taskbarController != null && gameService != null && myPlayerId != null) {
             taskbarController.setGameService(gameService, myPlayerId);
         }
+
+        notebookController = resolveNotebookController();
+        if (taskbarController != null && notebookController != null) {
+            taskbarController.setNotebookController(notebookController);
+        }
+
+        if (taskbarController != null && settingsIncludeController != null) {
+            taskbarController.setSettingsController(settingsIncludeController);
+            settingsIncludeController.setThemeChangeListener(this::applyTheme);
+        }
         configureTaskbarLobbyActionAnnouncements();
 
         if (communityCardsBox == null) {
@@ -251,6 +281,7 @@ public class CasinoGameController {
         }
 
         myDealerIcon.setVisible(false);
+        styleMyDealerIcon();
         tableText.setWrapText(true);
 
         javafx.stage.Screen screen = javafx.stage.Screen.getPrimary();
@@ -267,6 +298,8 @@ public class CasinoGameController {
         renderPlayerCards(List.of());
 
         chatContainer.toFront();
+
+        javafx.application.Platform.runLater(() -> applyTheme("standard"));
     }
 
     /**
@@ -475,6 +508,7 @@ public class CasinoGameController {
                 .thenAccept(
                         state -> {
                             if (state == null) {
+                                refreshLobbyOpponentsBeforeGameStart();
                                 LOGGER.info("No state received yet.");
                                 return;
                             }
@@ -490,6 +524,35 @@ public class CasinoGameController {
                             ex.printStackTrace();
                             return null;
                         });
+    }
+
+    /**
+     * Refresh the list of opponents in the lobby before the game starts by fetching the latest player.
+     */
+    private void refreshLobbyOpponentsBeforeGameStart() {
+        if (gameService != null && gameService.peekStateOrNull() != null) {
+            return;
+        }
+        if (chatClientService == null || chatLobbyId < 0) {
+            return;
+        }
+
+        try {
+            LobbyClient lobbyClient = new LobbyClient(chatClientService);
+            List<String> latestNames = lobbyClient.fetchLobbyPlayerNames(chatLobbyId);
+            if (latestNames == null) {
+                latestNames = List.of();
+            }
+            if (latestNames.equals(lobbyPlayerNames)) {
+                return;
+            }
+
+            List<String> namesToRender = List.copyOf(latestNames);
+            javafx.application.Platform.runLater(() -> setLobbyPlayerNames(namesToRender));
+        } catch (Exception e) {
+            String msg = "Could not refresh lobby player names: " + e.getMessage();
+            LOGGER.fine(msg);
+        }
     }
 
     /**
@@ -621,12 +684,12 @@ public class CasinoGameController {
      */
     private List<Card> getMyCards(List<Player> players) {
 
-        if (myPlayerId == null || players == null) {
+        if (players == null) {
             return List.of();
         }
 
         for (Player p : players) {
-            if (p.getId() != null && p.getId().equals(myPlayerId)) {
+            if (isCurrentPlayer(p)) {
                 return p.getCards() != null ? p.getCards() : List.of();
             }
         }
@@ -641,13 +704,13 @@ public class CasinoGameController {
      */
     private void updatePlayerCards(GameState s) {
 
-        if (s.players == null || myPlayerId == null) {
+        if (s.players == null) {
             renderPlayerCards(List.of());
             return;
         }
 
         for (Player p : s.players) {
-            if (p.getId().equals(myPlayerId)) {
+            if (isCurrentPlayer(p)) {
                 renderPlayerCards(p.getCards());
                 return;
             }
@@ -672,7 +735,18 @@ public class CasinoGameController {
 
         String winnerName = resolveWinnerName(s);
         if (winnerName != null && !winnerName.isBlank()) {
-            tableText.setText("Winner: " + winnerName);
+            StringBuilder winnerText = new StringBuilder("Winner");
+
+            if (s.winnerNames != null && s.winnerNames.size() > 1) {
+                winnerText.append("s: ").append(String.join(", ", s.winnerNames));
+                if (s.potPerWinner > 0) {
+                    winnerText.append(" (").append(s.potPerWinner).append(" each)");
+                }
+            } else {
+                winnerText.append(": ").append(winnerName);
+            }
+
+            tableText.setText(winnerText.toString());
             return;
         }
 
@@ -770,13 +844,13 @@ public class CasinoGameController {
      */
     private void updateTaskbar(GameState s) {
         TaskbarController controller = resolveTaskbarController();
-        if (controller == null || myPlayerId == null) {
+        if (controller == null) {
             return;
         }
         if (gameService != null) {
             controller.setGameService(gameService, myPlayerId);
         }
-        controller.update(s, myPlayerId);
+        controller.update(s, myPlayerName);
     }
 
     /**
@@ -832,30 +906,50 @@ public class CasinoGameController {
      *     opponents.
      */
     private java.util.List<Player> buildOpponents(List<Player> players) {
-        java.util.List<Player> opponents = new java.util.ArrayList<>();
-        boolean meFound = false;
-
-        for (Player p : players) {
-            if (p == null) {
-                continue;
-            }
-
-            PlayerId pid = p.getId();
-            boolean isMe = myPlayerId != null && myPlayerId.equals(pid);
-
-            if (isMe) {
-                meFound = true;
-            } else {
-                opponents.add(p);
-            }
+        if (players == null || players.isEmpty()) {
+            return java.util.List.of();
         }
 
-        if (!meFound) {
-            opponents.clear();
-            opponents.addAll(players);
+        int myIndex = findCurrentPlayerIndex(players);
+        if (myIndex < 0) {
+            java.util.List<Player> fallback = new java.util.ArrayList<>();
+            for (Player player : players) {
+                if (player != null) {
+                    fallback.add(player);
+                }
+            }
+            return fallback;
         }
 
-        return opponents;
+        java.util.List<Player> ordered = new java.util.ArrayList<>(Math.max(0, players.size() - 1));
+        for (int offset = 1; offset < players.size(); offset++) {
+            int index = (myIndex + offset) % players.size();
+            Player player = players.get(index);
+            if (player != null) {
+                ordered.add(player);
+            }
+        }
+        return ordered;
+    }
+
+    /**
+     * Find the index of the current player in the provided list of players by comparing their PlayerId
+     * with myPlayerId.
+     *
+     * @param players The list of players to search through, which may include the current player and their opponents.
+     * @return The index of the current player in the list if found, or -1 if the current player is not present in the
+     * list or if the list is null or empty.
+     */
+    private int findCurrentPlayerIndex(List<Player> players) {
+        if (players == null || players.isEmpty()) {
+            return -1;
+        }
+        for (int i = 0; i < players.size(); i++) {
+            if (isCurrentPlayer(players.get(i))) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     /**
@@ -970,12 +1064,12 @@ public class CasinoGameController {
         clearActiveTurnHighlights();
 
         Player activePlayer = getPlayerAtIndex(players, activePlayerIndex);
-        if (activePlayer == null || activePlayer.getId() == null) {
+        if (activePlayer == null) {
             setTaskbarTurnHighlight(false);
             return;
         }
 
-        if (myPlayerId != null && myPlayerId.equals(activePlayer.getId())) {
+        if (isCurrentPlayer(activePlayer)) {
             setPlayerCardsTurnHighlighted(true);
             setTaskbarTurnHighlight(true);
             return;
@@ -1104,11 +1198,7 @@ public class CasinoGameController {
         }
 
         Player winner = resolveWinner(s);
-        boolean isLocalWinner =
-                winner != null
-                        && winner.getId() != null
-                        && myPlayerId != null
-                        && myPlayerId.equals(winner.getId());
+        boolean isLocalWinner = winner != null && isCurrentPlayer(winner);
 
         if (!isLocalWinner && lastWinnerName != null && !lastWinnerName.isBlank()) {
             String localName =
@@ -1255,11 +1345,11 @@ public class CasinoGameController {
         }
 
         Player dealerPlayer = s.players.get(s.dealer);
-        if (dealerPlayer == null || dealerPlayer.getId() == null) {
+        if (dealerPlayer == null) {
             return;
         }
 
-        if (myPlayerId != null && myPlayerId.equals(dealerPlayer.getId())) {
+        if (isCurrentPlayer(dealerPlayer)) {
             myDealerIcon.setVisible(true);
             return;
         }
@@ -1292,10 +1382,17 @@ public class CasinoGameController {
      *     otherwise.
      */
     private boolean samePlayer(Player a, Player b) {
-        if (a == null || b == null || a.getId() == null || b.getId() == null) {
+        if (a == null || b == null) {
             return false;
         }
-        return a.getId().equals(b.getId());
+
+        String aName = normalizeIdentifier(a.getName());
+        String bName = normalizeIdentifier(b.getName());
+        if (aName != null && bName != null) {
+            return aName.equals(bName);
+        }
+
+        return a.getId() != null && b.getId() != null && a.getId().equals(b.getId());
     }
 
     /**
@@ -1326,8 +1423,8 @@ public class CasinoGameController {
 
             view.setImage(image);
 
-            view.setOnMouseEntered(e -> animateCardHover(view, true));
-            view.setOnMouseExited(e -> animateCardHover(view, false));
+            // view.setOnMouseEntered(e -> animateCardHover(view, true));
+            // view.setOnMouseExited(e -> animateCardHover(view, false));
 
             view.setOpacity(CARD_START_OPACITY);
 
@@ -1370,8 +1467,8 @@ public class CasinoGameController {
 
             view.setImage(image);
 
-            view.setOnMouseEntered(e -> animateCardHover(view, true));
-            view.setOnMouseExited(e -> animateCardHover(view, false));
+            // view.setOnMouseEntered(e -> animateCardHover(view, true));
+            // view.setOnMouseExited(e -> animateCardHover(view, false));
 
             view.setOpacity(CARD_START_OPACITY);
 
@@ -1382,6 +1479,47 @@ public class CasinoGameController {
 
             animateCardAppear(view, i);
         }
+    }
+
+    /**
+     * Apply styling to the myDealerIcon ImageView.
+     */
+    private void styleMyDealerIcon() {
+        if (myDealerIcon == null || playerCardsBox == null) {
+            return;
+        }
+
+        myDealerIcon.setPreserveRatio(true);
+        myDealerIcon.setSmooth(true);
+
+        javafx.scene.Scene scene = playerCardsBox.getScene();
+        if (scene != null) {
+            bindMyDealerIconSize(scene);
+        } else {
+            playerCardsBox
+                    .sceneProperty()
+                    .addListener(
+                            (obs, oldScene, newScene) -> {
+                                if (newScene != null) {
+                                    bindMyDealerIconSize(newScene);
+                                }
+                            });
+        }
+    }
+
+    /**
+     * Bind the size of the myDealerIcon ImageView to the dimensions of the scene using predefined ratios.
+     *
+     * @param scene The JavaFX Scene to which the myDealerIcon belongs, used for binding the size properties.
+     */
+    private void bindMyDealerIconSize(javafx.scene.Scene scene) {
+        if (myDealerIconSizeBound || scene == null || myDealerIcon == null) {
+            return;
+        }
+
+        myDealerIcon.fitHeightProperty().bind(scene.heightProperty().multiply(DEALER_HEIGHT_RATIO));
+        myDealerIcon.fitWidthProperty().bind(scene.widthProperty().multiply(DEALER_WIDTH_RATIO));
+        myDealerIconSizeBound = true;
     }
 
     /**
@@ -1551,28 +1689,30 @@ public class CasinoGameController {
      * Animate a card hover effect by scaling and lifting the card when hovered and resetting it
      * when not hovered.
      *
+     * However, we have removed the hover animations from the cards and the pot for improved handling and a more stable Game UI.
+     *
      * @param view The ImageView representing the card to animate on hover.
      * @param hover A boolean indicating whether the card is being hovered (true) or not (false).
      */
-    private void animateCardHover(ImageView view, boolean hover) {
-
-        double scale = hover ? HOVER_SCALE_ON : HOVER_SCALE_OFF;
-        double lift = hover ? HOVER_LIFT_ON : HOVER_LIFT_OFF;
-
-        javafx.animation.ScaleTransition st =
-                new javafx.animation.ScaleTransition(
-                        javafx.util.Duration.millis(HOVER_DURATION_MS), view);
-        st.setToX(scale);
-        st.setToY(scale);
-
-        javafx.animation.TranslateTransition tt =
-                new javafx.animation.TranslateTransition(
-                        javafx.util.Duration.millis(HOVER_DURATION_MS), view);
-        tt.setToY(lift);
-
-        st.play();
-        tt.play();
-    }
+    // private void animateCardHover(ImageView view, boolean hover) {
+    //
+    //     double scale = hover ? HOVER_SCALE_ON : HOVER_SCALE_OFF;
+    //     double lift = hover ? HOVER_LIFT_ON : HOVER_LIFT_OFF;
+    //
+    //     javafx.animation.ScaleTransition st =
+    //             new javafx.animation.ScaleTransition(
+    //                     javafx.util.Duration.millis(HOVER_DURATION_MS), view);
+    //     st.setToX(scale);
+    //     st.setToY(scale);
+    //
+    //     javafx.animation.TranslateTransition tt =
+    //             new javafx.animation.TranslateTransition(
+    //                     javafx.util.Duration.millis(HOVER_DURATION_MS), view);
+    //     tt.setToY(lift);
+    //
+    //     st.play();
+    //     tt.play();
+    // }
 
     /**
      * Position the player's hole cards box on the screen based on a predefined offset factor
@@ -1640,13 +1780,26 @@ public class CasinoGameController {
 
         potBox.getChildren().clear();
 
+        int chipsPerRow = resolveChipsPerPotRow();
+        int maxVisibleChips = chipsPerRow * MAX_POT_ROWS;
+        HBox topRow = createPotRow();
+        HBox bottomRow = createPotRow();
+        VBox rows = new VBox(POT_CHIP_V_GAP, topRow, bottomRow);
+        rows.setAlignment(Pos.CENTER);
+        potBox.getChildren().add(rows);
+
         int remaining = pot;
 
         int index = 0;
+        boolean limitReached = false;
 
         for (int chipValue : CHIP_VALUES) {
 
             while (remaining >= chipValue) {
+                if (index >= maxVisibleChips) {
+                    limitReached = true;
+                    break;
+                }
 
                 ImageView chip =
                         new ImageView(loadImageSafe("/images/chip-" + chipValue + "-5.png"));
@@ -1658,16 +1811,64 @@ public class CasinoGameController {
 
                 styleChip(chip);
 
-                potBox.getChildren().add(chip);
+                if (index < chipsPerRow) {
+                    topRow.getChildren().add(chip);
+                } else {
+                    bottomRow.getChildren().add(chip);
+                }
 
                 animateChipAppear(chip, index);
 
                 remaining -= chipValue;
                 index++;
             }
+
+            if (limitReached) {
+                break;
+            }
         }
 
         // LOGGER.info("POT RENDERED: " + pot + " -> remaining: " + remaining);
+    }
+
+    /**
+     * Create a new HBox to represent a row of chips in the pot display, with predefined horizontal.
+     *
+     * @return A new HBox instance configured for displaying a row of chips in the pot,
+     * with appropriate spacing and alignment.
+     */
+    private HBox createPotRow() {
+        HBox row = new HBox(POT_CHIP_H_GAP);
+        row.setAlignment(Pos.CENTER);
+        return row;
+    }
+
+    /**
+     * Calculate the number of chips that can be displayed per row in the pot based on the available width.
+     *
+     * @return The calculated number of chips that can fit in a single row of the pot display.
+     */
+    private int resolveChipsPerPotRow() {
+        double availableWidth = potBox != null ? potBox.getWidth() : 0.0;
+        if (availableWidth <= 0 && potBox != null && potBox.getScene() != null) {
+            availableWidth = potBox.getScene().getWidth() * POT_WIDTH_FACTOR;
+        }
+        if (availableWidth <= 0) {
+            availableWidth = FALLBACK_POT_WIDTH;
+        }
+
+        double estimatedChipWidth = FALLBACK_CHIP_WIDTH;
+        if (potBox != null && potBox.getScene() != null) {
+            estimatedChipWidth =
+                    Math.max(FALLBACK_CHIP_WIDTH, potBox.getScene().getWidth() * CHIP_WIDTH_RATIO);
+        }
+
+        int chipsPerRow =
+                (int)
+                        Math.floor(
+                                (availableWidth + POT_CHIP_H_GAP)
+                                        / (estimatedChipWidth + POT_CHIP_H_GAP));
+        return Math.max(1, chipsPerRow);
     }
 
     /**
@@ -1769,11 +1970,124 @@ public class CasinoGameController {
      */
     public void setMyPlayerId(PlayerId id) {
         this.myPlayerId = id;
+        this.myPlayerName = id != null ? normalizeIdentifier(id.value()) : null;
         TaskbarController controller = resolveTaskbarController();
         if (controller != null && gameService != null && myPlayerId != null) {
             controller.setGameService(gameService, myPlayerId);
         }
+        renderLobbyOpponentsIfNeeded();
         configureTaskbarLobbyActionAnnouncements();
+    }
+
+    /**
+     * Sets lobby player names to be shown before the first game-state update is available.
+     *
+     * @param names player names currently present in the lobby
+     */
+    public void setLobbyPlayerNames(List<String> names) {
+        if (names == null || names.isEmpty()) {
+            this.lobbyPlayerNames = java.util.List.of();
+        } else {
+            this.lobbyPlayerNames = java.util.List.copyOf(names);
+        }
+        renderLobbyOpponentsIfNeeded();
+    }
+
+    /**
+     * Render the opponents in the lobby based on the list of lobby player names, but only if the game
+     * service is not yet initialized or if there is no game state available.
+     */
+    private void renderLobbyOpponentsIfNeeded() {
+        if (gameService != null && gameService.peekStateOrNull() != null) {
+            return;
+        }
+
+        if (lobbyPlayerNames == null || lobbyPlayerNames.isEmpty()) {
+            return;
+        }
+
+        java.util.List<String> opponents = new java.util.ArrayList<>();
+        for (String rawName : lobbyPlayerNames) {
+            String normalized = normalizeIdentifier(rawName);
+            if (normalized == null) {
+                continue;
+            }
+            if (myPlayerName != null && myPlayerName.equals(normalized)) {
+                continue;
+            }
+            if (!opponents.contains(rawName.trim())) {
+                opponents.add(rawName.trim());
+            }
+            if (opponents.size() >= MAX_OPPONENTS_TO_RENDER) {
+                break;
+            }
+        }
+
+        setLobbyOpponent(player1Controller, opponents, 0);
+        setLobbyOpponent(player2Controller, opponents, 1);
+        setLobbyOpponent(player3Controller, opponents, 2);
+    }
+
+    /**
+     * Set the lobby opponent information in the given PlayerStatusController slot based on the list
+     * of opponent names and the specified index.
+     *
+     * @param slot The PlayerStatusController instance representing the UI slot for an opponent,
+     *             which will be updated with the opponent's name if available.
+     * @param opponents The list of opponent names currently in the lobby, which may be null or
+     *                  contain fewer entries than the index.
+     * @param index The index of the opponent in the opponents list to be displayed in the given slot, where
+     *              0 corresponds to the first opponent, 1 to the second, and so on.
+     */
+    private void setLobbyOpponent(PlayerStatusController slot, List<String> opponents, int index) {
+        if (slot == null) {
+            return;
+        }
+
+        if (opponents == null || index >= opponents.size()) {
+            slot.setPlayer(null);
+            safeRefresh(slot);
+            return;
+        }
+
+        slot.setPlayer(null);
+        slot.updatePlayer(opponents.get(index), 0);
+        slot.setDealer(false);
+        slot.setTurnHighlighted(false);
+    }
+
+    /**
+     * Determine if the given Player object represents the current player based on the
+     * player's name and ID compared to the stored myPlayerName and myPlayerId values.
+     *
+     * @param player The Player object to check, which may be null or contain name and ID information.
+     * @return true if the given Player is identified as the current player based on name or ID matching, false otherwise.
+     */
+    private boolean isCurrentPlayer(Player player) {
+        if (player == null) {
+            return false;
+        }
+
+        String candidateName = normalizeIdentifier(player.getName());
+        if (myPlayerName != null && candidateName != null && myPlayerName.equals(candidateName)) {
+            return true;
+        }
+
+        return myPlayerId != null && player.getId() != null && myPlayerId.equals(player.getId());
+    }
+
+    /**
+     * Normalize a player name or identifier by trimming whitespace and converting to lowercase, returning null if the result is empty.
+     *
+     * @param value The raw player name or identifier to normalize, which may be null or contain leading/trailing whitespace.
+     * @return The normalized identifier in lowercase without leading/trailing whitespace, or null if the input is null or empty after trimming.
+     */
+    private String normalizeIdentifier(String value) {
+        if (value == null) {
+            return null;
+        }
+        String trimmed = value.trim();
+        return trimmed.isEmpty() ? null : trimmed.toLowerCase();
     }
 
     /**
@@ -1832,5 +2146,83 @@ public class CasinoGameController {
             return taskbarController;
         }
         return null;
+    }
+
+    /**
+     * Resolve the NotebookController for displaying tips and game information.
+     *
+     * @return The NotebookController instance, which may be the directly injected
+     *     notebookController or the one obtained from the notebookIncludeController.
+     */
+    private NotebookController resolveNotebookController() {
+        if (notebookController != null) {
+            return notebookController;
+        }
+        if (notebookIncludeController != null) {
+            notebookController = notebookIncludeController;
+            return notebookController;
+        }
+        return null;
+    }
+
+    /**
+     * Resolve the SettingsController for theme switching.
+     *
+     * @return The SettingsController instance, which may be the directly injected
+     *     settingsController or the one obtained from the settingsIncludeController.
+     */
+    public SettingsController getSettingsController() {
+        return settingsIncludeController;
+    }
+
+    /**
+     * Applies a UI theme by switching the application's stylesheet.
+     *
+     * @param theme The theme name: "standard", "blackwhite", or "glass"
+     */
+    private void applyTheme(String theme) {
+        if (theme == null || theme.isBlank()) {
+            LOGGER.warning("Theme is null or empty -> ignoring theme change");
+            return;
+        }
+
+        javafx.scene.Scene scene = casinoTable != null ? casinoTable.getScene() : null;
+
+        if (scene == null) {
+            LOGGER.warning("Scene not ready yet -> cannot apply theme: " + theme);
+            return;
+        }
+
+        String cssPath =
+                switch (theme.toLowerCase()) {
+                    case "blackwhite" -> "/ui-structure/Casinogameui-blackwhite.css";
+                    case "glass" -> "/ui-structure/Casinogameui-glass.css";
+                    default -> "/ui-structure/Casinogameui.css";
+                };
+
+        java.net.URL cssUrl = getClass().getResource(cssPath);
+
+        if (cssUrl == null) {
+            LOGGER.severe("CSS resource not found: " + cssPath);
+            return;
+        }
+
+        try {
+            String cssExternalForm = cssUrl.toExternalForm();
+
+            scene.getStylesheets()
+                    .removeIf(
+                            s ->
+                                    s.contains("Casinogameui.css")
+                                            || s.contains("Casinogameui-blackwhite.css")
+                                            || s.contains("Casinogameui-glass.css"));
+
+            scene.getStylesheets().add(cssExternalForm);
+
+            LOGGER.info("Theme switched successfully to: " + theme);
+
+        } catch (Exception e) {
+            LOGGER.severe("Failed to apply theme '" + theme + "': " + e.getMessage());
+        }
     }
 }
