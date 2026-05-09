@@ -84,6 +84,9 @@ public class TaskbarController {
     private static final int FIRST_PLAYER_MAX_BET = 3000;
     private static final int MAX_INPUT_LENGTH = 6;
     private static final double MAX_CHIP_PERCENT = 0.30;
+    private int lastPotSnapshot = 0;
+    private int lastObservedIncrease = 0;
+    private int lastRaiseIncrement = 0;
 
     /** Standard constructor. Used by FXML. */
     public TaskbarController() {
@@ -428,11 +431,13 @@ public class TaskbarController {
 
         this.lastState = state;
 
+        Player me = findCurrentPlayer(state);
+
+        synchronizeCurrentBetIfNeeded(state, me);
+
         if (state.currentBet > 0) {
             lastReferenceBet = state.currentBet;
         }
-
-        Player me = findCurrentPlayer(state);
 
         if (me == null) {
             LOGGER.error("Player not found in GameState!");
@@ -455,6 +460,52 @@ public class TaskbarController {
 
         setMoney(me.getChips());
         refreshBetInputUi();
+    }
+
+    /**
+     * Synchronizes the current bet in the game state if there has been a change in the pot size
+     * that is not yet reflected in the current bet.
+     *
+     * @param state The current GameState object representing the state of the game.
+     * @param me The Player object representing the current player, used to determine their bet
+     *     status and whether they are the first to act in the current phase.
+     */
+    private void synchronizeCurrentBetIfNeeded(GameState state, Player me) {
+
+        if (state == null || me == null) {
+            return;
+        }
+
+        int currentPot = Math.max(0, state.pot);
+        int potDiff = currentPot - lastPotSnapshot;
+
+        lastPotSnapshot = currentPot;
+
+        if (potDiff <= 0) {
+            return;
+        }
+
+        LOGGER.debug("Pot changed: +" + potDiff);
+
+        lastRaiseIncrement = Math.max(lastRaiseIncrement, potDiff);
+
+        boolean isTurnOrRiver = isTurnOrRiver(state.phase);
+
+        boolean isSpecialActor = isFirstPlayerOfPhase(state, me) && isTurnOrRiver;
+
+        if (isSpecialActor) {
+
+            LOGGER.info("SPECIAL TURN/RIVER LOGIC ACTIVE, potDiff=" + potDiff);
+
+            if (potDiff > state.currentBet) {
+
+                LOGGER.info("Updating currentBet -> potDiff: " + potDiff);
+
+                state.currentBet = potDiff;
+
+                lastReferenceBet = potDiff;
+            }
+        }
     }
 
     /**
@@ -507,7 +558,7 @@ public class TaskbarController {
             return;
         }
 
-        if (isFirstPlayerOfPhase(state, me)) {
+        if (isFirstFlopPlayer(state, me)) {
             setActionEnabled(betButton, true);
             setActionEnabled(callButton, false);
             // setActionEnabled(foldButton, false);
@@ -691,6 +742,53 @@ public class TaskbarController {
         }
 
         return isInitialPreflopBlindLayout(state);
+    }
+
+    /**
+     * Checks if the current player is the first to act on the flop.
+     *
+     * @param state The current GameState containing phase, dealer and active player information.
+     * @param me The current player.
+     * @return true if the player is the first player to act on the flop.
+     */
+    private boolean isFirstFlopPlayer(GameState state, Player me) {
+
+        if (state == null || me == null || state.players == null) {
+            return false;
+        }
+
+        if (!isFlop(state.phase)) {
+            return false;
+        }
+
+        int size = state.players.size();
+
+        if (size < 2) {
+            return false;
+        }
+
+        int myIndex = state.players.indexOf(me);
+
+        if (myIndex < 0) {
+            return false;
+        }
+
+        int firstIndex = (state.dealer + 1) % size;
+
+        for (int i = 0; i < size; i++) {
+
+            int candidate = (firstIndex + i) % size;
+
+            Player p = state.players.get(candidate);
+
+            if (p != null && p.getState() != PlayerState.FOLDED && p.getChips() > 0) {
+
+                firstIndex = candidate;
+                break;
+            }
+        }
+
+        return state.activePlayer == firstIndex && myIndex == firstIndex;
     }
 
     /**
