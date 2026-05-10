@@ -82,7 +82,17 @@
 ![Game UI](./images/game-ui.png)
 
 ![Taskbar](./images/taskbar.png)
+## Themes
 
+![[game_ui_normal_theme.png]]
+
+### Black-and-White Theme
+
+![[game_ui_black_white_theme.png]]
+
+### Glass-Effect Theme
+
+![[game_ui_glass_theme.png]]
 ## Casono Browser
 
 ![[casono-browser.png]]
@@ -101,6 +111,7 @@
 ### Whisper Chat
 
 ![[whisper_chat.png]]
+
 # Casono Rules
 
 ## 1. Spielübersicht
@@ -164,6 +175,7 @@ Jeder Spieler hat folgende Optionen:
 - Drei Karten werden offen auf den Tisch gelegt
 - Eine neue Setzrunde beginnt
 - Die Setzrunde beginnt jetzt immer beim ersten aktiven Spieler links vom Dealer (im Uhrzeigersinn).
+- Der erste Spieler bei der Flop Runde muss keinen höheren Einsatz setzen als der letzte Spieler aus der Preflop Runde, allerdings muss er seinen eigenen Einsatz aus der Preflop Runde überbieten.
 
 Ab diesem Zeitpunkt können alle Spieler ihre Strategie anhand zusätzlicher Informationen anpassen.
 
