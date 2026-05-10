@@ -12,7 +12,9 @@
         * [Den Username ändern](#den-username-ändern)
         * [Highscores](#highscores)
     * [Game UI](#game-ui)
+    * [Themes](#themes)
     * [Casono Browser](#casono-browser)
+    * [ChatUI](#chat ui)
 * [Casono Rules](#casono-rules)
     * [1. Spielübersicht](#1-spielübersicht)
         * [Grundregeln](#grundregeln)
@@ -48,11 +50,13 @@
 # Start Game
 
 ## Server starten
+
 ```bash
 ./gradlew run --no-configuration-cache --args="server 1234"
 ```
 
 ## Client starten
+
 ```bash
 ./gradlew run --no-configuration-cache --args="client 127.0.0.1:1234 DeinName"
 ```
@@ -82,17 +86,19 @@
 ![Game UI](./images/game-ui.png)
 
 ![Taskbar](./images/taskbar.png)
+
 ## Themes
 
-![[game_ui_normal_theme.png]]
+![Set the theme](./images/game_ui_normal_theme.png)
 
 ### Black-and-White Theme
 
-![[game_ui_black_white_theme.png]]
+![Black and White Theme](./images/game_ui_black_white_theme.png)
 
 ### Glass-Effect Theme
 
-![[game_ui_glass_theme.png]]
+![Glass Effect Theme](./images/game_ui_glass_theme.png)
+
 ## Casono Browser
 
 ![[casono-browser.png]]
@@ -100,23 +106,24 @@
 ![Casono Browser](./images/casono-browser.png)
 
 ## Chat UI
+
 ### Globaler Chat
 
-![[global_chat.png]]
+![Globaler Chat](./images/global_chat.png)
 
 ### Lobby Chat
 
-![[lobby_chat.png]]
+![Lobby Chat](./images/lobby_chat.png)
 
 ### Whisper Chat
 
-![[whisper_chat.png]]
+![Whisper Chat](./images/whisper_chat.png)
 
 # Casono Rules
 
 ## 1. Spielübersicht
 
-Texas Hold’em ist ein strategisches Kartenspiel für mehrere Spieler. 
+Texas Hold’em ist ein strategisches Kartenspiel für mehrere Spieler.
 Ziel ist es, den Pot (alle gesetzten Chips) zu gewinnen, entweder durch:
 
 - die beste Kartenkombination am Ende der Runde
@@ -127,8 +134,8 @@ Ziel ist es, den Pot (alle gesetzten Chips) zu gewinnen, entweder durch:
 - Jeder Spieler erhält 2 verdeckte Karten (Hole Cards)
 - Es werden 5 Gemeinschaftskarten offen in der Mitte ausgelegt
 - Jeder Spieler bildet die beste 5-Karten-Kombination aus:
-  - eigenen Karten
-  - und Gemeinschaftskarten
+    - eigenen Karten
+    - und Gemeinschaftskarten
 
 - Zu Spielbeginn erhält jeder Spieler ein Startgeld von 20000 Chips ($)
 
@@ -242,7 +249,9 @@ Alle Aktionen müssen eindeutig sein:
 
 ### Fehlerhafte Einsätze
 
-- Unklare oder falsche Einsätze können korrigiert werden, abhängig von der Spielsituation (nur wenn der Einsatz außerhalb der gültigen Grenzen liegt; zu hohe oder unzulässige Beträge werden blockiert und nicht automatisch korrigiert)
+- Unklare oder falsche Einsätze können korrigiert werden, abhängig von der Spielsituation (nur wenn der Einsatz
+  außerhalb der gültigen Grenzen liegt; zu hohe oder unzulässige Beträge werden blockiert und nicht automatisch
+  korrigiert)
 
 ## 8. Strategische Einordnung
 
@@ -254,17 +263,24 @@ Texas Hold’em ist kein reines Glücksspiel. Der Erfolg basiert auf:
 
 # Casono Rules Easy Description
 
-Der Pokertisch ist ein unglaublich faszinierender Erlebnisraum, in dem man sehr viel lernen kann: über sich selbst, über andere Menschen und über Fragen wie: Wie treffe ich eigentlich Entscheidungen, wie gehe ich mit Stress und Unsicherheit um und wie gut ich darin bin, mich in andere hineinzuversetzen und Situationen richtig einzuschätzen.
+Der Pokertisch ist ein unglaublich faszinierender Erlebnisraum, in dem man sehr viel lernen kann: über sich selbst, über
+andere Menschen und über Fragen wie: Wie treffe ich eigentlich Entscheidungen, wie gehe ich mit Stress und Unsicherheit
+um und wie gut ich darin bin, mich in andere hineinzuversetzen und Situationen richtig einzuschätzen.
 
-Damit Du in diesem Erlebnisraum starten kannst, ist es – wie bei jedem Spiel – notwendig, zuerst die Grundregeln und den Spielablauf zu verstehen.
+Damit Du in diesem Erlebnisraum starten kannst, ist es – wie bei jedem Spiel – notwendig, zuerst die Grundregeln und den
+Spielablauf zu verstehen.
 
 Also los geht es:
 
-Wir haben am Tisch **4 Spieler**: Julian, Mathis, Jona und Lars. Jeder Spieler startet mit **20000 Chips ($)**. Jeder bekommt **2 Karten auf die Hand** und es gibt zusätzlich **5 Gemeinschaftskarten**, die später in der Mitte aufgedeckt werden.
+Wir haben am Tisch **4 Spieler**: Julian, Mathis, Jona und Lars. Jeder Spieler startet mit **20000 Chips ($)**. Jeder
+bekommt **2 Karten auf die Hand** und es gibt zusätzlich **5 Gemeinschaftskarten**, die später in der Mitte aufgedeckt
+werden.
 
 ![1. image](./images/1-1.svg)
 
-Die Spieler sitzen in folgender Reihenfolge: Julian, Mathis, Jona und Lars. Einer davon hat den Dealer-Button, der bestimmt, wer die Karten austeilt und von wo die Runde beginnt. Dieser Button wandert nach jeder Runde im Uhrzeigersinn weiter und verändert damit die Position ständig.
+Die Spieler sitzen in folgender Reihenfolge: Julian, Mathis, Jona und Lars. Einer davon hat den Dealer-Button, der
+bestimmt, wer die Karten austeilt und von wo die Runde beginnt. Dieser Button wandert nach jeder Runde im Uhrzeigersinn
+weiter und verändert damit die Position ständig.
 
 Regel: *34 Button Placement and Movement 🟢*
 
@@ -278,7 +294,8 @@ Der Small Blind und der Big Blind. Der Big Blind ist immer doppelt so hoch wie d
 
 Regel: *32 Dead Button 🟡*
 
-Diese Einsätze sorgen dafür, dass sofort ein Pot entsteht und das Spiel überhaupt beginnt, weil jeder schon “im Spiel” ist.
+Diese Einsätze sorgen dafür, dass sofort ein Pot entsteht und das Spiel überhaupt beginnt, weil jeder schon “im Spiel”
+ist.
 
 Danach werden die Karten verteilt: zuerst Small Blind, dann Big Blind und dann im Uhrzeigersinn alle anderen Spieler.
 
@@ -315,11 +332,13 @@ Lars schaut seine Karten an, erkennt eine starke Hand und erhöht auf **1200 Chi
 
 ![6. image](./images/6-1.svg)
 
-Damit verändert sich sofort die Situation: Julian und Jona müssen entscheiden, ob sie diesen Raise bezahlen, selbst erhöhen oder aussteigen.
+Damit verändert sich sofort die Situation: Julian und Jona müssen entscheiden, ob sie diesen Raise bezahlen, selbst
+erhöhen oder aussteigen.
 
 ## Flop (3 Gemeinschaftskarten)
 
-Jetzt werden **3 Gemeinschaftskarten** in die Mitte gelegt. Ab hier verändert sich das Spiel komplett, weil alle Spieler zusätzliche Informationen bekommen.
+Jetzt werden **3 Gemeinschaftskarten** in die Mitte gelegt. Ab hier verändert sich das Spiel komplett, weil alle Spieler
+zusätzliche Informationen bekommen.
 
 Die Setzrunde beginnt jetzt immer beim ersten aktiven Spieler links vom Dealer (im Uhrzeigersinn).
 
@@ -331,7 +350,8 @@ Regel: *49 Accepted Action 🟢*
 
 ## Beispiel Flop
 
-Jona setzt **1000 Chips** als Erstes. Lars entscheidet sich mitzugehen (Call), weil seine Karten durch die Gemeinschaftskarten stärker geworden sind.
+Jona setzt **1000 Chips** als Erstes. Lars entscheidet sich mitzugehen (Call), weil seine Karten durch die
+Gemeinschaftskarten stärker geworden sind.
 
 Julian steigt aus, weil er keine gute Verbindung mehr sieht. Mathis ist bereits raus.
 
@@ -367,7 +387,8 @@ Regel: *54 Pot Size Bets 🟡*
 
 Wenn nach der letzten Setzrunde noch zwei Spieler übrig sind, kommt es zum Showdown.
 
-Beide Spieler zeigen ihre Karten offen. Gewonnen hat die **beste 5-Karten-Kombination aus Handkarten und Gemeinschaftskarten**.
+Beide Spieler zeigen ihre Karten offen. Gewonnen hat die **beste 5-Karten-Kombination aus Handkarten und
+Gemeinschaftskarten**.
 
 ![11. image](./images/11-1.svg)
 
@@ -375,7 +396,8 @@ Regel: *12 Cards Speak at Showdown 🟢*
 Regel: *16 Face Up for All-Ins 🟢*
 Regel: *17 Non All-In Showdowns 🟢*
 
-Wenn Lars den letzten Einsatz bezahlt, werden die Hände verglichen. Wenn er foldet, gewinnt Jona automatisch den gesamten Pot.
+Wenn Lars den letzten Einsatz bezahlt, werden die Hände verglichen. Wenn er foldet, gewinnt Jona automatisch den
+gesamten Pot.
 
 ## Poker Hand Rankings (Gewichtung)
 
@@ -397,7 +419,9 @@ Da zwei Paare in der Rangfolge über einem einzelnen Paar stehen, gewinnt Jona d
 
 ## Fazit
 
-Poker ist kein Glücksspiel im klassischen Sinn, sondern ein Spiel aus Strategie, Psychologie und Mathematik. Jede Entscheidung von Julian, Mathis, Jona oder Lars verändert die komplette Dynamik am Tisch. Wer die Regeln versteht, versteht nicht nur Karten, sondern auch Menschen und Entscheidungen unter Druck.
+Poker ist kein Glücksspiel im klassischen Sinn, sondern ein Spiel aus Strategie, Psychologie und Mathematik. Jede
+Entscheidung von Julian, Mathis, Jona oder Lars verändert die komplette Dynamik am Tisch. Wer die Regeln versteht,
+versteht nicht nur Karten, sondern auch Menschen und Entscheidungen unter Druck.
 
 Regel: *67 One Player One Hand 🟢*
 Regel: *52 Incorrect Bets 🟡*
