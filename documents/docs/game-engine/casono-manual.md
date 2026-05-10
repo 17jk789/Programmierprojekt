@@ -85,8 +85,22 @@
 
 ## Casono Browser
 
+![[casono-browser.png]]
+
 ![Casono Browser](./images/casono-browser.png)
 
+## Chat UI
+### Globaler Chat
+
+![[global_chat.png]]
+
+### Lobby Chat
+
+![[lobby_chat.png]]
+
+### Whisper Chat
+
+![[whisper_chat.png]]
 # Casono Rules
 
 ## 1. Spielübersicht
