@@ -248,7 +248,7 @@ public class ClientService {
     // digits/words/colons
     static Pattern responseRex =
             Pattern.compile(
-                    "(?<key>\\w+)=(('(?<string>([^']|\\')+)')|(?<primVal>[+-]?[-\\d\\w:]+))");
+                    "(?<key>\\w+)=(('(?<string>([^']|\\')+)')|(?<primVal>[^ ]+))");
 
     /**
      * Removes escape characters from a string, specifically converting escaped single quotes (\')
