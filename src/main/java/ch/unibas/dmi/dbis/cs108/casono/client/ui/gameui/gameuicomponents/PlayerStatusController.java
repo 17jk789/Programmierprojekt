@@ -115,14 +115,27 @@ public class PlayerStatusController {
      * @return true if both represent the same player.
      */
     public boolean hasPlayer(Player candidate) {
-        if (player == null
-                || candidate == null
-                || player.getId() == null
-                || candidate.getId() == null) {
+        if (player == null || candidate == null) {
             return false;
         }
 
-        return player.getId().equals(candidate.getId());
+        String currentName = normalizeIdentifier(player.getName());
+        String candidateName = normalizeIdentifier(candidate.getName());
+        if (currentName != null && candidateName != null) {
+            return currentName.equals(candidateName);
+        }
+
+        return player.getId() != null
+                && candidate.getId() != null
+                && player.getId().equals(candidate.getId());
+    }
+
+    private String normalizeIdentifier(String value) {
+        if (value == null) {
+            return null;
+        }
+        String trimmed = value.trim();
+        return trimmed.isEmpty() ? null : trimmed.toLowerCase();
     }
 
     /**

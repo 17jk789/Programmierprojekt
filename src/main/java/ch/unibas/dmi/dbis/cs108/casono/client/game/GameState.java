@@ -18,4 +18,6 @@ public class GameState {
     public int dealer;
     public int activePlayer;
     public int winnerIndex = -1;
+    public List<String> winnerNames = new ArrayList<>();
+    public int potPerWinner;
 }
