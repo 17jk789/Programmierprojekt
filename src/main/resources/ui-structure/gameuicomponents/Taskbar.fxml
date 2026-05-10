@@ -24,9 +24,9 @@
     <MenuButton text="HELP" styleClass="gray-button">
         <items>
             <MenuItem text="SHOW TIPS" onAction="#onShowTipsButtonClick" />
-            <MenuItem text="CASONO BROWSER: Manula" onAction="#onBrowserButtonClick" />
-            <MenuItem text="CASONO BROWSER: wiki.org" onAction="#onBrowserButtonClickWiki" />
-            <MenuItem text="CASONO BROWSER: search.brave.com" onAction="#onBrowserButtonClickBrave" />
+            <MenuItem text="CASONO BROWSER: Manual" onAction="#onBrowserButtonClick" />
+            <MenuItem text="CASONO BROWSER: Wikipedia" onAction="#onBrowserButtonClickWiki" />
+            <MenuItem text="CASONO BROWSER: Brave Search" onAction="#onBrowserButtonClickBrave" />
         </items>
     </MenuButton>
 
