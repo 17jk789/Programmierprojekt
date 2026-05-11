@@ -41,7 +41,10 @@ public class SettingsController {
 
     /** Set up the theme toggle group and listeners for the theme selection radio buttons. */
     private void setupThemeToggle() {
-        if (themeStandard == null || themeBlackWhite == null || themeGlass == null || themeLightGlass == null) {
+        if (themeStandard == null
+                || themeBlackWhite == null
+                || themeGlass == null
+                || themeLightGlass == null) {
             LOGGER.warn("Theme buttons not injected from FXML");
             return;
         }
