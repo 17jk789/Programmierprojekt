@@ -52,6 +52,10 @@
                      text="GLASS"
                      styleClass="radio-button"/>
 
+        <RadioButton fx:id="themeLightGlass"
+                     text="LIGHT GLASS"
+                     styleClass="radio-button"/>
+
     </VBox>
 
 </VBox>
