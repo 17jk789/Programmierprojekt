@@ -21,6 +21,7 @@ public class SettingsController {
     @FXML private RadioButton themeStandard;
     @FXML private RadioButton themeBlackWhite;
     @FXML private RadioButton themeGlass;
+    @FXML private RadioButton themeLightGlass;
     private boolean visible = true;
 
     private double xOffset;
@@ -40,7 +41,7 @@ public class SettingsController {
 
     /** Set up the theme toggle group and listeners for the theme selection radio buttons. */
     private void setupThemeToggle() {
-        if (themeStandard == null || themeBlackWhite == null || themeGlass == null) {
+        if (themeStandard == null || themeBlackWhite == null || themeGlass == null || themeLightGlass == null) {
             LOGGER.warn("Theme buttons not injected from FXML");
             return;
         }
@@ -50,6 +51,7 @@ public class SettingsController {
         themeStandard.setToggleGroup(group);
         themeBlackWhite.setToggleGroup(group);
         themeGlass.setToggleGroup(group);
+        themeLightGlass.setToggleGroup(group);
 
         themeStandard.setSelected(true);
 
@@ -62,6 +64,8 @@ public class SettingsController {
                                 setTheme("blackwhite");
                             } else if (newVal == themeGlass) {
                                 setTheme("glass");
+                            } else if (newVal == themeLightGlass) {
+                                setTheme("lightglass");
                             }
                         });
     }

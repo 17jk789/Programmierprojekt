@@ -2206,6 +2206,7 @@ public class CasinoGameController {
                 switch (theme.toLowerCase()) {
                     case "blackwhite" -> "/ui-structure/Casinogameui-blackwhite.css";
                     case "glass" -> "/ui-structure/Casinogameui-glass.css";
+                    case "lightglass" -> "/ui-structure/Casinogameui-light-glass.css";
                     default -> "/ui-structure/Casinogameui.css";
                 };
 
@@ -2224,7 +2225,8 @@ public class CasinoGameController {
                             s ->
                                     s.contains("Casinogameui.css")
                                             || s.contains("Casinogameui-blackwhite.css")
-                                            || s.contains("Casinogameui-glass.css"));
+                                            || s.contains("Casinogameui-glass.css")
+                                            || s.contains("Casinogameui-light-glass.css"));
 
             scene.getStylesheets().add(cssExternalForm);
 
