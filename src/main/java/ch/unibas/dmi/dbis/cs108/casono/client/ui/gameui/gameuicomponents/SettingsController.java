@@ -15,7 +15,8 @@ import org.apache.logging.log4j.Logger;
  */
 public class SettingsController {
 
-    private static final Logger LOGGER = LogManager.getLogger(SettingsController.class);
+    private static final Logger LOGGER =
+            LogManager.getLogger(SettingsController.class.getSimpleName());
 
     @FXML private VBox settingsBox;
     @FXML private RadioButton themeStandard;

@@ -14,7 +14,8 @@ import org.apache.logging.log4j.Logger;
 /** Periodically removes expired empty lobbies and notifies connected sessions. */
 public class LobbyCleanupJob implements Runnable {
 
-    private static final Logger LOGGER = LogManager.getLogger(LobbyCleanupJob.class);
+    private static final Logger LOGGER =
+            LogManager.getLogger(LobbyCleanupJob.class.getSimpleName());
 
     private final LobbyManager lobbyManager;
     private final SessionManager sessionManager;

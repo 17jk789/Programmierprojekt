@@ -24,7 +24,7 @@ public class SessionManager {
     public SessionManager(EventBus eventBus, CommandParserDispatcher dispatcher) {
         this.sessions = new ConcurrentHashMap<>();
         this.eventBus = eventBus;
-        this.logger = LogManager.getLogger(SessionManager.class);
+        this.logger = LogManager.getLogger(SessionManager.class.getSimpleName());
         this.dispatcher = dispatcher;
     }
 

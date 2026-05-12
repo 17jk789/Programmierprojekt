@@ -30,7 +30,8 @@ import org.apache.logging.log4j.Logger;
 
 /** Controller for the Casono main UI lobby. Handles UI initialization and user actions. */
 public class CasinomainuiController {
-    private static final Logger LOGGER = LogManager.getLogger(CasinomainuiController.class);
+    private static final Logger LOGGER =
+            LogManager.getLogger(CasinomainuiController.class.getSimpleName());
 
     @FXML private AnchorPane rootPane;
     @FXML private Label titleLabel;

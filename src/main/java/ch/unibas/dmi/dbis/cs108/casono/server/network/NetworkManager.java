@@ -26,7 +26,7 @@ public class NetworkManager implements Runnable {
      */
     public NetworkManager(Integer port, SessionManager sessionManager, CommandRouter router) {
         this.port = port;
-        this.logger = LogManager.getLogger(NetworkManager.class);
+        this.logger = LogManager.getLogger(NetworkManager.class.getSimpleName());
         this.thread = new Thread(this, "networkManager");
         this.running = true;
         this.sessionManager = sessionManager;
