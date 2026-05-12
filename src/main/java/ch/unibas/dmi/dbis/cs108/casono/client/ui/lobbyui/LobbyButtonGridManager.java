@@ -34,7 +34,8 @@ public class LobbyButtonGridManager {
     private static final int MAX_BUTTONS = 8;
     private static final int GUEST_ID_LENGTH = 8;
 
-    private static final Logger LOGGER = LogManager.getLogger(LobbyButtonGridManager.class);
+    private static final Logger LOGGER =
+            LogManager.getLogger(LobbyButtonGridManager.class.getSimpleName());
 
     private static final String BUTTON_FALLBACK_IMAGE = "/images/lobbypictures/error.png";
 

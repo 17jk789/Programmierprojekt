@@ -26,7 +26,7 @@ public class ChatClient implements ChatClientInterface {
      */
     public ChatClient(ClientService clientService) {
         this.clientService = clientService;
-        this.logger = LogManager.getLogger(ChatClient.class);
+        this.logger = LogManager.getLogger(ChatClient.class.getSimpleName());
     }
 
     /**

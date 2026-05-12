@@ -18,7 +18,8 @@ import org.apache.logging.log4j.Logger;
  */
 public class NotebookController {
 
-    private static final Logger LOGGER = LogManager.getLogger(NotebookController.class);
+    private static final Logger LOGGER =
+            LogManager.getLogger(NotebookController.class.getSimpleName());
 
     @FXML private VBox notebook;
     @FXML private ScrollPane tipsContent;

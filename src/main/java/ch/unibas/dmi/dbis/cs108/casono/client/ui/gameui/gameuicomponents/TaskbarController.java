@@ -39,7 +39,8 @@ import org.apache.logging.log4j.Logger;
  */
 public class TaskbarController {
 
-    private static final Logger LOGGER = LogManager.getLogger(TaskbarController.class);
+    private static final Logger LOGGER =
+            LogManager.getLogger(TaskbarController.class.getSimpleName());
 
     @FXML private HBox taskbar;
     @FXML private TextField taskbarInput;

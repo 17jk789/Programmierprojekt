@@ -68,7 +68,8 @@ public class CasinoBrowserController {
     private static final CookieManager COOKIE_MANAGER =
             new CookieManager(null, CookiePolicy.ACCEPT_ORIGINAL_SERVER);
 
-    private static final Logger LOGGER = LogManager.getLogger(CasinoBrowserController.class);
+    private static final Logger LOGGER =
+            LogManager.getLogger(CasinoBrowserController.class.getSimpleName());
 
     private static final ObservableList<String> URL_SUGGESTIONS =
             FXCollections.observableArrayList(TRUSTED_DOMAINS);
