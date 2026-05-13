@@ -128,6 +128,15 @@ public class LobbyClient {
     }
 
     /**
+     * Request the server to mark the current user as absent from the given lobby.
+     *
+     * @param lobbyId the lobby to leave
+     */
+    public void leaveLobby(int lobbyId) {
+        client.processCommand("LEAVE_LOBBY ID=" + lobbyId);
+    }
+
+    /**
      * Logs in to the server with the given username by sending a "LOGIN" command.
      *
      * @param user The username to log in with.
