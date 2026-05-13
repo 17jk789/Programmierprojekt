@@ -52,6 +52,7 @@ public class IntroVideoPlayer extends Application {
 
         stage.initStyle(StageStyle.UNDECORATED);
         stage.setFullScreen(true);
+        stage.setFullScreenExitHint("");
         stage.setScene(scene);
         stage.show();
 
