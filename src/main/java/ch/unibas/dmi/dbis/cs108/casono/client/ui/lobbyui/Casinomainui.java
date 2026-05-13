@@ -36,15 +36,9 @@ public class Casinomainui extends Application {
 
         // If the launcher passed an address argument (ip:port), expose it as
         // system properties so controllers can read it without embedding defaults.
-        var raw = getParameters().getRaw();
-        if (raw != null && raw.size() > 0) {
-            String arg = raw.get(0);
-            String[] parts = arg.split(":", 2);
-            if (parts.length == 2) {
-                System.setProperty("casono.server.host", parts[0]);
-                System.setProperty("casono.server.port", parts[1]);
-            }
-        }
+        var params = getParameters();
+        processServerParameters(params);
+
         FXMLLoader fxmlLoader =
                 new FXMLLoader(getClass().getResource("/ui-structure/Casinomainui.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), SCENE_WIDTH, SCENE_HEIGHT);
@@ -56,6 +50,24 @@ public class Casinomainui extends Application {
         stage.setScene(scene);
         stage.setFullScreen(true);
         stage.show();
+    }
+
+    private void processServerParameters(Application.Parameters params) {
+        if (params == null) {
+            return;
+        }
+
+        var raw = params.getRaw();
+        if (raw == null || raw.isEmpty()) {
+            return;
+        }
+
+        String arg = raw.get(0);
+        String[] parts = arg.split(":", 2);
+        if (parts.length == 2) {
+            System.setProperty("casono.server.host", parts[0]);
+            System.setProperty("casono.server.port", parts[1]);
+        }
     }
 
     /**
