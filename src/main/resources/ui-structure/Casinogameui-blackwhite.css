@@ -6,7 +6,7 @@
 }
 
 .background {
-    -fx-background-color: #000000;
+    -fx-background-image: url("/images/parquet-black.png");
     -fx-background-size: cover; /* Image fills the entire window */
     /* Centers the image and prevents it from repeating in a tile-like pattern. */
     -fx-background-position: center center;
