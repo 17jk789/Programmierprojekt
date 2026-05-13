@@ -52,6 +52,8 @@ public class TaskbarController {
     @FXML private Label moneyLabel;
 
     private GameService gameService;
+    private LobbyClient lobbyClient;
+    private int lobbyId = -1;
     private PlayerId myPlayerId;
     private String myPlayerName;
     private GameState lastState;
@@ -240,6 +242,12 @@ public class TaskbarController {
         this.gameService = gameService;
         this.myPlayerId = myPlayerId;
         this.myPlayerName = myPlayerId != null ? normalizeIdentifier(myPlayerId.value()) : null;
+    }
+
+    /** Sets the lobby context so Exit can notify the server before closing. */
+    public void setLobbyContext(LobbyClient lobbyClient, int lobbyId) {
+        this.lobbyClient = lobbyClient;
+        this.lobbyId = lobbyId;
     }
 
     /** Sets the NotebookController reference for showing/hiding tips. */
@@ -1622,6 +1630,16 @@ public class TaskbarController {
         SoundManager.getInstance().playButtonClick();
         javafx.application.Platform.runLater(
                 () -> {
+                    if (lobbyClient != null && lobbyId > 0) {
+                        try {
+                            lobbyClient.leaveLobby(lobbyId);
+                        } catch (RuntimeException e) {
+                            LOGGER.warn(
+                                    "Could not notify server about lobby leave: {}",
+                                    e.getMessage());
+                        }
+                    }
+
                     // Close game stage
                     javafx.stage.Stage currentStage =
                             (javafx.stage.Stage) taskbar.getScene().getWindow();

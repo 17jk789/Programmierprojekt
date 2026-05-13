@@ -393,91 +393,92 @@ public class CasinoGameController {
     // Test method to demonstrate the UI functionality with sample data.
     // @FXML
     // public void uiTest() {
-    //     if (communityCardsBox == null) {
-    //         LOGGER.info("communityCardsBox is NULL");
-    //         return;
-    //     }
+    // if (communityCardsBox == null) {
+    // LOGGER.info("communityCardsBox is NULL");
+    // return;
+    // }
     //
-    //     try {
-    //         renderCommunityCards(
-    //                 List.of(
-    //                         new Card("ace", "hearts"),
-    //                         new Card("king", "spades"),
-    //                         new Card("10", "diamonds")));
+    // try {
+    // renderCommunityCards(
+    // List.of(
+    // new Card("ace", "hearts"),
+    // new Card("king", "spades"),
+    // new Card("10", "diamonds")));
     //
-    //         renderPlayerCards(List.of(new Card("10", "spades"), new Card("king", "spades")));
-    //     } catch (Exception e) {
-    //         e.printStackTrace();
-    //     }
+    // renderPlayerCards(List.of(new Card("10", "spades"), new Card("king",
+    // "spades")));
+    // } catch (Exception e) {
+    // e.printStackTrace();
+    // }
     //
-    //     Player mathis = new Player(PlayerId.of("Mathis"), 20000);
-    //     mathis.setState(PlayerState.ACTIVE);
+    // Player mathis = new Player(PlayerId.of("Mathis"), 20000);
+    // mathis.setState(PlayerState.ACTIVE);
     //
-    //     Player jona = new Player(PlayerId.of("Jona"), 20000);
-    //     jona.setState(PlayerState.FOLDED);
+    // Player jona = new Player(PlayerId.of("Jona"), 20000);
+    // jona.setState(PlayerState.FOLDED);
     //
-    //     Player lars = new Player(PlayerId.of("Lars"), 20000);
-    //     lars.setState(PlayerState.ACTIVE);
+    // Player lars = new Player(PlayerId.of("Lars"), 20000);
+    // lars.setState(PlayerState.ACTIVE);
     //
-    //     player1Controller.setPlayer(mathis);
-    //     player2Controller.setPlayer(jona);
-    //     player3Controller.setPlayer(lars);
+    // player1Controller.setPlayer(mathis);
+    // player2Controller.setPlayer(jona);
+    // player3Controller.setPlayer(lars);
     //
-    //     LOGGER.info(
-    //             "Player 1: "
-    //             + mathis.getName()
-    //             + " | $"
-    //             + mathis.getChips()
-    //             + " | "
-    //             + mathis.getState());
-    //     LOGGER.info(
-    //             "Player 2: "
-    //             + jona.getName()
-    //             + " | $"
-    //             + jona.getChips()
-    //             + " | "
-    //             + jona.getState());
-    //     LOGGER.info(
-    //             "Player 3: "
-    //             + lars.getName()
-    //             + " | $"
-    //             + lars.getChips()
-    //             + " | "
-    //             + lars.getState());
+    // LOGGER.info(
+    // "Player 1: "
+    // + mathis.getName()
+    // + " | $"
+    // + mathis.getChips()
+    // + " | "
+    // + mathis.getState());
+    // LOGGER.info(
+    // "Player 2: "
+    // + jona.getName()
+    // + " | $"
+    // + jona.getChips()
+    // + " | "
+    // + jona.getState());
+    // LOGGER.info(
+    // "Player 3: "
+    // + lars.getName()
+    // + " | $"
+    // + lars.getChips()
+    // + " | "
+    // + lars.getState());
     //
-    //     if (playerStatusController != null) {
-    //         playerStatusController.setPlayer(mathis);
-    //     } else {
-    //         LOGGER.warning("PlayerStatusController is NULL");
-    //     }
+    // if (playerStatusController != null) {
+    // playerStatusController.setPlayer(mathis);
+    // } else {
+    // LOGGER.warning("PlayerStatusController is NULL");
+    // }
     //
-    //     javafx.stage.Screen screen = javafx.stage.Screen.getPrimary();
-    //     double screenHeight = screen.getBounds().getHeight();
+    // javafx.stage.Screen screen = javafx.stage.Screen.getPrimary();
+    // double screenHeight = screen.getBounds().getHeight();
     //
-    //     casinoTableInnerBox.setTranslateY(-screenHeight * 0.08);
-    //     playerCardsBox.setTranslateY(screenHeight * 0.35);
+    // casinoTableInnerBox.setTranslateY(-screenHeight * 0.08);
+    // playerCardsBox.setTranslateY(screenHeight * 0.35);
     //
-    //     renderPot(500);
+    // renderPot(500);
     //
-    //     lars.removeChips(500);
-    //     LOGGER.info("Lars: $" + lars.getChips());
+    // lars.removeChips(500);
+    // LOGGER.info("Lars: $" + lars.getChips());
     //
-    //     player3Controller.refresh();
+    // player3Controller.refresh();
     //
-    //     mathis.fall();
-    //     player1Controller.refresh();
+    // mathis.fall();
+    // player1Controller.refresh();
     //
-    //     GameState s = new GameState();
-    //     s.dealer = 3;
-    //     highlightDealer(s);
+    // GameState s = new GameState();
+    // s.dealer = 3;
+    // highlightDealer(s);
     //
-    //     s.phase = "FLOP";
+    // s.phase = "FLOP";
     //
-    //     updateGameInfo(s);
+    // updateGameInfo(s);
     //
-    //     s.winnerIndex = 1;
+    // s.winnerIndex = 1;
     //
-    //     updateGameInfo(s);
+    // updateGameInfo(s);
     // }
 
     /** Start the UI update loop. */
@@ -1747,22 +1748,22 @@ public class CasinoGameController {
      */
     // private void animateCardHover(ImageView view, boolean hover) {
     //
-    //     double scale = hover ? HOVER_SCALE_ON : HOVER_SCALE_OFF;
-    //     double lift = hover ? HOVER_LIFT_ON : HOVER_LIFT_OFF;
+    // double scale = hover ? HOVER_SCALE_ON : HOVER_SCALE_OFF;
+    // double lift = hover ? HOVER_LIFT_ON : HOVER_LIFT_OFF;
     //
-    //     javafx.animation.ScaleTransition st =
-    //             new javafx.animation.ScaleTransition(
-    //                     javafx.util.Duration.millis(HOVER_DURATION_MS), view);
-    //     st.setToX(scale);
-    //     st.setToY(scale);
+    // javafx.animation.ScaleTransition st =
+    // new javafx.animation.ScaleTransition(
+    // javafx.util.Duration.millis(HOVER_DURATION_MS), view);
+    // st.setToX(scale);
+    // st.setToY(scale);
     //
-    //     javafx.animation.TranslateTransition tt =
-    //             new javafx.animation.TranslateTransition(
-    //                     javafx.util.Duration.millis(HOVER_DURATION_MS), view);
-    //     tt.setToY(lift);
+    // javafx.animation.TranslateTransition tt =
+    // new javafx.animation.TranslateTransition(
+    // javafx.util.Duration.millis(HOVER_DURATION_MS), view);
+    // tt.setToY(lift);
     //
-    //     st.play();
-    //     tt.play();
+    // st.play();
+    // tt.play();
     // }
 
     /**
@@ -2155,6 +2156,9 @@ public class CasinoGameController {
         TaskbarController controller = resolveTaskbarController();
         if (controller == null) {
             return;
+        }
+        if (chatClientService != null && chatLobbyId >= 0) {
+            controller.setLobbyContext(new LobbyClient(chatClientService), chatLobbyId);
         }
         controller.setLobbyActionAnnouncer(this::sendLobbyActionMessage);
     }
