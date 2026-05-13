@@ -49,6 +49,7 @@ public class Casinomainui extends Application {
         stage.getIcons().add(icon);
         stage.setScene(scene);
         stage.setFullScreen(true);
+        stage.setFullScreenExitHint("");
         stage.show();
     }
 

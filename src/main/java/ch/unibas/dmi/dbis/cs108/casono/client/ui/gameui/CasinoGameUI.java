@@ -148,6 +148,7 @@ public class CasinoGameUI extends Application {
 
         stage.setScene(scene);
         stage.setFullScreen(true);
+        stage.setFullScreenExitHint("");
         stage.setOnHidden(e -> controller.stop());
         stage.show();
 
