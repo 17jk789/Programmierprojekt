@@ -4,6 +4,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.shape.Circle?>
 
 <!--
 This layout currently serves as a visual structure. As soon as the game engine and
@@ -33,6 +34,7 @@ and status displays will be dynamically populated with real-time data from the s
 
             <Label styleClass="status-label-small"/>
             <Label fx:id="playerName" text="-" styleClass="status-value-text"/>
+
         </HBox>
 
         <!-- spacer -->
@@ -50,6 +52,7 @@ and status displays will be dynamically populated with real-time data from the s
 
             <Label styleClass="status-label-small"/>
             <Label fx:id="playerMoney" text="0 $" styleClass="status-value-money"/>
+
         </HBox>
 
         <!-- ICON AREA -->
@@ -61,12 +64,28 @@ and status displays will be dynamically populated with real-time data from the s
                     prefWidth="40"
                     prefHeight="40"/>
 
+            <ImageView fx:id="playerProfileImage"
+                       fitWidth="40"
+                       fitHeight="40"
+                       preserveRatio="true"
+                       smooth="true"
+                       layoutX="-25"
+                       layoutY="-125"
+                       styleClass="status-profile-image">
+
+                <clip>
+                    <Circle centerX="20" centerY="20" radius="20" />
+                </clip>
+
+            </ImageView>
+
             <ImageView fx:id="dealerIcon"
                        fitWidth="43"
                        fitHeight="43"
                        layoutY="-120"
                        visible="false"
                        styleClass="dealer-icon"/>
+
         </Pane>
 
     </children>
