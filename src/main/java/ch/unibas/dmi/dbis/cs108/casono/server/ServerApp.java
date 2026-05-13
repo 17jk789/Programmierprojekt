@@ -48,6 +48,9 @@ import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.lobby.get_lobby_statu
 import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.lobby.join_lobby.JoinLobbyHandler;
 import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.lobby.join_lobby.JoinLobbyParser;
 import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.lobby.join_lobby.JoinLobbyRequest;
+import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.lobby.leave_lobby.LeaveLobbyHandler;
+import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.lobby.leave_lobby.LeaveLobbyParser;
+import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.lobby.leave_lobby.LeaveLobbyRequest;
 import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.lobby.start_game.StartGameHandler;
 import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.lobby.start_game.StartGameParser;
 import ch.unibas.dmi.dbis.cs108.casono.server.app.commands.lobby.start_game.StartGameRequest;
@@ -295,6 +298,14 @@ public class ServerApp {
                 JoinLobbyRequest.class,
                 (CommandHandler<JoinLobbyRequest>)
                         new JoinLobbyHandler(
+                                responseDispatcher, context.lobbyManager(), userRegistry));
+
+        // LEAVE_LOBBY registration
+        parserDispatcher.register("LEAVE_LOBBY", new LeaveLobbyParser());
+        commandRouter.register(
+                LeaveLobbyRequest.class,
+                (CommandHandler<LeaveLobbyRequest>)
+                        new LeaveLobbyHandler(
                                 responseDispatcher, context.lobbyManager(), userRegistry));
 
         // START_GAME registration
