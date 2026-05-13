@@ -60,12 +60,9 @@ public class GetGameStateResponse extends SuccessResponse {
         builder.param("WINNER", winnerIndex);
 
         List<String> winnerNames = computeWinnerNames(state, game);
-        int potPerWinner = computePotPerWinner(state, winnerNames.size());
-
         for (String name : winnerNames) {
             builder.param("WINNER_NAME", name);
         }
-        builder.param("POT_PER_WINNER", potPerWinner);
 
         appendWinnerToHighscoresIfFinished(state, winnerNames);
         appendHighscoreEntries(builder);
@@ -92,12 +89,21 @@ public class GetGameStateResponse extends SuccessResponse {
             return;
         }
 
-        // Keep ordering stable, avoid duplicate writes for the same winner in one hand.
+        // Keep ordering stable and persist tied winners as a single shared highscore
+        // entry. Compute the per-winner share here (pot is split equally among
+        // winners)
+        int potPerWinner = computePotPerWinner(state, winnerNames.size());
         Set<String> uniqueWinners = new LinkedHashSet<>(winnerNames);
+        List<String> formattedWinners = new ArrayList<>();
         for (String name : uniqueWinners) {
             if (name != null && !name.isBlank()) {
-                HighscoreService.getInstance().appendWinner(name);
+                formattedWinners.add(name + " (" + Math.max(0, potPerWinner) + ")");
             }
+        }
+
+        if (!formattedWinners.isEmpty()) {
+            HighscoreService.getInstance()
+                    .appendFormattedEntry(String.join(", ", formattedWinners));
         }
     }
 

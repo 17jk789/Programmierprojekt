@@ -14,10 +14,10 @@ class TaskbarControllerInputValidationTest {
     void updateLogicRunsWithoutCrash() {
         GameState state = new GameState();
 
-        state.players = List.of(
-                new Player(PlayerId.of("me"), 20000),
-                new Player(PlayerId.of("other"), 20000)
-        );
+        state.players =
+                List.of(
+                        new Player(PlayerId.of("me"), 20000),
+                        new Player(PlayerId.of("other"), 20000));
 
         state.phase = "PREFLOP";
         state.currentBet = 200;
@@ -31,7 +31,6 @@ class TaskbarControllerInputValidationTest {
     }
 
     static class DummyController {
-        void update(GameState state, PlayerId id) {
-        }
+        void update(GameState state, PlayerId id) {}
     }
 }

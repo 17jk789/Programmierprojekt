@@ -18,6 +18,7 @@ public final class HighscoreService {
     private static final DateTimeFormatter DISPLAY_FORMATTER =
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault());
     private static final int MAX_RETURNED_ENTRIES = 100;
+    private static final int MIN_MONEY_COLUMN_COUNT = 3;
     private static final String LINE_SEPARATOR = "\t";
 
     private final Path storagePath;
@@ -32,11 +33,54 @@ public final class HighscoreService {
     }
 
     public synchronized void appendWinner(String winnerName) {
+        appendWinner(winnerName, 0);
+    }
+
+    /** Append a winner with an optional money value (money may be 0). */
+    public synchronized void appendWinner(String winnerName, int money) {
         if (winnerName == null) {
             return;
         }
 
         String sanitized = sanitizeName(winnerName);
+        if (sanitized.isEmpty()) {
+            return;
+        }
+
+        String line;
+        if (money > 0) {
+            line =
+                    Instant.now()
+                            + LINE_SEPARATOR
+                            + sanitized
+                            + LINE_SEPARATOR
+                            + money
+                            + System.lineSeparator();
+        } else {
+            // Keep legacy two-column format for backward compatibility
+            line = Instant.now() + LINE_SEPARATOR + sanitized + System.lineSeparator();
+        }
+
+        try {
+            Files.createDirectories(storagePath.getParent());
+            Files.writeString(
+                    storagePath,
+                    line,
+                    StandardCharsets.UTF_8,
+                    StandardOpenOption.CREATE,
+                    StandardOpenOption.APPEND);
+        } catch (IOException ignored) {
+            // Highscore persistence must never break the game state response path.
+        }
+    }
+
+    /** Append a preformatted highscore entry such as "Lars (1000), Jona (1000)". */
+    public synchronized void appendFormattedEntry(String entryText) {
+        if (entryText == null) {
+            return;
+        }
+
+        String sanitized = sanitizeName(entryText);
         if (sanitized.isEmpty()) {
             return;
         }
@@ -74,15 +118,25 @@ public final class HighscoreService {
             if (raw == null || raw.isBlank()) {
                 continue;
             }
-
-            String[] parts = raw.split(LINE_SEPARATOR, 2);
+            // Support both legacy format (TIMESTAMP \t NAME) and new format (TIMESTAMP \t
+            // NAME \t MONEY)
+            String[] parts = raw.split(LINE_SEPARATOR);
             if (parts.length < 2) {
                 continue;
             }
 
             try {
                 Instant ts = Instant.parse(parts[0].trim());
-                String display = DISPLAY_FORMATTER.format(ts) + " | " + parts[1].trim();
+                String name = parts[1].trim();
+                String display = DISPLAY_FORMATTER.format(ts) + " | " + name;
+                if (parts.length >= MIN_MONEY_COLUMN_COUNT) {
+                    try {
+                        int money = Integer.parseInt(parts[2].trim());
+                        display = display + " | $" + money;
+                    } catch (NumberFormatException nfe) {
+                        // ignore malformed money
+                    }
+                }
                 formatted.add(display);
             } catch (Exception ignored) {
                 // Skip malformed lines and keep all valid entries.
