@@ -5,6 +5,7 @@ import ch.unibas.dmi.dbis.cs108.casono.client.chat.ChatController.ChatKey;
 import ch.unibas.dmi.dbis.cs108.casono.client.chat.ChatModel;
 import ch.unibas.dmi.dbis.cs108.casono.client.chat.ChatType;
 import ch.unibas.dmi.dbis.cs108.casono.client.chat.Message;
+import ch.unibas.dmi.dbis.cs108.casono.ui.sound.SoundManager;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -70,7 +71,11 @@ public class ChatBoxController {
         ChatModel globalChatModel = new ChatModel(global, username, -1, null);
         chatController.getChatModelMap().put(new ChatController.ChatKey(global), globalChatModel);
         addChatTab("GLOBAL", globalChatModel, global);
-        addWhisperChatButton.setOnAction(_ -> addWhisperChatButton.show());
+        addWhisperChatButton.setOnAction(
+                _ -> {
+                    SoundManager.getInstance().playButtonClick();
+                    addWhisperChatButton.show();
+                });
     }
 
     /**
@@ -90,14 +95,13 @@ public class ChatBoxController {
                     MenuItem menuItem = new MenuItem(targetUserName);
                     addWhisperChatButton.getItems().add(menuItem);
                     menuItem.setOnAction(
-                            _ ->
-                                    addWhisperChat(
-                                            targetUserName,
-                                            new ChatModel(
-                                                    ChatType.WHISPER,
-                                                    username,
-                                                    -1,
-                                                    targetUserName)));
+                            _ -> {
+                                SoundManager.getInstance().playButtonClick();
+                                addWhisperChat(
+                                        targetUserName,
+                                        new ChatModel(
+                                                ChatType.WHISPER, username, -1, targetUserName));
+                            });
                 });
     }
 
@@ -124,14 +128,16 @@ public class ChatBoxController {
                         if (oldUsername.equals(item.getText())) {
                             item.setText(newUsername);
                             item.setOnAction(
-                                    _ ->
-                                            addWhisperChat(
-                                                    newUsername,
-                                                    new ChatModel(
-                                                            ChatType.WHISPER,
-                                                            username,
-                                                            -1,
-                                                            newUsername)));
+                                    _ -> {
+                                        SoundManager.getInstance().playButtonClick();
+                                        addWhisperChat(
+                                                newUsername,
+                                                new ChatModel(
+                                                        ChatType.WHISPER,
+                                                        username,
+                                                        -1,
+                                                        newUsername));
+                                    });
                             break;
                         }
                     }

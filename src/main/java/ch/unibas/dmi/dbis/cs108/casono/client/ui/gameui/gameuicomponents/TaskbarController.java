@@ -8,6 +8,7 @@ import ch.unibas.dmi.dbis.cs108.casono.client.game.PlayerId;
 import ch.unibas.dmi.dbis.cs108.casono.client.game.PlayerState;
 import ch.unibas.dmi.dbis.cs108.casono.client.network.LobbyClient;
 import ch.unibas.dmi.dbis.cs108.casono.client.ui.lobbyui.Casinomainui;
+import ch.unibas.dmi.dbis.cs108.casono.ui.sound.SoundManager;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
@@ -338,7 +339,7 @@ public class TaskbarController {
 
         // Integer targetBet = resolveTargetBet(ActionType.RAISE_BUTTON, lastState);
         // if (targetBet == null) {
-        //    return "";
+        // return "";
         // }
 
         // int totalContribution = Math.max(0, targetBet);
@@ -528,7 +529,7 @@ public class TaskbarController {
             boolean phaseChanged) {
 
         // boolean firstPlayerNewRound =
-        //        phaseChanged && isFirstPreflopPlayer(state, me);
+        // phaseChanged && isFirstPreflopPlayer(state, me);
         inputActionAllowed = false;
         if (!isMyTurn || isOutOrFinished || state == null || me == null) {
             setBetButtonVisible(false);
@@ -1538,18 +1539,21 @@ public class TaskbarController {
      */
     @FXML
     private void onInputSubmittedAction() {
+        SoundManager.getInstance().playButtonClick();
         processBet();
     }
 
     /** Called when the Call button is clicked. */
     @FXML
     private void onInputPlayerCall() {
+        SoundManager.getInstance().playButtonClick();
         submitAction(ActionType.CALL_BUTTON);
     }
 
     /** Called when the Fold button is clicked. */
     @FXML
     private void onInputPlayerFold() {
+        SoundManager.getInstance().playButtonClick();
 
         if (gameService == null) {
             LOGGER.error("GameService not initialized");
@@ -1573,6 +1577,7 @@ public class TaskbarController {
     /** Called when the Raise button is clicked. */
     @FXML
     private void onInputPlayerRaise() {
+        SoundManager.getInstance().playButtonClick();
         submitPresetInputAndProcess("raise");
     }
 
@@ -1614,6 +1619,7 @@ public class TaskbarController {
      */
     @FXML
     private void onExitButtonClick() {
+        SoundManager.getInstance().playButtonClick();
         javafx.application.Platform.runLater(
                 () -> {
                     // Close game stage
@@ -1739,6 +1745,7 @@ public class TaskbarController {
      */
     @FXML
     private void onBrowserButtonClick() {
+        SoundManager.getInstance().playButtonClick();
         try {
             Path path =
                     Paths.get(
@@ -1798,6 +1805,7 @@ public class TaskbarController {
     /** Opens the highscore popup window from the taskbar. */
     @FXML
     private void onHighscoreButtonClick() {
+        SoundManager.getInstance().playButtonClick();
         try {
             var shared = ClientApp.getSharedClientService();
             if (shared == null || shared.isOffline()) {
