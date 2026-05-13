@@ -2204,6 +2204,7 @@ public class CasinoGameController {
 
         String cssPath =
                 switch (theme.toLowerCase()) {
+                    case "mainuiparquet" -> "/ui-structure/Casinogameui-parquet.css";
                     case "blackwhite" -> "/ui-structure/Casinogameui-blackwhite.css";
                     case "glass" -> "/ui-structure/Casinogameui-glass.css";
                     case "lightglass" -> "/ui-structure/Casinogameui-light-glass.css";
@@ -2224,6 +2225,7 @@ public class CasinoGameController {
                     .removeIf(
                             s ->
                                     s.contains("Casinogameui.css")
+                                            || s.contains("Casinogameui-parquet.css")
                                             || s.contains("Casinogameui-blackwhite.css")
                                             || s.contains("Casinogameui-glass.css")
                                             || s.contains("Casinogameui-light-glass.css"));
