@@ -20,6 +20,7 @@ public class SettingsController {
 
     @FXML private VBox settingsBox;
     @FXML private RadioButton themeStandard;
+    @FXML private RadioButton themeStandardParquet;
     @FXML private RadioButton themeBlackWhite;
     @FXML private RadioButton themeGlass;
     @FXML private RadioButton themeLightGlass;
@@ -43,6 +44,7 @@ public class SettingsController {
     /** Set up the theme toggle group and listeners for the theme selection radio buttons. */
     private void setupThemeToggle() {
         if (themeStandard == null
+                || themeStandardParquet == null
                 || themeBlackWhite == null
                 || themeGlass == null
                 || themeLightGlass == null) {
@@ -53,6 +55,7 @@ public class SettingsController {
         ToggleGroup group = new ToggleGroup();
 
         themeStandard.setToggleGroup(group);
+        themeStandardParquet.setToggleGroup(group);
         themeBlackWhite.setToggleGroup(group);
         themeGlass.setToggleGroup(group);
         themeLightGlass.setToggleGroup(group);
@@ -64,6 +67,8 @@ public class SettingsController {
                         (obs, oldVal, newVal) -> {
                             if (newVal == themeStandard) {
                                 setTheme("standard");
+                            } else if (newVal == themeStandardParquet) {
+                                setTheme("mainuiparquet");
                             } else if (newVal == themeBlackWhite) {
                                 setTheme("blackwhite");
                             } else if (newVal == themeGlass) {

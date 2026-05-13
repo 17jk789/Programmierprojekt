@@ -4,7 +4,7 @@
 }
 
 .background {
-    -fx-background-image: url("/images/background.png");
+    -fx-background-image: url("/images/parquet.png");
     -fx-background-size: cover; /* Image fills the entire window */
     /* Centers the image and prevents it from repeating in a tile-like pattern. */
     -fx-background-position: center center;
