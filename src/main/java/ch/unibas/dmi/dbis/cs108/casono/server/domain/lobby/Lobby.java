@@ -9,6 +9,8 @@ import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.rules.RuleEngine;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.state.GameState;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -26,7 +28,9 @@ public class Lobby {
     private final LobbyId id;
     private final String name;
     private final List<String> playerNames = new CopyOnWriteArrayList<>();
+    private final Set<String> absentPlayers = ConcurrentHashMap.newKeySet();
     private volatile GameController gameController;
+    private volatile Runnable onGameEndedCallback;
 
     public Lobby(LobbyId id, String name) {
         this.id = id;
@@ -96,10 +100,89 @@ public class Lobby {
 
     public void initGame(GameController controller) {
         this.gameController = controller;
+        if (controller != null && onGameEndedCallback != null) {
+            controller.setOnGameEndedCallback(onGameEndedCallback);
+        }
+    }
+
+    /**
+     * Set a callback to be invoked when the game in this lobby ends. This will be propagated to the
+     * game controller when a game is started.
+     */
+    public void setOnGameEndedCallback(Runnable callback) {
+        this.onGameEndedCallback = callback;
+        if (gameController != null) {
+            gameController.setOnGameEndedCallback(callback);
+        }
     }
 
     public GameController getGameController() {
         return gameController;
+    }
+
+    /**
+     * Check if a player is currently active (not absent) in the lobby.
+     *
+     * @param playerName the player to check
+     * @return true if player is in the active player list
+     */
+    public boolean isPlayerActive(String playerName) {
+        return playerNames.contains(playerName);
+    }
+
+    /**
+     * Mark a player as absent (left the lobby) while the game is still running. The player remains
+     * in the lobby's mappings but is moved to the absent set.
+     *
+     * @param playerName the player to mark as absent
+     * @return true if the player was active and is now absent
+     */
+    public boolean leavePlayer(String playerName) {
+        if (playerName == null) {
+            return false;
+        }
+        boolean removed = playerNames.remove(playerName);
+        if (removed) {
+            absentPlayers.add(playerName);
+        }
+        return removed;
+    }
+
+    /**
+     * Try to restore an absent player back to active. Returns true if player was absent and is now
+     * active again.
+     *
+     * @param playerName the player to restore
+     * @return true if player was restored from absent
+     */
+    public boolean restoreAbsentPlayer(String playerName) {
+        if (playerName == null) {
+            return false;
+        }
+        boolean wasAbsent = absentPlayers.remove(playerName);
+        if (wasAbsent && !playerNames.contains(playerName)) {
+            playerNames.add(playerName);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Get the set of absent (gone but not removed) players in this lobby.
+     *
+     * @return copy of absent players set
+     */
+    public Set<String> getAbsentPlayers() {
+        return Set.copyOf(absentPlayers);
+    }
+
+    /**
+     * Check if this lobby has any players (active or absent).
+     *
+     * @return true if playerNames or absentPlayers is non-empty
+     */
+    public boolean hasAnyPlayers() {
+        return !playerNames.isEmpty() || !absentPlayers.isEmpty();
     }
 
     /**
@@ -137,6 +220,11 @@ public class Lobby {
 
                     for (String p : playerNames) {
                         game.addPlayer(PlayerId.of(p), defaultStartChips);
+                    }
+
+                    // Set the callback before starting the game
+                    if (onGameEndedCallback != null) {
+                        game.setOnGameEndedCallback(onGameEndedCallback);
                     }
 
                     game.startGame();
