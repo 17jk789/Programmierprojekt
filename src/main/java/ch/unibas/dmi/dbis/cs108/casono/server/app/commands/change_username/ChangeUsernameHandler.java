@@ -1,5 +1,6 @@
 package ch.unibas.dmi.dbis.cs108.casono.server.app.commands.change_username;
 
+import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.state.GamePhase;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.lobby.LobbyManager;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.user.User;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.user.UserRegistry;
@@ -42,33 +43,31 @@ public class ChangeUsernameHandler extends CommandHandler<ChangeUsernameRequest>
     public void execute(ChangeUsernameRequest request) {
         Optional<User> user = userRegistry.getBySessionId(request.getSessionId());
         if (user.isEmpty()) {
-            responseDispatcher.dispatch(
-                    new ErrorResponse(
-                            request.getContext(),
-                            "USER_NOT_LOGGED_IN",
-                            "This session is not associated with an active user."));
+            dispatchError(
+                    request.getContext(),
+                    "USER_NOT_LOGGED_IN",
+                    "This session is not associated with an active user.");
             return;
         }
 
-        String newUsername = request.getUsername() == null ? "" : request.getUsername().trim();
-        if (newUsername.isEmpty() || !VALID_USERNAME.matcher(newUsername).matches()) {
-            responseDispatcher.dispatch(
-                    new ErrorResponse(
-                            request.getContext(),
-                            "INVALID_USERNAME",
-                            "Only letters, numbers, '_' and '-' are allowed."));
+        String newUsername = validateUsername(request);
+        if (newUsername == null) {
             return;
         }
 
         User currentUser = user.get();
         String oldUsername = currentUser.getName();
+
+        if (isUsernameChangeBlocked(request.getContext(), oldUsername)) {
+            return;
+        }
+
         boolean changed = userRegistry.changeUsername(currentUser.getId(), newUsername);
         if (!changed) {
-            responseDispatcher.dispatch(
-                    new ErrorResponse(
-                            request.getContext(),
-                            "USERNAME_TAKEN",
-                            "The requested username is already taken."));
+            dispatchError(
+                    request.getContext(),
+                    "USERNAME_TAKEN",
+                    "The requested username is already taken.");
             return;
         }
 
@@ -76,11 +75,10 @@ public class ChangeUsernameHandler extends CommandHandler<ChangeUsernameRequest>
                 lobbyManager == null || lobbyManager.renamePlayer(oldUsername, newUsername);
         if (!lobbySynced) {
             userRegistry.changeUsername(currentUser.getId(), oldUsername);
-            responseDispatcher.dispatch(
-                    new ErrorResponse(
-                            request.getContext(),
-                            "RENAME_CONFLICT",
-                            "Could not update username in current lobby/game state."));
+            dispatchError(
+                    request.getContext(),
+                    "RENAME_CONFLICT",
+                    "Could not update username in current lobby/game state.");
             return;
         }
 
@@ -108,5 +106,42 @@ public class ChangeUsernameHandler extends CommandHandler<ChangeUsernameRequest>
                                     .build()) {};
             responseDispatcher.dispatch(ev);
         }
+    }
+
+    private String validateUsername(ChangeUsernameRequest request) {
+        String newUsername = request.getUsername() == null ? "" : request.getUsername().trim();
+        if (newUsername.isEmpty() || !VALID_USERNAME.matcher(newUsername).matches()) {
+            dispatchError(
+                    request.getContext(),
+                    "INVALID_USERNAME",
+                    "Only letters, numbers, '_' and '-' are allowed.");
+            return null;
+        }
+        return newUsername;
+    }
+
+    private boolean isUsernameChangeBlocked(RequestContext context, String oldUsername) {
+        if (lobbyManager == null) {
+            return false;
+        }
+
+        var lobby = lobbyManager.getLobbyByUsername(oldUsername);
+        boolean gameRunning =
+                lobby != null
+                        && lobby.getGameController() != null
+                        && lobby.getGameController().getState().getPhase() != GamePhase.FINISHED;
+        if (gameRunning && lobby.isPlayerActive(oldUsername)) {
+            dispatchError(
+                    context,
+                    "CANNOT_CHANGE_USERNAME_DURING_LOBBY",
+                    "Cannot change username while actively playing in a lobby. "
+                            + "Wait until the game ends.");
+            return true;
+        }
+        return false;
+    }
+
+    private void dispatchError(RequestContext context, String code, String message) {
+        responseDispatcher.dispatch(new ErrorResponse(context, code, message));
     }
 }
