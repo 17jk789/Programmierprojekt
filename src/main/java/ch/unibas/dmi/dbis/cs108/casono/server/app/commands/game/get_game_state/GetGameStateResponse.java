@@ -6,6 +6,7 @@ import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.deck.Rank;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.deck.Suit;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.player.Player;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.player.PlayerId;
+import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.rules.showdown.CardsSpeakRule;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.state.GamePhase;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.state.GameState;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.highscore.HighscoreService;
@@ -13,8 +14,11 @@ import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.request.RequestCo
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.SuccessResponse;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.builder.ResponseBody;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.protocol.response.builder.ResponseBodyBuilder;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * Response carrying a snapshot of the current game state using the project's wire format.
@@ -51,10 +55,16 @@ public class GetGameStateResponse extends SuccessResponse {
         builder.param("CURRENT_BET", computeGlobalCurrentBet(state));
         builder.param("DEALER", state.getDealerIndex());
         builder.param("ACTIVE_PLAYER", state.getCurrentPlayerIndex());
+
         int winnerIndex = computeWinnerIndex(state, game);
         builder.param("WINNER", winnerIndex);
 
-        appendWinnerToHighscoresIfFinished(state, winnerIndex);
+        List<String> winnerNames = computeWinnerNames(state, game);
+        for (String name : winnerNames) {
+            builder.param("WINNER_NAME", name);
+        }
+
+        appendWinnerToHighscoresIfFinished(state, winnerNames);
         appendHighscoreEntries(builder);
 
         appendCommunityCards(builder, state);
@@ -64,8 +74,14 @@ public class GetGameStateResponse extends SuccessResponse {
         return builder.build();
     }
 
-    private static void appendWinnerToHighscoresIfFinished(GameState state, int winnerIndex) {
-        if (winnerIndex < 0 || state.getPhase() != GamePhase.FINISHED) {
+    private static void appendWinnerToHighscoresIfFinished(
+            GameState state, List<String> winnerNames) {
+        if (winnerNames == null || winnerNames.isEmpty()) {
+            return;
+        }
+
+        GamePhase phase = state.getPhase();
+        if (phase != GamePhase.SHOWDOWN && phase != GamePhase.FINISHED) {
             return;
         }
 
@@ -73,12 +89,22 @@ public class GetGameStateResponse extends SuccessResponse {
             return;
         }
 
-        Player winner = findPlayerByIndex(state, winnerIndex);
-        if (winner == null || winner.getId() == null || winner.getId().value() == null) {
-            return;
+        // Keep ordering stable and persist tied winners as a single shared highscore
+        // entry. Compute the per-winner share here (pot is split equally among
+        // winners)
+        int potPerWinner = computePotPerWinner(state, winnerNames.size());
+        Set<String> uniqueWinners = new LinkedHashSet<>(winnerNames);
+        List<String> formattedWinners = new ArrayList<>();
+        for (String name : uniqueWinners) {
+            if (name != null && !name.isBlank()) {
+                formattedWinners.add(name + " (" + Math.max(0, potPerWinner) + ")");
+            }
         }
 
-        HighscoreService.getInstance().appendWinner(winner.getId().value());
+        if (!formattedWinners.isEmpty()) {
+            HighscoreService.getInstance()
+                    .appendFormattedEntry(String.join(", ", formattedWinners));
+        }
     }
 
     private static Player findPlayerByIndex(GameState state, int winnerIndex) {
@@ -118,6 +144,33 @@ public class GetGameStateResponse extends SuccessResponse {
         }
 
         return -1;
+    }
+
+    /** Computes the list of all winner names at showdown/finished phase. */
+    private static List<String> computeWinnerNames(GameState state, GameController game) {
+        GamePhase phase = state.getPhase();
+        if (phase != GamePhase.SHOWDOWN && phase != GamePhase.FINISHED) {
+            return new ArrayList<>();
+        }
+
+        CardsSpeakRule showdown = new CardsSpeakRule();
+        List<Player> winners = showdown.determineWinners(state);
+
+        List<String> winnerNames = new ArrayList<>();
+        for (Player winner : winners) {
+            if (winner != null && winner.getId() != null && winner.getId().value() != null) {
+                winnerNames.add(winner.getId().value());
+            }
+        }
+        return winnerNames;
+    }
+
+    /** Computes the pot share per winner. */
+    private static int computePotPerWinner(GameState state, int numWinners) {
+        if (numWinners <= 0 || state.getPot() == null) {
+            return 0;
+        }
+        return state.getPot().getAmount() / numWinners;
     }
 
     private static int computeGlobalCurrentBet(GameState state) {

@@ -14,7 +14,8 @@ import org.apache.logging.log4j.Logger;
 /** Controller for the highscore popup window. */
 public class HighscoreViewController {
 
-    private static final Logger LOGGER = LogManager.getLogger(HighscoreViewController.class);
+    private static final Logger LOGGER =
+            LogManager.getLogger(HighscoreViewController.class.getSimpleName());
 
     @FXML private ListView<String> highscoreList;
     @FXML private Label statusLabel;

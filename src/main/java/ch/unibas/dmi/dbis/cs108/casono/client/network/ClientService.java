@@ -60,7 +60,7 @@ public class ClientService {
     public ClientService(String ip, int port) {
         this.idGenerator = new AtomicInteger(0);
 
-        this.logger = LogManager.getLogger(ClientService.class);
+        this.logger = LogManager.getLogger(ClientService.class.getSimpleName());
 
         this.offlineMode = false;
 

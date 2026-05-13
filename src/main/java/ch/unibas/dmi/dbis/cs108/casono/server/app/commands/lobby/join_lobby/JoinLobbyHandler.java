@@ -23,7 +23,8 @@ import org.apache.logging.log4j.Logger;
 public class JoinLobbyHandler extends CommandHandler<JoinLobbyRequest> {
     private final LobbyManager lobbyManager;
     private final UserRegistry userRegistry;
-    private static final Logger LOGGER = LogManager.getLogger(JoinLobbyHandler.class);
+    private static final Logger LOGGER =
+            LogManager.getLogger(JoinLobbyHandler.class.getSimpleName());
 
     /**
      * Create a new {@link JoinLobbyHandler}.

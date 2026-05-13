@@ -15,7 +15,7 @@ public class SessionDisconnectJob implements Runnable {
 
     public SessionDisconnectJob(
             SessionManager sessionManager, EventBus eventBus, Duration timeoutThreshold) {
-        this.logger = LogManager.getLogger(SessionDisconnectJob.class);
+        this.logger = LogManager.getLogger(SessionDisconnectJob.class.getSimpleName());
         this.sessionManager = sessionManager;
         this.eventBus = eventBus;
         this.timeoutThreshold = timeoutThreshold;

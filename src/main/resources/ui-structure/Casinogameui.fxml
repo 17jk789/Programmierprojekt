@@ -7,11 +7,11 @@
 
 
 <!-- Main container: Links the UI to the CasinoGameController and loads Casinogameui.css -->
-<AnchorPane xmlns="http://javafx.com/javafx/21"
+<AnchorPane fx:id="rootPane"
+            xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui.CasinoGameController"
-            styleClass="background"
-            stylesheets="@Casinogameui.css">
+            styleClass="background">
 
     <GridPane prefWidth="1200" prefHeight="800" AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
         <columnConstraints>
@@ -41,6 +41,8 @@
                       alignment="CENTER"
                       styleClass="casino-table"
                       spacing="20"
+                      mouseTransparent="false"
+                      pickOnBounds="false"
                       maxWidth="Infinity"
                       maxHeight="Infinity">
 
@@ -67,7 +69,7 @@
                             </Label>
 
                             <Label fx:id="tableText"
-                                   text="Welcome! The round is about to begin."
+                                   text="Welcome! The game starts when 4 players are present..."
                                    styleClass="table-title" />
 
                         </VBox>
@@ -161,8 +163,18 @@
     </GridPane>
 
     <!-- movable taskbar -->
-    <AnchorPane>
+    <AnchorPane pickOnBounds="false">
         <fx:include fx:id="taskbarInclude" source="gameuicomponents/Taskbar.fxml" GridPane.columnIndex="1"/>
+    </AnchorPane>
+
+    <!-- movable notebook (Tips Box) -->
+    <AnchorPane pickOnBounds="false">
+        <fx:include fx:id="notebookInclude" source="gameuicomponents/Notebook.fxml" GridPane.columnIndex="1"/>
+    </AnchorPane>
+
+    <!-- movable settings -->
+    <AnchorPane pickOnBounds="false">
+        <fx:include fx:id="settingsInclude" source="gameuicomponents/Settings.fxml" GridPane.columnIndex="1"/>
     </AnchorPane>
 
 </AnchorPane>

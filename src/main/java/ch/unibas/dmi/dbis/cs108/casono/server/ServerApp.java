@@ -99,7 +99,7 @@ public class ServerApp {
     public static void start(String arg) {
         int port = Integer.parseInt(arg);
 
-        Logger logger = LogManager.getLogger(ServerApp.class);
+        Logger logger = LogManager.getLogger(ServerApp.class.getSimpleName());
         logger.info("Starting server at port {}", port);
 
         EventBus eventBus = new EventBus();

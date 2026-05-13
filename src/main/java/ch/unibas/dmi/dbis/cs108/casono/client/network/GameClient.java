@@ -111,6 +111,7 @@ public class GameClient {
         GameState s = new GameState();
         s.players = new ArrayList<>();
         s.communityCards = new ArrayList<>();
+        s.winnerNames = new ArrayList<>();
 
         ParseState state = new ParseState();
         for (String raw : input.split("\n")) {
@@ -153,6 +154,14 @@ public class GameClient {
             }
             case String l when l.startsWith("WINNER=") -> {
                 s.winnerIndex = intVal(l);
+                yield true;
+            }
+            case String l when l.startsWith("WINNER_NAME=") -> {
+                s.winnerNames.add(value(l));
+                yield true;
+            }
+            case String l when l.startsWith("POT_PER_WINNER=") -> {
+                s.potPerWinner = intVal(l);
                 yield true;
             }
             case String l when l.startsWith("HIGHSCORE=") -> {
@@ -221,6 +230,13 @@ public class GameClient {
 
         if (line.startsWith("USERNAME=") || line.startsWith("NAME=")) {
             state.currentPlayer.setId(PlayerId.of(value(line)));
+            return true;
+        }
+
+        if (line.startsWith("ID=")) {
+            if (state.currentPlayer.getId() == null) {
+                state.currentPlayer.setId(PlayerId.of(value(line)));
+            }
             return true;
         }
 

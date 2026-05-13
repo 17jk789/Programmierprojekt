@@ -40,7 +40,8 @@ import org.apache.logging.log4j.Logger;
  */
 public class TaskbarController {
 
-    private static final Logger LOGGER = LogManager.getLogger(TaskbarController.class);
+    private static final Logger LOGGER =
+            LogManager.getLogger(TaskbarController.class.getSimpleName());
 
     @FXML private HBox taskbar;
     @FXML private TextField taskbarInput;
@@ -52,15 +53,19 @@ public class TaskbarController {
 
     private GameService gameService;
     private PlayerId myPlayerId;
+    private String myPlayerName;
     private GameState lastState;
     private double xOffset = 0;
     private double yOffset = 0;
+    private NotebookController notebookController;
+    private SettingsController settingsController;
     private static final double TASKBAR_SCALE = 0.95;
     private static final double PREFLOP_BLOCK_RATIO = 0.50;
     private static final double FLOP_WARN_RATIO = 0.50;
     private static final double FLOP_BLOCK_RATIO = 0.80;
     private static final double TURN_RIVER_WARN_RATIO = 0.80;
     private static final double TURN_RIVER_BLOCK_RATIO = 1.00;
+    private static final int SMALLEST_VALUE = 5;
     private static final int SMALL_BLIND = 100;
     private static final int BIG_BLIND = 200;
     private static final String STYLE_YELLOW_BUTTON = "yellow-button";
@@ -81,6 +86,9 @@ public class TaskbarController {
     private static final int FIRST_PLAYER_MAX_BET = 3000;
     private static final int MAX_INPUT_LENGTH = 6;
     private static final double MAX_CHIP_PERCENT = 0.30;
+    private int lastPotSnapshot = 0;
+    private int lastObservedIncrease = 0;
+    private int lastRaiseIncrement = 0;
 
     /** Standard constructor. Used by FXML. */
     public TaskbarController() {
@@ -231,6 +239,17 @@ public class TaskbarController {
     public void setGameService(GameService gameService, PlayerId myPlayerId) {
         this.gameService = gameService;
         this.myPlayerId = myPlayerId;
+        this.myPlayerName = myPlayerId != null ? normalizeIdentifier(myPlayerId.value()) : null;
+    }
+
+    /** Sets the NotebookController reference for showing/hiding tips. */
+    public void setNotebookController(NotebookController notebookController) {
+        this.notebookController = notebookController;
+    }
+
+    /** Sets the SettingsController reference for theme switching. */
+    public void setSettingsController(SettingsController settingsController) {
+        this.settingsController = settingsController;
     }
 
     /** Sets an optional callback that publishes simple action labels to lobby chat. */
@@ -342,6 +361,37 @@ public class TaskbarController {
     }
 
     /**
+     * Resolves the typed input as the additional amount the player wants to contribute.
+     *
+     * <p>If the player has already invested chips in the current betting round, the typed value is
+     * interpreted as an additional amount on top of that investment. This lets the user enter the
+     * amount they still need to put in directly (for example: already invested 200, type 400 ->
+     * total target 600).
+     *
+     * @param state current game state
+     * @param rawInput text from the input field
+     * @return total target bet, or null if the input is invalid
+     */
+    private Integer resolveTypedContributionTarget(GameState state, String rawInput) {
+        Integer input = parseInputTarget(rawInput);
+        if (input == null) {
+            return null;
+        }
+
+        if (state == null || state.players == null) {
+            return input;
+        }
+
+        Player me = findCurrentPlayer(state);
+        if (me == null) {
+            return input;
+        }
+
+        int alreadyInvested = Math.max(0, me.getBet());
+        return alreadyInvested > 0 ? alreadyInvested + input : input;
+    }
+
+    /**
      * Updates the taskbar based on the current game state and the player's status.
      *
      * @param state The current GameState object representing the state of the game, which includes
@@ -353,23 +403,43 @@ public class TaskbarController {
      *     and whether they are out of the game.
      */
     public void update(GameState state, PlayerId myPlayerId) {
+        this.myPlayerId = myPlayerId;
+        this.myPlayerName = myPlayerId != null ? normalizeIdentifier(myPlayerId.value()) : null;
+        update(state);
+    }
 
-        if (state == null || state.players == null || myPlayerId == null) {
+    /**
+     * Updates the taskbar based on the current game state and the player's name.
+     *
+     * @param state current game state
+     * @param myPlayerName local player name
+     */
+    public void update(GameState state, String myPlayerName) {
+        this.myPlayerName = normalizeIdentifier(myPlayerName);
+        update(state);
+    }
+
+    /**
+     * Updates the taskbar based on the current game state.
+     *
+     * @param state current game state
+     */
+    private void update(GameState state) {
+
+        if (state == null || state.players == null) {
             LOGGER.warn("Cannot update taskbar: invalid input");
             return;
         }
 
         this.lastState = state;
 
+        Player me = findCurrentPlayer(state);
+
+        synchronizeCurrentBetIfNeeded(state, me);
+
         if (state.currentBet > 0) {
             lastReferenceBet = state.currentBet;
         }
-
-        Player me =
-                state.players.stream()
-                        .filter(p -> myPlayerId.equals(p.getId()))
-                        .findFirst()
-                        .orElse(null);
 
         if (me == null) {
             LOGGER.error("Player not found in GameState!");
@@ -392,6 +462,52 @@ public class TaskbarController {
 
         setMoney(me.getChips());
         refreshBetInputUi();
+    }
+
+    /**
+     * Synchronizes the current bet in the game state if there has been a change in the pot size
+     * that is not yet reflected in the current bet.
+     *
+     * @param state The current GameState object representing the state of the game.
+     * @param me The Player object representing the current player, used to determine their bet
+     *     status and whether they are the first to act in the current phase.
+     */
+    private void synchronizeCurrentBetIfNeeded(GameState state, Player me) {
+
+        if (state == null || me == null) {
+            return;
+        }
+
+        int currentPot = Math.max(0, state.pot);
+        int potDiff = currentPot - lastPotSnapshot;
+
+        lastPotSnapshot = currentPot;
+
+        if (potDiff <= 0) {
+            return;
+        }
+
+        LOGGER.debug("Pot changed: +" + potDiff);
+
+        lastRaiseIncrement = Math.max(lastRaiseIncrement, potDiff);
+
+        boolean isTurnOrRiver = isTurnOrRiver(state.phase);
+
+        boolean isSpecialActor = isFirstPlayerOfPhase(state, me) && isTurnOrRiver;
+
+        if (isSpecialActor) {
+
+            LOGGER.info("SPECIAL TURN/RIVER LOGIC ACTIVE, potDiff=" + potDiff);
+
+            if (potDiff > state.currentBet) {
+
+                LOGGER.info("Updating currentBet -> potDiff: " + potDiff);
+
+                state.currentBet = potDiff;
+
+                lastReferenceBet = potDiff;
+            }
+        }
     }
 
     /**
@@ -444,7 +560,7 @@ public class TaskbarController {
             return;
         }
 
-        if (isFirstPlayerOfPhase(state, me)) {
+        if (isFirstFlopPlayer(state, me)) {
             setActionEnabled(betButton, true);
             setActionEnabled(callButton, false);
             // setActionEnabled(foldButton, false);
@@ -628,6 +744,53 @@ public class TaskbarController {
         }
 
         return isInitialPreflopBlindLayout(state);
+    }
+
+    /**
+     * Checks if the current player is the first to act on the flop.
+     *
+     * @param state The current GameState containing phase, dealer and active player information.
+     * @param me The current player.
+     * @return true if the player is the first player to act on the flop.
+     */
+    private boolean isFirstFlopPlayer(GameState state, Player me) {
+
+        if (state == null || me == null || state.players == null) {
+            return false;
+        }
+
+        if (!isFlop(state.phase)) {
+            return false;
+        }
+
+        int size = state.players.size();
+
+        if (size < 2) {
+            return false;
+        }
+
+        int myIndex = state.players.indexOf(me);
+
+        if (myIndex < 0) {
+            return false;
+        }
+
+        int firstIndex = (state.dealer + 1) % size;
+
+        for (int i = 0; i < size; i++) {
+
+            int candidate = (firstIndex + i) % size;
+
+            Player p = state.players.get(candidate);
+
+            if (p != null && p.getState() != PlayerState.FOLDED && p.getChips() > 0) {
+
+                firstIndex = candidate;
+                break;
+            }
+        }
+
+        return state.activePlayer == firstIndex && myIndex == firstIndex;
     }
 
     /**
@@ -877,7 +1040,8 @@ public class TaskbarController {
             return input != null ? input : callTarget + BIG_BLIND;
         }
 
-        return parseInputTarget(taskbarInput.getText());
+        return resolveTypedContributionTarget(
+                state, taskbarInput != null ? taskbarInput.getText() : null);
     }
 
     /**
@@ -1012,7 +1176,7 @@ public class TaskbarController {
         try {
             int value = Integer.parseInt(text.trim());
 
-            if (value % SMALL_BLIND != 0) {
+            if (value % SMALLEST_VALUE != 0) {
                 return null;
             }
 
@@ -1034,7 +1198,7 @@ public class TaskbarController {
      *     current game state.
      */
     private ValidationResult validateTypedAmount(GameState state, String text) {
-        Integer target = parseInputTarget(text);
+        Integer target = resolveTypedContributionTarget(state, text);
         if (target == null || state == null) {
             return ValidationResult.blocked("Invalid input");
         }
@@ -1497,15 +1661,56 @@ public class TaskbarController {
         submitAction(ActionType.INPUT);
     }
 
+    /**
+     * Finds the current player in the given game state based on the player's name or ID.
+     *
+     * @param state The current GameState object representing the state of the game, which includes
+     *     a list of players and their details.
+     * @return The Player object representing the current player if found in the game state.
+     */
     private Player findCurrentPlayer(GameState state) {
-        if (state == null || state.players == null || myPlayerId == null) {
+        if (state == null || state.players == null) {
             return null;
         }
 
-        return state.players.stream()
-                .filter(player -> player != null && myPlayerId.equals(player.getId()))
-                .findFirst()
-                .orElse(null);
+        return state.players.stream().filter(this::isCurrentPlayer).findFirst().orElse(null);
+    }
+
+    /**
+     * Checks if the given player matches the current player's identity based on name or ID.
+     *
+     * @param player The Player object to check against the current player's identity, which
+     *     includes the player's name and ID.
+     * @return A boolean value indicating whether the given player matches the current player's
+     *     identity.
+     */
+    private boolean isCurrentPlayer(Player player) {
+        if (player == null) {
+            return false;
+        }
+
+        String playerName = normalizeIdentifier(player.getName());
+        if (myPlayerName != null && playerName != null && myPlayerName.equals(playerName)) {
+            return true;
+        }
+
+        return myPlayerId != null && myPlayerId.equals(player.getId());
+    }
+
+    /**
+     * Normalizes a player identifier (name or ID) by trimming whitespace and converting to
+     * lowercase.
+     *
+     * @param value The string value representing a player identifier, such as a name or ID.
+     * @return A normalized version of the player identifier, where leading and trailing whitespace
+     *     is removed.
+     */
+    private String normalizeIdentifier(String value) {
+        if (value == null) {
+            return null;
+        }
+        String trimmed = value.trim();
+        return trimmed.isEmpty() ? null : trimmed.toLowerCase();
     }
 
     /**
@@ -1554,6 +1759,46 @@ public class TaskbarController {
 
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    /** Opens the integrated Casono Web Browser. */
+    @FXML
+    private void onBrowserButtonClickWiki() {
+        try {
+
+            CasinoBrowserController.open("https://www.wikipedia.org/");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /** Opens the integrated Casono Web Browser. */
+    @FXML
+    private void onBrowserButtonClickBrave() {
+        try {
+
+            CasinoBrowserController.open("https://search.brave.com");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /** Opens the tips notebook if it's currently closed. */
+    @FXML
+    private void onShowTipsButtonClick() {
+        if (notebookController != null) {
+            notebookController.showTips();
+        }
+    }
+
+    /** Opens the settings box for theme selection. */
+    @FXML
+    private void onSettingsButtonClick() {
+        if (settingsController != null) {
+            settingsController.show();
         }
     }
 

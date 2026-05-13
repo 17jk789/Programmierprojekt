@@ -41,7 +41,7 @@ public class SessionReader implements Runnable {
         this.router = session.getRouter();
         this.logger =
                 LogManager.getLogger(
-                        SessionReader.class.toString() + "-" + session.getId().value());
+                        SessionReader.class.getSimpleName() + "-" + session.getId().value());
     }
 
     @Override
