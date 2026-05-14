@@ -11,7 +11,6 @@ import ch.unibas.dmi.dbis.cs108.casono.client.ui.lobbyui.Casinomainui;
 import ch.unibas.dmi.dbis.cs108.casono.ui.sound.SoundManager;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
@@ -92,6 +91,7 @@ public class TaskbarController {
     private int lastPotSnapshot = 0;
     private int lastObservedIncrease = 0;
     private int lastRaiseIncrement = 0;
+    private static final long REFRESH_DELAY_MS = 500;
 
     /** Standard constructor. Used by FXML. */
     public TaskbarController() {
@@ -1030,19 +1030,18 @@ public class TaskbarController {
 
         taskbarInput.clear();
 
-        javafx.application.Platform.runLater(() -> {
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-            refreshGame();
-        });
+        javafx.application.Platform.runLater(
+                () -> {
+                    try {
+                        Thread.sleep(REFRESH_DELAY_MS);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+                    refreshGame();
+                });
     }
 
-    /**
-     * Disables all action buttons to prevent multiple concurrent action submissions.
-     */
+    /** Disables all action buttons to prevent multiple concurrent action submissions. */
     private void disableAllActionButtons() {
         if (betButton != null) {
             betButton.setDisable(true);
@@ -1428,14 +1427,14 @@ public class TaskbarController {
         }
 
         try (var iconStream = TaskbarController.class.getResourceAsStream(LOGO_PATH);
-             var mainLogoStream = TaskbarController.class.getResourceAsStream(LOGO_PATH_MAIN)) {
+                var mainLogoStream = TaskbarController.class.getResourceAsStream(LOGO_PATH_MAIN)) {
             if (iconStream != null) {
                 Image icon = new Image(iconStream);
                 if (!icon.isError()
                         && alert.getDialogPane() != null
                         && alert.getDialogPane().getScene() != null
                         && alert.getDialogPane().getScene().getWindow()
-                        instanceof javafx.stage.Stage stage) {
+                                instanceof javafx.stage.Stage stage) {
                     stage.getIcons().add(icon);
                 }
             }

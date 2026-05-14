@@ -185,6 +185,7 @@ public class CasinoGameController {
     private static final int NO_BET = 0;
     private boolean myDealerIconSizeBound;
     private java.util.List<String> lobbyPlayerNames = java.util.List.of();
+    private static final int MAX_ANIMATED_CHIPS = 12;
 
     /** Standard constructor. Used by FXML. */
     public CasinoGameController() {
@@ -1919,7 +1920,7 @@ public class CasinoGameController {
                     bottomRow.getChildren().add(chip);
                 }
 
-                if (index < 12) {
+                if (index < MAX_ANIMATED_CHIPS) {
                     animateChipAppear(chip, index);
                 } else {
                     chip.setOpacity(CHIP_FADE_TO);
@@ -2017,10 +2018,7 @@ public class CasinoGameController {
      */
     private void bindChipSize(ImageView view, javafx.scene.Scene scene) {
 
-        view.fitHeightProperty()
-                .bind(
-                        scene.heightProperty().multiply(CHIP_HEIGHT_RATIO)
-                );
+        view.fitHeightProperty().bind(scene.heightProperty().multiply(CHIP_HEIGHT_RATIO));
 
         view.fitWidthProperty().bind(scene.widthProperty().multiply(CHIP_WIDTH_RATIO));
     }
