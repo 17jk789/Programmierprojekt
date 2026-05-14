@@ -1,0 +1,728 @@
+/* Basic Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --background-color: #f6efe4;
+    /* page background */
+    --card-bg-color: #f6efe4;
+    --nav-bg-color: rgba(69, 2, 6, 0.96);
+    --primary-color: #0b0b0b;
+    /* main text on light background */
+    --secondary-color: #6b6b6b;
+    --accent-color: #a88130;
+    /* accent */
+    --button-color: #a40404;
+    /* primary buttons */
+    --button-hover: #fbf0df;
+    --section-team-bg: #a40404;
+    /* meet the team background */
+    --team-button-bg: #fbf0df;
+    /* team buttons start */
+    --team-button-hover: #450206;
+    /* team button hover */
+    --header-bg: #450206;
+    /* header background */
+    --hero-overlay-color: rgba(0, 0, 0, 0.12);
+    --font-title: 'Cinzel', serif;
+    --font-body: 'Lato', sans-serif;
+    --section-padding: 5rem 5%;
+    --card-padding: 1.6rem;
+    --grid-gap: 1.6rem;
+    --transition: 0.28s cubic-bezier(.2, .9, .2, 1);
+    --shadow-light: 0 2px 8px rgba(0, 0, 0, 0.06);
+    --shadow-medium: 0 6px 14px rgba(0, 0, 0, 0.08);
+    --shadow-heavy: 0 12px 28px rgba(0, 0, 0, 0.12);
+    --border-radius: 12px;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: var(--font-body);
+    background-color: var(--background-color);
+    color: var(--primary-color);
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+/* Typography */
+h1,
+h2,
+h3 {
+    font-family: var(--font-title);
+    color: var(--accent-color);
+    margin-bottom: 1rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+h1 {
+    font-size: 3.5rem;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
+}
+
+h2 {
+    font-size: 2.5rem;
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+h3 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+p {
+    margin-bottom: 1rem;
+    font-size: 1rem;
+}
+
+a {
+    color: var(--accent-color);
+    text-decoration: none;
+    transition: color var(--transition);
+}
+
+a:hover {
+    color: var(--primary-color);
+}
+
+/* Navigation */
+.sticky-nav {
+    position: sticky;
+    top: 0;
+    width: 100%;
+    background-color: var(--header-bg);
+    z-index: 1000;
+    box-shadow: var(--shadow-medium);
+    padding: 14px 0;
+    /* taller header */
+    transition: background-color var(--transition);
+}
+
+nav {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    width: 100%;
+    position: relative;
+}
+
+.logo {
+    font-family: var(--font-title);
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: var(--accent-color);
+    display: flex;
+    align-items: center;
+    margin-left: 48px;
+    margin-right: 48px;
+    /* push logo further left and add space to the nav links */
+}
+
+.site-logo {
+    max-height: 56px;
+    height: auto;
+    display: block;
+}
+
+nav ul {
+    list-style: none;
+    display: flex;
+    margin-left: auto;
+    /* push links to the right */
+    margin-right: 56px;
+}
+
+nav ul li {
+    margin-left: 1.2rem;
+}
+
+nav ul li a {
+    font-weight: bold;
+    padding: 0.5rem 0;
+    position: relative;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.9rem;
+}
+
+nav ul li a::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: -2px;
+    left: 0;
+    background-color: var(--accent-color);
+    transition: width var(--transition);
+}
+
+nav ul li a:hover::after {
+    width: 100%;
+}
+
+/* Header text color to contrast against dark header */
+.logo {
+    color: var(--team-button-bg);
+}
+
+nav ul li a {
+    color: var(--team-button-bg);
+}
+
+.language-toggle {
+    position: absolute;
+    right: 24px;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: var(--team-button-bg);
+    color: var(--header-bg);
+    border: none;
+    border-radius: 999px;
+    padding: 0.35rem 0.85rem;
+    font-weight: 700;
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    transition: transform var(--transition), box-shadow var(--transition), background-color var(--transition);
+    box-shadow: var(--shadow-light);
+}
+
+.language-toggle:hover {
+    background-color: var(--accent-color);
+    color: #fff;
+    transform: translateY(-50%) translateY(-1px);
+}
+
+/* Burger Menu Button (Hidden on Desktop) */
+.burger-menu {
+    display: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    z-index: 1100;
+}
+
+.burger-menu span {
+    display: block;
+    width: 25px;
+    height: 3px;
+    background-color: var(--primary-color);
+    margin: 5px 0;
+    transition: all var(--transition);
+}
+
+/* Hero Section */
+.hero-section {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: white;
+    background-image: url('images/background.png');
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-color: transparent;
+    overflow: hidden;
+    padding: var(--section-padding);
+}
+
+/* Hero CTA styled like team buttons per request */
+.hero-section .cta-button {
+    background-color: var(--team-button-bg);
+    color: var(--section-team-bg);
+    border: none;
+}
+
+.hero-section .cta-button:hover {
+    background-color: var(--team-button-hover);
+    color: var(--team-button-bg);
+}
+
+.hero-overlay {
+    position: absolute;
+    inset: 0;
+    background-color: var(--hero-overlay-color);
+    z-index: 1;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 900px;
+}
+
+.hero-content h1 {
+    color: var(--accent-color);
+}
+
+.hero-content .tagline {
+    font-size: 1.4rem;
+    color: #f6efe4;
+    margin-bottom: 1.5rem;
+    font-style: italic;
+}
+
+.hero-content .description {
+    font-size: 1.1rem;
+    color: #f6efe4;
+    margin: 0 auto 2.5rem;
+    max-width: 600px;
+}
+
+.cta-button,
+.download-button {
+    display: inline-block;
+    background-color: var(--button-color);
+    color: var(--button-hover);
+    padding: 0.9rem 2.2rem;
+    border-radius: 5px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all var(--transition);
+    box-shadow: var(--shadow-medium);
+    border: none;
+}
+
+.cta-button:hover,
+.download-button:hover {
+    background-color: var(--button-hover);
+    color: var(--button-color);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+}
+
+.download-button {
+    font-size: 1.1rem;
+}
+
+/* General Content Sections */
+.content-section,
+.features-section,
+.resources-section,
+.team-section {
+    padding: var(--section-padding);
+    width: 100%;
+}
+
+/* Keep inner grids/content centered with a max width */
+.features-grid,
+.team-grid {
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* Center content and grid items site-wide */
+.content-section,
+.features-section,
+.resources-section,
+.team-section {
+    text-align: center;
+}
+
+.features-grid,
+.team-grid {
+    justify-items: center;
+    align-items: start;
+}
+
+.features-grid {
+    justify-content: center;
+}
+
+.team-grid {
+    justify-content: center;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+/* Center nav links */
+.sticky-nav nav {
+    justify-content: center;
+}
+
+nav ul {
+    margin-left: 0;
+    gap: 3.2rem;
+}
+
+nav ul li {
+    margin-left: 0;
+}
+
+/* Make videos keep a sensible aspect ratio so they don't look flat */
+video,
+.modal-content video {
+    aspect-ratio: 16/9;
+    height: auto;
+}
+
+
+/* Story Section */
+.content-section p {
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+    font-size: 1.1rem;
+    color: var(--primary-color);
+}
+
+/* Decorative Divider */
+.features-section::before,
+.table-section::before,
+.resources-section::before {
+    content: '';
+    display: block;
+    width: 150px;
+    height: 3px;
+    background: linear-gradient(to right, transparent, var(--secondary-color), transparent);
+    margin: 1rem auto;
+    opacity: 0.6;
+}
+
+
+.table-section {
+    padding-bottom: 1rem;
+}
+
+.media-section {
+    padding: var(--section-padding);
+    background-color: var(--card-bg-color);
+    text-align: center;
+}
+
+.media-grid {
+    max-width: 1200px;
+    margin: 2rem auto 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(280px, 1fr));
+    gap: var(--grid-gap);
+}
+
+.media-card {
+    background-color: var(--background-color);
+    border: 1px solid var(--secondary-color);
+    border-radius: var(--border-radius);
+    padding: var(--card-padding);
+    box-shadow: var(--shadow-light);
+}
+
+.media-card h3 {
+    margin-bottom: 1rem;
+}
+
+.media-card video {
+    width: 100%;
+    border-radius: 10px;
+    display: block;
+}
+
+.resources-section {
+    padding-top: 1rem;
+}
+
+/* Features Section */
+.features-section {
+    background-color: var(--card-bg-color);
+}
+
+.features-grid,
+.team-grid {
+    display: grid;
+    gap: var(--grid-gap);
+    margin-top: 2rem;
+}
+
+.features-grid {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
+.team-grid {
+    grid-template-columns: repeat(4, 1fr);
+    margin-top: 2.5rem;
+    align-items: stretch;
+}
+
+.feature-card,
+.team-member {
+    background-color: var(--background-color);
+    padding: var(--card-padding);
+    border-radius: var(--border-radius);
+    text-align: center;
+    border: 1px solid var(--secondary-color);
+    transition: transform var(--transition), box-shadow var(--transition);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: var(--shadow-heavy);
+}
+
+.feature-card {
+    border-top: 4px solid transparent;
+}
+
+.feature-card[data-accent="1"] {
+    border-top-color: var(--accent-red);
+}
+
+.feature-card[data-accent="2"] {
+    border-top-color: var(--accent-green);
+}
+
+.feature-card[data-accent="3"] {
+    border-top-color: var(--accent-navy);
+}
+
+.feature-card[data-accent="4"] {
+    border-top-color: var(--accent-cyan);
+}
+
+.team-member {
+    background-color: #0f0e11;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+        box-shadow 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+        border-color 0.25s;
+    box-shadow: var(--shadow-light), 0 2px 8px 0 rgba(0, 0, 0, 0.18);
+    height: 100%;
+    min-width: 0;
+}
+
+.team-member:hover {
+    transform: translateY(-10px) scale(1.04);
+    box-shadow: 0 0 36px 8px rgba(11, 61, 145, 0.12), 0 6px 22px 0 rgba(0, 0, 0, 0.36);
+    border-color: rgba(11, 61, 145, 0.18);
+    z-index: 2;
+}
+
+.team-member-link {
+    text-decoration: none;
+    color: inherit;
+    width: 100%;
+}
+
+.team-member-link:hover {
+    color: inherit;
+}
+
+.feature-card .icon {
+    width: 100px;
+    margin-bottom: 1.5rem;
+    object-fit: contain;
+}
+
+.feature-card h3,
+.team-member h3 {
+    color: var(--accent-color);
+}
+
+.feature-card p {
+    font-size: 0.95rem;
+    color: var(--primary-color);
+}
+
+.team-photo {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 1.2rem;
+    border: 2px solid rgba(255, 255, 255, 0.04);
+    background: #141114;
+    /* darker neutral placeholder (less white) */
+    pointer-events: none;
+}
+
+/* Resources Section */
+.resources-section {
+    text-align: center;
+}
+
+/* Team section uses the red background per request */
+.team-section {
+    background-color: var(--section-team-bg);
+    color: var(--team-button-bg);
+    padding: var(--section-padding) 0;
+    /* full-bleed background, inner padding on grid */
+}
+
+.team-grid {
+    padding: 0 5%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.team-section .cta-button,
+.team-section .download-button {
+    background-color: var(--team-button-bg);
+    color: var(--section-team-bg);
+    border: none;
+}
+
+.team-section .cta-button:hover,
+.team-section .download-button:hover {
+    background-color: var(--team-button-hover);
+    color: var(--team-button-bg);
+}
+
+/* Ensure AOS animations have a starting point */
+[data-aos] {
+    opacity: 0;
+    transition-property: transform, opacity;
+}
+
+/* Ensure global CTA/Download buttons use the user-requested button color (unless overridden in team-section) */
+.cta-button {
+    background-color: var(--button-color);
+    color: var(--button-hover);
+    border: none;
+}
+
+.cta-button:hover {
+    background-color: var(--button-hover);
+    color: var(--button-color);
+}
+
+.download-button {
+    background-color: var(--button-color);
+    color: var(--button-hover);
+    border: none;
+}
+
+.download-button:hover {
+    background-color: var(--button-hover);
+    color: var(--button-color);
+}
+
+/* Table preview sizing + padding so it never touches edges */
+.table-preview-container {
+    padding: 8px;
+    box-sizing: border-box;
+    border-radius: 24px;
+    overflow: hidden;
+}
+
+.table-preview-image {
+    max-width: 100%;
+    width: calc(100% - 32px);
+    height: auto;
+    padding: 8px;
+    border-radius: 24px;
+    display: block;
+}
+
+@media (max-width: 900px) {
+    .media-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Modal and video: ensure padding and responsive scaling without distortion */
+.modal {
+    padding: 24px;
+    box-sizing: border-box;
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 2000;
+}
+
+.modal-content {
+    width: min(1000px, calc(100% - 48px));
+    max-width: 100%;
+    padding: 20px;
+    background: var(--card-bg-color);
+    border-radius: 12px;
+}
+
+.modal.show {
+    display: flex;
+}
+
+.modal-content video {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16/9;
+}
+
+.modal-content video,
+video {
+    width: 100%;
+    height: auto;
+    max-height: calc(100vh - 160px);
+    object-fit: contain;
+    display: block;
+}
+
+/* Remove global side padding so sections can be full-bleed; keep inner content padded via grids */
+main,
+body {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+/* Run instructions code window */
+.run-instructions {
+    max-width: 900px;
+    margin: 2rem auto 0;
+    /* space above code window (gap from download button) */
+    text-align: left;
+}
+
+.run-instructions .code-window {
+    background: #0b1220;
+    color: #e6eef8;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;
+    padding: 1rem 1.25rem;
+    border-radius: 10px;
+    box-shadow: 0 8px 30px rgba(2, 6, 23, 0.45);
+    overflow: auto;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    position: relative;
+}
+
+.run-instructions .code-window::before {
+
+    position: absolute;
+    left: 12px;
+    top: -12px;
+    background: var(--header-bg);
+    color: var(--team-button-bg);
+    padding: 4px 8px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.run-instructions .code-window code {
+    display: block;
+    white-space: pre;
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.run-instructions .note {
+    margin-top: 0.75rem;
+    font-size: 0.9rem;
+    color: var(--secondary-color);
+}

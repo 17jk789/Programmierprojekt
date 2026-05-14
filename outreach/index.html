@@ -1,53 +1,322 @@
-<html>
-<!-- Dies ist ein html Kommentar -->
-<!-- Ändert in diesem File sämtliche Platzhalter, wie z.B. den Spielnamen in der nächsten Linie -->
-<head><title>Example Game</title><link rel="stylesheet" href="main.css"></head>
+<!doctype html>
+<html lang="de">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Casono</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/png" href="images/logo.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Lato:wght@300;400;700&display=swap"
+        rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
 
 <body>
-<!-- Header nicht verändern -->
-<header class="site-header"><div class="wrapper"><a class="site-title" href="/cs108/">Programmierprojekt - Computerspiele</a></div></header><div class="page-content"><div class="wrapper"><div class="home">
+    <header class="sticky-nav">
+        <nav>
+            <div class="logo" data-aos="fade-down"><img src="images/logo.png" alt="Casono" class="site-logo"></div>
+            <ul id="nav-links" data-aos="fade-down" data-aos-delay="100">
+                <li><a href="#hero" data-i18n="navHome">Home</a></li>
+                <li><a href="#about" data-i18n="navAbout">Über</a></li>
+                <li><a href="#features" data-i18n="navFeatures">Features</a></li>
+                <li><a href="#table" data-i18n="navTable">Tisch</a></li>
+                <li><a href="#media" data-i18n="navMedia">Trailer & Gameplay</a></li>
+                <li><a href="#resources" data-i18n="navDownload">Download</a></li>
+                <li><a href="#team" data-i18n="navTeam">Team</a></li>
+            </ul>
+            <button id="language-toggle" class="language-toggle" type="button" aria-label="Switch language">EN</button>
+            <button class="burger-menu" id="burger-menu" aria-label="Toggle navigation menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </nav>
+    </header>
 
-<h1>Example Game</h1>
-Hier k&ouml;nnt ihr einen Satz &uuml;ber euer Spiel sagen.
+    <main>
+        <section id="hero" class="hero-section">
+            <div class="hero-content">
+                <h1 data-aos="zoom-in">Casono</h1>
+                <p class="tagline" data-i18n="heroTagline" data-aos="fade-up" data-aos-delay="300">Erlebe den
+                    Nervenkitzel von Texas Hold'em
+                    Poker</p>
+                <p class="description" data-i18n="heroDescription" data-aos="fade-up" data-aos-delay="500">Casono ist
+                    ein stilvolles Texas Hold'em
+                    Poker-Erlebnis mit spannenden Matches und eleganter Optik.</p>
+                <a href="#features" class="cta-button" data-i18n="heroCta" data-aos="zoom-in-up"
+                    data-aos-delay="700">Mehr erfahren</a>
+            </div>
+            <div class="hero-overlay"></div>
+        </section>
 
-<!-- Dieser Block ist dafür verantwortlich, den Trailer / das Gameplay Video und euren Screenshot einzubauen. Verändert ihn nicht, sondern überschreibt einfach die Dateien -->
-<br>
-<img width="250" src="screenshot.png">
-<br>
-<br>
-<h2>Trailer</h2>
-<video controls width="250">
-    <source src="video.mp4"
-            type="video/mp4">
-    Sorry, your browser doesn't support embedded videos.
-</video>
-<br>
-<br>
+        <section id="about" class="content-section">
+            <h2 data-i18n="aboutTitle" data-aos="fade-up">Über Casono</h2>
+            <p data-i18n="aboutText" data-aos="fade-up" data-aos-delay="100">Casono kombiniert echtes Casino-Feeling mit
+                leicht zugänglichem
+                Gameplay. Spiele online gegen Freunde.</p>
+            <!-- <div class="about-video-container" data-aos="zoom-in" data-aos-delay="200">
+                <video class="about-video" controls playsinline preload="metadata" loading="lazy">
+                    <source src="video.mp4" type="video/mp4">
+                    <span data-i18n="videoFallback">Ihr Browser unterstützt das Video-Tag nicht.</span>
+                </video>
+            </div> -->
+        </section>
 
-<!-- Entwickler anpassen -->
+        <section id="features" class="features-section">
+            <h2 data-i18n="featuresTitle" data-aos="fade-up">Key Features</h2>
+            <div class="features-grid">
+                <div class="feature-card" data-accent="1" data-aos="fade-up" data-aos-delay="100">
+                    <h3 data-i18n="feature1Title">Sitzungen & Matchmaking</h3>
+                    <p data-i18n="feature1Text">Realistisches Poker-Erlebnis mit spannenden Matches.</p>
+                </div>
 
-<h3>Entwickler:</h3>
-<ul>
-<li> Edgar Codd </li>
-<li> Lynn Conway </li>
-<li> Ada Lovelace </li>
-<li> Alan Turing </li>
-</ul>
+                <div class="feature-card" data-accent="2" data-aos="fade-up" data-aos-delay="300">
+                    <h3 data-i18n="feature2Title">Stilvolle UI</h3>
+                    <p data-i18n="feature2Text">Intuitive Benutzeroberfläche für ein immersives Erlebnis.
+                    </p>
+                </div>
+                <div class="feature-card" data-accent="3" data-aos="fade-up" data-aos-delay="400">
+                    <h3 data-i18n="feature3Title">Einfache Installation</h3>
+                    <p data-i18n="feature3Text">Download, entpacken, starten, fertig!</p>
+                </div>
+            </div>
+        </section>
 
-<!-- Nachfolgend sollt ihr die Tasten angeben, welche man braucht um euer Spiel zu Spielen. Um weitere Tasten hinzuzufügen könnt Ihr einfach eine Zeile kopieren und den Buchstaben oder das Wort zwischen <i>Beispiel:</i> ändern. -->
+        <section id="table" class="content-section table-section">
+            <h2 data-i18n="tableTitle" data-aos="fade-up">Der Tisch</h2>
+            <p data-i18n="tableText" data-aos="fade-up" data-aos-delay="100"> Spielen und chatten in einer gemeinsamen
+                eleganten Ansicht.</p>
+            <div class="table-preview-container" data-aos="zoom-in" data-aos-delay="200">
+                <img src="images/table_preview.png" alt="Casino Tisch Vorschau" class="table-preview-image"
+                    loading="lazy">
+            </div>
+        </section>
 
-<h2>Steuerung:</h2>
-<i>Pfeiltasten:</i> bewegen<br/>
-<i>Leertaste:</i> springen<br/>
-<i>I:</i> Inventar<br/>
-<i>Esc:</i> Spiel beenden<br/>
-<i>P:</i> Spiel pausieren
+        <section id="media" class="media-section">
+            <h2 data-i18n="mediaTitle" data-aos="fade-up">Trailer & Gameplay</h2>
+            <p data-i18n="mediaText" data-aos="fade-up" data-aos-delay="100">Erhalte einen schnellen Eindruck vom Stil
+                und vom Spielablauf.
+            </p>
+            <div class="media-grid" data-aos="fade-up" data-aos-delay="200">
+                <article class="media-card">
+                    <h3 data-i18n="mediaTrailer">Trailer</h3>
+                    <video controls playsinline preload="metadata" loading="lazy">
+                        <source src="Casono-Trailer.webm" type="video/webm">
+                        <span data-i18n="videoFallback">Ihr Browser unterstützt das Video-Tag nicht.</span>
+                    </video>
+                </article>
+                <article class="media-card">
+                    <h3 data-i18n="mediaGameplay">Gameplay</h3>
+                    <video controls playsinline preload="metadata" loading="lazy">
+                        <source src="gameplay.mp4" type="video/mp4">
+                        <span data-i18n="videoFallback">Ihr Browser unterstützt das Video-Tag nicht.</span>
+                    </video>
+                </article>
+            </div>
+        </section>
 
-<!-- Falls ihr noch zusätzliche Informationen wie Items oder andere Erklärungen angeben wollt, könnt Ihr das wie nachfolgend machen. -->
+        <section id="resources" class="resources-section">
+            <h2 data-i18n="resourcesTitle" data-aos="zoom-in-up">Download & Ressourcen</h2>
+            <div class="download-section" data-aos="zoom-in-up" data-aos-delay="100">
+                <a href="https://git.scicore.unibas.ch/cs108-fs26/Gruppe-13/-/archive/main/Gruppe-13-main.zip"
+                    class="download-button" data-i18n="downloadButton" target="_blank"
+                    rel="noopener noreferrer">Download Game
+                    (ZIP)</a>
+            </div>
 
-<h2>Inventar:</h2>
-<i>Eisblock:</i> Gegner k&ouml;nnen sich nicht mehr bewegen<br/>
-<i>Schwarzes Loch:</i> Steuerung der Gegner wird invertiert
+            <div class="run-instructions" data-aos="fade-up" data-aos-delay="200">
+                <div class="code-window" role="region" aria-label="Run instructions">
+                    <code>
+# Requires Java 25
 
-</div></div></div></div></body>
+# Start the Server:
+java -jar casono.jar server &lt;listenport&gt;
+
+# Start the Client:
+java -jar casono.jar client &lt;serverip&gt;:&lt;serverport&gt; [username]
+
+# Replace &lt;listenport&gt;, &lt;serverip&gt;, &lt;serverport&gt; and [username] with your values.
+                    </code>
+                </div>
+            </div>
+        </section>
+
+        <section id="team" class="team-section">
+            <h2 data-i18n="teamTitle" data-aos="fade-up">Das Team</h2>
+            <div class="team-grid">
+                <a class="team-member team-member-link" href="https://github.com/official-Cromatin" target="_blank"
+                    rel="noopener noreferrer" data-aos="fade-up" data-aos-delay="100">
+                    <img src="https://avatars.githubusercontent.com/u/92319467?v=4" alt="Lars Winzer" class="team-photo"
+                        loading="lazy">
+                    <h3>Lars Winzer</h3>
+                    <p>Server architecture & Server side networking</p>
+                </a>
+                <a class="team-member team-member-link" href="https://jona.walpert.ch/" target="_blank"
+                    rel="noopener noreferrer" data-aos="fade-up" data-aos-delay="200">
+                    <img src="https://avatars.githubusercontent.com/u/98217482?v=4" alt="Jona Walpert"
+                        class="team-photo" loading="lazy">
+                    <h3>Jona Walpert</h3>
+                    <p>UI & UX Design</p>
+                </a>
+                <a class="team-member team-member-link" href="https://github.com/ginkelmath" target="_blank"
+                    rel="noopener noreferrer" data-aos="fade-up" data-aos-delay="300">
+                    <img src="https://avatars.githubusercontent.com/u/160567160?v=4" alt="Matthis Ginkel"
+                        class="team-photo" loading="lazy">
+                    <h3>Matthis Ginkel</h3>
+                    <p>Client side development</p>
+                </a>
+                <a class="team-member team-member-link" href="https://github.com/17jk789" target="_blank"
+                    rel="noopener noreferrer" data-aos="fade-up" data-aos-delay="400">
+                    <img src="https://avatars.githubusercontent.com/u/189449499?v=4" alt="Julian Kropff"
+                        class="team-photo" loading="lazy">
+                    <h3>Julian Kropff</h3>
+                    <p>UI & UX Design, Game Engine</p>
+                </a>
+            </div>
+            <div class="github-link" data-aos="fade-up" data-aos-delay="500">
+                <a href="https://git.scicore.unibas.ch/cs108-fs26/Gruppe-13">
+                    <i class="fa-brands fa-github github-icon"></i>
+                    <span data-i18n="repoLink">Projekt-Repo</span>
+                </a>
+            </div>
+        </section>
+    </main>
+
+
+    <div id="trailer-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" id="close-trailer-modal">&times;</span>
+            <video id="trailer-video" width="100%" controls autoplay muted loop playsinline>
+                <source src="Casono-Trailer.webm" type="video/webm">
+            </video>
+        </div>
+    </div>
+
+    <div id="demo-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" id="close-demo-modal">&times;</span>
+            <video id="demo-video" width="100%" controls autoplay muted loop playsinline>
+                <source src="gameplay.mp4" type="video/mp4">
+            </video>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({ duration: 800, once: true });
+
+        const translations = {
+            de: {
+                navHome: 'Home',
+                navAbout: 'Über',
+                navFeatures: 'Features',
+                navTable: 'Tisch',
+                navMedia: 'Trailer & Gameplay',
+                navDownload: 'Download',
+                navTeam: 'Team',
+                heroTagline: "Erlebe den Nervenkitzel von Texas Hold'em Poker",
+                heroDescription: "Casono ist ein stilvolles Texas Hold'em Poker-Erlebnis mit spannenden Matches und eleganter Optik.",
+                heroCta: 'Mehr erfahren',
+                aboutTitle: 'Über Casono',
+                aboutText: 'Casono kombiniert echtes Casino-Feeling mit leicht zugänglichem Gameplay. Spiele online gegen deine Freunde.',
+                featuresTitle: 'Key Features',
+                feature1Title: 'Sitzungen & Matchmaking',
+                feature1Text: 'Realistisches Poker-Erlebnis mit spannenden Matches.',
+                feature2Title: 'Stilvolle UI',
+                feature2Text: 'Intuitive Benutzeroberfläche für ein immersives Erlebnis.',
+                feature3Title: 'Einfache Installation',
+                feature3Text: 'Download, entpacken, starten, fertig!',
+                tableTitle: 'Der Tisch',
+                tableText: 'Spielen und chatten in einer gemeinsamen eleganten Ansicht.',
+                mediaTitle: 'Trailer & Gameplay',
+                mediaText: 'Erhalte einen Eindruck vom Stil und vom Spielablauf.',
+                mediaTrailer: 'Trailer',
+                mediaGameplay: 'Gameplay',
+                resourcesTitle: 'Download & Ressourcen',
+                downloadButton: 'Download Game (ZIP)',
+                teamTitle: 'Das Team',
+                repoLink: 'Projekt-Repo',
+                videoFallback: 'Ihr Browser unterstützt das Video-Tag nicht.'
+            },
+            en: {
+                navHome: 'Home',
+                navAbout: 'About',
+                navFeatures: 'Features',
+                navTable: 'Table',
+                navMedia: 'Trailer & Gameplay',
+                navDownload: 'Download',
+                navTeam: 'Team',
+                heroTagline: "Feel the thrill of Texas Hold'em Poker",
+                heroDescription: "Casono is a stylish Texas Hold'em poker experience with exciting matches and elegant visuals.",
+                heroCta: 'Learn more',
+                aboutTitle: 'About Casono',
+                aboutText: 'Casono combines real casino flair with approachable gameplay. Play online with your friends.',
+                featuresTitle: 'Key Features',
+                feature1Title: 'Sessions & Matchmaking',
+                feature1Text: 'Realistic poker experience with thrilling matches.',
+                feature2Title: 'Stylish UI',
+                feature2Text: 'Intuitive interface for an immersive experience.',
+                feature3Title: 'Easy Setup',
+                feature3Text: 'Download, unpack, launch, done!',
+                tableTitle: 'The Table',
+                tableText: 'Play and chat in one shared elegant view.',
+                mediaTitle: 'Trailer & Gameplay',
+                mediaText: 'Get a quick look at the style and core gameplay loop.',
+                mediaTrailer: 'Trailer',
+                mediaGameplay: 'Gameplay',
+                resourcesTitle: 'Download & Resources',
+                downloadButton: 'Download Game (ZIP)',
+                teamTitle: 'The Team',
+                repoLink: 'Project Repo',
+                videoFallback: 'Your browser does not support the video tag.'
+            }
+        };
+
+        const languageToggle = document.getElementById('language-toggle');
+        const i18nNodes = document.querySelectorAll('[data-i18n]');
+
+        function applyLanguage(language) {
+            const dictionary = translations[language] ?? translations.de;
+            i18nNodes.forEach((node) => {
+                const key = node.getAttribute('data-i18n');
+                if (!key || !dictionary[key]) {
+                    return;
+                }
+                node.textContent = dictionary[key];
+            });
+
+            document.documentElement.lang = language;
+            languageToggle.textContent = language === 'de' ? 'EN' : 'DE';
+            localStorage.setItem('casono-language', language);
+        }
+
+        const preferredLanguage = localStorage.getItem('casono-language') === 'en' ? 'en' : 'de';
+        applyLanguage(preferredLanguage);
+
+        languageToggle?.addEventListener('click', () => {
+            const nextLanguage = document.documentElement.lang === 'de' ? 'en' : 'de';
+            applyLanguage(nextLanguage);
+        });
+
+        document.getElementById('burger-menu')?.addEventListener('click', function () {
+            const nav = document.querySelector('nav ul');
+            nav.classList.toggle('nav-active');
+            this.classList.toggle('active');
+        });
+
+        // modal open/close handlers
+        document.getElementById('close-trailer-modal')?.addEventListener('click', () => {
+            document.getElementById('trailer-modal').classList.remove('show');
+        });
+        document.getElementById('close-demo-modal')?.addEventListener('click', () => {
+            document.getElementById('demo-modal').classList.remove('show');
+        });
+    </script>
+</body>
+
 </html>
