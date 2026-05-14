@@ -6,6 +6,7 @@ import java.io.IOException;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
 
 /**
@@ -50,6 +51,16 @@ public class Casinomainui extends Application {
         stage.setScene(scene);
         stage.setFullScreen(true);
         stage.setFullScreenExitHint("");
+
+        // Add F11 fullscreen toggle
+        scene.setOnKeyPressed(
+                event -> {
+                    if (event.getCode() == KeyCode.F11) {
+                        stage.setFullScreen(!stage.isFullScreen());
+                        event.consume();
+                    }
+                });
+
         stage.show();
     }
 

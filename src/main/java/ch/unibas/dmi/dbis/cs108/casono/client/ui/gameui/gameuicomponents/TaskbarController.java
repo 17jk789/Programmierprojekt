@@ -1663,6 +1663,17 @@ public class TaskbarController {
                         newStage.getIcons().add(icon);
                         newStage.setScene(scene);
                         newStage.setFullScreen(true);
+                        newStage.setFullScreenExitHint("");
+
+                        // Add F11 fullscreen toggle
+                        scene.setOnKeyPressed(
+                                event -> {
+                                    if (event.getCode() == KeyCode.F11) {
+                                        newStage.setFullScreen(!newStage.isFullScreen());
+                                        event.consume();
+                                    }
+                                });
+
                         newStage.show();
                     } catch (Exception e) {
                         LOGGER.error("Error: starting the lobby UI: {}", e.getMessage(), e);

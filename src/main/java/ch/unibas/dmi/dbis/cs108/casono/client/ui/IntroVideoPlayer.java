@@ -6,6 +6,7 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.StackPane;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
@@ -57,6 +58,16 @@ public class IntroVideoPlayer extends Application {
         stage.setFullScreen(true);
         stage.setFullScreenExitHint("");
         stage.setScene(scene);
+
+        // Add F11 fullscreen toggle
+        scene.setOnKeyPressed(
+                event -> {
+                    if (event.getCode() == KeyCode.F11) {
+                        stage.setFullScreen(!stage.isFullScreen());
+                        event.consume();
+                    }
+                });
+
         stage.show();
 
         mediaPlayer.setOnEndOfMedia(this::onVideoEnd);
