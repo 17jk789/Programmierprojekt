@@ -79,6 +79,9 @@ public class ChatViewController implements Initializable {
     public void sendMessage() {
         SoundManager.getInstance().playButtonClick();
         String message = inputField.getText().trim();
+
+        message = message.replace("'", " ");
+
         if (!message.isEmpty()) {
             inputField.clear();
             String currentUsername = controller.getCurrentUsername();
