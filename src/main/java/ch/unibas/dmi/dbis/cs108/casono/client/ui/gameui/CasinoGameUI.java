@@ -14,6 +14,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
 
 /**
@@ -83,7 +84,22 @@ public class CasinoGameUI extends Application {
      */
     @Override
     public void start(Stage stage) throws IOException {
+        ensureClientService();
+        String effectiveUsername = determineEffectiveUsername();
+        logStartInfo(effectiveUsername);
 
+        FXMLLoader fxmlLoader =
+                new FXMLLoader(CasinoGameUI.class.getResource("/ui-structure/Casinogameui.fxml"));
+        Parent root = fxmlLoader.load();
+        CasinoGameController controller = fxmlLoader.getController();
+
+        configureController(controller, effectiveUsername);
+        Scene scene = new Scene(root, DEFAULT_WIDTH, DEFAULT_HEIGHT);
+        configureStage(stage, scene, controller);
+        controller.start();
+    }
+
+    private void ensureClientService() {
         if (clientService == null) {
             clientService = ClientApp.getSharedClientService();
         }
@@ -93,18 +109,21 @@ public class CasinoGameUI extends Application {
                             + "Call CasinoGameUI.setClientService(...)"
                             + " or start via ClientApp with a shared connection.");
         }
+    }
 
+    private String determineEffectiveUsername() {
         String effectiveUsername = normalize(username);
-
         if (effectiveUsername == null) {
             effectiveUsername = normalize(ClientApp.getSharedUsername());
         }
-
         if (effectiveUsername == null) {
             effectiveUsername =
                     "Guest-" + UUID.randomUUID().toString().substring(0, GUEST_ID_LENGTH);
         }
+        return effectiveUsername;
+    }
 
+    private void logStartInfo(String effectiveUsername) {
         LOG.info(
                 "CasinoGameUI starting: effectiveUsername='"
                         + effectiveUsername
@@ -114,12 +133,10 @@ public class CasinoGameUI extends Application {
                         + ClientApp.getSharedUsername()
                         + "', hasClientService="
                         + (clientService != null));
+    }
 
-        FXMLLoader fxmlLoader =
-                new FXMLLoader(CasinoGameUI.class.getResource("/ui-structure/Casinogameui.fxml"));
-        Parent root = fxmlLoader.load();
-        CasinoGameController controller = fxmlLoader.getController();
-
+    private void configureController(CasinoGameController controller, String effectiveUsername)
+            throws IOException {
         if (lobbyId <= 0) {
             throw new IllegalStateException("CasinoGameUI: lobbyId must be set before start()");
         }
@@ -127,7 +144,6 @@ public class CasinoGameUI extends Application {
         GameClient gameClient = new GameClient(clientService, lobbyId);
         GameService gameService = new GameService(gameClient);
         controller.setGameService(gameService);
-
         controller.setMyPlayerId(PlayerId.of(effectiveUsername));
         controller.setChatContext(effectiveUsername, clientService, lobbyId);
 
@@ -139,20 +155,24 @@ public class CasinoGameUI extends Application {
         }
 
         controller.startChat(chatController);
+    }
 
-        Scene scene = new Scene(root, DEFAULT_WIDTH, DEFAULT_HEIGHT);
+    private void configureStage(Stage stage, Scene scene, CasinoGameController controller) {
         stage.setTitle("Casono");
-
         String iconPath = getClass().getResource("/images/logoinverted.png").toExternalForm();
         stage.getIcons().add(new javafx.scene.image.Image(iconPath));
-
         stage.setScene(scene);
         stage.setFullScreen(true);
         stage.setFullScreenExitHint("");
         stage.setOnHidden(e -> controller.stop());
+        scene.setOnKeyPressed(
+                event -> {
+                    if (event.getCode() == KeyCode.F11) {
+                        stage.setFullScreen(!stage.isFullScreen());
+                        event.consume();
+                    }
+                });
         stage.show();
-
-        controller.start();
     }
 
     /**
