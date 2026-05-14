@@ -1827,6 +1827,24 @@ public class TaskbarController {
         }
     }
 
+    /**
+     * Opens the integrated Casono web browser.
+     *
+     * <p>once the content for strategies and support is available.
+     */
+    @FXML
+    private void onBrowserButtonClickCasono() {
+        SoundManager.getInstance().playButtonClick();
+        try {
+            Path path = Paths.get(System.getProperty("user.dir"), "outreach", "index.html");
+
+            CasinoBrowserController.open(path.toUri().toString());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     /** Opens the integrated Casono Web Browser. */
     @FXML
     private void onBrowserButtonClickWiki() {
@@ -1845,6 +1863,18 @@ public class TaskbarController {
         try {
 
             CasinoBrowserController.open("https://search.brave.com");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /** Opens the integrated Casono Web Browser. */
+    @FXML
+    private void onBrowserButtonClickVSCode() {
+        try {
+
+            CasinoBrowserController.open("https://vscode.dev/");
 
         } catch (Exception e) {
             e.printStackTrace();
