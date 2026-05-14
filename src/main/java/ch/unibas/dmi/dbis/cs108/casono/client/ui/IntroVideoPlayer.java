@@ -41,6 +41,9 @@ public class IntroVideoPlayer extends Application {
 
         StackPane root = new StackPane(mediaView);
 
+        // black background
+        root.setStyle("-fx-background-color: black;");
+
         Rectangle2D screenBounds = Screen.getPrimary().getBounds();
 
         Scene scene = new Scene(root, screenBounds.getWidth(), screenBounds.getHeight());
