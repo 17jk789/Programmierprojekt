@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui.gameuicomponents.SettingsController"
+      fx:id="settingsBox"
+      styleClass="settings-box"
+      spacing="0"
+      layoutX="100.0" layoutY="100.0"
+      prefWidth="300" prefHeight="250">
+
+    <HBox styleClass="settings-header"
+          onMousePressed="#onSettingsPressed"
+          onMouseDragged="#onSettingsDragged"
+          onMouseReleased="#onSettingsReleased"
+          spacing="10"
+          alignment="CENTER_LEFT">
+
+        <Label text="⚙ SETTINGS"
+               styleClass="settings-label"
+               HBox.hgrow="ALWAYS"/>
+
+        <Button fx:id="toggleButton"
+                text="−"
+                onAction="#onToggleSettings"
+                styleClass="red-button"
+                prefWidth="40"
+                prefHeight="30"/>
+
+    </HBox>
+
+    <VBox styleClass="settings-content"
+          spacing="15"
+          VBox.vgrow="ALWAYS">
+
+        <Label text="Theme:"
+               styleClass="settings-label"/>
+
+        <RadioButton fx:id="themeStandard"
+                     text="STANDARD (DEFAULT)"
+                     styleClass="radio-button"/>
+
+        <RadioButton fx:id="themeStandardParquet"
+                     text="STANDARD WOODEN"
+                     styleClass="radio-button"/>
+
+        <RadioButton fx:id="themeBlackWhite"
+                     text="BLACK AND WHITE"
+                     styleClass="radio-button"/>
+
+        <RadioButton fx:id="themeGlass"
+                     text="GLASS"
+                     styleClass="radio-button"/>
+
+        <RadioButton fx:id="themeLightGlass"
+                     text="LIGHT GLASS"
+                     styleClass="radio-button"/>
+
+    </VBox>
+
+</VBox>
+

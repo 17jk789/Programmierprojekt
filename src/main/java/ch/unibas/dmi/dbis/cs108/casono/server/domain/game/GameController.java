@@ -30,6 +30,8 @@ public class GameController {
 
     private int dealerIndex = 0;
 
+    private volatile Runnable onGameEndedCallback;
+
     private static final int DEALER_OFFSET = 1;
     private static final int SMALL_BLIND_OFFSET = 1;
     private static final int BIG_BLIND_OFFSET = 2;
@@ -43,6 +45,11 @@ public class GameController {
      */
     public GameController(GameEngine engine) {
         this.engine = engine;
+    }
+
+    /** Set a callback to be invoked when the game ends. */
+    public void setOnGameEndedCallback(Runnable callback) {
+        this.onGameEndedCallback = callback;
     }
 
     /**
@@ -304,5 +311,12 @@ public class GameController {
      */
     public void endGame() {
         engine.getState().setPhase(GamePhase.FINISHED);
+        if (onGameEndedCallback != null) {
+            try {
+                onGameEndedCallback.run();
+            } catch (RuntimeException e) {
+                // Log or handle callback errors
+            }
+        }
     }
 }

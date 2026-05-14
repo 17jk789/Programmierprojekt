@@ -15,7 +15,7 @@ public class UserCleanupJob implements Runnable {
     private final Duration reconnectThreshold;
 
     public UserCleanupJob(UserRegistry registry, Duration reconnectThreshold) {
-        this.logger = LogManager.getLogger(UserCleanupJob.class);
+        this.logger = LogManager.getLogger(UserCleanupJob.class.getSimpleName());
         this.registry = registry;
         this.reconnectThreshold = reconnectThreshold;
     }

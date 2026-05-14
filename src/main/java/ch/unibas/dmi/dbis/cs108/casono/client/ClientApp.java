@@ -15,7 +15,7 @@ import org.apache.logging.log4j.Logger;
  */
 public class ClientApp {
 
-    private static final Logger LOGGER = LogManager.getLogger(ClientApp.class);
+    private static final Logger LOGGER = LogManager.getLogger(ClientApp.class.getSimpleName());
 
     /** Shared client connection used when a username is provided at startup. */
     private static volatile ClientService sharedClientService;

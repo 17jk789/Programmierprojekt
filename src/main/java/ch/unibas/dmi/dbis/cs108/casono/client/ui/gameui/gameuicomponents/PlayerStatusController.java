@@ -20,15 +20,19 @@ public class PlayerStatusController {
 
     private static final Logger LOGGER = Logger.getLogger(PlayerStatusController.class.getName());
 
-    @FXML private Label playerName;
-    @FXML private Label playerMoney;
-    @FXML private ImageView dealerIcon;
-    @FXML private Pane parent;
-    @FXML private VBox playerStatusBox;
-    @FXML private HBox statusInnerBoxTop;
-    @FXML private HBox statusInnerBoxBottom;
+    @FXML Label playerName;
+    @FXML Label playerMoney;
+    @FXML ImageView dealerIcon;
+    @FXML ImageView playerProfileImage;
+    @FXML Pane parent;
+    @FXML VBox playerStatusBox;
+    @FXML HBox statusInnerBoxTop;
+    @FXML HBox statusInnerBoxBottom;
 
     private Image dealerImage;
+    // Profile images (loaded from resources/images/profile-picture)
+    private Image profileUserImage;
+    private Image profileDealerImage;
     private Player player;
     private boolean turnHighlighted;
     private static final String DEALER_IMAGE_PATH = "/images/chip-dealer-blue-5.png";
@@ -51,6 +55,26 @@ public class PlayerStatusController {
 
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error loading dealer image", e);
+        }
+
+        try {
+            var base = "/images/profile-picture/";
+            var uUser = getClass().getResource(base + "poker_user_491.png");
+            var uDealer = getClass().getResource(base + "poker_dealer_471.png");
+
+            if (uUser != null) {
+                profileUserImage = new Image(uUser.toExternalForm(), true);
+            }
+            if (uDealer != null) {
+                profileDealerImage = new Image(uDealer.toExternalForm(), true);
+            }
+
+            if (playerProfileImage != null && profileUserImage != null) {
+                playerProfileImage.setImage(profileUserImage);
+            }
+
+        } catch (Exception e) {
+            LOGGER.log(Level.FINE, "Could not load profile images", e);
         }
 
         dealerIcon.layoutXProperty().bind(parent.widthProperty().multiply(DEALER_ICON_X_FACTOR));
@@ -115,14 +139,27 @@ public class PlayerStatusController {
      * @return true if both represent the same player.
      */
     public boolean hasPlayer(Player candidate) {
-        if (player == null
-                || candidate == null
-                || player.getId() == null
-                || candidate.getId() == null) {
+        if (player == null || candidate == null) {
             return false;
         }
 
-        return player.getId().equals(candidate.getId());
+        String currentName = normalizeIdentifier(player.getName());
+        String candidateName = normalizeIdentifier(candidate.getName());
+        if (currentName != null && candidateName != null) {
+            return currentName.equals(candidateName);
+        }
+
+        return player.getId() != null
+                && candidate.getId() != null
+                && player.getId().equals(candidate.getId());
+    }
+
+    private String normalizeIdentifier(String value) {
+        if (value == null) {
+            return null;
+        }
+        String trimmed = value.trim();
+        return trimmed.isEmpty() ? null : trimmed.toLowerCase();
     }
 
     /**
@@ -146,6 +183,14 @@ public class PlayerStatusController {
 
         if (isDealer && dealerImage != null) {
             dealerIcon.setImage(dealerImage);
+        }
+
+        if (playerProfileImage != null) {
+            if (isDealer && profileDealerImage != null) {
+                playerProfileImage.setImage(profileDealerImage);
+            } else if (profileUserImage != null) {
+                playerProfileImage.setImage(profileUserImage);
+            }
         }
     }
 

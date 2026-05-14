@@ -6,6 +6,7 @@ import ch.unibas.dmi.dbis.cs108.casono.client.network.ClientService;
 import ch.unibas.dmi.dbis.cs108.casono.client.network.LobbyClient;
 import ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui.CasinoGameUI;
 import ch.unibas.dmi.dbis.cs108.casono.server.network.command.parsing.RequestParameter;
+import ch.unibas.dmi.dbis.cs108.casono.ui.sound.SoundManager;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -34,7 +35,8 @@ public class LobbyButtonGridManager {
     private static final int MAX_BUTTONS = 8;
     private static final int GUEST_ID_LENGTH = 8;
 
-    private static final Logger LOGGER = LogManager.getLogger(LobbyButtonGridManager.class);
+    private static final Logger LOGGER =
+            LogManager.getLogger(LobbyButtonGridManager.class.getSimpleName());
 
     private static final String BUTTON_FALLBACK_IMAGE = "/images/lobbypictures/error.png";
 
@@ -363,6 +365,7 @@ public class LobbyButtonGridManager {
 
         btn.setOnAction(
                 e -> {
+                    SoundManager.getInstance().playButtonClick();
                     Integer targetLobbyId = translationManager.getLobbyIdForButton(buttonId);
 
                     if (targetLobbyId != null) {

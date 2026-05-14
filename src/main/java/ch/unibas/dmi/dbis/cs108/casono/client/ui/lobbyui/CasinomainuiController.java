@@ -5,6 +5,7 @@ import ch.unibas.dmi.dbis.cs108.casono.client.chat.ChatController;
 import ch.unibas.dmi.dbis.cs108.casono.client.network.ClientService;
 import ch.unibas.dmi.dbis.cs108.casono.client.network.LobbyClient;
 import ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui.gameuicomponents.HighscoreViewController;
+import ch.unibas.dmi.dbis.cs108.casono.ui.sound.SoundManager;
 import java.io.IOException;
 import java.net.URL;
 import javafx.application.Platform;
@@ -30,7 +31,8 @@ import org.apache.logging.log4j.Logger;
 
 /** Controller for the Casono main UI lobby. Handles UI initialization and user actions. */
 public class CasinomainuiController {
-    private static final Logger LOGGER = LogManager.getLogger(CasinomainuiController.class);
+    private static final Logger LOGGER =
+            LogManager.getLogger(CasinomainuiController.class.getSimpleName());
 
     @FXML private AnchorPane rootPane;
     @FXML private Label titleLabel;
@@ -169,6 +171,7 @@ public class CasinomainuiController {
     /** Handles the login button action. Validates input and calls LobbyClient.login(). */
     @FXML
     public void handleLoginButton() {
+        SoundManager.getInstance().playButtonClick();
         String username = usernameField == null ? null : usernameField.getText();
         if (username == null || username.isBlank()) {
             showAlert("Please enter a username.");
@@ -258,6 +261,7 @@ public class CasinomainuiController {
     /** Handles the exit button action to close the application. */
     @FXML
     public void handleexitbutton() {
+        SoundManager.getInstance().playButtonClick();
         if (chatController != null) {
             chatController.shutdown();
         }
@@ -271,6 +275,7 @@ public class CasinomainuiController {
      */
     @FXML
     public void handleCreateLobbyButton() {
+        SoundManager.getInstance().playButtonClick();
         if (translationManager.isFull()) {
             LOGGER.warn("Grid is full! No more lobbies available.");
             return;

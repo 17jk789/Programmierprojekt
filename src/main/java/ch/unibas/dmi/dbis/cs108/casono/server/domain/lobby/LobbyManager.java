@@ -71,6 +71,22 @@ public class LobbyManager {
         if (lobby == null) {
             return false;
         }
+
+        // Check if player was absent and try to restore
+        if (lobby.getAbsentPlayers().contains(username)) {
+            boolean restored = lobby.restoreAbsentPlayer(username);
+            if (restored) {
+                LOGGER.info(
+                        () ->
+                                "User '"
+                                        + username
+                                        + "' rejoined absent slot in lobby "
+                                        + lobbyId.value());
+                playerToLobby.put(username, lobbyId);
+                return true;
+            }
+        }
+
         AddResult result =
                 lobby.addPlayerAndMaybeStart(
                         username, maxPlayersPerLobby, AUTO_START_PLAYERS, DEFAULT_START_CHIPS);
@@ -94,6 +110,8 @@ public class LobbyManager {
                                         + AUTO_START_PLAYERS
                                         + " players; game started.");
                 notifyGameStarted(lobbyId);
+                // Set the game-ended callback
+                notifySetGameEndedCallback(lobbyId);
             }
             return true;
         }
@@ -121,6 +139,29 @@ public class LobbyManager {
         }
     }
 
+    private void notifySetGameEndedCallback(LobbyId lobbyId) {
+        Lobby lobby = activeLobbies.get(lobbyId);
+        if (lobby != null) {
+            lobby.setOnGameEndedCallback(
+                    () -> {
+                        notifyGameEnded(lobbyId);
+                    });
+        }
+    }
+
+    private void notifyGameEnded(LobbyId lobbyId) {
+        for (LobbyEventListener l : listeners) {
+            try {
+                l.onGameEnded(lobbyId);
+            } catch (RuntimeException e) {
+                LOGGER.warning(
+                        () ->
+                                "Listener threw while handling game-end for lobby "
+                                        + lobbyId.value());
+            }
+        }
+    }
+
     public boolean removePlayer(String username) {
         LobbyId id = playerToLobby.remove(username);
         if (id == null) {
@@ -136,6 +177,33 @@ public class LobbyManager {
             activeLobbies.remove(id);
         }
         return removed;
+    }
+
+    /**
+     * Mark a player as absent (left the lobby during a running game). The player is not removed but
+     * moved to the absent set, allowing them to rejoin later without losing their slot.
+     *
+     * @param username the player to mark as absent
+     * @param lobbyId the lobby they're leaving
+     * @return true if the player was marked absent successfully
+     */
+    public boolean leavePlayerFromLobby(String username, LobbyId lobbyId) {
+        Lobby lobby = getLobby(lobbyId);
+        if (lobby == null) {
+            return false;
+        }
+        boolean left = lobby.leavePlayer(username);
+        if (left) {
+            LOGGER.info(
+                    () ->
+                            "User '"
+                                    + username
+                                    + "' left lobby "
+                                    + lobbyId.value()
+                                    + " (marked absent)");
+            // Keep the playerToLobby mapping intact for rejoin
+        }
+        return left;
     }
 
     public Collection<Lobby> getAllLobbies() {
@@ -167,6 +235,9 @@ public class LobbyManager {
             return;
         }
         for (String username : removed.getPlayerNames()) {
+            playerToLobby.remove(username);
+        }
+        for (String username : removed.getAbsentPlayers()) {
             playerToLobby.remove(username);
         }
     }

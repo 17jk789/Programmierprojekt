@@ -18,7 +18,7 @@ public class SessionWriter implements Runnable {
         this.queue = session.getResponseQueue();
         this.logger =
                 LogManager.getLogger(
-                        SessionReader.class.toString() + "-" + session.getId().value());
+                        SessionReader.class.getSimpleName() + "-" + session.getId().value());
     }
 
     public void run() {

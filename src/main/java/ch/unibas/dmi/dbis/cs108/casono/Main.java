@@ -52,7 +52,7 @@ public final class Main {
     }
 
     private static void printUsage() {
-        Logger logger = LogManager.getLogger(Main.class);
+        Logger logger = LogManager.getLogger(Main.class.getSimpleName());
         logger.fatal(
                 """
                 Usage:

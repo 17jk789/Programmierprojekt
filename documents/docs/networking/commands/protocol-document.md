@@ -102,6 +102,14 @@ This document describes the protocol for client-server communication in our appl
     - [Required pre-execution checks](#required-pre-execution-checks)
     - [Request Parameters](#request-parameters)
     - [Success Response](#success-response)
+  - [LEAVE_LOBBY command](#leave_lobby-command)
+    - [Required pre-execution checks](#required-pre-execution-checks-1)
+    - [Request Parameters](#request-parameters-1)
+    - [Implementation notes](#implementation-notes)
+    - [Success Response](#success-response-1)
+    - [Error Response](#error-response-1)
+    - [Example Request](#example-request-1)
+    - [Example Response](#example-response-1)
   - [START_GAME command](#start_game-command)
   - [GET_LOBBY_STATUS command](#get_lobby_status-command)
     - [Required pre-execution checks](#required-pre-execution-checks)
@@ -670,6 +678,56 @@ END
   CODE=LOBBY_NOT_FOUND
   MSG=Lobby not found
 END
+
+## LEAVE_LOBBY command
+
+The `LEAVE_LOBBY` command marks the currently logged-in user as absent in the specified lobby while a game is running. The lobby slot is kept reserved so the player can rejoin later.
+
+### Required pre-execution checks
+
+- [`UserLoggedInCheck`](#userloggedincheck)
+
+### Request Parameters
+
+| Parameter Name | Type | Optional | Description |
+| :------------- | :--- | :------: | :---------- |
+| `ID` | `int` | no | Numeric id of the target lobby |
+
+### Implementation notes
+
+- Parser: `LeaveLobbyParser` — reads the required `ID` parameter and builds `LeaveLobbyRequest`.
+- Handler: `LeaveLobbyHandler` — resolves the lobby by id, verifies that a game is currently running, resolves the user from the session and marks the player as absent via `LobbyManager.leavePlayerFromLobby(...)`.
+
+### Success Response
+
+No additional response fields. The server replies with a simple `+OK` on success.
+
+### Error Response
+
+| Code | Description |
+| :--- | :---------- |
+| `MISSING_PARAMETER` | Required parameter `ID` missing (parser) |
+| `USER_NOT_LOGGED_IN` | No user associated with the session (pre-execution check failed) |
+| `LOBBY_NOT_FOUND` | The specified lobby id does not exist |
+| `GAME_NOT_RUNNING` | The lobby does not currently have a running game |
+| `NOT_IN_LOBBY` | The user is not actively present in the lobby |
+
+### Example Request
+
+```
+
+LEAVE_LOBBY ID=1
+
+```
+
+### Example Response (success)
+
+```
+
++OK
+END
+
+```
 
 ## START_GAME command
 

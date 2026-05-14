@@ -1,0 +1,613 @@
+.root {
+    -fx-background-color: #000000;
+    -fx-font-family: "Monospaced", "Courier New"; /* font */
+}
+
+.background {
+    -fx-background-image: url("/images/parquet.png");
+    -fx-background-size: cover; /* Image fills the entire window */
+    /* Centers the image and prevents it from repeating in a tile-like pattern. */
+    -fx-background-position: center center;
+    -fx-background-repeat: no-repeat;
+}
+
+.info-text {
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 16px;
+}
+
+.casino-table {
+    -fx-background-color: #0d9e3b;
+    -fx-background-radius: 210;
+    -fx-border-radius: 200;
+    -fx-border-color: #5c3d10 #3d260a #3d260a #5c3d10;
+    -fx-border-width: 12;
+    /*-fx-min-height: 60vh;*/
+    /*-fx-max-height: 60vh;*/
+    /*-fx-min-width: 90vh;*/
+    /*-fx-max-width: 90vh;*/
+    -fx-effect: dropshadow(one-pass-box, rgba(0,0,0,0.8), 0, 0, 15, 15);
+}
+
+.dealer-box {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #000000;
+    -fx-border-width: 3;
+    -fx-background-radius: 0;
+    -fx-border-radius: 0;
+    -fx-min-width: 70;
+    -fx-min-height: 100;
+    -fx-effect: dropshadow(one-pass-box, rgba(0,0,0,0.8), 0, 0, 4, 4);
+}
+
+.table-title {
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(one-pass-box, #000000, 0, 0, 3, 3);
+}
+
+.taskbar {
+    -fx-background-color: rgb(13, 158, 59);
+    -fx-background-radius: 23;
+    -fx-border-radius: 20;
+    -fx-border-color: #5c3d10 #3d260a #3d260a #5c3d10;
+    -fx-border-width: 3;
+    -fx-padding: 10 25;
+    -fx-cursor: move;
+    -fx-effect: dropshadow(one-pass-box, rgba(0,0,0,0.8), 0, 0, 5, 5);
+}
+
+.taskbar:hover {
+    -fx-border-color: #ffffff;
+}
+
+.taskbar.player-active-turn {
+    /* Active turn should only change the shadow to avoid flicker/transparency jumps. */
+    -fx-effect: dropshadow(one-pass-box, rgb(184, 134, 11), 0, 0, 5, 5);
+}
+
+.black-input-field {
+    -fx-background-color: #1a1a1a;
+    -fx-text-fill: #ffffff;
+    -fx-font-family: "Courier New";
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-color: #444444;
+    -fx-border-width: 2;
+    -fx-padding: 5 12;
+}
+
+.black-input-field:hover {
+    -fx-translate-y: -3;
+    -fx-effect: dropshadow(one-pass-box, rgba(0, 0, 0, 0.8), 0, 0, 3, 3);
+}
+
+
+.black-input-field:focused {
+    -fx-border-color: #ffffff;
+    -fx-background-color: #000000;
+}
+
+.gray-input-field {
+    -fx-background-color: #333333;
+    -fx-text-fill: #ffffff;
+    -fx-font-family: "Courier New";
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-color: #666666;
+    -fx-color-color: #cccccc;
+    -fx-border-width: 2;
+    -fx-padding: 5 12;
+}
+
+.gray-input-field:hover {
+    -fx-translate-y: -3;
+    -fx-effect: dropshadow(one-pass-box, rgba(0, 0, 0, 0.8), 0, 0, 3, 3);
+}
+
+.gray-input-field:focused {
+    -fx-border-color: #ffffff;
+    -fx-background-color: #333333;
+}
+
+.yellow-input-field {
+    -fx-background-color: #b8860b;
+    -fx-text-fill: #ffffff;
+    -fx-prompt-text-fill: #ffffff;
+    -fx-font-family: "Courier New";
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-color: #ffd700;
+    -fx-border-width: 2;
+    -fx-padding: 5 12;
+}
+
+.yellow-input-field:hover {
+    -fx-translate-y: -3;
+    -fx-effect: dropshadow(one-pass-box, rgba(0, 0, 0, 0.8), 0, 0, 3, 3);
+}
+
+.yellow-input-field:focused {
+    -fx-border-color: #ffffff;
+    -fx-background-color: #b8860b;
+}
+
+.red-input-field {
+    -fx-background-color: #8b0000;
+    -fx-text-fill: #ffffff;
+    -fx-prompt-text-fill: #ffffff;
+    -fx-font-family: "Courier New";
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-color: #ff4444;
+    -fx-border-width: 2;
+    -fx-padding: 5 12;
+}
+
+.red-input-field:hover {
+    -fx-translate-y: -3;
+    -fx-effect: dropshadow(one-pass-box, rgba(0, 0, 0, 0.8), 0, 0, 3, 3);
+}
+
+.red-input-field:focused {
+    -fx-border-color: #ffffff;
+    -fx-background-color: #8b0000;
+}
+
+.yellow-button {
+    -fx-background-color: #b8860b;
+    -fx-border-color: #ffd700;
+    -fx-text-fill: #ffffff;
+}
+
+.red-button {
+    -fx-background-color: #8b0000;
+    -fx-border-color: #ff4444;
+    -fx-text-fill: #ffffff;
+}
+
+.gray-button {
+    -fx-background-color: #333333;
+    -fx-border-color: #666666;
+    /*-fx-text-fill: #cccccc;*/
+    -fx-text-fill: #ffffff;
+}
+
+.gray-button .label {
+    -fx-text-fill: #ffffff;
+}
+
+.green-button {
+    -fx-background-color: #144523;
+    -fx-border-color: #0d9e3b;
+    -fx-text-fill: #ffffff;
+}
+
+.gray-button, .yellow-button, .red-button, .green-button {
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-font-family: "Courier New";
+    -fx-font-weight: bold;
+    -fx-border-width: 2;
+    -fx-padding: 6 15;
+    -fx-cursor: hand;
+}
+
+.gray-button:hover, .yellow-button:hover, .red-button:hover, .green-button:hover {
+    -fx-translate-y: -3;
+    -fx-effect: dropshadow(one-pass-box, rgba(0, 0, 0, 0.8), 0, 0, 3, 3);
+}
+
+.community-cards-box {
+    -fx-alignment: center;
+    -fx-spacing: 12;
+    -fx-padding: 15;
+    -fx-background-color: transparent;
+}
+
+.community-card {
+    -fx-effect: dropshadow(one-pass-box, rgba(0, 0, 0, 0.8), 0, 0, 3, 3);
+
+    -fx-alignment: center;
+    -fx-spacing: 12;
+    -fx-padding: 20;
+    -fx-background-color: linear-gradient(to bottom, #0b3d2e, #06261d);
+    -fx-background-radius: 16;
+    -fx-scale-x: 1;
+    -fx-scale-y: 1;
+    -fx-translate-y: 0;
+    -fx-opacity: 1;
+}
+
+/*.community-card:hover {*/
+/*    -fx-translate-y: -3;*/
+/*}*/
+
+.player-card {
+    -fx-effect: dropshadow(one-pass-box, rgba(0, 0, 0, 0.8), 0, 0, 3, 3);
+
+    -fx-alignment: center;
+    -fx-spacing: 12;
+    -fx-padding: 20;
+    -fx-background-color: linear-gradient(to bottom, #0b3d2e, #06261d);
+    -fx-background-radius: 16;
+    -fx-scale-x: 1;
+    -fx-scale-y: 1;
+    -fx-translate-y: 0;
+    -fx-opacity: 1;
+}
+
+/*.player-card:hover {*/
+/*    -fx-translate-y: -3;*/
+/*}*/
+
+.player-card.player-cards-active-turn {
+    -fx-effect: dropshadow(one-pass-box, rgb(184, 134, 11), 0, 0, 5, 5);
+}
+
+.dealer-box.player-cards-active-turn {
+    -fx-effect: dropshadow(one-pass-box, rgb(184, 134, 11), 0, 0, 5, 5);
+}
+
+/*.dealer-box:hover {*/
+/*    -fx-translate-y: -3;*/
+/*}*/
+
+.chips-icon {
+    -fx-effect: dropshadow(one-pass-box, rgba(0, 0, 0, 0.8), 0, 0, 3, 3);
+}
+
+/*.chips-icon:hover {*/
+/*    -fx-translate-y: -3;*/
+/*}*/
+
+.dealer-icon {
+    -fx-effect: dropshadow(one-pass-box, rgba(0, 0, 0, 0.8), 0, 0, 3, 3);
+}
+
+.player-cards-box {
+    -fx-padding: 10;
+}
+
+/*.player-cards-box.player-cards-active-turn {*/
+/*    -fx-effect: dropshadow(one-pass-box, rgb(184, 134, 11), 0, 0, 5, 5);*/
+/*}*/
+
+.money-value {
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(one-pass-box, #000000, 0, 0, 2, 2);
+}
+
+.pot-title {
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(one-pass-box, #000000, 0, 0, 3, 3);
+}
+
+.pot-box {
+    -fx-padding: 5;
+}
+
+.player-status-pane {
+    -fx-background-color: rgba(13, 158, 59, 0);
+    -fx-background-radius: 15;
+    -fx-border-radius: 15;
+    /* -fx-border-color: #5c3d10 #3d260a #3d260a #5c3d10;
+    -fx-border-width: 2;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 10, 0, 0, 4);*/
+}
+
+.player-status-pane:hover {
+    -fx-translate-y: -3;
+}
+
+.status-inner-box-top {
+    -fx-background-color: rgba(13, 158, 59);
+    -fx-background-radius: 19;
+    -fx-border-radius: 15;
+    -fx-padding: 5 10;
+    -fx-border-color: #5c3d10 #3d260a #3d260a #5c3d10;
+    -fx-border-width: 3;
+    -fx-effect: dropshadow(one-pass-box, rgba(0, 0, 0, 0.8), 0, 0, 3, 3);
+}
+
+.status-inner-box-midle {
+    -fx-background-color: rgba(13, 158, 59, 0);
+}
+
+.status-inner-box-bottom {
+    -fx-background-color: rgba(13, 158, 59);
+    -fx-background-radius: 19;
+    -fx-border-radius: 15;
+    -fx-padding: 5 10;
+    -fx-border-color: #5c3d10 #3d260a #3d260a #5c3d10;
+    -fx-border-width: 3;
+    -fx-effect: dropshadow(one-pass-box, rgba(0, 0, 0, 0.8), 0, 0, 3, 3);
+}
+
+.status-inner-box-top.player-status-active-turn {
+    -fx-effect: dropshadow(one-pass-box, rgb(184, 134, 11), 0, 0, 5, 5);
+}
+
+.status-inner-box-bottom.player-status-active-turn {
+    -fx-effect: dropshadow(one-pass-box, rgb(184, 134, 11), 0, 0, 5, 5);
+}
+
+.status-label-small {
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(one-pass-box, #000000, 0, 0, 2, 2);
+}
+
+.status-value-text {
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(one-pass-box, #000000, 0, 0, 2, 2);
+}
+
+.status-value-money {
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(one-pass-box, #000000, 0, 0, 2, 2);
+}
+
+.status-circle {
+    -fx-background-color: #000000;
+    -fx-background-radius: 50;
+    -fx-border-color: #ffffff;
+    -fx-border-width: 1;
+    -fx-border-radius: 50;
+    -fx-effect: dropshadow(one-pass-box, rgba(0, 0, 0, 0.8), 0, 0, 3, 3);
+}
+
+.browser-root {
+    -fx-background-image: url("/images/background.png");
+    -fx-background-size: cover;
+    -fx-background-position: center;
+    -fx-background-color: #0b2d15;
+}
+
+.browser-web-view {
+    -fx-background-color: rgb(13, 158, 59);
+    -fx-background-radius: 23;
+    -fx-border-radius: 20;
+    -fx-border-color: #5c3d10 #3d260a #3d260a #5c3d10;
+    -fx-border-width: 3;
+    -fx-padding: 0;
+    -fx-cursor: default;
+    -fx-effect: dropshadow(one-pass-box, rgba(0,0,0,0.8), 0, 0, 5, 5);
+}
+
+.web-view {
+    -fx-background-color: transparent;
+}
+
+.taskbar-browser {
+    -fx-background-color: rgb(13, 158, 59);
+    -fx-background-radius: 23;
+    -fx-border-radius: 20;
+    -fx-border-color: #5c3d10 #3d260a #3d260a #5c3d10;
+    -fx-border-width: 3;
+    -fx-padding: 10 25;
+    -fx-cursor: default;
+    -fx-effect: dropshadow(one-pass-box, rgba(0,0,0,0.8), 0, 0, 5, 5);
+}
+
+/*.taskbar-browser:hover {*/
+/*    -fx-border-color: #ffffff;*/
+/*}*/
+
+.security-label {
+    -fx-text-fill: #000000;
+    -fx-font-weight: bold;
+    -fx-font-size: 16px;
+}
+
+.context-menu {
+    -fx-background-color: #333333;
+    -fx-text-fill: #ffffff;
+    -fx-font-family: "Courier New";
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-color: #333333;
+    -fx-color-color: #cccccc;
+    -fx-border-width: 2;
+    -fx-padding: 5 12;
+}
+
+.context-menu .menu-item {
+    -fx-background-color: #333333;
+}
+
+.context-menu .menu-item .label {
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 13px;
+}
+
+/*.context-menu .menu-item:focused {*/
+/*    -fx-background-color: #333333;*/
+/*}*/
+
+.context-menu .menu-item:hover .label,
+.context-menu .menu-item:focused .label {
+    /*-fx-text-fill: #b8860b;*/
+    -fx-font-size: 15px;
+}
+
+.notebook {
+    -fx-background-color: rgb(13, 158, 59);
+    -fx-background-radius: 23;
+    -fx-border-radius: 20;
+    -fx-border-color: #5c3d10 #3d260a #3d260a #5c3d10;
+    -fx-border-width: 3;
+    -fx-effect: dropshadow(one-pass-box, #000000, 0, 0, 5, 5);
+    /*-fx-cursor: move;*/
+
+    -fx-padding: 0 0 15 0;
+}
+
+.notebook:hover {
+    -fx-border-color: #ffffff;
+}
+
+/*.notebook.player-active-turn {*/
+/*    !* Active turn should only change the shadow to avoid flicker/transparency jumps. *!*/
+/*    -fx-effect: dropshadow(one-pass-box, rgb(184, 134, 11), 0, 0, 5, 5);*/
+/*}*/
+
+.notebook-header {
+    -fx-background-color: rgb(13, 158, 59);
+    -fx-background-radius: 25 25 0 0;
+    -fx-padding: 8 10;
+    -fx-cursor: move;
+}
+
+.notebook-title {
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(one-pass-box, #000000, 0, 0, 3, 3);
+}
+
+.notebook-content {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.notebook-content > .viewport {
+    -fx-background-color: rgb(13, 158, 59);
+    -fx-background-radius: 0 0 25 25;
+}
+
+
+.scroll-pane {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.scroll-pane .scroll-bar:vertical,
+.scroll-pane .scroll-bar:horizontal {
+    -fx-background-color: transparent;
+}
+
+.scroll-pane .scroll-bar .track {
+    /*-fx-background-color: #5c3d10;*/
+    -fx-background-color: transparent;
+    -fx-background-radius: 5;
+}
+
+.scroll-pane .scroll-bar .thumb {
+    -fx-background-color: #3d260a;
+    -fx-background-radius: 5;
+}
+
+.scroll-pane .scroll-bar .thumb:hover {
+    -fx-background-color: #2a1b07;
+}
+
+.notebook-tips-list {
+    -fx-padding: 10;
+    -fx-spacing: 10;
+    -fx-background-color: transparent;
+}
+
+.notebook-tips-list .text-flow {
+    -fx-padding: 12;
+    -fx-background-color: rgb(13, 158, 59);
+    -fx-background-radius: 15;
+}
+
+.settings-box {
+    -fx-background-color: rgb(13, 158, 59);
+    -fx-background-radius: 23;
+    -fx-border-radius: 20;
+    -fx-border-color: #5c3d10 #3d260a #3d260a #5c3d10;
+    -fx-border-width: 3;
+    -fx-effect: dropshadow(one-pass-box, #000000, 0, 0, 5, 5);
+    /*-fx-cursor: move;*/
+    -fx-padding: 0 0 15 0;
+}
+
+.settings-box:hover {
+    -fx-border-color: #ffffff;
+}
+
+/*.settings-box.player-active-turn {*/
+/*    !* Active turn should only change the shadow to avoid flicker/transparency jumps. *!*/
+/*    -fx-effect: dropshadow(one-pass-box, rgb(184, 134, 11), 0, 0, 5, 5);*/
+/*}*/
+
+.settings-header {
+    -fx-background-color: transparent;
+    -fx-background-radius: 20 20 0 0;
+    -fx-padding: 10 15;
+    -fx-cursor: move;
+    -fx-border-width: 0 0 1 0;
+}
+
+.settings-label {
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(one-pass-box, #000000, 0, 0, 3, 3);
+}
+
+.settings-content {
+    -fx-padding: 15 20 20 20;
+    -fx-spacing: 12;
+}
+
+.settings-content {
+    -fx-background-color: transparent;
+    -fx-text-fill: #e8e8e8;
+    -fx-font-size: 13px;
+}
+
+.radio-button {
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 13px;
+
+    -fx-padding: 6 8;
+    -fx-background-radius: 10;
+}
+
+.radio-button:hover {
+    -fx-font-size: 15px;
+}
+
+.radio-button:selected {
+    /*-fx-text-fill: #b8860b;*/
+    -fx-text-fill: #ffffff;
+}
+
+.radio-button .radio {
+    -fx-background-color: #b8860b;
+    /*-fx-border-width: 3;*/
+    /*-fx-border-color: #b8860b;*/
+    /*-fx-border-radius: 50%;*/
+}
+
+.radio-button:selected .radio {
+    -fx-background-color: #b8860b;
+    -fx-effect: dropshadow(gaussian, rgba(184,134,11,0.8), 6, 0.3, 0, 0);
+}
+
+.settings-box {
+    -fx-background-insets: 0;
+}
+
+.settings-content {
+    -fx-background-color: transparent;
+}

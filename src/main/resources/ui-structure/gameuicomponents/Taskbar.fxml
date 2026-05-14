@@ -6,7 +6,7 @@
 <!-- movable taskbar -->
 <HBox xmlns="http://javafx.com/javafx/21"
       xmlns:fx="http://javafx.com/fxml/1"
-        fx:controller="ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui.gameuicomponents.TaskbarController"
+      fx:controller="ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui.gameuicomponents.TaskbarController"
       fx:id="taskbar"
       styleClass="taskbar"
       spacing="15"
@@ -17,10 +17,18 @@
       layoutX="50.0" layoutY="710.0">
 
     <!-- Placeholder buttons -->
-    <Button text="SETTINGS" styleClass="gray-button" />
-        <Button text="HIGHSCORE" onAction="#onHighscoreButtonClick" styleClass="gray-button" />
-    <!-- Buten for the Casono Browser -->
-    <Button text="HELP" onAction="#onBrowserButtonClick" styleClass="gray-button" />
+    <Button text="SETTINGS" onAction="#onSettingsButtonClick" styleClass="gray-button" />
+    <Button text="HIGHSCORE" onAction="#onHighscoreButtonClick" styleClass="gray-button" />
+
+    <!-- Help Button with Dropdown Menu -->
+    <MenuButton text="HELP" styleClass="gray-button">
+        <items>
+            <MenuItem text="SHOW TIPS" onAction="#onShowTipsButtonClick" />
+            <MenuItem text="CASONO BROWSER: Manual" onAction="#onBrowserButtonClick" />
+            <MenuItem text="CASONO BROWSER: Wikipedia" onAction="#onBrowserButtonClickWiki" />
+            <MenuItem text="CASONO BROWSER: Brave Search" onAction="#onBrowserButtonClickBrave" />
+        </items>
+    </MenuButton>
 
     <!-- Vertical dividing line: Creates a visual separation between two button areas -->
     <Separator orientation="VERTICAL" prefHeight="20" opacity="0.3" />

@@ -9,7 +9,7 @@ import org.apache.logging.log4j.Logger;
 public class UserFactory {
     private final UserRegistry registry;
     private final AtomicInteger anonymousCounter = new AtomicInteger(1);
-    private static final Logger LOGGER = LogManager.getLogger(UserFactory.class);
+    private static final Logger LOGGER = LogManager.getLogger(UserFactory.class.getSimpleName());
 
     /**
      * Creates a new UserFactory backed by the given registry.

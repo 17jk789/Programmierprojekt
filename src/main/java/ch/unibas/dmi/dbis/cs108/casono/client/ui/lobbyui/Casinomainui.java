@@ -1,6 +1,7 @@
 package ch.unibas.dmi.dbis.cs108.casono.client.ui.lobbyui;
 
 /** Main UI application for Casono. Loads the main FXML layout and sets up the stage. */
+import ch.unibas.dmi.dbis.cs108.casono.ui.sound.SoundManager;
 import java.io.IOException;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -30,17 +31,14 @@ public class Casinomainui extends Application {
      * @throws IOException If loading the FXML fails.
      */
     public void start(Stage stage) throws IOException {
+        // Pre-load sounds to avoid delays on first play
+        SoundManager.getInstance().preloadSounds();
+
         // If the launcher passed an address argument (ip:port), expose it as
         // system properties so controllers can read it without embedding defaults.
-        var raw = getParameters().getRaw();
-        if (raw != null && raw.size() > 0) {
-            String arg = raw.get(0);
-            String[] parts = arg.split(":", 2);
-            if (parts.length == 2) {
-                System.setProperty("casono.server.host", parts[0]);
-                System.setProperty("casono.server.port", parts[1]);
-            }
-        }
+        var params = getParameters();
+        processServerParameters(params);
+
         FXMLLoader fxmlLoader =
                 new FXMLLoader(getClass().getResource("/ui-structure/Casinomainui.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), SCENE_WIDTH, SCENE_HEIGHT);
@@ -51,7 +49,26 @@ public class Casinomainui extends Application {
         stage.getIcons().add(icon);
         stage.setScene(scene);
         stage.setFullScreen(true);
+        stage.setFullScreenExitHint("");
         stage.show();
+    }
+
+    private void processServerParameters(Application.Parameters params) {
+        if (params == null) {
+            return;
+        }
+
+        var raw = params.getRaw();
+        if (raw == null || raw.isEmpty()) {
+            return;
+        }
+
+        String arg = raw.get(0);
+        String[] parts = arg.split(":", 2);
+        if (parts.length == 2) {
+            System.setProperty("casono.server.host", parts[0]);
+            System.setProperty("casono.server.port", parts[1]);
+        }
     }
 
     /**

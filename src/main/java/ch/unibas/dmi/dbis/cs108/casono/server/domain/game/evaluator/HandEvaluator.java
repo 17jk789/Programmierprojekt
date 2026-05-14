@@ -2,6 +2,7 @@ package ch.unibas.dmi.dbis.cs108.casono.server.domain.game.evaluator;
 
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.deck.Card;
 import ch.unibas.dmi.dbis.cs108.casono.server.domain.game.deck.Suit;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -40,6 +41,9 @@ public class HandEvaluator {
     private static final int START_INDEX = 1;
     private static final int CARD_DIFFERENCE = 1;
     private static final int PREVIOUS_INDEX_OFFSET = -1;
+    private static final int TWO_KICKERS = 2;
+    private static final int ONE_KICKER = 1;
+    private static final int THREE_KICKERS = 3;
 
     /**
      * Evaluates a list of cards and determines the best possible hand rank.
@@ -62,7 +66,7 @@ public class HandEvaluator {
             return straightFlush;
         }
 
-        HandRank fourKind = checkFourOfAKind(rankCount);
+        HandRank fourKind = checkFourOfAKind(rankCount, ranks);
         if (fourKind != null) {
             return fourKind;
         }
@@ -80,17 +84,17 @@ public class HandEvaluator {
             return new HandRank(HandRank.Type.STRAIGHT, ranks);
         }
 
-        HandRank threeKind = checkThreeOfAKind(rankCount);
+        HandRank threeKind = checkThreeOfAKind(rankCount, ranks);
         if (threeKind != null) {
             return threeKind;
         }
 
-        HandRank twoPair = checkTwoPair(rankCount);
+        HandRank twoPair = checkTwoPair(rankCount, ranks);
         if (twoPair != null) {
             return twoPair;
         }
 
-        HandRank onePair = checkOnePair(rankCount);
+        HandRank onePair = checkOnePair(rankCount, ranks);
         if (onePair != null) {
             return onePair;
         }
@@ -200,20 +204,26 @@ public class HandEvaluator {
     }
 
     /**
-     * Helper method to check for a four of a kind hand rank.
+     * Helper method to check for a four of a kind hand rank. Stores the quad rank and 1 kicker for
+     * tie-breaking.
      *
      * @param rankCount A map where the key is the card rank and the value is the count of
      *     occurrences.
+     * @param allRanks A sorted list of all card ranks in the hand.
      * @return A HandRank object representing the four of a kind hand rank, or null if not found.
      */
-    private static HandRank checkFourOfAKind(Map<Integer, Long> rankCount) {
+    private static HandRank checkFourOfAKind(Map<Integer, Long> rankCount, List<Integer> allRanks) {
         if (!rankCount.containsValue(FOUR_OF_A_KIND_COUNT)) {
             return null;
         }
 
         int quad = getRank(rankCount, FOUR_OF_A_KIND);
+        List<Integer> kickers = getKickers(allRanks, List.of(quad), ONE_KICKER);
 
-        return new HandRank(HandRank.Type.FOUR_OF_A_KIND, List.of(quad));
+        List<Integer> result = new ArrayList<>(List.of(quad));
+        result.addAll(kickers);
+
+        return new HandRank(HandRank.Type.FOUR_OF_A_KIND, result);
     }
 
     /**
@@ -255,30 +265,39 @@ public class HandEvaluator {
     }
 
     /**
-     * Helper method to check for a three of a kind hand rank.
+     * Helper method to check for a three of a kind hand rank. Stores the trips rank and 2 kickers
+     * for tie-breaking.
      *
      * @param rankCount A map where the key is the card rank and the value is the count of
      *     occurrences.
+     * @param allRanks A sorted list of all card ranks in the hand.
      * @return A HandRank object representing the three of a kind hand rank, or null if not found.
      */
-    private static HandRank checkThreeOfAKind(Map<Integer, Long> rankCount) {
+    private static HandRank checkThreeOfAKind(
+            Map<Integer, Long> rankCount, List<Integer> allRanks) {
         if (!rankCount.containsValue(THREE_OF_A_KIND_COUNT)) {
             return null;
         }
 
         int tripsRank = getRank(rankCount, THREE_OF_A_KIND_RANK);
+        List<Integer> kickers = getKickers(allRanks, List.of(tripsRank), TWO_KICKERS);
 
-        return new HandRank(HandRank.Type.THREE_OF_A_KIND, List.of(tripsRank));
+        List<Integer> result = new ArrayList<>(List.of(tripsRank));
+        result.addAll(kickers);
+
+        return new HandRank(HandRank.Type.THREE_OF_A_KIND, result);
     }
 
     /**
-     * Helper method to check for a two pair hand rank.
+     * Helper method to check for a two pair hand rank. Stores the two pair ranks and 1 kicker for
+     * tie-breaking. The kicker is the highest remaining card that is not part of either pair.
      *
      * @param rankCount A map where the key is the card rank and the value is the count of
      *     occurrences.
+     * @param allRanks A sorted list of all card ranks in the hand.
      * @return A HandRank object representing the two pair hand rank, or null if not found.
      */
-    private static HandRank checkTwoPair(Map<Integer, Long> rankCount) {
+    private static HandRank checkTwoPair(Map<Integer, Long> rankCount, List<Integer> allRanks) {
 
         long pairCount = rankCount.values().stream().filter(v -> v == PAIR).count();
 
@@ -294,17 +313,24 @@ public class HandEvaluator {
                         .limit(PAIR)
                         .toList();
 
-        return new HandRank(HandRank.Type.TWO_PAIR, pairRanks);
+        List<Integer> kickers = getKickers(allRanks, pairRanks, ONE_KICKER);
+
+        List<Integer> result = new ArrayList<>(pairRanks);
+        result.addAll(kickers);
+
+        return new HandRank(HandRank.Type.TWO_PAIR, result);
     }
 
     /**
-     * Helper method to check for a one pair hand rank.
+     * Helper method to check for a one pair hand rank. Stores the pair rank and 3 kickers for
+     * tie-breaking.
      *
      * @param rankCount A map where the key is the card rank and the value is the count of
      *     occurrences.
+     * @param allRanks A sorted list of all card ranks in the hand.
      * @return A HandRank object representing the one pair hand rank, or null if not found.
      */
-    private static HandRank checkOnePair(Map<Integer, Long> rankCount) {
+    private static HandRank checkOnePair(Map<Integer, Long> rankCount, List<Integer> allRanks) {
 
         long pairCount = rankCount.values().stream().filter(v -> v == PAIR).count();
 
@@ -313,8 +339,12 @@ public class HandEvaluator {
         }
 
         int pair = getRank(rankCount, PAIR);
+        List<Integer> kickers = getKickers(allRanks, List.of(pair), THREE_KICKERS);
 
-        return new HandRank(HandRank.Type.ONE_PAIR, List.of(pair));
+        List<Integer> result = new ArrayList<>(List.of(pair));
+        result.addAll(kickers);
+
+        return new HandRank(HandRank.Type.ONE_PAIR, result);
     }
 
     /**
@@ -331,6 +361,26 @@ public class HandEvaluator {
                 .map(Map.Entry::getKey)
                 .max(Integer::compare)
                 .orElse(DEFAULT_VALUE);
+    }
+
+    /**
+     * Helper method to extract kickers from the list of all card ranks. Excludes the ranks already
+     * used in the main hand combination.
+     *
+     * @param allRanks A sorted list of all card ranks in the hand.
+     * @param excludeRanks A list of ranks to exclude (e.g., ranks used in pairs, trips, etc.).
+     * @param numKickers The number of kickers to extract.
+     * @return A list of kicker ranks, sorted in descending order.
+     */
+    private static List<Integer> getKickers(
+            List<Integer> allRanks, List<Integer> excludeRanks, int numKickers) {
+
+        Set<Integer> excludeSet = new HashSet<>(excludeRanks);
+
+        return allRanks.stream()
+                .filter(rank -> !excludeSet.contains(rank))
+                .limit(numKickers)
+                .toList();
     }
 
     /**

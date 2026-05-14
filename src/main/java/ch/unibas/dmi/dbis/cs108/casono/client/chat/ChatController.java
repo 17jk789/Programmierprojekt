@@ -88,7 +88,7 @@ public class ChatController {
         chatModelMap = new LinkedHashMap<>();
         localUserList = new ArrayList<>();
         this.chatBoxController = new ChatBoxController(username, this);
-        this.logger = LogManager.getLogger(ChatController.class);
+        this.logger = LogManager.getLogger(ChatController.class.getSimpleName());
         this.serverEventListener = this::handleServerEvent;
         this.activeChatControllers = new HashMap<>();
 
@@ -124,7 +124,7 @@ public class ChatController {
         chatModelMap = new LinkedHashMap<>();
         localUserList = new ArrayList<>();
         this.chatBoxController = new ChatBoxController(username, this);
-        this.logger = LogManager.getLogger(ChatController.class);
+        this.logger = LogManager.getLogger(ChatController.class.getSimpleName());
         this.serverEventListener = this::handleServerEvent;
         this.activeChatControllers = new HashMap<>();
 
