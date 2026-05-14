@@ -112,6 +112,7 @@ public class CasinoBrowserController {
         TRUSTED_DOMAINS.add("mojeek.com");
         TRUSTED_DOMAINS.add("searx.be");
         TRUSTED_DOMAINS.add("startpage.com");
+        TRUSTED_DOMAINS.add("vscode.dev");
     }
 
     /** Aliases for common websites. */
@@ -138,7 +139,10 @@ public class CasinoBrowserController {
                     Map.entry("gradle", "gradle.org"),
                     Map.entry("spring", "spring.io"),
                     Map.entry("jetbrains", "jetbrains.com"),
-                    Map.entry("uni", "unibas.ch"));
+                    Map.entry("uni", "unibas.ch"),
+                    Map.entry("vs", "vscode.dev"),
+                    Map.entry("vscode", "vscode.dev"),
+                    Map.entry("vs code", "vscode.dev"));
 
     /**
      * Resolves user input into a valid URL.
@@ -653,23 +657,22 @@ public class CasinoBrowserController {
             }
 
             if ("file".equalsIgnoreCase(scheme)) {
-                Path allowed =
-                        Paths.get(
-                                        System.getProperty("user.dir"),
-                                        "documents",
-                                        "docs",
-                                        "game-engine",
-                                        "manual.html")
-                                .normalize();
+
+                Path baseDir = Paths.get(System.getProperty("user.dir")).normalize();
+
+                Path manual = baseDir.resolve("documents/docs/game-engine/manual.html").normalize();
+
+                Path outreach = baseDir.resolve("outreach/index.html").normalize();
 
                 Path requested = Paths.get(uri).normalize();
 
-                if (requested.equals(allowed)) {
+                if (requested.equals(manual) || requested.equals(outreach)) {
                     securityLabel.setText("LOCAL OK");
                     engine.load(uri.toString());
                 } else {
                     securityLabel.setText("BLOCKED");
                 }
+
                 return;
             }
 
