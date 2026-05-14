@@ -155,10 +155,10 @@ public class CasinoGameController {
     private static final double CHIP_TRANSLATE_RESET_Y = 0.0;
     private static final double CHIP_FADE_TO = 1.0;
     private static final double CHIP_SCALE_TO = 1.0;
-    private static final long CHIP_FADE_DURATION_MS = 200;
-    private static final long CHIP_SCALE_DURATION_MS = 220;
-    private static final long CHIP_DROP_DURATION_MS = 250;
-    private static final long CHIP_STAGGER_DELAY_MULTIPLIER = 35L;
+    private static final long CHIP_FADE_DURATION_MS = 100;
+    private static final long CHIP_SCALE_DURATION_MS = 110;
+    private static final long CHIP_DROP_DURATION_MS = 120;
+    private static final long CHIP_STAGGER_DELAY_MULTIPLIER = 15L;
     private static final int MAX_POT_ROWS = 2;
     private static final double POT_CHIP_H_GAP = 6.0;
     private static final double POT_CHIP_V_GAP = 6.0;
@@ -663,6 +663,9 @@ public class CasinoGameController {
         highlightDealer(s);
         updateTaskbar(s);
 
+        // Force refresh of money display to handle UI stalls
+        refreshMoneyDisplay();
+
         LOGGER.info("myPlayerId=" + myPlayerId);
         for (int i = 0; i < players.size(); i++) {
             Player p = players.get(i);
@@ -920,6 +923,30 @@ public class CasinoGameController {
             controller.setGameService(gameService, myPlayerId);
         }
         controller.update(s, myPlayerName);
+    }
+
+    /**
+     * Force refresh of the money display in the taskbar to ensure it always reflects the current
+     * player's chip count, even during rapid game state changes.
+     */
+    private void refreshMoneyDisplay() {
+        TaskbarController controller = resolveTaskbarController();
+        if (controller == null || gameService == null) {
+            return;
+        }
+        try {
+            List<Player> players = gameService.getPlayers();
+            if (players != null) {
+                for (Player p : players) {
+                    if (isCurrentPlayer(p)) {
+                        controller.setMoney(p.getChips());
+                        return;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.warning("Could not refresh money display: " + e.getMessage());
+        }
     }
 
     /**
@@ -1848,6 +1875,10 @@ public class CasinoGameController {
      * @param pot The total amount in the pot that needs to be represented with chips on the UI.
      */
     private void renderPot(int pot) {
+        if (!javafx.application.Platform.isFxApplicationThread()) {
+            javafx.application.Platform.runLater(() -> renderPot(pot));
+            return;
+        }
 
         potBox.getChildren().clear();
 
@@ -1888,7 +1919,13 @@ public class CasinoGameController {
                     bottomRow.getChildren().add(chip);
                 }
 
-                animateChipAppear(chip, index);
+                if (index < 12) {
+                    animateChipAppear(chip, index);
+                } else {
+                    chip.setOpacity(CHIP_FADE_TO);
+                    chip.setScaleX(CHIP_SCALE_TO);
+                    chip.setScaleY(CHIP_SCALE_TO);
+                }
 
                 remaining -= chipValue;
                 index++;
@@ -1982,8 +2019,8 @@ public class CasinoGameController {
 
         view.fitHeightProperty()
                 .bind(
-                        scene.heightProperty().multiply(CHIP_HEIGHT_RATIO) // kleiner als Karten
-                        );
+                        scene.heightProperty().multiply(CHIP_HEIGHT_RATIO)
+                );
 
         view.fitWidthProperty().bind(scene.widthProperty().multiply(CHIP_WIDTH_RATIO));
     }
