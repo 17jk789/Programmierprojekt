@@ -23,6 +23,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Logger;
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
@@ -33,6 +36,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.util.Duration;
 
 /**
  * Controller for the casino gaming area.
@@ -122,6 +126,8 @@ public class CasinoGameController {
     private static final int DEALER_PLAYER_3 = 2;
     private static final int DEALER_MYSELF = 3;
     private static final double CARD_START_OPACITY = 0.0;
+    private static final int TARGET_FPS = 30;
+    private static final double FRAME_TIME_MS = 1000.0 / TARGET_FPS;
     private static final double CARD_START_SCALE = 0.85;
     private static final double COMMUNITY_CARD_HEIGHT_RATIO = 0.22;
     private static final double COMMUNITY_CARD_WIDTH_RATIO = 0.11;
@@ -159,6 +165,7 @@ public class CasinoGameController {
     private static final double POT_WIDTH_FACTOR = 0.45;
     private static final double FALLBACK_POT_WIDTH = 500.0;
     private static final double FALLBACK_CHIP_WIDTH = 36.0;
+    private volatile boolean updating = false;
     private static final double CHAT_WIDTH = 400;
     private static final double CHAT_HEIGHT = 600;
     private static final String ACTIVE_CARD_BOX_STYLE_CLASS = "player-cards-active-turn";
@@ -498,12 +505,24 @@ public class CasinoGameController {
     private void startLoop() {
 
         timeline =
-                new javafx.animation.Timeline(
-                        new javafx.animation.KeyFrame(
-                                javafx.util.Duration.seconds(UI_UPDATE_INTERVAL_SECONDS),
-                                e -> updateUI()));
+                new Timeline(
+                        new KeyFrame(
+                                Duration.millis(FRAME_TIME_MS),
+                                e -> {
+                                    if (updating) {
+                                        return;
+                                    }
 
-        timeline.setCycleCount(javafx.animation.Animation.INDEFINITE);
+                                    updating = true;
+
+                                    try {
+                                        updateUI();
+                                    } finally {
+                                        updating = false;
+                                    }
+                                }));
+
+        timeline.setCycleCount(Animation.INDEFINITE);
         timeline.play();
     }
 
