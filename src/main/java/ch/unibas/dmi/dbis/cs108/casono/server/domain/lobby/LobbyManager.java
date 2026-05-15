@@ -217,7 +217,7 @@ public class LobbyManager {
         for (Map.Entry<LobbyId, Lobby> e : activeLobbies.entrySet()) {
             LobbyId id = e.getKey();
             Lobby l = e.getValue();
-            if (l.getPlayerNames().isEmpty()) {
+            if (!l.hasAnyPlayers()) {
                 Instant created = creationTimes.get(id);
                 if (created != null && created.isBefore(cutoff)) {
                     result.add(id);

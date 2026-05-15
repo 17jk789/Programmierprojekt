@@ -98,7 +98,12 @@ public class GetGameStateHandler extends CommandHandler<GetGameStateRequest> {
         }
 
         try {
+            // Remove all active players
             for (String playerName : lobby.getPlayerNames()) {
+                lobbyManager.removePlayer(playerName);
+            }
+            // Also remove all absent players so the lobby can be deleted
+            for (String playerName : lobby.getAbsentPlayers()) {
                 lobbyManager.removePlayer(playerName);
             }
             lobby.initGame(null);
