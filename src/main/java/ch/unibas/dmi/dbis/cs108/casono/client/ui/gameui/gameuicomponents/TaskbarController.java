@@ -579,7 +579,7 @@ public class TaskbarController {
         //     return;
         // }
 
-        if (isFirstPlayerOfPhase(state, me) && !isFirstPreflopPlayer(state, me)) {
+        if (isFirstPlayerOfPhase(state, me)) {
             setActionEnabled(betButton, true);
             setActionEnabled(callButton, false);
             // setActionEnabled(foldButton, false);
@@ -766,6 +766,33 @@ public class TaskbarController {
     }
 
     /**
+     * Finds the first player who can still act when starting from a specific index.
+     *
+     * @param state The current game state.
+     * @param startIndex The index from which the search should begin.
+     * @return The first eligible player index, or -1 if none can act.
+     */
+    private int findFirstActingPlayerIndex(GameState state, int startIndex) {
+        if (state == null || state.players == null || state.players.isEmpty()) {
+            return -1;
+        }
+
+        int size = state.players.size();
+        int normalizedStart = ((startIndex % size) + size) % size;
+
+        for (int i = 0; i < size; i++) {
+            int candidate = (normalizedStart + i) % size;
+            Player player = state.players.get(candidate);
+
+            if (player != null && player.getState() != PlayerState.FOLDED && player.getChips() > 0) {
+                return candidate;
+            }
+        }
+
+        return -1;
+    }
+
+    /**
      * Checks if the current player is the first to act on the flop.
      *
      * @param state The current GameState containing phase, dealer and active player information.
@@ -794,19 +821,10 @@ public class TaskbarController {
             return false;
         }
 
-        int firstIndex = (state.dealer + 1) % size;
+        int firstIndex = findFirstActingPlayerIndex(state, (state.dealer + 1) % size);
 
-        for (int i = 0; i < size; i++) {
-
-            int candidate = (firstIndex + i) % size;
-
-            Player p = state.players.get(candidate);
-
-            if (p != null && p.getState() != PlayerState.FOLDED && p.getChips() > 0) {
-
-                firstIndex = candidate;
-                break;
-            }
+        if (firstIndex < 0) {
+            return false;
         }
 
         return state.activePlayer == firstIndex && myIndex == firstIndex;
@@ -839,14 +857,18 @@ public class TaskbarController {
             return false;
         }
 
-        int dealer = state.dealer;
-
         int firstIndex;
 
         if (isPreflop(state.phase)) {
-            firstIndex = (size == 2) ? dealer : (dealer + DEALER_OFFSET) % size;
+            firstIndex =
+                    findFirstActingPlayerIndex(
+                            state, (size == 2) ? state.dealer : (state.dealer + DEALER_OFFSET) % size);
         } else {
-            firstIndex = (dealer + 1) % size;
+            firstIndex = findFirstActingPlayerIndex(state, (state.dealer + 1) % size);
+        }
+
+        if (firstIndex < 0) {
+            return false;
         }
 
         return state.activePlayer == firstIndex && myIndex == firstIndex;
