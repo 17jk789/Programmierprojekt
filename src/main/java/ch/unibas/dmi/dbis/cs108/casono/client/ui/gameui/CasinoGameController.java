@@ -23,6 +23,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Logger;
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
@@ -33,6 +36,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.util.Duration;
 
 /**
  * Controller for the casino gaming area.
@@ -122,6 +126,8 @@ public class CasinoGameController {
     private static final int DEALER_PLAYER_3 = 2;
     private static final int DEALER_MYSELF = 3;
     private static final double CARD_START_OPACITY = 0.0;
+    private static final int TARGET_FPS = 30;
+    private static final double FRAME_TIME_MS = 1000.0 / TARGET_FPS;
     private static final double CARD_START_SCALE = 0.85;
     private static final double COMMUNITY_CARD_HEIGHT_RATIO = 0.22;
     private static final double COMMUNITY_CARD_WIDTH_RATIO = 0.11;
@@ -149,16 +155,17 @@ public class CasinoGameController {
     private static final double CHIP_TRANSLATE_RESET_Y = 0.0;
     private static final double CHIP_FADE_TO = 1.0;
     private static final double CHIP_SCALE_TO = 1.0;
-    private static final long CHIP_FADE_DURATION_MS = 200;
-    private static final long CHIP_SCALE_DURATION_MS = 220;
-    private static final long CHIP_DROP_DURATION_MS = 250;
-    private static final long CHIP_STAGGER_DELAY_MULTIPLIER = 35L;
+    private static final long CHIP_FADE_DURATION_MS = 100;
+    private static final long CHIP_SCALE_DURATION_MS = 110;
+    private static final long CHIP_DROP_DURATION_MS = 120;
+    private static final long CHIP_STAGGER_DELAY_MULTIPLIER = 15L;
     private static final int MAX_POT_ROWS = 2;
     private static final double POT_CHIP_H_GAP = 6.0;
     private static final double POT_CHIP_V_GAP = 6.0;
     private static final double POT_WIDTH_FACTOR = 0.45;
     private static final double FALLBACK_POT_WIDTH = 500.0;
     private static final double FALLBACK_CHIP_WIDTH = 36.0;
+    private volatile boolean updating = false;
     private static final double CHAT_WIDTH = 400;
     private static final double CHAT_HEIGHT = 600;
     private static final String ACTIVE_CARD_BOX_STYLE_CLASS = "player-cards-active-turn";
@@ -178,6 +185,7 @@ public class CasinoGameController {
     private static final int NO_BET = 0;
     private boolean myDealerIconSizeBound;
     private java.util.List<String> lobbyPlayerNames = java.util.List.of();
+    private static final int MAX_ANIMATED_CHIPS = 12;
 
     /** Standard constructor. Used by FXML. */
     public CasinoGameController() {
@@ -498,12 +506,24 @@ public class CasinoGameController {
     private void startLoop() {
 
         timeline =
-                new javafx.animation.Timeline(
-                        new javafx.animation.KeyFrame(
-                                javafx.util.Duration.seconds(UI_UPDATE_INTERVAL_SECONDS),
-                                e -> updateUI()));
+                new Timeline(
+                        new KeyFrame(
+                                Duration.millis(FRAME_TIME_MS),
+                                e -> {
+                                    if (updating) {
+                                        return;
+                                    }
 
-        timeline.setCycleCount(javafx.animation.Animation.INDEFINITE);
+                                    updating = true;
+
+                                    try {
+                                        updateUI();
+                                    } finally {
+                                        updating = false;
+                                    }
+                                }));
+
+        timeline.setCycleCount(Animation.INDEFINITE);
         timeline.play();
     }
 
@@ -625,6 +645,12 @@ public class CasinoGameController {
             updateGameInfo(s);
             highlightDealer(s);
             updateTaskbar(s);
+
+            if (s.pot != lastPot) {
+                lastPot = s.pot;
+                renderPot(s.pot);
+            }
+
             clearActiveTurnHighlights();
             announceLocalWinIfNeeded(s);
             finishGameUiLoop();
@@ -643,6 +669,9 @@ public class CasinoGameController {
         updateGameInfo(s);
         highlightDealer(s);
         updateTaskbar(s);
+
+        // Force refresh of money display to handle UI stalls
+        refreshMoneyDisplay();
 
         LOGGER.info("myPlayerId=" + myPlayerId);
         for (int i = 0; i < players.size(); i++) {
@@ -901,6 +930,30 @@ public class CasinoGameController {
             controller.setGameService(gameService, myPlayerId);
         }
         controller.update(s, myPlayerName);
+    }
+
+    /**
+     * Force refresh of the money display in the taskbar to ensure it always reflects the current
+     * player's chip count, even during rapid game state changes.
+     */
+    private void refreshMoneyDisplay() {
+        TaskbarController controller = resolveTaskbarController();
+        if (controller == null || gameService == null) {
+            return;
+        }
+        try {
+            List<Player> players = gameService.getPlayers();
+            if (players != null) {
+                for (Player p : players) {
+                    if (isCurrentPlayer(p)) {
+                        controller.setMoney(p.getChips());
+                        return;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.warning("Could not refresh money display: " + e.getMessage());
+        }
     }
 
     /**
@@ -1829,6 +1882,10 @@ public class CasinoGameController {
      * @param pot The total amount in the pot that needs to be represented with chips on the UI.
      */
     private void renderPot(int pot) {
+        if (!javafx.application.Platform.isFxApplicationThread()) {
+            javafx.application.Platform.runLater(() -> renderPot(pot));
+            return;
+        }
 
         potBox.getChildren().clear();
 
@@ -1869,7 +1926,13 @@ public class CasinoGameController {
                     bottomRow.getChildren().add(chip);
                 }
 
-                animateChipAppear(chip, index);
+                if (index < MAX_ANIMATED_CHIPS) {
+                    animateChipAppear(chip, index);
+                } else {
+                    chip.setOpacity(CHIP_FADE_TO);
+                    chip.setScaleX(CHIP_SCALE_TO);
+                    chip.setScaleY(CHIP_SCALE_TO);
+                }
 
                 remaining -= chipValue;
                 index++;
@@ -1961,10 +2024,7 @@ public class CasinoGameController {
      */
     private void bindChipSize(ImageView view, javafx.scene.Scene scene) {
 
-        view.fitHeightProperty()
-                .bind(
-                        scene.heightProperty().multiply(CHIP_HEIGHT_RATIO) // kleiner als Karten
-                        );
+        view.fitHeightProperty().bind(scene.heightProperty().multiply(CHIP_HEIGHT_RATIO));
 
         view.fitWidthProperty().bind(scene.widthProperty().multiply(CHIP_WIDTH_RATIO));
     }

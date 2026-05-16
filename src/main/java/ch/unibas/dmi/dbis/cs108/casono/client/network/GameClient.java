@@ -92,19 +92,39 @@ public class GameClient {
     }
 
     public void sendCall() {
-        client.processCommand("CALL GAME_ID=" + gameId);
+        try {
+            client.processCommand("CALL GAME_ID=" + gameId);
+            LOG.fine("CALL command sent");
+        } catch (Exception e) {
+            LOG.log(Level.WARNING, "Failed to send CALL: " + e.getMessage(), e);
+        }
     }
 
     public void sendFold() {
-        client.processCommand("FOLD GAME_ID=" + gameId);
+        try {
+            client.processCommand("FOLD GAME_ID=" + gameId);
+            LOG.fine("FOLD command sent");
+        } catch (Exception e) {
+            LOG.log(Level.WARNING, "Failed to send FOLD: " + e.getMessage(), e);
+        }
     }
 
     public void sendBet(int amount) {
-        client.processCommand("BET GAME_ID=" + gameId + " AMOUNT=" + amount);
+        try {
+            client.processCommand("BET GAME_ID=" + gameId + " AMOUNT=" + amount);
+            LOG.fine("BET command sent: amount=" + amount);
+        } catch (Exception e) {
+            LOG.log(Level.WARNING, "Failed to send BET: " + e.getMessage(), e);
+        }
     }
 
     public void sendRaise(int amount) {
-        client.processCommand("RAISE GAME_ID=" + gameId + " AMOUNT=" + amount);
+        try {
+            client.processCommand("RAISE GAME_ID=" + gameId + " AMOUNT=" + amount);
+            LOG.fine("RAISE command sent: amount=" + amount);
+        } catch (Exception e) {
+            LOG.log(Level.WARNING, "Failed to send RAISE: " + e.getMessage(), e);
+        }
     }
 
     private GameState parseGameState(String input) {
