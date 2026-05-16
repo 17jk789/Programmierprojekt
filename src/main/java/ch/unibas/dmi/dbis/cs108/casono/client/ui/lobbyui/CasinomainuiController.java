@@ -8,6 +8,7 @@ import ch.unibas.dmi.dbis.cs108.casono.client.ui.gameui.gameuicomponents.Highsco
 import ch.unibas.dmi.dbis.cs108.casono.ui.sound.SoundManager;
 import java.io.IOException;
 import java.net.URL;
+import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -26,6 +27,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javafx.util.Duration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -50,6 +52,11 @@ public class CasinomainuiController {
     private int nextButtonId = 1;
     private LobbyClient lobbyClient;
     private ChatController chatController;
+    private PauseTransition titleResetTransition;
+
+    private static final String DEFAULT_TITLE = "Casono";
+    private static final String BLOCKED_USERNAME_TITLE =
+            "Name change blocked while lobby is active";
 
     /** Default constructor used by FXMLLoader. */
     public CasinomainuiController() {
@@ -63,7 +70,7 @@ public class CasinomainuiController {
      */
     @FXML
     public void initialize() {
-        titleLabel.setText("Casono");
+        titleLabel.setText(DEFAULT_TITLE);
         subtitleLabel.setText("Texas Hold'em Poker");
         logoView.setImage(new Image(getClass().getResource("/images/logo.png").toExternalForm()));
 
@@ -221,6 +228,11 @@ public class CasinomainuiController {
                 loginButton.setText("Change Name");
             }
         } catch (RuntimeException e) {
+            if (containsProtocolError(e, "CANNOT_CHANGE_USERNAME_DURING_LOBBY")
+                    || containsProtocolError(e, "RENAME_CONFLICT")) {
+                showTemporaryTitleMessage(BLOCKED_USERNAME_TITLE);
+                return;
+            }
             LOGGER.error("Change username failed: {}", e.getMessage());
             showAlert("Change username failed: " + e.getMessage());
         }
@@ -244,6 +256,20 @@ public class CasinomainuiController {
             usernameField.clear();
             usernameField.setPromptText("Username");
         }
+    }
+
+    private void showTemporaryTitleMessage(String message) {
+        if (titleLabel == null) {
+            return;
+        }
+
+        titleLabel.setText(message);
+        if (titleResetTransition != null) {
+            titleResetTransition.stop();
+        }
+        titleResetTransition = new PauseTransition(Duration.seconds(2));
+        titleResetTransition.setOnFinished(event -> titleLabel.setText(DEFAULT_TITLE));
+        titleResetTransition.playFromStart();
     }
 
     /** Shows an alert dialog with the given message. */
