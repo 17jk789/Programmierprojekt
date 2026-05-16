@@ -569,7 +569,17 @@ public class TaskbarController {
             return;
         }
 
-        if (isFirstFlopPlayer(state, me)) {
+        // if (isFirstFlopPlayer(state, me)) {
+        //     setActionEnabled(betButton, true);
+        //     setActionEnabled(callButton, false);
+        //     // setActionEnabled(foldButton, false);
+        //     setActionEnabled(raiseButton, false);
+        //     activateInputField(taskbarInput);
+        //     inputActionAllowed = true;
+        //     return;
+        // }
+
+        if (isFirstPlayerOfPhase(state, me) && !isFirstPreflopPlayer(state, me)) {
             setActionEnabled(betButton, true);
             setActionEnabled(callButton, false);
             // setActionEnabled(foldButton, false);
