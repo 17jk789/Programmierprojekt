@@ -134,8 +134,7 @@ public class ChangeUsernameHandler extends CommandHandler<ChangeUsernameRequest>
             dispatchError(
                     context,
                     "CANNOT_CHANGE_USERNAME_DURING_LOBBY",
-                    "Cannot change username while actively playing in a lobby. "
-                            + "Wait until the game ends.");
+                    "Name change blocked while lobby is active.");
             return true;
         }
         return false;
