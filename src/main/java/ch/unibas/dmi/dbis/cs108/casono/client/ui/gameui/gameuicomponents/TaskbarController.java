@@ -784,7 +784,9 @@ public class TaskbarController {
             int candidate = (normalizedStart + i) % size;
             Player player = state.players.get(candidate);
 
-            if (player != null && player.getState() != PlayerState.FOLDED && player.getChips() > 0) {
+            if (player != null
+                    && player.getState() != PlayerState.FOLDED
+                    && player.getChips() > 0) {
                 return candidate;
             }
         }
@@ -862,7 +864,8 @@ public class TaskbarController {
         if (isPreflop(state.phase)) {
             firstIndex =
                     findFirstActingPlayerIndex(
-                            state, (size == 2) ? state.dealer : (state.dealer + DEALER_OFFSET) % size);
+                            state,
+                            (size == 2) ? state.dealer : (state.dealer + DEALER_OFFSET) % size);
         } else {
             firstIndex = findFirstActingPlayerIndex(state, (state.dealer + 1) % size);
         }
