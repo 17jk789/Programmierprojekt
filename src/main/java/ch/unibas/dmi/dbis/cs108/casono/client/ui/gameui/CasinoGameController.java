@@ -645,6 +645,12 @@ public class CasinoGameController {
             updateGameInfo(s);
             highlightDealer(s);
             updateTaskbar(s);
+
+            if (s.pot != lastPot) {
+                lastPot = s.pot;
+                renderPot(s.pot);
+            }
+
             clearActiveTurnHighlights();
             announceLocalWinIfNeeded(s);
             finishGameUiLoop();
