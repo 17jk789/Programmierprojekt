@@ -1944,13 +1944,23 @@ public class TaskbarController {
         try {
             Path start = Paths.get(System.getProperty("user.dir"));
 
-            Path file = findFileUpAndDown(start, "index.html", "Gruppe-13");
+            Path file = start;
 
-            if (file == null) {
-                throw new IllegalStateException("index.html not found");
+            while (file != null && !file.getFileName().toString().equals("Gruppe-13")) {
+                file = file.getParent();
             }
 
-            CasinoBrowserController.open(file.toUri().toString());
+            if (file == null) {
+                throw new IllegalStateException("Gruppe-13 not found");
+            }
+
+            Path target = file.resolve("outreach").resolve("index.html");
+
+            if (!Files.isRegularFile(target)) {
+                throw new IllegalStateException("outreach/index.html not found");
+            }
+
+            CasinoBrowserController.open(target.toUri().toString());
 
         } catch (Exception e) {
             e.printStackTrace();
