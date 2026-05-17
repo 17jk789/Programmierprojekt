@@ -91,6 +91,7 @@ public class TaskbarController {
     private int lastPotSnapshot = 0;
     private int lastObservedIncrease = 0;
     private int lastRaiseIncrement = 0;
+    private static final long REFRESH_DELAY_MS = 500;
 
     /** Standard constructor. Used by FXML. */
     public TaskbarController() {
@@ -568,7 +569,17 @@ public class TaskbarController {
             return;
         }
 
-        if (isFirstFlopPlayer(state, me)) {
+        // if (isFirstFlopPlayer(state, me)) {
+        //     setActionEnabled(betButton, true);
+        //     setActionEnabled(callButton, false);
+        //     // setActionEnabled(foldButton, false);
+        //     setActionEnabled(raiseButton, false);
+        //     activateInputField(taskbarInput);
+        //     inputActionAllowed = true;
+        //     return;
+        // }
+
+        if (isFirstPlayerOfPhase(state, me)) {
             setActionEnabled(betButton, true);
             setActionEnabled(callButton, false);
             // setActionEnabled(foldButton, false);
@@ -755,6 +766,35 @@ public class TaskbarController {
     }
 
     /**
+     * Finds the first player who can still act when starting from a specific index.
+     *
+     * @param state The current game state.
+     * @param startIndex The index from which the search should begin.
+     * @return The first eligible player index, or -1 if none can act.
+     */
+    private int findFirstActingPlayerIndex(GameState state, int startIndex) {
+        if (state == null || state.players == null || state.players.isEmpty()) {
+            return -1;
+        }
+
+        int size = state.players.size();
+        int normalizedStart = ((startIndex % size) + size) % size;
+
+        for (int i = 0; i < size; i++) {
+            int candidate = (normalizedStart + i) % size;
+            Player player = state.players.get(candidate);
+
+            if (player != null
+                    && player.getState() != PlayerState.FOLDED
+                    && player.getChips() > 0) {
+                return candidate;
+            }
+        }
+
+        return -1;
+    }
+
+    /**
      * Checks if the current player is the first to act on the flop.
      *
      * @param state The current GameState containing phase, dealer and active player information.
@@ -783,19 +823,10 @@ public class TaskbarController {
             return false;
         }
 
-        int firstIndex = (state.dealer + 1) % size;
+        int firstIndex = findFirstActingPlayerIndex(state, (state.dealer + 1) % size);
 
-        for (int i = 0; i < size; i++) {
-
-            int candidate = (firstIndex + i) % size;
-
-            Player p = state.players.get(candidate);
-
-            if (p != null && p.getState() != PlayerState.FOLDED && p.getChips() > 0) {
-
-                firstIndex = candidate;
-                break;
-            }
+        if (firstIndex < 0) {
+            return false;
         }
 
         return state.activePlayer == firstIndex && myIndex == firstIndex;
@@ -828,14 +859,19 @@ public class TaskbarController {
             return false;
         }
 
-        int dealer = state.dealer;
-
         int firstIndex;
 
         if (isPreflop(state.phase)) {
-            firstIndex = (size == 2) ? dealer : (dealer + DEALER_OFFSET) % size;
+            firstIndex =
+                    findFirstActingPlayerIndex(
+                            state,
+                            (size == 2) ? state.dealer : (state.dealer + DEALER_OFFSET) % size);
         } else {
-            firstIndex = (dealer + 1) % size;
+            firstIndex = findFirstActingPlayerIndex(state, (state.dealer + 1) % size);
+        }
+
+        if (firstIndex < 0) {
+            return false;
         }
 
         return state.activePlayer == firstIndex && myIndex == firstIndex;
@@ -989,6 +1025,11 @@ public class TaskbarController {
             return;
         }
 
+        if (gameService.isActionInProgress()) {
+            LOGGER.info("Action {} blocked: another action is in progress", actionType);
+            return;
+        }
+
         GameState state = ensureLatestStateForAction(actionType.name().toLowerCase());
         if (state == null || isHandFinished(state)) {
             if (state != null) {
@@ -1014,6 +1055,8 @@ public class TaskbarController {
             return;
         }
 
+        disableAllActionButtons();
+
         executeAction(state, targetBet, actionType);
 
         if (targetBet > 0) {
@@ -1021,7 +1064,35 @@ public class TaskbarController {
         }
 
         taskbarInput.clear();
-        refreshGame();
+
+        javafx.application.Platform.runLater(
+                () -> {
+                    try {
+                        Thread.sleep(REFRESH_DELAY_MS);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+                    refreshGame();
+                });
+    }
+
+    /** Disables all action buttons to prevent multiple concurrent action submissions. */
+    private void disableAllActionButtons() {
+        if (betButton != null) {
+            betButton.setDisable(true);
+        }
+        if (callButton != null) {
+            callButton.setDisable(true);
+        }
+        if (raiseButton != null) {
+            raiseButton.setDisable(true);
+        }
+        if (foldButton != null) {
+            foldButton.setDisable(true);
+        }
+        if (taskbarInput != null) {
+            taskbarInput.setDisable(true);
+        }
     }
 
     /**
@@ -1791,6 +1862,24 @@ public class TaskbarController {
         }
     }
 
+    /**
+     * Opens the integrated Casono web browser.
+     *
+     * <p>once the content for strategies and support is available.
+     */
+    @FXML
+    private void onBrowserButtonClickCasono() {
+        SoundManager.getInstance().playButtonClick();
+        try {
+            Path path = Paths.get(System.getProperty("user.dir"), "outreach", "index.html");
+
+            CasinoBrowserController.open(path.toUri().toString());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     /** Opens the integrated Casono Web Browser. */
     @FXML
     private void onBrowserButtonClickWiki() {
@@ -1809,6 +1898,18 @@ public class TaskbarController {
         try {
 
             CasinoBrowserController.open("https://search.brave.com");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /** Opens the integrated Casono Web Browser. */
+    @FXML
+    private void onBrowserButtonClickVSCode() {
+        try {
+
+            CasinoBrowserController.open("https://vscode.dev/");
 
         } catch (Exception e) {
             e.printStackTrace();

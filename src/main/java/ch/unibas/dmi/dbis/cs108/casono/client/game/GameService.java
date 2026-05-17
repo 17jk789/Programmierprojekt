@@ -1,7 +1,9 @@
 package ch.unibas.dmi.dbis.cs108.casono.client.game;
 
 import ch.unibas.dmi.dbis.cs108.casono.client.network.GameClient;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -11,6 +13,9 @@ public class GameService {
 
     private final GameClient client;
     private GameState state;
+    private final Queue<Runnable> actionQueue = new LinkedList<>();
+    private volatile boolean actionInProgress = false;
+    private static final long ACTION_TIMEOUT_MS = 5000;
 
     /**
      * Constructs a GameService with the specified GameClient.
@@ -112,12 +117,12 @@ public class GameService {
 
     /** Retrieves the current phase of the game. */
     public void call() {
-        client.sendCall();
+        queueAction(() -> client.sendCall());
     }
 
     /** Retrieves the current phase of the game. */
     public void fold() {
-        client.sendFold();
+        queueAction(() -> client.sendFold());
     }
 
     /**
@@ -126,7 +131,7 @@ public class GameService {
      * @param amount The amount to bet. Must be a positive integer.
      */
     public void bet(int amount) {
-        client.sendBet(amount);
+        queueAction(() -> client.sendBet(amount));
     }
 
     /**
@@ -135,7 +140,63 @@ public class GameService {
      * @param amount The amount to raise. Must be a positive integer.
      */
     public void raise(int amount) {
-        client.sendRaise(amount);
+        queueAction(() -> client.sendRaise(amount));
+    }
+
+    /**
+     * Queue an action to be executed sequentially. Only one action is processed at a time to
+     * prevent concurrent operations from overwhelming the server or UI.
+     *
+     * @param action The action to queue and execute.
+     */
+    private void queueAction(Runnable action) {
+        synchronized (actionQueue) {
+            actionQueue.offer(action);
+            if (!actionInProgress) {
+                processNextAction();
+            }
+        }
+    }
+
+    /**
+     * Process the next queued action if one is available. This method ensures that only one action
+     * is in progress at any given time.
+     */
+    private void processNextAction() {
+        synchronized (actionQueue) {
+            if (actionQueue.isEmpty() || actionInProgress) {
+                return;
+            }
+
+            actionInProgress = true;
+            Runnable action = actionQueue.poll();
+
+            if (action != null) {
+                try {
+                    LOG.fine("Processing queued action");
+                    action.run();
+                } catch (Exception e) {
+                    LOG.log(Level.WARNING, "Error executing queued action: " + e.getMessage(), e);
+                } finally {
+                    actionInProgress = false;
+                    if (!actionQueue.isEmpty()) {
+                        processNextAction();
+                    }
+                }
+            } else {
+                actionInProgress = false;
+            }
+        }
+    }
+
+    /**
+     * Check if an action is currently in progress, preventing the UI from accepting new actions
+     * while one is being processed.
+     *
+     * @return true if an action is in progress, false otherwise.
+     */
+    public boolean isActionInProgress() {
+        return actionInProgress;
     }
 
     /** Ensures that the game state has been initialized before accessing it. */
