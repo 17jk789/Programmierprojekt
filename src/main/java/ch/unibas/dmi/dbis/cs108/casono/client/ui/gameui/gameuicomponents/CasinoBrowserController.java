@@ -113,6 +113,7 @@ public class CasinoBrowserController {
         TRUSTED_DOMAINS.add("searx.be");
         TRUSTED_DOMAINS.add("startpage.com");
         TRUSTED_DOMAINS.add("vscode.dev");
+        TRUSTED_DOMAINS.add("casono.netlify.app");
     }
 
     /** Aliases for common websites. */
@@ -142,7 +143,10 @@ public class CasinoBrowserController {
                     Map.entry("uni", "unibas.ch"),
                     Map.entry("vs", "vscode.dev"),
                     Map.entry("vscode", "vscode.dev"),
-                    Map.entry("vs code", "vscode.dev"));
+                    Map.entry("vs code", "vscode.dev"),
+                    Map.entry("main", "casono.netlify.app"),
+                    Map.entry("cas", "casono.netlify.app"),
+                    Map.entry("casono", "casono.netlify.app"));
 
     /**
      * Resolves user input into a valid URL.
