@@ -670,7 +670,8 @@ public class CasinoBrowserController {
                     securityLabel.setText("LOCAL OK");
                     engine.load(uri.toString());
                 } else {
-                    securityLabel.setText("BLOCKED");
+                    securityLabel.setText("UNKNOWN");
+                    engine.load(uri.toString());
                 }
 
                 return;
@@ -696,7 +697,7 @@ public class CasinoBrowserController {
                     securityLabel.setText("BLOCKED");
                     return;
                 }
-                securityLabel.setText("UNBEKANNT");
+                securityLabel.setText("UNKNOWN");
             } else {
                 securityLabel.setText("SAFE");
             }
