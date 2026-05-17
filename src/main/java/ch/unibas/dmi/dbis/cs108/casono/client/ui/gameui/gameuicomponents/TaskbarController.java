@@ -9,11 +9,14 @@ import ch.unibas.dmi.dbis.cs108.casono.client.game.PlayerState;
 import ch.unibas.dmi.dbis.cs108.casono.client.network.LobbyClient;
 import ch.unibas.dmi.dbis.cs108.casono.client.ui.lobbyui.Casinomainui;
 import ch.unibas.dmi.dbis.cs108.casono.ui.sound.SoundManager;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
+import java.util.stream.Stream;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -92,6 +95,8 @@ public class TaskbarController {
     private int lastObservedIncrease = 0;
     private int lastRaiseIncrement = 0;
     private static final long REFRESH_DELAY_MS = 500;
+    private static final int MAX_SEARCH_DEPTH = 8;
+    private static final int DOWNLOAD_SEARCH_DEPTH = 5;
 
     /** Standard constructor. Used by FXML. */
     public TaskbarController() {
@@ -1839,6 +1844,70 @@ public class TaskbarController {
     }
 
     /**
+     * Searches for a file by traversing parent directories up to a stop folder and recursively
+     * scanning each level. Falls back to the user's Downloads folder.
+     */
+    private Path findFileUpAndDown(Path startDir, String fileName, String stopFolderName) {
+        Path current = startDir.toAbsolutePath();
+
+        while (current != null) {
+
+            Path found = searchDown(current, fileName, MAX_SEARCH_DEPTH);
+            if (found != null) {
+                return found;
+            }
+
+            Path currentName = current.getFileName();
+            if (currentName != null && currentName.toString().equalsIgnoreCase(stopFolderName)) {
+                break;
+            }
+
+            current = current.getParent();
+        }
+
+        Path downloads = Paths.get(System.getProperty("user.home"), "Downloads");
+
+        if (Files.exists(downloads)) {
+            return searchDown(downloads, fileName, DOWNLOAD_SEARCH_DEPTH);
+        }
+
+        return null;
+    }
+
+    /**
+     * Recursively searches for a file in subdirectories with a limited depth. Prevents deep or
+     * uncontrolled filesystem traversal using maxDepth.
+     */
+    private Path searchDown(Path dir, String fileName, int maxDepth) {
+        if (dir == null || maxDepth < 0 || !Files.isDirectory(dir)) {
+            return null;
+        }
+
+        try (Stream<Path> stream = Files.list(dir)) {
+
+            for (Path path : (Iterable<Path>) stream::iterator) {
+
+                if (Files.isRegularFile(path)
+                        && path.getFileName().toString().equalsIgnoreCase(fileName)) {
+                    return path;
+                }
+
+                if (Files.isDirectory(path)) {
+                    Path found = searchDown(path, fileName, maxDepth - 1);
+
+                    if (found != null) {
+                        return found;
+                    }
+                }
+            }
+
+        } catch (IOException ignored) {
+        }
+
+        return null;
+    }
+
+    /**
      * Opens the integrated Casono web browser.
      *
      * <p>once the content for strategies and support is available.
@@ -1846,16 +1915,17 @@ public class TaskbarController {
     @FXML
     private void onBrowserButtonClick() {
         SoundManager.getInstance().playButtonClick();
-        try {
-            Path path =
-                    Paths.get(
-                            System.getProperty("user.dir"),
-                            "documents",
-                            "docs",
-                            "game-engine",
-                            "manual.html");
 
-            CasinoBrowserController.open(path.toUri().toString());
+        try {
+            Path start = Paths.get(System.getProperty("user.dir"));
+
+            Path file = findFileUpAndDown(start, "manual.html", "Gruppe-13");
+
+            if (file == null) {
+                throw new IllegalStateException("manual.html not found");
+            }
+
+            CasinoBrowserController.open(file.toUri().toString());
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -1870,10 +1940,17 @@ public class TaskbarController {
     @FXML
     private void onBrowserButtonClickCasono() {
         SoundManager.getInstance().playButtonClick();
-        try {
-            Path path = Paths.get(System.getProperty("user.dir"), "outreach", "index.html");
 
-            CasinoBrowserController.open(path.toUri().toString());
+        try {
+            Path start = Paths.get(System.getProperty("user.dir"));
+
+            Path file = findFileUpAndDown(start, "index.html", "Gruppe-13");
+
+            if (file == null) {
+                throw new IllegalStateException("index.html not found");
+            }
+
+            CasinoBrowserController.open(file.toUri().toString());
 
         } catch (Exception e) {
             e.printStackTrace();
