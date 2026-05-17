@@ -42,4 +42,5 @@ None, as milestone 3 covered the assessment of individual technical understandin
 
 
 ## Milestone 6
-*(Meeting notes to be added here when available)*
+### [13. Mai 2026](13-05.md)
+- Discussion on possible auto-discovery feature; not implementing due to time constrains
