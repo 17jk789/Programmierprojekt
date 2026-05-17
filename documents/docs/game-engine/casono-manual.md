@@ -49,18 +49,19 @@
 
 # Start Game
 
+__Es wird Java 25 benötigt__
 ## Server starten
 
 ```bash
-./gradlew run --no-configuration-cache --args="server 1234"
+java -jar casono.jar server <listenport>
 ```
-
 ## Client starten
 
 ```bash
-./gradlew run --no-configuration-cache --args="client 127.0.0.1:1234 DeinName"
+java -jar casono.jar client <serverip>:<serverport> [username]
 ```
 
+__Die Parameter `<serverip>`, `<serverport>`, `<listenport>` und `[username]` müssen ersetzt werden__
 # UI
 
 ## Lobby UI
