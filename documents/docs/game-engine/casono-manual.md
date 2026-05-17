@@ -49,7 +49,7 @@
 
 # Start Game
 
-__Es wird Java 25 benötigt__
+ Es wird Java 25 benötigt
 ## Server starten
 
 ```bash
@@ -61,7 +61,8 @@ java -jar casono.jar server <listenport>
 java -jar casono.jar client <serverip>:<serverport> [username]
 ```
 
-__Die Parameter `<serverip>`, `<serverport>`, `<listenport>` und `[username]` müssen ersetzt werden__
+Die Parameter serverip, serverport, listenport und username müssen ersetzt werden
+
 # UI
 
 ## Lobby UI
