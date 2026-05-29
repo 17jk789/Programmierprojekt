@@ -1,3 +1,25 @@
+> [!IMPORTANT]
+> ## Programming Project (CS108)
+> 
+> - **Course:** Programmierprojekt (CS108)
+> - **Semester:** FS26
+> - **Institution:** University of Basel
+> - **Duration:** 18 February 2026 – 29 June 2026
+> - **Project Type:** Group Project
+> - **Project members:** Mathis Ginkel, Julian Kropff, Jona Walpert and me (Lars Winzer)
+> 
+> ### Topic
+> 
+> As part of the *Programming Project* course (CS108) for the semester FS26 at the University of Basel, we developed a computer game implementation of the popular card game Poker.
+> 
+> The project's focus was networking and distributed systems design. A key aspect of the implementation was the development and integration of a custom protocol specifically designed for client-server communication. This protocol handled game state synchronization, player actions, lobby and global chat functionality, and real-time updates across the network.
+> 
+> ### Contribution Context
+> 
+> This repository contains work created during the official duration of the course in collaboration with three other students.
+> 
+> Further information regarding individual contributions, repository state, synchronization status, and project ownership may be documented separately within this repository.
+
 <div align="center">
 <img src="documents/images/logo.png" alt="Game Logo" width="200"/>
 </div>
