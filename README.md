@@ -6,7 +6,7 @@
 > - **Institution:** University of Basel
 > - **Duration:** 18 February 2026 – 29 June 2026
 > - **Project Type:** Group Project
-> - **Project members:** Mathis Ginkel, Julian Kropff, Jona Walpert and me (Lars Winzer)
+> - **Project members:** Mathis Ginkel, Lars Winzer, Jona Walpert and me (Julian Kropff)
 > 
 > ### Topic
 > 
@@ -21,7 +21,7 @@
 > Further information regarding individual contributions, repository state, synchronization status, and project ownership may be documented separately within this repository.
 
 <div align="center">
-<img src="documents/images/logo.png" alt="Game Logo" width="200"/>
+<img src="documents/images/ads1.png" alt="Game Logo" width="800"/>
 </div>
 
 <br/>
@@ -30,7 +30,6 @@
 <h2>Syntax Syndicate</h2>
 <p>Jona • Mathis • Julian • Lars</p>
 </div>
-
 
 ## Table of Contents
 
@@ -41,6 +40,10 @@
 
 
 ## About the Project
+
+<div align="center">
+<img src="outreach/images/table_preview.png" alt="Game Logo" width="600"/>
+</div>
 
 As part of the Programming Project course (CS108) for the semester FS26 at the University of Basel, we are developing a computer game implementation of the popular card game **Poker**.
 
