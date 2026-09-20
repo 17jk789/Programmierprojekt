@@ -21,7 +21,7 @@
 > Further information regarding individual contributions, repository state, synchronization status, and project ownership may be documented separately within this repository.
 
 <div align="center">
-<img src="documents/images/ads1.png" alt="Game Logo" width="800"/>
+<img src="documents/images/ads1.jpg" alt="Game Logo" width="800"/>
 </div>
 
 <br/>
